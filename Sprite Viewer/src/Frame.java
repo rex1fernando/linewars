@@ -28,7 +28,8 @@ public class Frame extends JPanel {
 		this.add(new JLabel(icon));
 		file = new JLabel(new File(filePath).getName());
 		this.add(file);
-		time = new JTextField("  200");
+		time = new JTextField("200");
+		time.setColumns(10);
 		this.add(time);
 		
 	}
