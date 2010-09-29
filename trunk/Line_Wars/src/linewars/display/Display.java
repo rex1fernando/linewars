@@ -2,8 +2,10 @@ package linewars.display;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +113,9 @@ public class Display
 		
 		/**
 		 * Draws everything to the screen.
+		 * 
+		 * NOTE: We are assuming the game space is identical to the
+		 *       pixel space when drawing each frame.
 		 */
 		@Override
 		public void paint(Graphics g)
@@ -124,10 +129,16 @@ public class Display
 			Dimension visibleSize = new Dimension((int) (scale * mapSize.width), (int) (scale * mapSize.height));
 			Rectangle visibleScreen = new Rectangle(screenPosition, visibleSize);
 			
+			// double buffer implementation
+			Image buffer = new BufferedImage(visibleScreen.width, visibleScreen.height, BufferedImage.TYPE_INT_ARGB);
+			Graphics bufferedG = buffer.getGraphics();
+			
 			for (int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(g, gamestate, visibleScreen);
+				currentView.get(i).draw(bufferedG, gamestate, visibleScreen);
 			}
+			
+			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
 		}
 	}
 }
