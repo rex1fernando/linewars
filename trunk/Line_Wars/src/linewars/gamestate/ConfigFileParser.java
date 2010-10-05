@@ -21,7 +21,7 @@ public class ConfigFileParser {
 		while(file.hasNextLine())
 		{
 			Scanner line = new Scanner(file.nextLine());
-			String key = line.next();
+			String key = line.next().toLowerCase();
 			
 			//allow comments
 			if(key.charAt(0) == '#')
@@ -45,13 +45,13 @@ public class ConfigFileParser {
 	public String getStringValue(String key) throws NoSuchKeyException
 	{
 		checkKey(key);
-		return values.get(key);
+		return values.get(key.toLowerCase());
 	}
 	
 	public double getNumericValue(String key) throws NoSuchKeyException
 	{
 		checkKey(key);
-		return Double.parseDouble(values.get(key));
+		return Double.parseDouble(values.get(key.toLowerCase()));
 	}
 	
 	public String[] getList(String key) throws NoSuchKeyException
@@ -59,7 +59,7 @@ public class ConfigFileParser {
 		checkKey(key);
 		
 		ArrayList<String> list = new ArrayList<String>();
-		Scanner s = new Scanner(values.get(key));
+		Scanner s = new Scanner(values.get(key.toLowerCase()));
 		s.useDelimiter(",");
 		
 		while(s.hasNext())
@@ -70,7 +70,7 @@ public class ConfigFileParser {
 	
 	private void checkKey(String key) throws NoSuchKeyException
 	{
-		if(!values.containsKey(key))
+		if(!values.containsKey(key.toLowerCase()))
 			throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config file " + filepath);
 	}
 	
