@@ -3,8 +3,9 @@ package linewars.display;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +92,7 @@ public class Display
 		 * The (x,y) location of the upper left corner of the visible
 		 * screen.  This changes as the user pans around the game map.
 		 */
-		private Point screenPosition;
+		private Point2D screenPosition;
 		
 		
 		public GamePanel(JFrame parent)
@@ -108,7 +109,7 @@ public class Display
 			
 			// starts the user fully zoomed out
 			zoomLevel = 0;
-			screenPosition = new Point(0,0);
+			screenPosition = new Point2D.Double(0,0);
 		}
 		
 		/**
@@ -125,12 +126,14 @@ public class Display
 			
 			// calculates the visible screen size based off of the zoom level
 			double scale = zoomLevel / 100;
-			Dimension mapSize = gamestate.getMapSize();
-			Dimension visibleSize = new Dimension((int) (scale * mapSize.width), (int) (scale * mapSize.height));
-			Rectangle visibleScreen = new Rectangle(screenPosition, visibleSize);
+			Dimension2D mapSize = gamestate.getMapSize();
+			Dimension2D visibleSize = new Dimension();
+			visibleSize.setSize(scale * mapSize.getWidth(), scale * mapSize.getHeight());
+			Rectangle2D visibleScreen = new Rectangle2D.Double(screenPosition.getX(), screenPosition.getY(), visibleSize.getWidth(), visibleSize.getHeight());
+			
 			
 			// double buffer implementation
-			Image buffer = new BufferedImage(visibleScreen.width, visibleScreen.height, BufferedImage.TYPE_INT_ARGB);
+			Image buffer = new BufferedImage((int) visibleScreen.getWidth(), (int) visibleScreen.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics bufferedG = buffer.getGraphics();
 			
 			for (int i = 0; i < currentView.size(); i++)
@@ -139,6 +142,8 @@ public class Display
 			}
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
+			
+			// TODO draw the JPanels here
 		}
 	}
 }
