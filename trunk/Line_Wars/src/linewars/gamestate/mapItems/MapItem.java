@@ -4,10 +4,13 @@ import java.util.ArrayList;
 
 import linewars.gamestate.ConfigFileParser;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.abilities.Ability;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 public abstract class MapItem {
 	
-	//the position of this map item in map coordinates
+	//the position of this map item in map coordinates.
+	//THIS IS THE CENTER OF THE MAP ITEM
 	protected Position pos;
 	
 	//the rotation of this map item where 0 radians is facing directly right
@@ -18,38 +21,40 @@ public abstract class MapItem {
 	//the time at which the map item entered its state
 	private long stateStart;
 	
-	//the owner of this map item
-	protected Player owner;
-	
 	//all the current abilities active on this map item
-	private ArrayList<Ability> activeAbilities;
+	protected ArrayList<Ability> activeAbilities;
 	
 	//TODO add state variable for collision dection
 	
 	
-	public MapItem(Position p, double rot, Player owner)
+	public MapItem(Position p, double rot)
 	{
 		pos = p;
 		rotation = rot;
 		state = MapItemState.Idle;
 		stateStart = System.currentTimeMillis();
-		this.owner = owner;
 		
 		AbilityDefinition[] ads = this.getDefinition().getAbilityDefinitions();
 		for(AbilityDefinition ad : ads)
 		{
 			if(ad.startsActive())
-				this.addActiveAbility(ad);
+				this.addActiveAbility(ad.createAbility(this));
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected abstract MapItemDefinition getDefinition();
 	
-	public abstract void update();
-	
-	public void addActiveAbility(AbilityDefinition ad)
+	public void update()
 	{
-		activeAbilities.add(ad.createAbility(this));
+		for(int i = 0; i < activeAbilities.size(); i++)
+			if(!state.equals(MapItemState.Dead) || !activeAbilities.get(i).killable())
+				activeAbilities.get(i).update();
+	}
+	
+	public void addActiveAbility(Ability a)
+	{
+		activeAbilities.add(a);
 	}
 	
 	public Position getPosition()
@@ -88,9 +93,24 @@ public abstract class MapItem {
 			throw new IllegalStateException(m.toString() + " is not a valid state for a " + this.getDefinition().getName());
 	}
 	
+	public double getStateStartTime()
+	{
+		return stateStart;
+	}
+	
 	public ConfigFileParser getParser()
 	{
 		return this.getDefinition().getParser();
+	}
+	
+	public AbilityDefinition[] getAvailableAbilities()
+	{
+		return this.getDefinition().getAbilityDefinitions();
+	}
+	
+	public Player getOwner()
+	{
+		return this.getDefinition().getOwner();
 	}
 	
 	//TODO

@@ -1,5 +1,9 @@
 package linewars.gamestate.mapItems;
 
-public abstract class CombatStrategy {
+public interface CombatStrategy {
+	
+	public void setUnit(Unit u);
+	
+	public CombatStrategy copy();
 
 }

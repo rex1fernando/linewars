@@ -5,19 +5,21 @@ import java.util.ArrayList;
 
 import linewars.gamestate.ConfigFileParser;
 import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
-import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
-public abstract class MapItemDefinition<T extends MapItem> {
+public abstract class MapItemDefinition {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
 	private ConfigFileParser parser;
-	private ArrayList<AbilityDefinition> abilities;
+	protected ArrayList<AbilityDefinition> abilities;
+	private Player owner;
 	
-	public MapItemDefinition(String URI) throws FileNotFoundException, InvalidConfigFileException
+	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
 		parser = new ConfigFileParser(URI);
 		
+		this.owner = owner;
 		validStates = new ArrayList<MapItemState>();
 		String[] vs = parser.getList("validStates");
 		for(String s : vs)
@@ -30,7 +32,12 @@ public abstract class MapItemDefinition<T extends MapItem> {
 		{
 			vs = parser.getList("abilities");
 			for(String s : vs)
-				abilities.add(AbilityDefinition.createAbilityDefinition(s));
+			{
+				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(s, parser);
+				if(!ad.checkValidity(this))
+					throw new IllegalArgumentException(name + " cannot have ability " + ad.getName());
+				abilities.add(ad);
+			}
 		}
 		catch (ConfigFileParser.NoSuchKeyException e)
 		{}
@@ -56,6 +63,9 @@ public abstract class MapItemDefinition<T extends MapItem> {
 		return abilities.toArray(new AbilityDefinition[0]);
 	}
 	
-	public abstract T createMapItem(Position p, double rotation);
+	public Player getOwner()
+	{
+		return owner;
+	}
 	
 }

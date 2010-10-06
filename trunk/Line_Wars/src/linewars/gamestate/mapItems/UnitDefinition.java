@@ -5,24 +5,46 @@ import java.io.FileNotFoundException;
 import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
 import linewars.gamestate.Position;
 
-public class UnitDefinition extends MapItemDefinition<Unit> {
+public class UnitDefinition extends MapItemDefinition {
 	
 	private double maxHp;
+	private double maxRange;
+	
+	private CombatStrategy cStrat;
+	private MovementStrategy mStrat;
+	
+	//TODO add template variables for collision
 
-	public UnitDefinition(String URI) throws FileNotFoundException, InvalidConfigFileException {
-		super(URI);
-		// TODO Auto-generated constructor stub
+	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
+		super(URI, owner);
+		
+		maxHp = super.getParser().getNumericValue("maxHp");
+		maxRange = super.getParser().getNumericValue("range");
+		
+		String cs = super.getParser().getStringValue("combatStrategy");
+		//TODO convert string to combat strategy
+		
+		String ms = super.getParser().getStringValue("movementStrategy");
+		//TODO convert string to movement strategy
+		
+		//TODO parse collision from the file
 	}
 
-	@Override
-	public Unit createMapItem(Position p, double rotation) {
-		// TODO Auto-generated method stub
-		return null;
+	public Unit createUnit(Position p, double rotation) {
+		
+		Unit u = new Unit(p, rotation, this, mStrat.copy(), cStrat.copy());
+		
+		return u;
 	}
 	
 	public double getMaxHP()
 	{
 		return maxHp;
+	}
+	
+	public double getRange()
+	{
+		return maxRange;
 	}
 
 }

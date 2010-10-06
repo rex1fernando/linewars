@@ -1,8 +1,8 @@
 package linewars.gamestate.mapItems;
 
-import java.util.ArrayList;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.abilities.Ability;
 
 public class Unit extends MapItem {
 	
@@ -13,18 +13,14 @@ public class Unit extends MapItem {
 	
 	private double hp;
 
-	Unit(Position p, double rot, UnitDefinition def, Player owner, MovementStrategy ms, CombatStrategy cs) {
-		super(p, rot, owner);
+	Unit(Position p, double rot, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
+		super(p, rot);
 		definition = def;
 		hp = definition.getMaxHP();
 		mStrat = ms;
+		mStrat.setUnit(this);
 		cStrat = cs;
-	}
-
-	@Override
-	public void update() {
-		// TODO Auto-generated method stub
-		
+		cStrat.setUnit(this);
 	}
 	
 	public double getHP()
@@ -36,11 +32,33 @@ public class Unit extends MapItem {
 	{
 		return definition.getMaxHP();
 	}
+	
+	public double getRange()
+	{
+		return definition.getRange();
+	}
+	
+	public CombatStrategy getCombatStrategy()
+	{
+		return cStrat;
+	}
+	
+	public MovementStrategy getMovementStrategy()
+	{
+		return mStrat;
+	}
+	
+	public boolean finished()
+	{
+		for(Ability a : activeAbilities)
+			if(!a.killable())
+				return false;
+		return true;
+	}
 
 	@Override
 	protected MapItemDefinition getDefinition() {
-		// TODO Auto-generated method stub
-		return null;
+		return definition;
 	}
 
 }
