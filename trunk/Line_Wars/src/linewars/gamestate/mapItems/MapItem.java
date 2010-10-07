@@ -6,6 +6,7 @@ import linewars.gamestate.ConfigFileParser;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 
 public abstract class MapItem {
 	
@@ -113,10 +114,20 @@ public abstract class MapItem {
 		return this.getDefinition().getOwner();
 	}
 	
+	public abstract CollisionStrategy getCollisionStrategy();
+	
 	//TODO
 	public boolean isCollidingWith(MapItem m)
 	{
+		if(!this.getCollisionStrategy().canCollideWith(m))
+			return false;
+		
 		return false;
+	}
+	
+	public String getURI()
+	{
+		return this.getDefinition().getParser().getURI();
 	}
 
 }

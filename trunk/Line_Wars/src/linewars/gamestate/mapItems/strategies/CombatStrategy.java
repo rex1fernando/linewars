@@ -1,4 +1,6 @@
-package linewars.gamestate.mapItems;
+package linewars.gamestate.mapItems.strategies;
+
+import linewars.gamestate.mapItems.Unit;
 
 public interface CombatStrategy {
 	

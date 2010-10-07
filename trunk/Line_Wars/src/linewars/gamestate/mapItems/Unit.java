@@ -3,6 +3,9 @@ package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.abilities.Ability;
+import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.MovementStrategy;
 
 public class Unit extends MapItem {
 	
@@ -59,6 +62,11 @@ public class Unit extends MapItem {
 	@Override
 	protected MapItemDefinition getDefinition() {
 		return definition;
+	}
+
+	@Override
+	public CollisionStrategy getCollisionStrategy() {
+		return definition.getCollisionStrategy();
 	}
 
 }

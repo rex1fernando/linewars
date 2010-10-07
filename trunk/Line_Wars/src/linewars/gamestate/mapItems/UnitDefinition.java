@@ -3,6 +3,8 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
+import linewars.gamestate.mapItems.strategies.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.MovementStrategy;
 import linewars.gamestate.Position;
 
 public class UnitDefinition extends MapItemDefinition {

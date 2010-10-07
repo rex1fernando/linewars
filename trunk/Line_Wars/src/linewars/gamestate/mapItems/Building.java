@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 
 public class Building extends MapItem {
 	
@@ -21,6 +22,11 @@ public class Building extends MapItem {
 	public Node getNode()
 	{
 		return node;
+	}
+
+	@Override
+	public CollisionStrategy getCollisionStrategy() {
+		return definition.getCollisionStrategy();
 	}
 
 }

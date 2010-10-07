@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import linewars.gamestate.ConfigFileParser;
 import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 
 public abstract class MapItemDefinition {
 	
@@ -14,6 +15,7 @@ public abstract class MapItemDefinition {
 	private ConfigFileParser parser;
 	protected ArrayList<AbilityDefinition> abilities;
 	private Player owner;
+	private CollisionStrategy cStrat;
 	
 	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
@@ -41,6 +43,20 @@ public abstract class MapItemDefinition {
 		}
 		catch (ConfigFileParser.NoSuchKeyException e)
 		{}
+		
+		try
+		{
+			//TODO convert string to collision strategy
+			String strat = parser.getStringValue("collisionStrategy");
+		}
+		catch(ConfigFileParser.NoSuchKeyException e)
+		{
+			//TODO set collision strat to some default value
+		}
+		
+		//check to make sure this is a valid strat for this definition
+		if(!cStrat.isValidMapItem(this))
+			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
 	}
 
 	public boolean isValidState(MapItemState m)
@@ -66,6 +82,11 @@ public abstract class MapItemDefinition {
 	public Player getOwner()
 	{
 		return owner;
+	}
+	
+	public CollisionStrategy getCollisionStrategy()
+	{
+		return cStrat;
 	}
 	
 }
