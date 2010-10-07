@@ -2,12 +2,13 @@ package linewars.display;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+
+import linewars.gamestate.Position;
 
 /**
  * Encapsulates the drawing of images.
@@ -78,7 +79,7 @@ public class MapItemDrawer
 	 * @param position
 	 *            The position to draw the image.
 	 */
-	public void draw(Graphics g, String uri, Point2D position)
+	public void draw(Graphics g, String uri, Position position)
 	{
 		Image image = images.get(uri);
 		g.drawImage(image, (int) position.getY(), (int) position.getY(), null);

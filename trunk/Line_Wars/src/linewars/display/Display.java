@@ -3,6 +3,8 @@ package linewars.display;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -15,11 +17,17 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import linewars.display.layers.ILayer;
+import linewars.display.layers.MapItemLayer;
+import linewars.display.layers.MapItemLayer.MapItemType;
+import linewars.display.panels.CommandCardPanel;
+import linewars.display.panels.ExitButtonPanel;
+import linewars.display.panels.NodeStatusPanel;
+import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gamestate.GameState;
 import linewars.gamestate.GameStateManager;
 
 /**
- * TODO add class javadoc
+ * Encapsulates the display information.
  * 
  * @author Titus Klinge
  * @author Ryan Tew
@@ -30,7 +38,10 @@ public class Display
 	 * The threshold when zooming out where the view switches
 	 * from tactical view to strategic view and vice versa.
 	 */
-	private static final double ZOOM_THRESHOLD = 20;
+	private static final double ZOOM_THRESHOLD = 0.80;
+	
+	private static final double MAX_ZOOM = 0.01;
+	private static final double MIN_ZOOM = 1.0;
 	
 	/**
 	 * The entry point for the program.
@@ -61,7 +72,8 @@ public class Display
 				GamePanel panel = new GamePanel(f);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
-				// f.setUndecorated(true);
+				f.setSize(new Dimension(800, 600));
+				f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -94,22 +106,37 @@ public class Display
 		 */
 		private Point2D screenPosition;
 		
+		private CommandCardPanel commandCardPanel;
+		private ExitButtonPanel exitButtonPanel;
+		private ResourceDisplayPanel resourceDisplayPanel;
+		private NodeStatusPanel nodeStatusPanel;
 		
 		public GamePanel(JFrame parent)
 		{
 			this.parent = parent;
 			
 			strategicView = new ArrayList<ILayer>(2);
-			// TODO add terrain and graph layers to list
-			
 			tacticalView = new ArrayList<ILayer>();
-			// TODO add tactical layers to list (terrain layer and units, building, etc.)
+			tacticalView.add(new MapItemLayer(MapItemType.BUILDING));
+			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
+			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));
 			
 			stateManager = new GameStateManager();
 			
 			// starts the user fully zoomed out
-			zoomLevel = 0;
+			zoomLevel = 1;
 			screenPosition = new Point2D.Double(0,0);
+			
+			commandCardPanel = new CommandCardPanel(stateManager, null, null, null);
+			add(commandCardPanel);
+			exitButtonPanel = new ExitButtonPanel(stateManager, null, null, null);
+			add(exitButtonPanel);
+			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
+			add(resourceDisplayPanel);
+			nodeStatusPanel = new NodeStatusPanel(stateManager, null, null, null);
+			add(nodeStatusPanel);
+			
+			addComponentListener(new ResizeListener());
 		}
 		
 		/**
@@ -125,10 +152,9 @@ public class Display
 			List<ILayer> currentView = (zoomLevel <= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 			
 			// calculates the visible screen size based off of the zoom level
-			double scale = zoomLevel / 100;
 			Dimension2D mapSize = gamestate.getMapSize();
 			Dimension2D visibleSize = new Dimension();
-			visibleSize.setSize(scale * mapSize.getWidth(), scale * mapSize.getHeight());
+			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
 			Rectangle2D visibleScreen = new Rectangle2D.Double(screenPosition.getX(), screenPosition.getY(), visibleSize.getWidth(), visibleSize.getHeight());
 			
 			
@@ -143,7 +169,19 @@ public class Display
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
 			
-			// TODO draw the JPanels here
+			super.paint(g);
+		}
+		
+		private class ResizeListener extends ComponentAdapter
+		{
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				commandCardPanel.updateLocation();
+				exitButtonPanel.updateLocation();
+				nodeStatusPanel.updateLocation();
+				resourceDisplayPanel.updateLocation();
+			}
 		}
 	}
 }

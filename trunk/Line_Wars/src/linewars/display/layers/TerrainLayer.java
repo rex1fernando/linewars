@@ -10,8 +10,7 @@ public class TerrainLayer implements ILayer {
 	@Override
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen)
 	{
-		// TODO Auto-generated method stub
-		
+		// String uri = gamestate.getMap();
+		// MapItemDrawer.getInstance().draw(g, uri, pos(0,0));
 	}
-
 }

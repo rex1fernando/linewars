@@ -6,6 +6,6 @@ public class GameStateManager
 	
 	public GameState getDisplayGameState()
 	{
-		return null;
+		return new GameState();
 	}
 }

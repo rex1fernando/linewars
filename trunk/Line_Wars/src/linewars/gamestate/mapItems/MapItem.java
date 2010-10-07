@@ -14,6 +14,9 @@ public abstract class MapItem {
 	//THIS IS THE CENTER OF THE MAP ITEM
 	protected Position pos;
 	
+	// the dimensions of the map item
+	protected double width, height;
+	
 	//the rotation of this map item where 0 radians is facing directly right
 	protected double rotation;
 	
@@ -68,9 +71,29 @@ public abstract class MapItem {
 		return rotation;
 	}
 	
+	public double getWidth()
+	{
+		return width;
+	}
+	
+	public double getHeight()
+	{
+		return height;
+	}
+	
 	public void setPosition(Position p)
 	{
 		pos = p;
+	}
+	
+	public void setWidth(double w)
+	{
+		width = w;
+	}
+	
+	public void setHeight(double h)
+	{
+		height = h;
 	}
 	
 	public void setRotation(double rot)
