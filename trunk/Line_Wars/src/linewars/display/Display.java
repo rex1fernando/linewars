@@ -129,7 +129,7 @@ public class Display
 			
 			commandCardPanel = new CommandCardPanel(stateManager, null, null, null);
 			add(commandCardPanel);
-			exitButtonPanel = new ExitButtonPanel(stateManager, null, null, null);
+			exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
 			add(exitButtonPanel);
 			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
 			add(resourceDisplayPanel);

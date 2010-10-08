@@ -5,9 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import linewars.display.Animation;
+import linewars.display.Display;
 import linewars.gamestate.GameStateManager;
 
 public class ExitButtonPanel extends Panel
@@ -17,11 +19,14 @@ public class ExitButtonPanel extends Panel
 	private static final double WIDTH = 0.06;
 	private static final double HEIGHT = 0.04;
 	
+	private JFrame frame;
 	private JButton exitButton;
 	
-	public ExitButtonPanel(GameStateManager stateManager, Animation ... anims)
+	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Animation ... anims)
 	{
 		super(stateManager, X_POS, Y_POS, WIDTH, HEIGHT, anims);
+		
+		this.frame = frame;
 		
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
@@ -42,7 +47,7 @@ public class ExitButtonPanel extends Panel
 				
 				if (n == JOptionPane.YES_OPTION)
 				{
-					System.exit(0);
+					ExitButtonPanel.this.frame.dispose();
 				}
 			}
 		});
