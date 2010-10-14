@@ -1,12 +1,13 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.gamestate.ConfigFileParser;
+
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.parser.Parser;
 
 public abstract class AbilityDefinition {
 	
-	public static AbilityDefinition createAbilityDefinition(String name, ConfigFileParser parser)
+	public static AbilityDefinition createAbilityDefinition(String name, Parser parser)
 	{
 		return null;
 	}

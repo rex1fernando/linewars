@@ -2,14 +2,13 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
-import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 
 public class CommandCenterDefinition extends BuildingDefinition {
 
 	public CommandCenterDefinition(String URI, Player owner)
-			throws FileNotFoundException, InvalidConfigFileException {
+			throws FileNotFoundException {
 		super(URI, owner);
 		abilities.clear();
 		

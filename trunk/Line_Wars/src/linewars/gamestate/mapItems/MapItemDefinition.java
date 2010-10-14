@@ -3,36 +3,39 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import linewars.gamestate.ConfigFileParser;
-import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
+
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
 
 public abstract class MapItemDefinition {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
-	private ConfigFileParser parser;
+	private Parser parser;
 	protected ArrayList<AbilityDefinition> abilities;
 	private Player owner;
 	private CollisionStrategy cStrat;
 	
-	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
+	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException
 	{
-		parser = new ConfigFileParser(URI);
+		//TODO ask the player for the parser
+//		parser = new ConfigFileParser(URI);
 		
 		this.owner = owner;
 		validStates = new ArrayList<MapItemState>();
-		String[] vs = parser.getList("validStates");
+		String[] vs = parser.getList(ParserKeys.ValidStates);
 		for(String s : vs)
 			validStates.add(MapItemState.valueOf(s));
 		
-		name = parser.getStringValue("name");
+		name = parser.getStringValue(ParserKeys.name);
 		
 		abilities = new ArrayList<AbilityDefinition>();
 		try
 		{
-			vs = parser.getList("abilities");
+			//TODO
+//			vs = parser.getList("abilities");
 			for(String s : vs)
 			{
 				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(s, parser);
@@ -41,15 +44,15 @@ public abstract class MapItemDefinition {
 				abilities.add(ad);
 			}
 		}
-		catch (ConfigFileParser.NoSuchKeyException e)
+		catch (Parser.NoSuchKeyException e)
 		{}
 		
 		try
 		{
 			//TODO convert string to collision strategy
-			String strat = parser.getStringValue("collisionStrategy");
+//			String strat = parser.getStringValue("collisionStrategy");
 		}
-		catch(ConfigFileParser.NoSuchKeyException e)
+		catch(Parser.NoSuchKeyException e)
 		{
 			//TODO set collision strat to some default value
 		}
@@ -69,7 +72,7 @@ public abstract class MapItemDefinition {
 		return name;
 	}
 	
-	public ConfigFileParser getParser()
+	public Parser getParser()
 	{
 		return parser;
 	}

@@ -2,11 +2,11 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
-import linewars.gamestate.ConfigFileParser;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.parser.Parser;
 
 public abstract class MapItem {
 	
@@ -46,7 +46,6 @@ public abstract class MapItem {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	protected abstract MapItemDefinition getDefinition();
 	
 	public void update()
@@ -122,7 +121,7 @@ public abstract class MapItem {
 		return stateStart;
 	}
 	
-	public ConfigFileParser getParser()
+	public Parser getParser()
 	{
 		return this.getDefinition().getParser();
 	}
@@ -150,7 +149,7 @@ public abstract class MapItem {
 	
 	public String getURI()
 	{
-		return this.getDefinition().getParser().getURI();
+		return this.getDefinition().getParser().getConfigFile().getURI();
 	}
 
 }

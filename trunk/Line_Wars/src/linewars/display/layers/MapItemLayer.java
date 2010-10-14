@@ -32,7 +32,8 @@ public class MapItemLayer implements ILayer
 			
 			if (visibleScreen.intersects(rect))
 			{
-				String uri = mapItem.getParser().getURI();
+				//TODO I fixed this line when I updated how the parser works -Connor
+				String uri = mapItem.getParser().getConfigFile().getURI();
 				MapItemDrawer.getInstance().draw(g, uri, pos);
 			}
 		}

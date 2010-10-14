@@ -2,10 +2,10 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
-import linewars.gamestate.ConfigFileParser.InvalidConfigFileException;
 import linewars.gamestate.mapItems.strategies.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.MovementStrategy;
 import linewars.gamestate.Position;
+import linewars.parser.ParserKeys;
 
 public class UnitDefinition extends MapItemDefinition {
 	
@@ -17,16 +17,15 @@ public class UnitDefinition extends MapItemDefinition {
 	
 	//TODO add template variables for collision
 
-	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
+	public UnitDefinition(String URI, Player owner) throws FileNotFoundException {
 		super(URI, owner);
 		
-		maxHp = super.getParser().getNumericValue("maxHp");
-		maxRange = super.getParser().getNumericValue("range");
+		maxHp = super.getParser().getNumericValue(ParserKeys.maxHP);
 		
-		String cs = super.getParser().getStringValue("combatStrategy");
+//		String cs = super.getParser().getStringValue("combatStrategy");
 		//TODO convert string to combat strategy
 		
-		String ms = super.getParser().getStringValue("movementStrategy");
+//		String ms = super.getParser().getStringValue("movementStrategy");
 		//TODO convert string to movement strategy
 		
 		//TODO parse collision from the file
