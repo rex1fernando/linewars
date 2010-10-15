@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import linewars.gamestate.mapItems.strategies.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.MovementStrategy;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.parser.ParserKeys;
 

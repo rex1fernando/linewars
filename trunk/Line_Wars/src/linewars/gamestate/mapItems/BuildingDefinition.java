@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.parser.ParserKeys;
 

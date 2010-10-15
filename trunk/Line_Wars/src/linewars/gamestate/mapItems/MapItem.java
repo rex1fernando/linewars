@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
