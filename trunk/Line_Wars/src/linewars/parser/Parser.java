@@ -20,6 +20,11 @@ public class Parser {
 		while(configFile.hasNextLine())
 		{
 			Scanner line = new Scanner(configFile.nextLine());
+			
+			//if the line is empty
+			if(!line.hasNext())
+				continue;
+			
 			String key = line.next().toLowerCase();
 			
 			//allow comments
