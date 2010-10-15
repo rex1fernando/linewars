@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Parser {
 
-	private HashMap<ParserKeys, Value> values;
+	private HashMap<String, Value> values;
 	private ConfigFile configFile;
 	private int startLine;
 	private int endLine;
@@ -15,7 +15,7 @@ public class Parser {
 	{
 		configFile = cFile;
 		startLine = cFile.nextLineNumber();
-		values = new HashMap<ParserKeys, Value>();
+		values = new HashMap<String, Value>();
 		
 		while(configFile.hasNextLine())
 		{
@@ -35,7 +35,7 @@ public class Parser {
 			
 			String value = line.nextLine().trim();
 			
-			values.put(ParserKeys.valueOf(key), new Value(value));	
+			values.put(key, new Value(value));	
 		}
 		
 		endLine = configFile.nextLineNumber() - 1;
@@ -73,9 +73,52 @@ public class Parser {
 		return values.get(key).parser;
 	}
 	
+	@Deprecated
+	public String getStringValue(String key) throws NoSuchKeyException
+	{
+		checkKey(key);
+		return values.get(key).value;
+	}
+	
+	@Deprecated
+	public double getNumericValue(String key) throws NoSuchKeyException
+	{
+		checkKey(key);
+		return Double.parseDouble(values.get(key).value);
+	}
+	
+	@Deprecated
+	public String[] getList(String key) throws NoSuchKeyException
+	{
+		checkKey(key);
+		
+		ArrayList<String> list = new ArrayList<String>();
+		Scanner s = new Scanner(values.get(key).value);
+		s.useDelimiter(",");
+		
+		while(s.hasNext())
+			list.add(s.next());
+		
+		return list.toArray(new String[0]);
+	}
+	
+	@Deprecated
+	public Parser getParser(String key) throws NoSuchKeyException
+	{
+		checkKey(key);
+		return values.get(key).parser;
+	}
+	
 	public ConfigFile getConfigFile()
 	{
 		return configFile;
+	}
+	
+	private void checkKey(String key) throws NoSuchKeyException
+	{
+		if(!values.containsKey(key))
+			throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config file " + configFile.getURI() + 
+					" from line " + startLine + " to " + endLine);
 	}
 	
 	private void checkKey(ParserKeys key) throws NoSuchKeyException
