@@ -2,14 +2,21 @@ package linewars.gamestate.mapItems;
 
 public class Player {
 
+	int stuffAmount;
+	ArrayList<Node> ownedNodes;
+	HashMap<Node, Double> flowDist;
+	BuildingDefinition[] buildingDefs;
+	UnitDefinition[] unitDefs;
+	Tech[] techLevels;
+	
 	public BuildingDefinition[] getBuildingDefintions()
 	{
-		return null;
+		return buildingDefs;
 	}
 	
 	public Tech[] getTech()
 	{
-		return null;
+		return techLevels;
 	}
 	
 }
