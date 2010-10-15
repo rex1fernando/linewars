@@ -1,8 +1,8 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.gamestate.Tech;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
-import linewars.gamestate.mapItems.Tech;
 
 public class ResearchTechDefinition extends AbilityDefinition {
 	

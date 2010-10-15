@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
+import linewars.gamestate.Tech;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 
