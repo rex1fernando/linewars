@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 public abstract class MapItemDefinition {
 	
@@ -19,10 +21,9 @@ public abstract class MapItemDefinition {
 	private Player owner;
 	private CollisionStrategy cStrat;
 	
-	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException
+	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
-		//TODO ask the player for the parser
-//		parser = new ConfigFileParser(URI);
+		parser = new Parser(new ConfigFile(URI));
 		
 		this.owner = owner;
 		validStates = new ArrayList<MapItemState>();
@@ -35,13 +36,10 @@ public abstract class MapItemDefinition {
 		abilities = new ArrayList<AbilityDefinition>();
 		try
 		{
-			//TODO
-//			vs = parser.getList("abilities");
+			vs = parser.getList(ParserKeys.abilities);
 			for(String s : vs)
 			{
-				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(s, parser);
-				if(!ad.checkValidity(this))
-					throw new IllegalArgumentException(name + " cannot have ability " + ad.getName());
+				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(parser.getParser(s), this);
 				abilities.add(ad);
 			}
 		}
