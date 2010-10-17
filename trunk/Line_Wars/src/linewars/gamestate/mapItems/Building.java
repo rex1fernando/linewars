@@ -1,6 +1,6 @@
 package linewars.gamestate.mapItems;
 
-import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 
 public class Building extends MapItem {
@@ -8,8 +8,8 @@ public class Building extends MapItem {
 	private BuildingDefinition definition;
 	private Node node;
 
-	public Building(Position p, double rot, BuildingDefinition def, Node n) {
-		super(p, rot);
+	public Building(Transformation t, BuildingDefinition def, Node n) {
+		super(t);
 		definition = def;
 		node = n;
 	}

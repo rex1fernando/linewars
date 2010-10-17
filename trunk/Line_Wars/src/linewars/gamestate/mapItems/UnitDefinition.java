@@ -6,6 +6,8 @@ import linewars.gamestate.mapItems.strategies.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.MovementStrategy;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
+import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
 public class UnitDefinition extends MapItemDefinition {
@@ -18,7 +20,7 @@ public class UnitDefinition extends MapItemDefinition {
 	
 	//TODO add template variables for collision
 
-	public UnitDefinition(String URI, Player owner) throws FileNotFoundException {
+	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
 		
 		maxHp = super.getParser().getNumericValue(ParserKeys.maxHP);
@@ -32,9 +34,9 @@ public class UnitDefinition extends MapItemDefinition {
 		//TODO parse collision from the file
 	}
 
-	public Unit createUnit(Position p, double rotation) {
+	public Unit createUnit(Transformation t) {
 		
-		Unit u = new Unit(p, rotation, this, mStrat.copy(), cStrat.copy());
+		Unit u = new Unit(t, this, mStrat.copy(), cStrat.copy());
 		
 		return u;
 	}

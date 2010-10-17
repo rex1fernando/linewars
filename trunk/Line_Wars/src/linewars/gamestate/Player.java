@@ -1,6 +1,7 @@
 package linewars.gamestate;
 import java.util.*;
 import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.UnitDefinition;
 import java.util.*;
@@ -43,6 +44,29 @@ public class Player {
 	public Tech[] getTech()
 	{
 		return techLevels;
+	}
+	
+	//TODO implement addMapItem
+	/**
+	 * adds the given mapItem to the player's master list of owned items
+	 * 
+	 * @param m	the mapItem to add
+	 */
+	public void addMapItem(MapItem m)
+	{
+		
+	}
+	
+	//TODO implement spendStuff
+	/**
+	 * spends the given amount of stuff, throws and exception if there
+	 * isn't enough stuff left to spend
+	 * 
+	 * @param amount	the amount of stuff to spend
+	 */
+	public void spendStuff(double amount)
+	{
+		
 	}
 	
 }

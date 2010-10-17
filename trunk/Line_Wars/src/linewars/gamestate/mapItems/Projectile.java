@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.ImpactStrategy;
 
@@ -10,8 +11,8 @@ public class Projectile extends MapItem {
 	private CollisionStrategy cStrat;
 	private ImpactStrategy iStrat;
 	
-	public Projectile(Position p, double rot, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is) {
-		super(p, rot);
+	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is) {
+		super(t);
 		definition = def;
 		cStrat = cs.createInstanceOf(this);
 		iStrat = is.createInstanceOf(this);
@@ -21,8 +22,8 @@ public class Projectile extends MapItem {
 	public void move()
 	{
 		double v = definition.getVelocity();
-		double r = this.rotation;
-		Position change = this.pos.add(v*Math.sin(r), v*Math.cos(r));
+		double r = this.getRotation();
+		Position change = this.getPosition().add(v*Math.sin(r), v*Math.cos(r));
 		
 		//TODO some method for checking for collisions from the current
 		//position to the new position

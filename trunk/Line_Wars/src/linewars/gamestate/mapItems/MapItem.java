@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
@@ -11,15 +12,13 @@ import linewars.parser.Parser;
 
 public abstract class MapItem {
 	
-	//the position of this map item in map coordinates.
+	//the position of this map item in map coordinates
+	//and the rotation of this map item where 0 radians is facing directly right
 	//THIS IS THE CENTER OF THE MAP ITEM
-	protected Position pos;
+	protected Transformation transformation;
 	
 	// the dimensions of the map item
 	protected double width, height;
-	
-	//the rotation of this map item where 0 radians is facing directly right
-	protected double rotation;
 	
 	//the state of the map item
 	private MapItemState state;
@@ -32,28 +31,31 @@ public abstract class MapItem {
 	//TODO add state variable for collision dection
 	
 	
-	public MapItem(Position p, double rot)
+	public MapItem(Transformation trans)
 	{
-		pos = p;
-		rotation = rot;
+		transformation = trans;
 		state = MapItemState.Idle;
 		stateStart = System.currentTimeMillis();
-		
-		AbilityDefinition[] ads = this.getDefinition().getAbilityDefinitions();
-		for(AbilityDefinition ad : ads)
-		{
-			if(ad.startsActive())
-				this.addActiveAbility(ad.createAbility(this));
-		}
 	}
 	
 	protected abstract MapItemDefinition getDefinition();
 	
 	public void update()
 	{
-		for(int i = 0; i < activeAbilities.size(); i++)
+		for(int i = 0; i < activeAbilities.size();)
+		{
+			//only update this ability if the mapItem isn't dead or if the
+			//ability isn't killable
 			if(!state.equals(MapItemState.Dead) || !activeAbilities.get(i).killable())
 				activeAbilities.get(i).update();
+			
+			//remove finished abilities
+			if(activeAbilities.get(i).finished())
+				activeAbilities.remove(i);
+			else
+				i++;
+					
+		}
 	}
 	
 	public void addActiveAbility(Ability a)
@@ -63,12 +65,17 @@ public abstract class MapItem {
 	
 	public Position getPosition()
 	{
-		return pos;
+		return transformation.getPosition();
 	}
 	
 	public double getRotation()
 	{
-		return rotation;
+		return transformation.getRotation();
+	}
+	
+	public Transformation getTransformation()
+	{
+		return transformation;
 	}
 	
 	public double getWidth()
@@ -83,7 +90,7 @@ public abstract class MapItem {
 	
 	public void setPosition(Position p)
 	{
-		pos = p;
+		transformation = new Transformation(p, transformation.getRotation());
 	}
 	
 	public void setWidth(double w)
@@ -98,7 +105,12 @@ public abstract class MapItem {
 	
 	public void setRotation(double rot)
 	{
-		rotation = rot;
+		transformation = new Transformation(transformation.getPosition(), rot);
+	}
+	
+	public void setTransformation(Transformation t)
+	{
+		transformation = t;
 	}
 	
 	public MapItemState getState()
@@ -139,7 +151,12 @@ public abstract class MapItem {
 	
 	public abstract CollisionStrategy getCollisionStrategy();
 	
-	//TODO
+	public String getName()
+	{
+		return this.getDefinition().getName();
+	}
+	
+	//TODO implement colliding with method
 	public boolean isCollidingWith(MapItem m)
 	{
 		if(!this.getCollisionStrategy().canCollideWith(m))

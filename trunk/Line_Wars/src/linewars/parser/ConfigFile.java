@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 public class ConfigFile  {
 	
+	//TODO figure out how to find where the relative filepath is (i.e. the "data" folder)
+	
 	private String filepath;
 	private Scanner file;
 	private int nextLine;

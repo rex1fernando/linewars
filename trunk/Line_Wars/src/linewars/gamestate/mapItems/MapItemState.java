@@ -1,5 +1,5 @@
 package linewars.gamestate.mapItems;
 
 public enum MapItemState {
-	Idle, Dead
+	Idle, Dead, Constructing, Active
 }

@@ -119,6 +119,21 @@ public class Parser {
 		return configFile;
 	}
 	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Parser)
+		{
+			Parser p = (Parser) o;
+			boolean ret = configFile.getURI().equals(p.getConfigFile().getURI());
+			ret &= startLine == p.startLine;
+			ret &= endLine == p.endLine;
+			return ret;
+		}
+		else
+			return false;
+	}
+	
 	private void checkKey(String key) throws NoSuchKeyException
 	{
 		if(!values.containsKey(key))

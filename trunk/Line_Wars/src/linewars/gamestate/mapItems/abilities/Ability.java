@@ -5,5 +5,7 @@ public interface Ability {
 	public void update();
 	
 	public boolean killable();
+	
+	public boolean finished();
 
 }

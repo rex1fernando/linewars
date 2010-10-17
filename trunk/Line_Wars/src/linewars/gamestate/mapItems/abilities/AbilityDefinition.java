@@ -9,7 +9,7 @@ public abstract class AbilityDefinition {
 	
 	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m)
 	{
-		//TODO
+		//TODO create the ability definition
 		AbilityDefinition ad = null;
 		
 		if(!ad.checkValidity())
@@ -17,13 +17,13 @@ public abstract class AbilityDefinition {
 		return null;
 	}
 	
+	protected MapItemDefinition owner = null;
+	
 	public abstract boolean checkValidity();
 	
 	public abstract boolean startsActive();
 	
 	public abstract Ability createAbility(MapItem m);
-	
-	public abstract int instancesOf();
 	
 	public abstract boolean unlocked();
 	

@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems;
 
 
-import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.CombatStrategy;
@@ -16,8 +16,8 @@ public class Unit extends MapItem {
 	
 	private double hp;
 
-	Unit(Position p, double rot, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
-		super(p, rot);
+	Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
+		super(t);
 		definition = def;
 		hp = definition.getMaxHP();
 		mStrat = ms;

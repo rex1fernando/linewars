@@ -3,26 +3,27 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
-import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.Immovable;
 import linewars.gamestate.mapItems.strategies.NoCombat;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 public class GateDefinition extends UnitDefinition {
 
 	public GateDefinition(String URI, Player owner)
-			throws FileNotFoundException {
+			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
 	}
 	
 	@Override
-	public Unit createUnit(Position p, double rotation)
+	public Unit createUnit(Transformation t)
 	{
-		return createGate(p, rotation);
+		return createGate(t);
 	}
 	
-	public Gate createGate(Position p, double rotation)
+	public Gate createGate(Transformation t)
 	{
-		return new Gate(p, rotation, this, new Immovable(), new NoCombat());
+		return new Gate(t, this, new Immovable(), new NoCombat());
 	}
 
 }

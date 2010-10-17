@@ -91,4 +91,15 @@ public abstract class MapItemDefinition {
 		return cStrat;
 	}
 	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof MapItemDefinition)
+		{
+			return parser.equals(((MapItemDefinition)o).getParser());			
+		}
+		else
+			return false;
+	}
+	
 }

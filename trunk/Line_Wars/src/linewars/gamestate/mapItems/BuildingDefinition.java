@@ -3,7 +3,8 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
-import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
+import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
 public class BuildingDefinition extends MapItemDefinition {
@@ -12,14 +13,14 @@ public class BuildingDefinition extends MapItemDefinition {
 	private double buildTime;
 
 	public BuildingDefinition(String URI, Player owner)
-			throws FileNotFoundException {
+			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
 		cost = super.getParser().getNumericValue(ParserKeys.cost);
 		buildTime = super.getParser().getNumericValue(ParserKeys.buildTime);
 	}
 
-	public Building createBuilding(Position p, double rotation, Node n) {
-		return new Building(p, rotation, this, n);
+	public Building createBuilding(Transformation t, Node n) {
+		return new Building(t, this, n);
 	}
 	
 	public double getCost()

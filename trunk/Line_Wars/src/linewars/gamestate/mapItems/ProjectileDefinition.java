@@ -3,8 +3,9 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
-import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.ImpactStrategy;
+import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
 public abstract class ProjectileDefinition extends MapItemDefinition {
@@ -13,7 +14,7 @@ public abstract class ProjectileDefinition extends MapItemDefinition {
 	private ImpactStrategy iStrat;
 
 	public ProjectileDefinition(String URI, Player owner)
-			throws FileNotFoundException {
+			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
 		
 		velocity = super.getParser().getNumericValue(ParserKeys.velocity);
@@ -27,9 +28,9 @@ public abstract class ProjectileDefinition extends MapItemDefinition {
 		return velocity;
 	}
 	
-	public Projectile createProjectile(Position p, double rotation)
+	public Projectile createProjectile(Transformation t)
 	{
-		return new Projectile(p, rotation, this, this.getCollisionStrategy(), iStrat);
+		return new Projectile(t, this, this.getCollisionStrategy(), iStrat);
 	}
 
 }

@@ -1,0 +1,37 @@
+package linewars.gamestate;
+
+public class Transformation {
+	
+	private Position pos;
+	//in radians
+	private double rotation;
+	
+	public Transformation(Position p, double rot)
+	{
+		pos = p;
+		rotation = rot;
+	}
+	
+	public Position getPosition()
+	{
+		return pos;
+	}
+	
+	public double getRotation()
+	{
+		return rotation;
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Transformation)
+		{
+			return pos.equals(((Transformation)o)) && 
+				Double.compare(rotation, ((Transformation)o).rotation) == 0;
+		}
+		else
+			return false;
+	}
+
+}

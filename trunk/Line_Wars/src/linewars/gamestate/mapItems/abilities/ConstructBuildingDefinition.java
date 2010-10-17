@@ -1,62 +1,62 @@
 package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.CommandCenterDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 
 public class ConstructBuildingDefinition extends AbilityDefinition {
-	//TODO
-	public ConstructBuildingDefinition(BuildingDefinition bd)
+	
+	private BuildingDefinition buildingDefinition = null;
+	
+	public ConstructBuildingDefinition(BuildingDefinition bd, MapItemDefinition owner)
 	{
-		
-	}
-
-	@Override
-	public boolean checkValidity(MapItemDefinition mid) {
-		// TODO Auto-generated method stub
-		return false;
+		buildingDefinition = bd;
+		this.owner = owner;
 	}
 
 	@Override
 	public boolean startsActive() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int instancesOf() {
-		// TODO Auto-generated method stub
-		return 0;
+		if(!(m instanceof CommandCenter))
+			throw new IllegalArgumentException("The input argument m must be a CommandCenter.");
+		
+		return new ConstructBuilding(((CommandCenter)m).getNode(), buildingDefinition);
 	}
 
 	@Override
 	public boolean unlocked() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Construct Building: " + buildingDefinition.getName();
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Constructs the building " + buildingDefinition.getName() + 
+		". Costs " + buildingDefinition.getCost() + ". Takes " +
+		(buildingDefinition.getBuildTime()/1000.0) + " seconds to build."; 
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		if(!(o instanceof ConstructBuildingDefinition))
+			return false;
+		else
+			return buildingDefinition.equals(((ConstructBuildingDefinition)o).buildingDefinition);
+	}
+
+	@Override
+	public boolean checkValidity() {
+		return (buildingDefinition != null) && (owner instanceof CommandCenterDefinition);
 	}
 
 }
