@@ -1,7 +1,6 @@
 package linewars.gamestate;
 import java.util.*;
 import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.Lane;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.UnitDefinition;

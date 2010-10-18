@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
+import linewars.gamestate.Lane;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;

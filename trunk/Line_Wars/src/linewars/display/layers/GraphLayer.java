@@ -6,8 +6,8 @@ import java.awt.geom.Rectangle2D;
 
 import linewars.display.ColoredEdge;
 import linewars.gamestate.GameState;
+import linewars.gamestate.Lane;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Lane;
 
 public class GraphLayer implements ILayer
 {

@@ -3,8 +3,8 @@ package linewars.display;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import linewars.gamestate.Lane;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Lane;
 
 public class ColoredEdge
 {

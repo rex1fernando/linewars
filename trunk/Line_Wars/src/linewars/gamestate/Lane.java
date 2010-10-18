@@ -1,11 +1,15 @@
-package linewars.gamestate.mapItems;
+package linewars.gamestate;
 
 import java.util.ArrayList;
 import java.util.Queue;
 
-import linewars.gamestate.Position;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.Node;
+import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.Wave;
 
 public class Lane
 {

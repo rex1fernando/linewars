@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 
-import linewars.gamestate.mapItems.Lane;
 import linewars.gamestate.mapItems.Node;
 
 /**

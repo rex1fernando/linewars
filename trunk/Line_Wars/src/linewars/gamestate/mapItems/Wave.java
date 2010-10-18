@@ -1,5 +1,7 @@
 package linewars.gamestate.mapItems;
 import java.util.ArrayList;
+
+import linewars.gamestate.Lane;
 public class Wave {
 	private Lane owner;
 	ArrayList<Unit> units;
