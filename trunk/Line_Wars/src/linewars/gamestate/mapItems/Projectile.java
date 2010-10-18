@@ -2,8 +2,8 @@ package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.CollisionStrategy;
-import linewars.gamestate.mapItems.strategies.ImpactStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 
 public class Projectile extends MapItem {
 

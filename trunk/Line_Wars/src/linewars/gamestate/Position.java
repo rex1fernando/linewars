@@ -46,11 +46,9 @@ public class Position {
 		return new Position(x*s, y*s);
 	}
 	
-	public Position normalize()
+	public double distanceSquared(Position p)
 	{
-		double length = Math.sqrt((x * x) + (y * y));
-		
-		return scale(1 / length);
+		return Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2);
 	}
 	
 	@Override
@@ -61,6 +59,13 @@ public class Position {
 				Double.compare(y, ((Position)o).y) == 0;
 		else
 			return false;
+	}
+	
+	public Position normalize()
+	{
+		double length = Math.sqrt((x * x) + (y * y));
+		
+		return scale(1 / length);
 	}
 
 }

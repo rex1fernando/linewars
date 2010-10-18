@@ -1,4 +1,4 @@
-package linewars.gamestate.mapItems.strategies;
+package linewars.gamestate.mapItems.strategies.impact;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;

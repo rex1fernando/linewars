@@ -9,11 +9,13 @@ import linewars.gamestate.mapItems.UnitDefinition;
 public class ShootDefinition extends AbilityDefinition {
 	
 	private ProjectileDefinition ammo = null;
+	private double range;
 	
-	public ShootDefinition(ProjectileDefinition pd, MapItemDefinition owner)
+	public ShootDefinition(ProjectileDefinition pd, MapItemDefinition owner, double range)
 	{
 		ammo = pd;
 		this.owner = owner;
+		this.range = range;
 	}
 
 	@Override
@@ -55,6 +57,11 @@ public class ShootDefinition extends AbilityDefinition {
 			return ammo.equals(((ShootDefinition)o).ammo);
 		else
 			return false;
+	}
+	
+	public double getRange()
+	{
+		return range;
 	}
 
 }

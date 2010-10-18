@@ -2,10 +2,9 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
-import linewars.gamestate.mapItems.strategies.CombatStrategy;
-import linewars.gamestate.mapItems.strategies.MovementStrategy;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 import linewars.gamestate.Player;
-import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
@@ -13,7 +12,6 @@ import linewars.parser.ParserKeys;
 public class UnitDefinition extends MapItemDefinition {
 	
 	private double maxHp;
-	private double maxRange;
 	
 	private CombatStrategy cStrat;
 	private MovementStrategy mStrat;
@@ -44,11 +42,6 @@ public class UnitDefinition extends MapItemDefinition {
 	public double getMaxHP()
 	{
 		return maxHp;
-	}
-	
-	public double getRange()
-	{
-		return maxRange;
 	}
 
 }

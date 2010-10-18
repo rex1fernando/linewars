@@ -1,5 +1,9 @@
 package linewars.gamestate.mapItems;
 
+import java.util.Queue;
+
+import linewars.gamestate.Position;
+
 import linewars.gamestate.Position;
 
 public class Lane
@@ -42,6 +46,21 @@ public class Lane
 	public Position getP2()
 	{
 		return p2;
+	}
+	
+	/**
+	 * Finds a path as a series of positions from the current position to
+	 * the target within the range (i.e. the path doesn't have to get to the
+	 * target, it just has to get within range of the target)
+	 * 
+	 * @param current	the position to start from
+	 * @param target	the target position	
+	 * @param range		the minimum distance away from the target the path needs to get
+	 * @return			a queue of positions that represent the path
+	 */
+	public Queue<Position> findPath(Position current, Position target, double range)
+	{
+		return null;
 	}
 
 	public Position getP3()

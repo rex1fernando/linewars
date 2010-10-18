@@ -4,8 +4,8 @@ import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.Immovable;
-import linewars.gamestate.mapItems.strategies.NoCombat;
+import linewars.gamestate.mapItems.strategies.combat.NoCombat;
+import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class GateDefinition extends UnitDefinition {

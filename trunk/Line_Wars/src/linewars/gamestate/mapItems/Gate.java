@@ -1,8 +1,8 @@
 package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.CombatStrategy;
-import linewars.gamestate.mapItems.strategies.MovementStrategy;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
 public class Gate extends Unit {
 

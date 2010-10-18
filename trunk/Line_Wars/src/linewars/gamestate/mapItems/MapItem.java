@@ -7,7 +7,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.parser.Parser;
 
 public abstract class MapItem {

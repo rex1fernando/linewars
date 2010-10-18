@@ -1,0 +1,124 @@
+package linewars.gamestate.mapItems.strategies.combat;
+
+import java.util.Queue;
+
+import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.abilities.ShootDefinition;
+
+public class ShootClosestTarget implements CombatStrategy {
+	
+	private Unit unit = null;
+	private ShootDefinition shootDefinition = null;
+	private Queue<Position> path = null;
+	private double averageMove = 0;
+	private Position lastPosition = null;
+	private int numMoves = 0;
+	
+	public ShootClosestTarget(UnitDefinition ud) 
+	{
+		AbilityDefinition[] ads = ud.getAbilityDefinitions();
+		for(int i = 0; i < ads.length && shootDefinition == null; i++)
+			if(ads[i] instanceof ShootDefinition)
+				shootDefinition = (ShootDefinition) ads[i];
+		if(shootDefinition == null)
+			throw new IllegalArgumentException(ud.getName() + " must have the ability to shoot to " +
+					"use the Shoot Closest Target combat strategy.");
+	}
+	
+	private ShootClosestTarget() {}
+
+	@Override
+	public void setUnit(Unit u) {
+		unit = u;
+	}
+
+	@Override
+	public CombatStrategy copy() {
+		ShootClosestTarget sct = new ShootClosestTarget();
+		sct.unit = unit;
+		sct.shootDefinition = shootDefinition;
+		return sct;
+	}
+
+	@Override
+	public double getRange() {
+		return shootDefinition.getRange();
+	}
+
+	@Override
+	public void fight(Unit[] availableTargets) {
+		if(availableTargets.length == 0)
+			throw new IllegalArgumentException("Why are you asking me to fight when there is no one to fight?");
+		//first get the closest target
+		double dis = unit.getPosition().distanceSquared(availableTargets[0].getPosition());
+		Unit closest = availableTargets[0];
+		for(Unit u : availableTargets)
+		{
+			double nd = unit.getPosition().distanceSquared(u.getPosition());
+			if(nd < dis)
+			{
+				dis = nd;
+				closest = u;
+			}
+		}
+		
+		//if the target is in range, turn to face it
+		if(dis <= shootDefinition.getRange())
+		{
+			//now calculate the angle the unit needs to face to shoot the target
+			Position p = closest.getPosition().subtract(unit.getPosition());
+			double angle = Math.asin(p.getY()/p.getY());
+			//if we're already facing the correct angle (or close enough) then FIRE!!!!!!
+			//(used cosine and sine so that it doesn't matter the exact value of the rotation)
+			if(Math.abs(Math.cos(angle) - Math.cos(unit.getRotation())) + 
+					Math.abs(Math.sin(angle) - Math.sin(unit.getRotation())) < 0.01)
+				unit.addActiveAbility(shootDefinition.createAbility(unit));
+			else //face that way
+			{
+				unit.getMovementStrategy().setTarget(new Transformation(unit.getPosition(), angle));
+				unit.getMovementStrategy().setIgnoreCollision(true);
+			}
+		}
+		else //move in range
+		{
+			// how far did we move last time?
+			averageMove = (numMoves * averageMove + Math.sqrt(unit
+					.getPosition().distanceSquared(lastPosition)))
+					/ (numMoves + 1);
+			numMoves++;
+			
+			//if we've made it to this point in the path
+			if(path.peek().equals(unit.getPosition()))
+			{
+				numMoves = 0;
+				averageMove = Double.MAX_VALUE;
+				path.poll();
+				if(path.isEmpty()) //if the path is empty get a new one
+					path = unit.getWave().getLane().findPath(
+							unit.getPosition(),closest.getPosition(),shootDefinition.getRange());
+			}
+			
+			//if we haven't been moving, get a new path
+			if(averageMove < 0.01)
+			{
+				numMoves = 0;
+				path = unit.getWave().getLane().findPath(
+						unit.getPosition(),closest.getPosition(),shootDefinition.getRange());
+			}
+			
+			//calculate the angle from here to the next position
+			Position diff = path.peek().subtract(unit.getPosition());
+			double angle = Math.sin(diff.getY()/diff.getX());
+			
+			//now move to the next position in the path
+			unit.getMovementStrategy().setTarget(new Transformation(path.peek(), angle));
+			
+			lastPosition = unit.getPosition();
+		}
+	}
+
+}

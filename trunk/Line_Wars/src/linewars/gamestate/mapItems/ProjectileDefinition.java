@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.ImpactStrategy;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 

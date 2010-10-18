@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
