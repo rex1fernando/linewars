@@ -46,6 +46,13 @@ public class Position {
 		return new Position(x*s, y*s);
 	}
 	
+	public Position normalize()
+	{
+		double length = Math.sqrt((x * x) + (y * y));
+		
+		return scale(1 / length);
+	}
+	
 	@Override
 	public boolean equals(Object o)
 	{

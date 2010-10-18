@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
 import linewars.display.layers.MapItemLayer.MapItemType;
@@ -115,7 +116,11 @@ public class Display
 		{
 			this.parent = parent;
 			
+			setOpaque(false);
+			
 			strategicView = new ArrayList<ILayer>(2);
+			strategicView.add(new GraphLayer());
+			
 			tacticalView = new ArrayList<ILayer>();
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
@@ -149,7 +154,7 @@ public class Display
 		public void paint(Graphics g)
 		{
 			GameState gamestate = stateManager.getDisplayGameState();
-			List<ILayer> currentView = (zoomLevel <= ZOOM_THRESHOLD) ? strategicView : tacticalView;
+			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 			
 			// calculates the visible screen size based off of the zoom level
 			Dimension2D mapSize = gamestate.getMapSize();
