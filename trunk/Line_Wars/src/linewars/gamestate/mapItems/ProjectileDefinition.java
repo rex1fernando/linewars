@@ -8,6 +8,14 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines a projectile. It is a type of MapItemDefinition. It
+ * knows the velocity of the projectile and a template for its impact
+ * strategy.
+ */
 public abstract class ProjectileDefinition extends MapItemDefinition {
 	
 	private double velocity;
@@ -23,11 +31,21 @@ public abstract class ProjectileDefinition extends MapItemDefinition {
 		
 	}
 	
+	/**
+	 * 
+	 * @return	the velocity of the projectile
+	 */
 	public double getVelocity()
 	{
 		return velocity;
 	}
 	
+	/**
+	 * Creates a projectile
+	 * 
+	 * @param t	the transformation to create the projectile at
+	 * @return	the projectile
+	 */
 	public Projectile createProjectile(Transformation t)
 	{
 		return new Projectile(t, this, this.getCollisionStrategy(), iStrat);

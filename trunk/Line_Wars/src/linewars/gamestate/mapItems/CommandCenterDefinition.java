@@ -8,12 +8,21 @@ import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 import linewars.parser.Parser.InvalidConfigFileException;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class is the definition of the command center building.
+ * It is responsible for creating command centers. It also
+ * takes all the buildings and tech's and creates abilitydefinitions
+ * for creating/researching them that the command center gets
+ * as part of its list of abilities.
+ */
 public class CommandCenterDefinition extends BuildingDefinition {
 
 	public CommandCenterDefinition(String URI, Player owner)
 			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
-		abilities.clear();
 		
 		BuildingDefinition[] bds = owner.getBuildingDefintions();
 		for(BuildingDefinition b : bds)
@@ -24,6 +33,12 @@ public class CommandCenterDefinition extends BuildingDefinition {
 			abilities.add(new ResearchTechDefinition(t, this));
 	}
 	
+	/**
+	 * Removes the given tech from this command center's list
+	 * of researchable techs.
+	 * 
+	 * @param rtd	the tech ability to remove
+	 */
 	void removeTech(ResearchTechDefinition rtd)
 	{
 		abilities.remove(rtd);

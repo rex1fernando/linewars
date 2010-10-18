@@ -7,6 +7,14 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents a unit. It owns a movementStrategy and
+ * a combatStrategy for the unit. It also knows how many health
+ * points it has and what wave it is currently in.
+ */
 public class Unit extends MapItem {
 	
 	private MovementStrategy mStrat;
@@ -28,6 +36,13 @@ public class Unit extends MapItem {
 		cStrat.setUnit(this);
 	}
 	
+	/**
+	 * Sets the units hp. If the hp <= 0, then it sets the unit's
+	 * state to dead. It also caps the hp at the max hp defined for
+	 * the unit.
+	 * 
+	 * @param h	the hp to set the unit to.
+	 */
 	public void setHP(double h)
 	{
 		hp = h;
@@ -40,26 +55,46 @@ public class Unit extends MapItem {
 			hp = this.getMaxHP();
 	}
 	
+	/**
+	 * 
+	 * @return	the current amount of hp of the unit
+	 */
 	public double getHP()
 	{
 		return hp;
 	}
 	
+	/**
+	 * 
+	 * @return	the maximum amount of hp this unit may have
+	 */
 	public double getMaxHP()
 	{
 		return definition.getMaxHP();
 	}
 	
+	/**
+	 * 
+	 * @return	the combat strategy associated with this unit
+	 */
 	public CombatStrategy getCombatStrategy()
 	{
 		return cStrat;
 	}
 	
+	/**
+	 * 
+	 * @return	the movement strategy associated with this unit
+	 */
 	public MovementStrategy getMovementStrategy()
 	{
 		return mStrat;
 	}
 	
+	/**
+	 * 
+	 * @return	whether or not this unit is finished and may be removed from the field
+	 */
 	public boolean finished()
 	{
 		for(Ability a : activeAbilities)
@@ -78,11 +113,19 @@ public class Unit extends MapItem {
 		return definition.getCollisionStrategy();
 	}
 	
+	/**
+	 * 
+	 * @return	the wave that this unit is in
+	 */
 	public Wave getWave()
 	{
 		return currentWave;
 	}
 	
+	/**
+	 * 
+	 * @param w	the wave that this unit is in.
+	 */
 	public void setWave(Wave w)
 	{
 		currentWave = w;

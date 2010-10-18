@@ -12,6 +12,18 @@ import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 import linewars.parser.Parser.InvalidConfigFileException;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents a definition for a map item. It is used
+ * to create the map items it defines (similar to the way a class
+ * is used to define how to create objects of its type). For the
+ * map items it creates, it knows what states they are allowed to
+ * be in, what their name is, what parser they use, what abilities
+ * they are allowed to use, who owns them, and what collision strategy
+ * they use.
+ */
 public abstract class MapItemDefinition {
 	
 	private ArrayList<MapItemState> validStates;
@@ -61,31 +73,57 @@ public abstract class MapItemDefinition {
 			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
 	}
 
+	/**
+	 * Checks to see if the given state is valid for this type of map item
+	 * 
+	 * @param m	the state
+	 * @return	true if its valid, false otherwise
+	 */
 	public boolean isValidState(MapItemState m)
 	{
 		return validStates.contains(m);
 	}
 	
+	/**
+	 * 
+	 * @return	the name of the map items
+	 */
 	public String getName()
 	{
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return	the parser that defines the map items
+	 */
 	public Parser getParser()
 	{
 		return parser;
 	}
 	
+	/**
+	 * 
+	 * @return	the list of availabel ability definitions
+	 */
 	public AbilityDefinition[] getAbilityDefinitions()
 	{
 		return abilities.toArray(new AbilityDefinition[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	the player that owns this mapItemDefinition
+	 */
 	public Player getOwner()
 	{
 		return owner;
 	}
 	
+	/**
+	 * 
+	 * @return	the collision strategy associated with this type of map item
+	 */
 	public CollisionStrategy getCollisionStrategy()
 	{
 		return cStrat;

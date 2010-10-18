@@ -5,6 +5,13 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents a projectile. It knows how the projectile collides
+ * with map items and what it should do upon impact. It is a map item.
+ */
 public class Projectile extends MapItem {
 
 	private ProjectileDefinition definition;
@@ -19,6 +26,10 @@ public class Projectile extends MapItem {
 	}
 	
 	//TODO NOTE: this will be changed to implement a projectileMovementStrategy later
+	/**
+	 * This method moves the projetile forward at a constant velocity, checks for collisions,
+	 * and calls its impact strategy on those collisions.
+	 */
 	public void move()
 	{
 		double v = definition.getVelocity();
@@ -48,6 +59,10 @@ public class Projectile extends MapItem {
 		return cStrat;
 	}
 	
+	/**
+	 * 
+	 * @return	the impact strategy of this projetile
+	 */
 	public ImpactStrategy getImpactStrategy()
 	{
 		return iStrat;

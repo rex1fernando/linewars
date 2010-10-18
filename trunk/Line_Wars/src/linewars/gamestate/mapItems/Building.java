@@ -3,6 +3,13 @@ package linewars.gamestate.mapItems;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents a building. It is a type of map item.
+ * It knows what nodes it is in.
+ */
 public class Building extends MapItem {
 	
 	private BuildingDefinition definition;
@@ -19,6 +26,10 @@ public class Building extends MapItem {
 		return definition;
 	}
 	
+	/**
+	 * 
+	 * @return	the node this building is in
+	 */
 	public Node getNode()
 	{
 		return node;
