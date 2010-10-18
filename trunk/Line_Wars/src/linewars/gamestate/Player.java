@@ -15,9 +15,10 @@ public class Player {
 	private ArrayList<Tech> techLevels;
 	private String name;
 	
-	public Player(double startingStuff, Node startingNode, ){
+	public Player(double startingStuff, Node startingNode){
 		stuffAmount = startingStuff;
-		ownedNodes = new ArrayList<Node>(startingNode);
+		ownedNodes = new ArrayList<Node>();
+		ownedNodes.add(startingNode);
 		flowDist = new HashMap<Node, Double>();
 		buildingDefs = new ArrayList<BuildingDefinition>();
 		unitDefs = new ArrayList<UnitDefinition>();
@@ -41,17 +42,17 @@ public class Player {
 	}
 	
 	public UnitDefinition[] getUnitDefinitions(){
-		return unitDefs.toArray();
+		return (UnitDefinition[])unitDefs.toArray();
 	}
 	
 	public BuildingDefinition[] getBuildingDefintions()
 	{
-		return buildingDefs.toArray();
+		return (BuildingDefinition[])buildingDefs.toArray();
 	}
 	
 	public Tech[] getTech()
 	{
-		return techLevels.toArray();
+		return (Tech[])techLevels.toArray();
 	}
 	
 	//TODO implement addMapItem
@@ -72,13 +73,13 @@ public class Player {
 	 * 
 	 * @param amount	the amount of stuff to spend
 	 */
-	public void spendStuff(double amount) throws NotEnoughStuffException
+	public void spendStuff(double amount) throws IllegalArgumentException
 	{
 		if(amount > stuffAmount){
-			throw new NotEnoughStuffException("Not enough Stuff. " +name +" Tried spending " +amount 
-					+" Stuff but only has " +stuffAmount);
+			throw new IllegalArgumentException("Not enough Stuff. " +name
+					+" Tried spending " +amount +" Stuff but only has " +stuffAmount);
 		}
-		stuffAmount = stuffAmount = amount;
+		stuffAmount = stuffAmount - amount;
 	}
 	
 }
