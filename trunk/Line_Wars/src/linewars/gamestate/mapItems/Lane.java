@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems;
 
+import java.util.ArrayList;
 import java.util.Queue;
 
 import linewars.gamestate.Position;
@@ -32,15 +33,13 @@ public class Lane
 	 */
 	private double width;
 	
-	public Lane(Position p0, Position p1, Position p2, Position p3, double width, Node node1, Node node2)
+	public Lane(Position p0, Position p1, Position p2, Position p3, double width)
 	{
 		this.p0 = p0;
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
 		this.width = width;
-		this.node1 = node1;
-		this.node2 = node2;
 	}
 
 	public Position getP0()
@@ -54,11 +53,11 @@ public class Lane
 	}
 	
 	
-	public void mergeWaves(Wave waveOne, Wave waveTwo) throws invalidMergeException{
+	public void mergeWaves(Wave waveOne, Wave waveTwo) throws IllegalArgumentException{
 		if(!waves.contains(waveOne) || !waves.contains(waveTwo)){
-			throw new invalidMergeException("Could not merge waves because one or both of the waves is not in this lane. ");
+			throw new IllegalArgumentException("Could not merge waves because one or both of the waves is not in this lane. ");
 		}
-		waveOne.add(waveTwo.getUnits());
+		waveOne.addUnits(waveTwo.getUnits());
 		waves.remove(waveTwo);
 	}
 	
@@ -94,7 +93,7 @@ public class Lane
 	
 	public Wave[] getWaves()
 	{
-		return waves;
+		return (Wave[])waves.toArray();
 	}
 	
 	public Node getNode1()
