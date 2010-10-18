@@ -24,8 +24,6 @@ public class UnitDefinition extends MapItemDefinition {
 	
 	private CombatStrategy cStrat;
 	private MovementStrategy mStrat;
-	
-	//TODO add template variables for collision
 
 	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner);
@@ -38,7 +36,6 @@ public class UnitDefinition extends MapItemDefinition {
 //		String ms = super.getParser().getStringValue("movementStrategy");
 		//TODO convert string to movement strategy
 		
-		//TODO parse collision from the file
 	}
 
 	/**

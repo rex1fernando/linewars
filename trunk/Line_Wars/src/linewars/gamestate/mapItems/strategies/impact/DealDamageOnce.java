@@ -45,6 +45,7 @@ public class DealDamageOnce implements ImpactStrategy {
 		{
 			hit = true;
 			projectile.setState(MapItemState.Dead);
+			projectile.setPosition(m.getPosition());
 			if(m instanceof Unit)
 			{
 				Unit u = (Unit)m;

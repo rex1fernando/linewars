@@ -97,6 +97,7 @@ public class Unit extends MapItem {
 	 */
 	public boolean finished()
 	{
+		Ability[] activeAbilities = this.getActiveAbilities();
 		for(Ability a : activeAbilities)
 			if(!a.killable())
 				return false;

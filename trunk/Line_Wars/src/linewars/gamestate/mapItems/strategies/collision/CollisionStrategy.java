@@ -39,6 +39,7 @@ public interface CollisionStrategy {
 	 * list and defer to strategies higher up for collision.
 	 * 
 	 * NoCollision
+	 * CollidesWithAll
 	 * AllEnemies
 	 * Ground
 	 * 

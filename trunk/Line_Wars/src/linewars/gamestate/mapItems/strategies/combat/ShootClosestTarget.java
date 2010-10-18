@@ -19,12 +19,16 @@ import linewars.gamestate.mapItems.abilities.ShootDefinition;
  */
 public class ShootClosestTarget implements CombatStrategy {
 	
+	private static final long MINIMUM_PATH_WAIT_TIME = 100;
+	
 	private Unit unit = null;
 	private ShootDefinition shootDefinition = null;
 	private Queue<Position> path = null;
 	private double averageMove = 0;
 	private Position lastPosition = null;
 	private int numMoves = 0;
+	//this variable specifies the last time the algorithm asked for a path
+	private long pathLockout = -1;
 	
 	/**
 	 * Constructs a ShootClosestTarget object. The UnitDefinition parameter
@@ -95,12 +99,10 @@ public class ShootClosestTarget implements CombatStrategy {
 			else //face that way
 			{
 				unit.getMovementStrategy().setTarget(new Transformation(unit.getPosition(), angle));
-				unit.getMovementStrategy().setIgnoreCollision(true);
 			}
 		}
 		else //move in range
 		{
-			unit.getMovementStrategy().setIgnoreCollision(false);
 			// how far did we move last time?
 			averageMove = (numMoves * averageMove + Math.sqrt(unit
 					.getPosition().distanceSquared(lastPosition)))
@@ -114,17 +116,18 @@ public class ShootClosestTarget implements CombatStrategy {
 				averageMove = Double.MAX_VALUE;
 				path.poll();
 				if(path.isEmpty()) //if the path is empty get a new one
-					path = unit.getWave().getLane().findPath(
-							unit.getPosition(),closest.getPosition(),shootDefinition.getRange());
+					updatePath(closest.getPosition());
 			}
 			
 			//if we haven't been moving, get a new path
 			if(averageMove < 0.01)
 			{
 				numMoves = 0;
-				path = unit.getWave().getLane().findPath(
-						unit.getPosition(),closest.getPosition(),shootDefinition.getRange());
+				updatePath(closest.getPosition());
 			}
+			
+			if(path.isEmpty()) //can't do anything if there's no path at this point
+				return;
 			
 			//calculate the angle from here to the next position
 			Position diff = path.peek().subtract(unit.getPosition());
@@ -135,6 +138,17 @@ public class ShootClosestTarget implements CombatStrategy {
 			
 			lastPosition = unit.getPosition();
 		}
+	}
+	
+	private void updatePath(Position target)
+	{
+		if(System.currentTimeMillis() - pathLockout >= MINIMUM_PATH_WAIT_TIME)
+		{
+			pathLockout = System.currentTimeMillis();
+			path = unit.getWave().getLane().findPath(unit, target, shootDefinition.getRange());
+		}
+		else
+			path.clear();
 	}
 
 }

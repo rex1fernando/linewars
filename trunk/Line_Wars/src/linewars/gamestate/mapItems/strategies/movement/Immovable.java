@@ -25,9 +25,6 @@ public class Immovable implements MovementStrategy {
 	}
 
 	@Override
-	public void setIgnoreCollision(boolean ignore) {}
-
-	@Override
-	public void move(Unit[] possibleCollisions) {}
+	public void move() {}
 
 }

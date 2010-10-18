@@ -19,9 +19,8 @@ public class Shoot implements Ability {
 		Transformation t = u.getTransformation();
 		//TODO figure out how to move the position of the bullet spawning
 		//position out in front of the unit that's shooting it
-		Projectile p = pd.createProjectile(t);
-		//TODO how to find out which lane a unit is in?
-		//once determined, add the projectile to that lane
+		Projectile p = pd.createProjectile(t, u.getWave().getLane());
+		u.getWave().getLane().addProjectile(p);
 	}
 
 	@Override

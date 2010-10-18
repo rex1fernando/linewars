@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.shapes.ShapeAggregate;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
@@ -31,7 +32,8 @@ public abstract class MapItemDefinition {
 	private Parser parser;
 	protected ArrayList<AbilityDefinition> abilities;
 	private Player owner;
-	private CollisionStrategy cStrat;
+	protected CollisionStrategy cStrat;
+	protected ShapeAggregate body;
 	
 	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
@@ -71,6 +73,20 @@ public abstract class MapItemDefinition {
 		//check to make sure this is a valid strat for this definition
 		if(!cStrat.isValidMapItem(this))
 			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
+		
+		body = new ShapeAggregate(parser.getParser(ParserKeys.body));
+	}
+	
+	protected MapItemDefinition()
+	{
+		validStates = new ArrayList<MapItemState>();
+		validStates.add(MapItemState.Idle);
+		this.owner = null;
+		name = "";
+		parser = null;
+		abilities = new ArrayList<AbilityDefinition>();
+		cStrat = null;
+		body = null;
 	}
 
 	/**
@@ -127,6 +143,15 @@ public abstract class MapItemDefinition {
 	public CollisionStrategy getCollisionStrategy()
 	{
 		return cStrat;
+	}
+	
+	/**
+	 * 
+	 * @return	the shape aggregate associated with this map item
+	 */
+	public ShapeAggregate getBody()
+	{
+		return body;
 	}
 	
 	@Override

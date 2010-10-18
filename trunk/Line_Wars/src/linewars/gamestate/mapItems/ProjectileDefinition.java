@@ -46,9 +46,9 @@ public abstract class ProjectileDefinition extends MapItemDefinition {
 	 * @param t	the transformation to create the projectile at
 	 * @return	the projectile
 	 */
-	public Projectile createProjectile(Transformation t)
+	public Projectile createProjectile(Transformation t, Lane l)
 	{
-		return new Projectile(t, this, this.getCollisionStrategy(), iStrat);
+		return new Projectile(t, this, this.getCollisionStrategy(), iStrat, l);
 	}
 
 }

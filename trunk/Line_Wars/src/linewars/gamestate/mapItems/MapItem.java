@@ -25,10 +25,7 @@ public abstract class MapItem {
 	//the position of this map item in map coordinates
 	//and the rotation of this map item where 0 radians is facing directly right
 	//THIS IS THE CENTER OF THE MAP ITEM
-	protected Transformation transformation;
-	
-	// the dimensions of the map item
-	protected double width, height;
+	private Transformation transformation;
 	
 	//the state of the map item
 	private MapItemState state;
@@ -36,10 +33,7 @@ public abstract class MapItem {
 	private long stateStart;
 	
 	//all the current abilities active on this map item
-	protected ArrayList<Ability> activeAbilities;
-	
-	//TODO add state variable for collision dection
-	
+	private ArrayList<Ability> activeAbilities;
 	
 	public MapItem(Transformation trans)
 	{
@@ -85,6 +79,15 @@ public abstract class MapItem {
 	
 	/**
 	 * 
+	 * @return	the abilities currently active on this map item
+	 */
+	public Ability[] getActiveAbilities()
+	{
+		return activeAbilities.toArray(new Ability[0]);
+	}
+	
+	/**
+	 * 
 	 * @return	the position of the map item
 	 */
 	public Position getPosition()
@@ -112,47 +115,11 @@ public abstract class MapItem {
 	
 	/**
 	 * 
-	 * @return	the width of the map item
-	 */
-	public double getWidth()
-	{
-		return width;
-	}
-	
-	/**
-	 * 
-	 * @return	the height of the map item
-	 */
-	public double getHeight()
-	{
-		return height;
-	}
-	
-	/**
-	 * 
 	 * @param p	the position to set the map item at
 	 */
 	public void setPosition(Position p)
 	{
 		transformation = new Transformation(p, transformation.getRotation());
-	}
-	
-	/**
-	 * 
-	 * @param w	the width to set the map item to
-	 */
-	public void setWidth(double w)
-	{
-		width = w;
-	}
-	
-	/**
-	 * 
-	 * @param h	the height to set the map item to
-	 */
-	public void setHeight(double h)
-	{
-		height = h;
 	}
 	
 	/**
@@ -248,13 +215,21 @@ public abstract class MapItem {
 		return this.getDefinition().getName();
 	}
 	
-	//TODO implement colliding with method
+	/**
+	 * This method takes in a map item and checks to see if the two are colliding.
+	 * It first checks their collision strategies to see if the can collide, and if
+	 * they can, checks to see if each of their bodies are colliding.
+	 * 
+	 * @param m		the map item to check collision with
+	 * @return		true if this and m can collide and are colliding, false otherwise
+	 */
 	public boolean isCollidingWith(MapItem m)
 	{
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		
-		return false;
+		return this.getDefinition().getBody().isCollidingWith(this.getTransformation(),
+				m.getDefinition().getBody(), m.getTransformation());
 	}
 	
 	/**
@@ -264,6 +239,14 @@ public abstract class MapItem {
 	public String getURI()
 	{
 		return this.getDefinition().getParser().getConfigFile().getURI();
+	}
+
+	public double getWidth() {
+		return this.getDefinition().getBody().getWidth();
+	}
+
+	public double getHeight() {
+		return this.getDefinition().getBody().getHeight();
 	}
 
 }

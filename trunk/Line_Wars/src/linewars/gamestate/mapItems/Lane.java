@@ -66,19 +66,42 @@ public class Lane
 		return p2;
 	}
 	
+	//TODO
 	/**
 	 * Finds a path as a series of positions from the current position to
 	 * the target within the range (i.e. the path doesn't have to get to the
 	 * target, it just has to get within range of the target)
 	 * 
-	 * @param current	the position to start from
+	 * @param unit	the position to start from
 	 * @param target	the target position	
 	 * @param range		the minimum distance away from the target the path needs to get
 	 * @return			a queue of positions that represent the path
 	 */
-	public Queue<Position> findPath(Position current, Position target, double range)
+	public Queue<Position> findPath(Unit unit, Position target, double range)
 	{
 		return null;
+	}
+	
+	//TODO
+	/**
+	 * Gets all map items colliding with the given map item. Uses the isCollidingWith method
+	 * in map item to determine collisions.
+	 * 
+	 * @param m		the item to get collisions with
+	 * @return		the list of items colliding with m
+	 */
+	public MapItem[] getCollisions(MapItem m)
+	{
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param p	the projectile to be added to the lane
+	 */
+	public void addProjectile(Projectile p)
+	{
+		
 	}
 
 	public Position getP3()
