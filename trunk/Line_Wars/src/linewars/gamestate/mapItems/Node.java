@@ -1,10 +1,12 @@
 package linewars.gamestate.mapItems;
 
+import java.util.ArrayList;
+
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.Lane
-import linewars.gamestate.mapItems.Building
-import linewars.gamestate.mapItems.Unit
+import linewars.gamestate.mapItems.Lane;
+import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.Unit;
 
 public class Node {
 	private Player owner;
@@ -22,8 +24,8 @@ public class Node {
 		this.owner = owner;
 		invader = null; //Maybe have a special value to set this to in order to avoid null?
 		occupationTime = 0;
-		attachedLanes = new ArrayList<lane>();
-		for(int i = 0; i < lanes.length(); i++)
+		attachedLanes = new ArrayList<Lane>();
+		for(int i = 0; i < lanes.length; i++)
 		{
 			attachedLanes.add(lanes[i]);
 		}
@@ -54,17 +56,17 @@ public class Node {
 	
 	public Building[] getContainedBuildings()
 	{
-		return containedBuildings.toArray();
+		return (Building[])containedBuildings.toArray();
 	}
 	
 	public Lane[] getAttachedLanes()
 	{
-		return attachedLanes.toArray();
+		return (Lane[])attachedLanes.toArray();
 	}
 	
 	public Unit[] getContainedUnits()
 	{
-		return containedUnits.toArray();
+		return (Unit[])containedUnits.toArray();
 	}
 	
 	public int getNumBuildings()
