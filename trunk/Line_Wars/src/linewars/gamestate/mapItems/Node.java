@@ -22,6 +22,7 @@ public class Node {
 	public Node(Player owner, Lane[] lanes, CommandCenter center, Transformation[] buildingSpots)
 	{
 		this.owner = owner;
+		this.center = center;
 		invader = null; //Maybe have a special value to set this to in order to avoid null?
 		occupationTime = 0;
 		attachedLanes = new ArrayList<Lane>();

@@ -11,9 +11,11 @@ public class GameState
 {
 	// TODO finish implementation!
 	
+	private Map map;
+	
 	public Dimension2D getMapSize()
 	{
-		return new Dimension(800,600);
+		return map.getDimensions();
 	}
 	
 	public long getTime()

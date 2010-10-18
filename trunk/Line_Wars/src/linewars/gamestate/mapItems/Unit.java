@@ -124,7 +124,6 @@ public class Unit extends MapItem {
 	}
 	
 	/**
-	 * 
 	 * @param w	the wave that this unit is in.
 	 */
 	public void setWave(Wave w)

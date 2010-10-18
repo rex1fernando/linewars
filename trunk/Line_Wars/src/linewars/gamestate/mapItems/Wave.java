@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 public class Wave {
+	private Lane owner;
 	ArrayList<Unit> units;
 	/**
 	 * gets the lane that owns this wave
@@ -9,7 +10,7 @@ public class Wave {
 	 */
 	public Lane getLane()
 	{
-		return null;
+		return owner;
 	}
 	
 	public Unit[] getUnits()
@@ -29,4 +30,6 @@ public class Wave {
 			this.addUnit(u[i]);
 		}
 	}
+	
+	
 }

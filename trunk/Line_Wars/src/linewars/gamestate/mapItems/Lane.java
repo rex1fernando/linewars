@@ -21,12 +21,7 @@ public class Lane
 	private Position p3;
 	private ArrayList<Wave> waves;
 	private Wave frontlineWave;
-	
-	/**
-	 * The two nodes this lane goes between.
-	 */
-	private Node node1;
-	private Node node2;
+	private ArrayList<Node> nodes;
 	
 	/**
 	 * The width of the lane.
@@ -119,13 +114,14 @@ public class Lane
 		return (Wave[])waves.toArray();
 	}
 	
-	public Node getNode1()
+	public Node[] getNodes()
 	{
-		return node1;
+		return (Node[])nodes.toArray();
 	}
 	
-	public Node getNode2()
+	public ArrayList<Node> getNodesList()
 	{
-		return node2;
+		return nodes;
 	}
+
 }
