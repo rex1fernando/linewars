@@ -2,6 +2,13 @@ package linewars.gamestate.mapItems.strategies.combat;
 
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines a combat strategy that does not
+ * engage in combat. It does nothing.
+ */
 public class NoCombat implements CombatStrategy {
 
 	@Override

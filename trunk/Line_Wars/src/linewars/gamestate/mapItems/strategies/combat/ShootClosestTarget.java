@@ -9,6 +9,14 @@ import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ShootDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines a combat strategy that finds the closest
+ * unit, moves within range of it, and shoots. Any unit using
+ * this strategy must have the ability shoot.
+ */
 public class ShootClosestTarget implements CombatStrategy {
 	
 	private Unit unit = null;
@@ -18,6 +26,13 @@ public class ShootClosestTarget implements CombatStrategy {
 	private Position lastPosition = null;
 	private int numMoves = 0;
 	
+	/**
+	 * Constructs a ShootClosestTarget object. The UnitDefinition parameter
+	 * allows this strategy to get the reference to the ShootDefinition in
+	 * the UnitDefinition.
+	 * 
+	 * @param ud	the UnitDefinition that owns the unit that owns this strategy.
+	 */
 	public ShootClosestTarget(UnitDefinition ud) 
 	{
 		AbilityDefinition[] ads = ud.getAbilityDefinitions();
@@ -85,6 +100,7 @@ public class ShootClosestTarget implements CombatStrategy {
 		}
 		else //move in range
 		{
+			unit.getMovementStrategy().setIgnoreCollision(false);
 			// how far did we move last time?
 			averageMove = (numMoves * averageMove + Math.sqrt(unit
 					.getPosition().distanceSquared(lastPosition)))

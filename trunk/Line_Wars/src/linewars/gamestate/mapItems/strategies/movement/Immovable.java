@@ -3,6 +3,12 @@ package linewars.gamestate.mapItems.strategies.movement;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines a movement strategy that doesn't move.
+ */
 public class Immovable implements MovementStrategy {
 
 	@Override

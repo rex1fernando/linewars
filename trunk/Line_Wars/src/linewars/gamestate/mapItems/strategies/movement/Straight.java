@@ -5,6 +5,14 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines a movement strategy that attempts to go in
+ * a straight line to the target and stops the first time it
+ * hits anything. Requires a movement speed.
+ */
 public class Straight implements MovementStrategy {
 	
 	private static final int MOVEMENT_ACCURACY = 5;

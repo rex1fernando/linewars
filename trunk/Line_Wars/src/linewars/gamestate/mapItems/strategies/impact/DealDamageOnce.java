@@ -6,6 +6,14 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class defines an impact strategy. This strategy
+ * impacts the first thing it hits, deals damage, and 
+ * then stops.
+ */
 public class DealDamageOnce implements ImpactStrategy {
 	
 	private boolean hit = false;

@@ -3,6 +3,13 @@ package linewars.gamestate.mapItems.strategies.collision;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ *	This class defines a collision strategy for map items
+ *	that can't collide with anything.
+ */
 public class NoCollision implements CollisionStrategy {
 	
 	public NoCollision() {}

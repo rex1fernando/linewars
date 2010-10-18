@@ -4,6 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class parses config files (or parts of config files) and creates a
+ * hashmap of keys to values. It has various ways of looking up values by
+ * their keys. It is preferred to use the ParserKeys enum when looking up
+ * values by keys (the String methods are deprecated). Each parser knows what
+ * parts of the config file that it parses.
+ */
 public class Parser {
 
 	private HashMap<String, Value> values;
@@ -11,6 +21,12 @@ public class Parser {
 	private int startLine;
 	private int endLine;
 	
+	/**
+	 * Creates a parser with the given config file. 
+	 * 
+	 * @param cFile		the file to parse
+	 * @throws InvalidConfigFileException	if the config file is invalid
+	 */
 	public Parser(ConfigFile cFile) throws InvalidConfigFileException
 	{
 		configFile = cFile;
@@ -46,18 +62,42 @@ public class Parser {
 		endLine = configFile.nextLineNumber() - 1;
 	}
 	
+	/**
+	 * gets the string value associated with the key. If the value
+	 * can't be represented as a string, retursn null.
+	 * 
+	 * @param key	the key to look up by
+	 * @return		the string representation of the value associated with the key
+	 * @throws NoSuchKeyException	if the key wasn't found
+	 */
 	public String getStringValue(ParserKeys key) throws NoSuchKeyException
 	{
 		checkKey(key);
 		return values.get(key).value;
 	}
 	
+	/**
+	 * Attempts to return the value associated with the key as a number. If that's
+	 * not possible, it will throw an exception.
+	 * 
+	 * @param key	the key
+	 * @return		the numeric represention of the value associated with key
+	 * @throws NoSuchKeyException	if the key wasn't found
+	 */
 	public double getNumericValue(ParserKeys key) throws NoSuchKeyException
 	{
 		checkKey(key);
 		return Double.parseDouble(values.get(key).value);
 	}
 	
+	/**
+	 * Attempts to return the value associated with key as a list, comma delimited.
+	 * If the value cannot be represented as a list, will throw an exception.
+	 * 
+	 * @param key	the key
+	 * @return		a comma delimeted list of the value associated with key
+	 * @throws NoSuchKeyException	if the key wasn't found
+	 */
 	public String[] getList(ParserKeys key) throws NoSuchKeyException
 	{
 		checkKey(key);
@@ -72,6 +112,15 @@ public class Parser {
 		return list.toArray(new String[0]);
 	}
 	
+	/**
+	 * Attemps to return the value associated with key as a parser. If the value
+	 * associated with key isn't a block that is a valid parser, then this method
+	 * return null.
+	 * 
+	 * @param key	the key
+	 * @return		the parser of the value associated with key
+	 * @throws NoSuchKeyException	if the key wasn't found
+	 */
 	public Parser getParser(ParserKeys key) throws NoSuchKeyException
 	{
 		checkKey(key);
@@ -114,6 +163,10 @@ public class Parser {
 		return values.get(key).parser;
 	}
 	
+	/**
+	 * 
+	 * @return	the config file associated with this parser
+	 */
 	public ConfigFile getConfigFile()
 	{
 		return configFile;
