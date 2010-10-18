@@ -5,5 +5,6 @@ public enum ParserKeys {
 	buildTime, maxHP, velocity, 
 	abilities, functionType, 
 	coefficients, costFunction, 
-	researchTime, body
+	researchTime, body, collisionStrategy,
+	type
 }

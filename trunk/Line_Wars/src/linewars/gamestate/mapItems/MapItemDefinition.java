@@ -6,7 +6,11 @@ import java.util.ArrayList;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
+import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.Ground;
+import linewars.gamestate.mapItems.strategies.collision.NoCollision;
 import linewars.gamestate.shapes.ShapeAggregate;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
@@ -62,12 +66,20 @@ public abstract class MapItemDefinition {
 		
 		try
 		{
-			//TODO convert string to collision strategy
-//			String strat = parser.getStringValue("collisionStrategy");
+			Parser strat = parser.getParser(ParserKeys.collisionStrategy);
+			String type = strat.getStringValue(ParserKeys.type);
+			if(type.equalsIgnoreCase("AllEnemies"))
+				cStrat = new AllEnemies();
+			else if(type.equalsIgnoreCase("CollidesWithAll"))
+				cStrat = new CollidesWithAll();
+			else if(type.equalsIgnoreCase("Ground"))
+				cStrat = new Ground();
+			else if(type.equalsIgnoreCase("NoCollision"))
+				cStrat = new NoCollision();
 		}
 		catch(Parser.NoSuchKeyException e)
 		{
-			//TODO set collision strat to some default value
+			cStrat = new NoCollision();
 		}
 		
 		//check to make sure this is a valid strat for this definition
