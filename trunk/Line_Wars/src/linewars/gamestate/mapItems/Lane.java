@@ -18,19 +18,29 @@ public class Lane
 	private Position p1;
 	private Position p2;
 	private Position p3;
+	private ArrayList<Wave> waves;
+	private Wave frontlineWave;
+	
+	/**
+	 * The two nodes this lane goes between.
+	 */
+	private Node node1;
+	private Node node2;
 	
 	/**
 	 * The width of the lane.
 	 */
 	private double width;
 	
-	public Lane(Position p0, Position p1, Position p2, Position p3, double width)
+	public Lane(Position p0, Position p1, Position p2, Position p3, double width, Node node1, Node node2)
 	{
 		this.p0 = p0;
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
 		this.width = width;
+		this.node1 = node1;
+		this.node2 = node2;
 	}
 
 	public Position getP0()
@@ -42,7 +52,16 @@ public class Lane
 	{
 		return p1;
 	}
-
+	
+	
+	public void mergeWaves(Wave waveOne, Wave waveTwo) throws invalidMergeException{
+		if(!waves.contains(waveOne) || !waves.contains(waveTwo)){
+			throw new invalidMergeException("Could not merge waves because one or both of the waves is not in this lane. ");
+		}
+		waveOne.add(waveTwo.getUnits());
+		waves.remove(waveTwo);
+	}
+	
 	public Position getP2()
 	{
 		return p2;
@@ -71,5 +90,20 @@ public class Lane
 	public double getWidth()
 	{
 		return width;
+	}
+	
+	public Wave[] getWaves()
+	{
+		return waves;
+	}
+	
+	public Node getNode1()
+	{
+		return node1;
+	}
+	
+	public Node getNode2()
+	{
+		return node2;
 	}
 }
