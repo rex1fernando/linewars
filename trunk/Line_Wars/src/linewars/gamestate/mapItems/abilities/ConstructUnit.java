@@ -5,6 +5,12 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the ability that constructs units.
+ */
 public class ConstructUnit implements Ability {
 	
 	private UnitDefinition unitDefinition;

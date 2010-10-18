@@ -1,18 +1,29 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the ability definition that creates units.
+ * Knows which unit it creates and starts active. Must be given
+ * what UnitDefinition to create from and the build time of that unit.
+ */
 public class ConstructUnitDefinition extends AbilityDefinition {
 	
 	private UnitDefinition unitDefinition = null;
+	private long buildtime;
 	
-	public ConstructUnitDefinition(UnitDefinition ud, MapItemDefinition owner)
+	public ConstructUnitDefinition(UnitDefinition ud, MapItemDefinition owner, long buildTime)
 	{
 		unitDefinition = ud;
 		this.owner = owner;
+		this.buildtime = buildTime;
 	}
 
 	@Override
@@ -27,8 +38,10 @@ public class ConstructUnitDefinition extends AbilityDefinition {
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		// TODO Auto-generated method stub
-		return null;
+		if(m instanceof Building)
+			return new ConstructUnit(unitDefinition, (Building)m, buildtime);
+		else
+			throw new IllegalArgumentException("Only buildings may construct units");
 	}
 
 	@Override

@@ -2,6 +2,12 @@ package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.Tech;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the ability that researches a tech.
+ */
 public class ResearchTech implements Ability {
 
 	private Tech tech;

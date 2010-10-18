@@ -6,6 +6,13 @@ import linewars.gamestate.mapItems.CommandCenterDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the definition for an ability that constructs
+ * a building. Knows what buiding it contructs.
+ */
 public class ConstructBuildingDefinition extends AbilityDefinition {
 	
 	private BuildingDefinition buildingDefinition = null;

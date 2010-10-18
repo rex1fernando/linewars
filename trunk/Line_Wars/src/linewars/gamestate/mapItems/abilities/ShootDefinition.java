@@ -6,6 +6,14 @@ import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * this class represents the definition of the shoot ability.
+ * It knows what projectile definition to use and the maximum
+ * range away this ability can be used.
+ */
 public class ShootDefinition extends AbilityDefinition {
 	
 	private ProjectileDefinition ammo = null;

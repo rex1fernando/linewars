@@ -6,6 +6,12 @@ import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Node;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the ability that constructs a building.
+ */
 public class ConstructBuilding implements Ability {
 
 	private BuildingDefinition buildingDefinition = null;

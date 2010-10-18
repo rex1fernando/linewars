@@ -2,11 +2,23 @@ package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.Function;
 import linewars.gamestate.Tech;
+import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class is the definition of the research tech ability. It knows
+ * what tech to research, how many times that tech has been researched,
+ * how long it takes to research the tech, and a cost function for each
+ * time the tech is researched. Handles creating dummy abilities (abilities
+ * that do nothing) if the tech can't be researched any more or if the
+ * player doesn't have enough stuff to pay for it.
+ */
 public class ResearchTechDefinition extends AbilityDefinition {
 	
 	private Tech tech = null;
@@ -65,14 +77,15 @@ public class ResearchTechDefinition extends AbilityDefinition {
 
 	@Override
 	public boolean equals(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		if(o instanceof ResearchTechDefinition)
+			return tech.equals(((ResearchTechDefinition)o).tech);
+		else
+			return false;
 	}
 
 	@Override
 	public boolean checkValidity() {
-		// TODO Auto-generated method stub
-		return false;
+		return (this.owner instanceof BuildingDefinition);
 	}
 
 }

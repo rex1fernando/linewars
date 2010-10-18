@@ -5,6 +5,13 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author cschenck
+ *
+ * This class represents the ability shoot. All it does is spawn
+ * a projectile in front of the unit and finish.
+ */
 public class Shoot implements Ability {
 	
 	public Shoot(ProjectileDefinition pd, Unit u)
