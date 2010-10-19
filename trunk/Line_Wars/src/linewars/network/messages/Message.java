@@ -1,4 +1,6 @@
-package linewars.network;
+package linewars.network.messages;
+
+import java.io.Serializable;
 
 /**
  * Encapsulates a single command.
@@ -36,7 +38,13 @@ package linewars.network;
  * @author Titus Klinge
  * 
  */
-public class Message
+public class Message implements Serializable
 {
+	private static final long serialVersionUID = 690292317101282722L;
+	
+	public static void main(String[] args)
+	{
 
+	}
+	
 }
