@@ -14,9 +14,9 @@ public class GraphLayer implements ILayer
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen)
 	{
 		//the following code is for testing of the ColoredEdge class
-		Lane l = new Lane(new Position(305, 350), new Position(10, 250), new Position(540, 115), new Position(350, 345), 10);
-		ColoredEdge test = new ColoredEdge(l);
-		test.draw(g);
+//		Lane l = new Lane(new Position(305, 350), new Position(10, 250), new Position(540, 115), new Position(350, 345), 10);
+//		ColoredEdge test = new ColoredEdge(l);
+//		test.draw(g);
 		//end test code
 		
 		/*

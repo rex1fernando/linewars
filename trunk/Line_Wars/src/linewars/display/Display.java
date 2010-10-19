@@ -9,6 +9,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,6 +114,19 @@ public class Display
 		
 		public GamePanel(JFrame parent)
 		{
+			String leftpane = "/resources/display/left_ui_panel.png";
+			String rightpane = "/resources/display/right_ui_panel.png";
+			
+			try
+			{
+				MapItemDrawer.getInstance().addImage(leftpane);
+				MapItemDrawer.getInstance().addImage(rightpane);
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+			
 			this.parent = parent;
 			
 			setOpaque(false);
@@ -131,14 +145,14 @@ public class Display
 			zoomLevel = 1;
 			screenPosition = new Point2D.Double(0,0);
 			
-			commandCardPanel = new CommandCardPanel(stateManager, new Animation(), null, null);
+			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightpane}, new double[]{1}, 0), null, null);
 			add(commandCardPanel);
-			exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
-			add(exitButtonPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
-			add(resourceDisplayPanel);
-			nodeStatusPanel = new NodeStatusPanel(stateManager, null, null, null);
-			add(nodeStatusPanel);
+			//exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
+			//add(exitButtonPanel);
+			//resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
+			//add(resourceDisplayPanel);
+			//nodeStatusPanel = new NodeStatusPanel(stateManager, null, null, null);
+			//add(nodeStatusPanel);
 			
 			addComponentListener(new ResizeListener());
 		}

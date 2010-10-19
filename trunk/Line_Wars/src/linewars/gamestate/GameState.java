@@ -15,7 +15,8 @@ public class GameState
 	
 	public Dimension2D getMapSize()
 	{
-		return map.getDimensions();
+		//return map.getDimensions();
+		return new Dimension(800, 600);
 	}
 	
 	public long getTime()

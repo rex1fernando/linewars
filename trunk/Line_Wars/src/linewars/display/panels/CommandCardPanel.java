@@ -23,11 +23,6 @@ public class CommandCardPanel extends Panel
 	 * These four variables represent the location and size of the
 	 * command card as a percentage of the screen real estate.
 	 */
-
-	private static final double WIDTH = 0.3;
-	private static final double HEIGHT = 0.2;
-	private static final double X_POS = 1 - WIDTH;
-	private static final double Y_POS = 1 - HEIGHT;
 	
 	private static final int NUM_H_BUTTONS = 4;
 	private static final int NUM_V_BUTTONS = 3;
@@ -72,12 +67,7 @@ public class CommandCardPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		super.updateLocation();
-		
-		// resizes the inner panel
-		buttonPanel.setLocation((int) (BTN_PANEL_X * getWidth()), (int) (BTN_PANEL_Y * getHeight()));
-		buttonPanel.setSize((int) (BTN_PANEL_WIDTH * getWidth()), (int) (BTN_PANEL_HEIGHT * getHeight()));
-		buttonPanel.validate();
+		setLocation(super.getWidth() - getWidth(), super.getHeight() - getHeight());
 	}
 	
 	/**

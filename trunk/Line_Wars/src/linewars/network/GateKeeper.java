@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+
+import linewars.network.messages.Message;
 
 /**
  * Abstracts actual interaction with the network protocol, including ensuring
@@ -22,8 +26,21 @@ import java.io.Serializable;
  * @author Titus Klinge
  * 
  */
-public class Gatekeeper
+public class GateKeeper
 {
+	private List<Message> messages;
+	
+	public GateKeeper()
+	{
+		messages = new LinkedList<Message>();
+	}
+	
+	public Message[] urgentMessagePoll()
+	{
+		// TODO implement
+		return null;
+	}
+	
 	
 	/**
 	 * Deserializes an array of bytes into an object.
@@ -36,7 +53,7 @@ public class Gatekeeper
 	 * @throws IOException
 	 *             If an IO error occurs during the deserialization process.
 	 */
-	public Object deSerialize(byte[] b) throws ClassNotFoundException, IOException
+	private Object deSerialize(byte[] b) throws ClassNotFoundException, IOException
 	{
 		ObjectInputStream os = new ObjectInputStream(new ByteArrayInputStream(b));
 		Object o = os.readObject();
@@ -53,7 +70,7 @@ public class Gatekeeper
 	 * @throws IOException
 	 *             If any IO error occurs during serialization.
 	 */
-	public byte[] serialize(Serializable s) throws IOException
+	private byte[] serialize(Serializable s) throws IOException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(out);

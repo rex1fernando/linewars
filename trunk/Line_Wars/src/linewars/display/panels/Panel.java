@@ -20,7 +20,7 @@ public abstract class Panel extends JPanel
 	private Animation[] animations;
 	protected Animation curAnimation;
 	
-	public Panel(GameStateManager stateManager, double x, double y, double width, double height, Animation ... animations)
+	public Panel(GameStateManager stateManager, , Animation ... animations)
 	{
 		super(null);
 		setOpaque(false);
@@ -45,17 +45,15 @@ public abstract class Panel extends JPanel
 	 * Updates the size and location of the panel relative to its parent.  This method
 	 * is called when the containing panel is resized.
 	 */
-	public void updateLocation()
-	{
-		setLocation((int) (x_pos * getParent().getWidth()), (int) (y_pos * getParent().getHeight()));
-		setSize((int) (width * getParent().getWidth()), (int) (height * getParent().getHeight()));
-	}
+	public abstract void updateLocation();
 	
 	@Override
 	public void paint(Graphics g)
 	{
 		MapItemDrawer d = MapItemDrawer.getInstance();
-		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), getWidth(), getHeight());
+		//g.setColor(Color.black);
+		//g.fillRect(getX(), getY(), getWidth(), getHeight());
+		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0));
 		super.paint(g);
 	}
 }

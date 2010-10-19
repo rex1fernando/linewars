@@ -57,13 +57,15 @@ public class MapItemDrawer
 	 */
 	public void addImage(String uri) throws IOException
 	{
+		String absURI = "file:" + System.getProperty("user.dir") + uri;
+		
 		Image image;
 		try
 		{
-			image = ImageIO.read(new URL(uri));
+			image = ImageIO.read(new URL(absURI));
 		} catch (IOException e)
 		{
-			throw new IOException("Unable to load " + uri + " from the game resources.");
+			throw e; //new IOException("Unable to load " + uri + " from the game resources.");
 		}
 		
 		images.put(uri, image);
@@ -79,9 +81,9 @@ public class MapItemDrawer
 	 * @param position
 	 *            The position to draw the image.
 	 */
-	public void draw(Graphics g, String uri, Position position, double width, double height)
+	public void draw(Graphics g, String uri, Position position)
 	{
 		Image image = images.get(uri);
-		g.drawImage(image, (int) position.getY(), (int) position.getY(), (int) width, (int) height, null);
+		g.drawImage(image, (int) position.getY(), (int) position.getY(), null);
 	}
 }

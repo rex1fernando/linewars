@@ -1,5 +1,10 @@
 package linewars.network;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import linewars.network.messages.Message;
+
 /**
  * Encapsulates the process of collating and distributing the Messages - in both
  * directions - as needed on the client side.
@@ -20,5 +25,21 @@ package linewars.network;
  */
 public class Client
 {
+	private List<Message> messages;
+	private GateKeeper gateKeeper;
 	
+	public Client()
+	{
+		messages = new LinkedList<Message>();
+	}
+	
+	public void addMessage(Message msg)
+	{
+		messages.add(msg);
+	}
+	
+	public Message[] getMessages()
+	{
+		return gateKeeper.urgentMessagePoll();
+	}
 }
