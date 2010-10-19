@@ -1,4 +1,5 @@
 package linewars.gamestate;
+import java.awt.Color;
 import java.util.*;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
@@ -66,6 +67,11 @@ public class Player {
 	
 	public double getStuff(){
 		return stuffAmount;
+	}
+	
+	//TODO add a color for the player
+	public Color getPlayerColor(){
+		return Color.red;
 	}
 	
 	public String getPlayerName(){

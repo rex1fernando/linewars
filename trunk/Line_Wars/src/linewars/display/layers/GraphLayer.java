@@ -1,6 +1,5 @@
 package linewars.display.layers;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 
@@ -15,8 +14,8 @@ public class GraphLayer implements ILayer
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen)
 	{
 		//the following code is for testing of the ColoredEdge class
-		Lane l = new Lane(new Position(205, 350), new Position(310, 110), new Position(340, 115), new Position(450, 345), 10);
-		ColoredEdge test = new ColoredEdge(l, Color.blue);
+		Lane l = new Lane(new Position(305, 350), new Position(10, 250), new Position(540, 115), new Position(350, 345), 10);
+		ColoredEdge test = new ColoredEdge(l);
 		test.draw(g);
 		//end test code
 		

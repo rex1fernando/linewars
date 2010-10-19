@@ -68,4 +68,8 @@ public class Position {
 		return scale(1 / length);
 	}
 
+	public Position orthagonal()
+	{
+		return new Position(y, -x);
+	}
 }

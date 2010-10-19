@@ -33,5 +33,13 @@ public class Wave {
 		}
 	}
 	
-	
+	/**
+	 * Gets the position of the wave within the lane.
+	 * @return a double that represents the percentage of the lane that is between the wave and p0 in the lane.
+	 */
+	public double getPosition()
+	{
+		//TODO implement this method
+		return 0.5;
+	}
 }

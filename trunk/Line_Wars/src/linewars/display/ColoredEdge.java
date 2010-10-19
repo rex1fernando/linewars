@@ -2,29 +2,62 @@ package linewars.display;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.Node;
+import linewars.gamestate.mapItems.Wave;
 
 public class ColoredEdge
 {
-	private static final double SEGMENT_STEP = 0.1;
+	private static final double SEGMENT_STEP = 0.01;
 	private Lane lane;
-	private Color color;
 
-	public ColoredEdge(Lane l, Color c)
+	public ColoredEdge(Lane l)
 	{
 		lane = l;
-		color = c;
 	}
 
 	public void draw(Graphics g)
 	{
-		g.setColor(color);
-		
-		for(double i = 0.0; i < 1; i += SEGMENT_STEP)
+		ArrayList<Wave> frontlines = lane.getFrontLineWaves();
+		ArrayList<Node> nodes = lane.getNodesList();
+		Wave currentWave = frontlines.get(0);
+		Node currentNode = nodes.get(0);
+		double pos = 0.0;
+
+		if(currentWave != null)
 		{
-			drawSegment(g, i, i + SEGMENT_STEP);
+			//draw portion that is "owned" by the first wave
+			g.setColor(currentNode.getOwner().getPlayerColor());
+			for(; pos < currentWave.getPosition(); pos += SEGMENT_STEP)
+			{
+				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP);
+			}
+		}
+		
+		currentWave = frontlines.get(1);
+		currentNode = nodes.get(1);
+		
+		g.setColor(Color.white);
+		if(currentWave != null)
+		{
+			//draw the neutral area between the two waves
+			for(; pos < currentWave.getPosition(); pos += SEGMENT_STEP)
+			{
+				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP);
+			}
+			
+			g.setColor(currentNode.getOwner().getPlayerColor());
+		}
+
+		//draw the portion that is "owned" by the second wave
+		//if the second wave was null then this draws the neutral section
+		//between the first wave and the second node
+		for(; pos < 1 - SEGMENT_STEP; pos += SEGMENT_STEP)
+		{
+			drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP);
 		}
 	}
 
@@ -41,57 +74,35 @@ public class ColoredEdge
 	 *            The percentage along the bezier curve to stop drawing (from
 	 *            0.0 to 1.0).
 	 */
-	private void drawSegment(Graphics g, double start, double end)
+	private void drawSegment(Graphics g, double before, double start, double end, double after)
 	{
 		//get the start and end positions
-		Position startPos = getPosition(start);
-		Position endPos = getPosition(end);
+		Position beforePos = lane.getPosition(before);
+		Position startPos = lane.getPosition(start);
+		Position endPos = lane.getPosition(end);
+		Position afterPos = lane.getPosition(after);
 		
-		//get the vector that represents the line segment
+		//get the vectors that represents the line segments
+		Position segBefore = beforePos.subtract(startPos);
 		Position segment = startPos.subtract(endPos);
+		Position segAfter = endPos.subtract(afterPos);
 		
-		//get the normalized vector that is orthagonal to the segment
-		//we will use this to get the bounding points on the segment
-		Position normalizedOrthagonal = new Position(segment.getY(), -segment.getX()).normalize();
+		//get the normalized vectors that are orthagonal to the lane
+		//we will use these to get the bounding points on the segment
+		Position normOrthStart = segBefore.orthagonal().add(segment.orthagonal()).normalize();
+		Position normOrthEnd = segment.orthagonal().add(segAfter.orthagonal()).normalize();
+		//Position normalizedOrthagonal = new Position(segment.getY(), -segment.getX()).normalize();
 
 		//generate the points that bound the segment to be drawn
-		Position first = new Position(startPos.getX() + normalizedOrthagonal.getX() * lane.getWidth() / 2, startPos.getY() + normalizedOrthagonal.getY() * lane.getWidth() / 2);
-		int[] x = {(int)first.getX(),
-				(int)(startPos.getX() - normalizedOrthagonal.getX() * lane.getWidth() / 2),
-				(int)(endPos.getX() - normalizedOrthagonal.getX() * lane.getWidth() / 2),
-				(int)(endPos.getX() + normalizedOrthagonal.getX() * lane.getWidth() / 2)};
-		int[] y = {(int)first.getY(),
-				(int)(startPos.getY() - normalizedOrthagonal.getY() * lane.getWidth() / 2),
-				(int)(endPos.getY() - normalizedOrthagonal.getY() * lane.getWidth() / 2),
-				(int)(endPos.getY() + normalizedOrthagonal.getY() * lane.getWidth() / 2)};
+		int[] x = {(int)(startPos.getX() + normOrthStart.getX() * lane.getWidth() / 2),
+				(int)(startPos.getX() - normOrthStart.getX() * lane.getWidth() / 2),
+				(int)(endPos.getX() - normOrthEnd.getX() * lane.getWidth() / 2),
+				(int)(endPos.getX() + normOrthEnd.getX() * lane.getWidth() / 2)};
+		int[] y = {(int)(startPos.getY() + normOrthStart.getY() * lane.getWidth() / 2),
+				(int)(startPos.getY() - normOrthStart.getY() * lane.getWidth() / 2),
+				(int)(endPos.getY() - normOrthEnd.getY() * lane.getWidth() / 2),
+				(int)(endPos.getY() + normOrthEnd.getY() * lane.getWidth() / 2)};
 		
 		g.fillPolygon(x, y, 4);
-	}
-
-	/**
-	 * Gets the position along the bezier curve represented by the percentage
-	 * pos. This follows the equation found at
-	 * 		<a href="http://en.wikipedia.org/wiki/Bezier_curve#Cubic_B.C3.A9zier_curves">http://en.wikipedia.org/wiki/Bezier_curve</a>
-	 * B(t)= (1-t)^3 * P0 + 3(1-t)^2 * t * P1 + 3(1-t) * t^2 * P 2 + t^3 * P3 where t = [0,1].
-	 * 
-	 * @param pos
-	 *            The percentage along the bezier curve to get a position.
-	 * 
-	 * @return The position along the bezier curve represented by the percentage
-	 *         pos.
-	 */
-	private Position getPosition(double pos)
-	{
-		double term0 = Math.pow((1 - pos), 3);
-		double term1 = 3 * Math.pow(1 - pos, 2) * pos;
-		double term2 = 3 * (1 - pos) * Math.pow(pos, 2);
-		double term3 = Math.pow(pos, 3);
-
-		double posX = term0 * lane.getP0().getX() + term1 * lane.getP1().getX()
-				+ term2 * lane.getP2().getX() + term3 * lane.getP3().getX();
-		double posY = term0 * lane.getP0().getY() + term1 * lane.getP1().getY()
-				+ term2 * lane.getP2().getY() + term3 * lane.getP3().getY();
-
-		return new Position(posX, posY);
 	}
 }

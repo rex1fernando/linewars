@@ -52,17 +52,22 @@ public class Lane
 	}
 	
 	
+	public Position getP2()
+	{
+		return p2;
+	}
+
+	public Position getP3()
+	{
+		return p3;
+	}
+
 	public void mergeWaves(Wave waveOne, Wave waveTwo) throws IllegalArgumentException{
 		if(!waves.contains(waveOne) || !waves.contains(waveTwo)){
 			throw new IllegalArgumentException("Could not merge waves because one or both of the waves is not in this lane. ");
 		}
 		waveOne.addUnits(waveTwo.getUnits());
 		waves.remove(waveTwo);
-	}
-	
-	public Position getP2()
-	{
-		return p2;
 	}
 	
 	//TODO
@@ -103,11 +108,6 @@ public class Lane
 		
 	}
 
-	public Position getP3()
-	{
-		return p3;
-	}
-	
 	public double getWidth()
 	{
 		return width;
@@ -128,4 +128,57 @@ public class Lane
 		return nodes;
 	}
 
+	/**
+	 * Gets the position along the bezier curve represented by the percentage
+	 * pos. This follows the equation found at
+	 * 		<a href="http://en.wikipedia.org/wiki/Bezier_curve#Cubic_B.C3.A9zier_curves">http://en.wikipedia.org/wiki/Bezier_curve</a>
+	 * B(t)= (1-t)^3 * P0 + 3(1-t)^2 * t * P1 + 3(1-t) * t^2 * P 2 + t^3 * P3 where t = [0,1].
+	 * 
+	 * @param pos
+	 *            The percentage along the bezier curve to get a position.
+	 * 
+	 * @return The position along the bezier curve represented by the percentage
+	 *         pos.
+	 */
+	public Position getPosition(double pos)
+	{
+		/*
+		 * TODO this method has been implemented to find the position within
+		 * one bezier curve. It needs to be implemented to handle a lane that
+		 * is composed of multiple curves.
+		 */
+		double term0 = Math.pow((1 - pos), 3);
+		double term1 = 3 * Math.pow(1 - pos, 2) * pos;
+		double term2 = 3 * (1 - pos) * Math.pow(pos, 2);
+		double term3 = Math.pow(pos, 3);
+
+		double posX = term0 * getP0().getX() + term1 * getP1().getX()
+				+ term2 * getP2().getX() + term3 * getP3().getX();
+		double posY = term0 * getP0().getY() + term1 * getP1().getY()
+				+ term2 * getP2().getY() + term3 * getP3().getY();
+
+		return new Position(posX, posY);
+	}
+	
+	/**
+	 * Gets the two front line waves in an ArrayList. The first wave in the
+	 * list is the wave that originated from the node at the front of the lane
+	 * (currently represented by p0), or null if there is no such wave. The
+	 * second wave in the list is the wave that originated from the node at the
+	 * end of the lane (currently represented by p3), or null if there is no
+	 * such wave.
+	 * 
+	 * @return the front line waves.
+	 */
+	public ArrayList<Wave> getFrontLineWaves()
+	{
+		/*
+		 * TODO I thought there were two front-line waves, one for each player,
+		 * but this class is currently only storing information for one.
+		 * 
+		 * I need the positions for both to be able to display the colors
+		 * correctly in ColoredEdge.
+		 */
+		return new ArrayList<Wave>();
+	}
 }
