@@ -79,9 +79,9 @@ public class MapItemDrawer
 	 * @param position
 	 *            The position to draw the image.
 	 */
-	public void draw(Graphics g, String uri, Position position)
+	public void draw(Graphics g, String uri, Position position, double width, double height)
 	{
 		Image image = images.get(uri);
-		g.drawImage(image, (int) position.getY(), (int) position.getY(), null);
+		g.drawImage(image, (int) position.getY(), (int) position.getY(), (int) width, (int) height, null);
 	}
 }

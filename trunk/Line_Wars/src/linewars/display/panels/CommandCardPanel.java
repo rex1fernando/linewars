@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.Position;
 
 /**
  * Encapsulates command card GUI information.
@@ -112,16 +113,5 @@ public class CommandCardPanel extends Panel
 		 * 		buttons[i].setVisible(false);
 		 * }
 		 */
-	}
-	
-	@Override
-	public void paint(Graphics g)
-	{
-		MapItemDrawer d = MapItemDrawer.getInstance();
-		
-		g.fillRect(0, 0, getWidth(), getHeight());
-		
-		//d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Point2D.Double(0,0));
-		super.paint(g);
 	}
 }

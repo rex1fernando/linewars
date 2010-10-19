@@ -30,7 +30,7 @@ public class Animation
 			throw new IllegalArgumentException(
 					"The number of URIs and display times must be the same!");
 		}
-
+		
 		this.imageURIs = imageURIs;
 		this.displayTimes = displayTimes;
 		this.creationTime = creationTime;
@@ -47,6 +47,8 @@ public class Animation
 	 */
 	public String getImage(double gameTime)
 	{
+		if (imageURIs.length == 1) return imageURIs[0];
+		
 		double curTime = gameTime - creationTime;
 
 		double sum = 0;

@@ -74,7 +74,6 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
-				f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -132,7 +131,7 @@ public class Display
 			zoomLevel = 1;
 			screenPosition = new Point2D.Double(0,0);
 			
-			commandCardPanel = new CommandCardPanel(stateManager, null, null, null);
+			commandCardPanel = new CommandCardPanel(stateManager, new Animation(), null, null);
 			add(commandCardPanel);
 			exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
 			add(exitButtonPanel);

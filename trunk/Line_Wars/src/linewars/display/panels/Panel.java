@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.Position;
 
 public abstract class Panel extends JPanel
 {
@@ -15,9 +16,9 @@ public abstract class Panel extends JPanel
 	
 	private enum ANIMATION { DEFAULT, ROLE_IN, ROLE_OUT }
 	
-	private GameStateManager stateManager;
+	protected GameStateManager stateManager;
 	private Animation[] animations;
-	private Animation curAnimation;
+	protected Animation curAnimation;
 	
 	public Panel(GameStateManager stateManager, double x, double y, double width, double height, Animation ... animations)
 	{
@@ -54,9 +55,7 @@ public abstract class Panel extends JPanel
 	public void paint(Graphics g)
 	{
 		MapItemDrawer d = MapItemDrawer.getInstance();
-		//d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Point2D.Double(0,0));
-		
-		g.fillRect(0, 0, getWidth(), getHeight());
+		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), getWidth(), getHeight());
 		super.paint(g);
 	}
 }
