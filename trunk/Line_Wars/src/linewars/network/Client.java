@@ -1,5 +1,6 @@
 package linewars.network;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,8 +39,13 @@ public class Client
 		messages.add(msg);
 	}
 	
-	public Message[] getMessages()
+	public Message[] getAllMessages()
 	{
-		return gateKeeper.urgentMessagePoll();
+		return gateKeeper.getAllMessagesUrgently();
+	}
+	
+	public Message[] getLocalMessages()
+	{
+		return messages.toArray(new Message[messages.size()]);
 	}
 }

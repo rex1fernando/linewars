@@ -42,9 +42,29 @@ public class Message implements Serializable
 {
 	private static final long serialVersionUID = 690292317101282722L;
 	
-	public static void main(String[] args)
+	private byte[] data;
+	
+	public Message()
 	{
-
+		data = new byte[1500];
+	}
+	
+	public int getPlayerId()
+	{
+		// TODO implement
+		return 0;
+	}
+	
+	public int getTimeStep()
+	{
+		// TODO implement
+		return 0;
+	}
+	
+	public int getId()
+	{
+		// TODO implement
+		return 0;
 	}
 	
 }
