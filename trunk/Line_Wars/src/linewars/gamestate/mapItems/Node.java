@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
@@ -19,6 +20,12 @@ public class Node {
 	private Transformation[] buildingSpots;
 	private int numBuildings;
 	
+	/*
+	 * TODO The Display needs the size of a Node to properly draw
+	 * the colored circle over it in strategic view.
+	 */
+	private Dimension size;
+	
 	public Node(Player owner, Lane[] lanes, CommandCenter center, Transformation[] buildingSpots)
 	{
 		this.owner = owner;
@@ -33,6 +40,9 @@ public class Node {
 		this.center = center;
 		containedUnits = new ArrayList<Unit>();
 		this.buildingSpots = buildingSpots;
+		
+		//TODO set the size of the Node
+		size = new Dimension(100, 100);
 	}
 	
 	public Player getOwner()
@@ -73,6 +83,17 @@ public class Node {
 	public int getNumBuildings()
 	{
 		return numBuildings;
+	}
+	
+	public Dimension getSize()
+	{
+		return size;
+	}
+	
+	//TODO The display also needs access to information regarding the center of the Node
+	public CommandCenter getCommandCenter()
+	{
+		return center;
 	}
 	
 	void spawnWaves()
