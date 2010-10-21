@@ -1,5 +1,6 @@
 package linewars.display.panels;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
@@ -9,26 +10,19 @@ import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
 import linewars.gamestate.Position;
 
+@SuppressWarnings("serial")
 public abstract class Panel extends JPanel
-{
-	private final double width, height;
-	private final double x_pos, y_pos;
-	
+{	
 	private enum ANIMATION { DEFAULT, ROLE_IN, ROLE_OUT }
 	
 	protected GameStateManager stateManager;
 	private Animation[] animations;
 	protected Animation curAnimation;
 	
-	public Panel(GameStateManager stateManager, , Animation ... animations)
+	public Panel(GameStateManager stateManager, Animation ... animations)
 	{
 		super(null);
 		setOpaque(false);
-		
-		this.width = width;
-		this.height = height;
-		x_pos = x;
-		y_pos = y;
 		
 		// check for correct animations
 		if (animations == null || animations.length != ANIMATION.values().length)
@@ -50,9 +44,9 @@ public abstract class Panel extends JPanel
 	@Override
 	public void paint(Graphics g)
 	{
+//		g.setColor(Color.black);
+//		g.fillRect(0, 0, getWidth(), getHeight());
 		MapItemDrawer d = MapItemDrawer.getInstance();
-		//g.setColor(Color.black);
-		//g.fillRect(getX(), getY(), getWidth(), getHeight());
 		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0));
 		super.paint(g);
 	}

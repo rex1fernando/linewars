@@ -14,19 +14,19 @@ import linewars.gamestate.GameStateManager;
 
 public class ExitButtonPanel extends Panel
 {
-	private static final double X_POS = 0.0;
-	private static final double Y_POS = 0.0;
-	private static final double WIDTH = 0.06;
-	private static final double HEIGHT = 0.04;
+	private static final int WIDTH = 75;
+	private static final int HEIGHT = 25;
 	
 	private JFrame frame;
 	private JButton exitButton;
 	
 	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Animation ... anims)
 	{
-		super(stateManager, X_POS, Y_POS, WIDTH, HEIGHT, anims);
+		super(stateManager, anims);
 		
 		this.frame = frame;
+		
+		setSize(WIDTH, HEIGHT);
 		
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
@@ -57,7 +57,8 @@ public class ExitButtonPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		super.updateLocation();
+		setSize(WIDTH, HEIGHT);
+		setLocation(0, 0);
 		validate();
 	}
 }

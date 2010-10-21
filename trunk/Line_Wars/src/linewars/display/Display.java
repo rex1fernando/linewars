@@ -9,6 +9,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,7 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
+				//f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -114,8 +116,8 @@ public class Display
 		
 		public GamePanel(JFrame parent)
 		{
-			String leftpane = "/resources/display/left_ui_panel.png";
-			String rightpane = "/resources/display/right_ui_panel.png";
+			String leftpane = File.separator + "resources" + File.separator + "display" + File.separator + "left_ui_panel.png";
+			String rightpane = File.separator + "resources" + File.separator + "display" + File.separator + "right_ui_panel.png";
 			
 			try
 			{
@@ -147,12 +149,12 @@ public class Display
 			
 			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightpane}, new double[]{1}, 0), null, null);
 			add(commandCardPanel);
-			//exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
-			//add(exitButtonPanel);
-			//resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
-			//add(resourceDisplayPanel);
-			//nodeStatusPanel = new NodeStatusPanel(stateManager, null, null, null);
-			//add(nodeStatusPanel);
+			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftpane}, new double[]{1}, 0), null, null);
+			add(nodeStatusPanel);
+//			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
+//			add(resourceDisplayPanel);
+//			exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
+//			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());
 		}
@@ -196,9 +198,9 @@ public class Display
 			public void componentResized(ComponentEvent e)
 			{
 				commandCardPanel.updateLocation();
-				exitButtonPanel.updateLocation();
 				nodeStatusPanel.updateLocation();
-				resourceDisplayPanel.updateLocation();
+//				resourceDisplayPanel.updateLocation();
+//				exitButtonPanel.updateLocation();
 			}
 		}
 	}

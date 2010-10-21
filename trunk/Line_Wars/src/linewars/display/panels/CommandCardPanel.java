@@ -24,6 +24,9 @@ public class CommandCardPanel extends Panel
 	 * command card as a percentage of the screen real estate.
 	 */
 	
+	private static final int WIDTH = 500;
+	private static final int HEIGHT = 400;
+	
 	private static final int NUM_H_BUTTONS = 4;
 	private static final int NUM_V_BUTTONS = 3;
 	
@@ -48,7 +51,9 @@ public class CommandCardPanel extends Panel
 	 */
 	public CommandCardPanel(GameStateManager stateManager, Animation ... anims)
 	{
-		super(stateManager, X_POS, Y_POS, WIDTH, HEIGHT, anims);
+		super(stateManager, anims);
+		
+		setSize(WIDTH, HEIGHT);
 		
 		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS));
 		buttonPanel.setOpaque(false);
@@ -67,7 +72,8 @@ public class CommandCardPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		setLocation(super.getWidth() - getWidth(), super.getHeight() - getHeight());
+		setSize(WIDTH, HEIGHT);
+		setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
 	}
 	
 	/**
