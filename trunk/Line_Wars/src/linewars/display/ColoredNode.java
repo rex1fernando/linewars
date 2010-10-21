@@ -43,6 +43,6 @@ public class ColoredNode
 		Position pos = node.getCommandCenter().getPosition();
 		Dimension size = node.getSize();
 		
-		g.fillOval((int)pos.getX(), (int)pos.getY(), size.width, size.height);
+		g.fillOval((int)(pos.getX() - size.width / 2), (int)(pos.getY() - size.height / 2), size.width, size.height);
 	}
 }

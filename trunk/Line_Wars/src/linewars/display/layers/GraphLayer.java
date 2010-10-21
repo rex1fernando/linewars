@@ -24,7 +24,7 @@ public class GraphLayer implements ILayer
 		//end test code
 
 		//the following code is for testing of the ColoredNode class
-//		CommandCenter center = new CommandCenter(new Transformation(new Position(300, 300), 0), null, null);
+//		CommandCenter center = new CommandCenter(new Transformation(new Position(50, 50), 0), null, null);
 //		Node n = new Node(null, new Lane[]{}, center, null);
 //		ColoredNode testNode = new ColoredNode(n);
 //		testNode.draw(g);
