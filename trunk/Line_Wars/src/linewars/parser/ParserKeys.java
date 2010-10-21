@@ -6,5 +6,8 @@ public enum ParserKeys {
 	abilities, functionType, 
 	coefficients, costFunction, 
 	researchTime, body, collisionStrategy,
-	type
+	type, combatStrategy, 
+	movementStrategy, speed,
+	impactStrategy, damage, unitURI,
+	techURI, projectileURI, range
 }

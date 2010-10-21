@@ -3,7 +3,9 @@ package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -28,12 +30,32 @@ public abstract class AbilityDefinition {
 	 */
 	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m)
 	{
-		//TODO create the ability definition
 		AbilityDefinition ad = null;
+		if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))
+		{
+			ad = new ConstructUnitDefinition(m.getOwner().getUnitDefinition(
+					parser.getStringValue(ParserKeys.unitURI)), m,
+					(long) parser.getNumericValue(ParserKeys.buildTime));
+		}
+		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ResearchTech"))
+		{
+			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getStringValue(ParserKeys.techURI)), m);
+		}
+		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("Shoot"))
+		{
+			ad = new ShootDefinition(m.getOwner().getProjectileDefinition(
+					parser.getStringValue(ParserKeys.projectileURI)), m,
+					parser.getNumericValue(ParserKeys.range));
+		}
+		else
+			throw new IllegalArgumentException(
+					parser.getStringValue(ParserKeys.type)
+							+ " does not define a valid ability in "
+							+ parser.getConfigFile().getURI());
 		
 		if(!ad.checkValidity())
 			throw new IllegalArgumentException(m.getName() + " cannot have ability " + ad.getName());
-		return null;
+		return ad;
 	}
 	
 	protected MapItemDefinition owner = null;

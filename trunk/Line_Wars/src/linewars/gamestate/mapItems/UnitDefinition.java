@@ -3,9 +3,14 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.combat.NoCombat;
+import linewars.gamestate.mapItems.strategies.combat.ShootClosestTarget;
+import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
+import linewars.gamestate.mapItems.strategies.movement.Straight;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
@@ -22,7 +27,7 @@ public class UnitDefinition extends MapItemDefinition {
 	
 	private double maxHp;
 	
-	private CombatStrategy cStrat;
+	private CombatStrategy combatStrat;
 	private MovementStrategy mStrat;
 
 	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
@@ -30,12 +35,29 @@ public class UnitDefinition extends MapItemDefinition {
 		
 		maxHp = super.getParser().getNumericValue(ParserKeys.maxHP);
 		
-//		String cs = super.getParser().getStringValue("combatStrategy");
-		//TODO convert string to combat strategy
+		Parser cs = super.getParser().getParser(ParserKeys.combatStrategy);
+		if(cs.getStringValue(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
+		{
+			combatStrat = new ShootClosestTarget(this);
+		}
+		else if(cs.getStringValue(ParserKeys.type).equalsIgnoreCase("NoCombat"))
+		{
+			combatStrat = new NoCombat();
+		}
+		else
+			throw new IllegalArgumentException("Invalid combat strategy for " + this.getName());
 		
-//		String ms = super.getParser().getStringValue("movementStrategy");
-		//TODO convert string to movement strategy
-		
+		Parser ms = super.getParser().getParser(ParserKeys.movementStrategy);
+		if(ms.getStringValue(ParserKeys.type).equalsIgnoreCase("Straight"))
+		{
+			mStrat = new Straight(ms.getNumericValue(ParserKeys.speed));
+		}
+		else if(ms.getStringValue(ParserKeys.type).equalsIgnoreCase("immovable"))
+		{
+			mStrat = new Immovable();
+		}
+		else
+			throw new IllegalArgumentException("Invalid movement strategy for " + this.getName());
 	}
 
 	/**
@@ -46,7 +68,7 @@ public class UnitDefinition extends MapItemDefinition {
 	 */
 	public Unit createUnit(Transformation t) {
 		
-		Unit u = new Unit(t, this, mStrat.copy(), cStrat.copy());
+		Unit u = new Unit(t, this, mStrat.copy(), combatStrat.copy());
 		
 		return u;
 	}

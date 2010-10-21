@@ -4,6 +4,7 @@ import java.util.*;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Node;
+import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
 import java.util.*;
 public class Player {
@@ -161,4 +162,45 @@ public class Player {
 		stuffAmount = stuffAmount - amount;
 	}
 	
+	//TODO
+	/**
+	 * This method takes in a URI and returns the associated unitDefinition. If
+	 * that unitDefinition is not yet loaded, it loads it and then returns it.
+	 * Throws an exception if the definition can't be loaded
+	 * 
+	 * @param URI	the URI of the unit definition
+	 * @return		the unit definition
+	 */
+	public UnitDefinition getUnitDefinition(String URI)
+	{
+		return null;
+	}
+	
+	//TODO
+	/**
+	 * This method takes in a URI and returns the associated tech. If
+	 * that tech is not yet loaded, it loads it and then returns it.
+	 * Throws an exception if the tech can't be loaded
+	 * 
+	 * @param URI	the URI of the unit definition
+	 * @return		the unit definition
+	 */
+	public Tech getTech(String URI)
+	{
+		return null;
+	}
+	
+	//TODO
+	/**
+	 * This method takes in a URI and returns the associated projectileDefinition. If
+	 * that projectileDefinition is not yet loaded, it loads it and then returns it.
+	 * Throws an exception if the definition can't be loaded
+	 * 
+	 * @param URI	the URI of the unit definition
+	 * @return		the unit definition
+	 */
+	public ProjectileDefinition getProjectileDefinition(String URI)
+	{
+		return null;
+	}
 }

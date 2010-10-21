@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.impact.DealDamageOnce;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
+import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
@@ -27,8 +29,13 @@ public abstract class ProjectileDefinition extends MapItemDefinition {
 		super(URI, owner);
 		
 		velocity = super.getParser().getNumericValue(ParserKeys.velocity);
-//		String is = super.getParser().getStringValue("impactStrategy");
-		//TODO convert string to impact strategy
+		Parser is = super.getParser().getParser(ParserKeys.impactStrategy);
+		if(is.getStringValue(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
+		{
+			iStrat = new DealDamageOnce(is.getNumericValue(ParserKeys.damage));
+		}
+		else
+			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());
 		
 	}
 	
