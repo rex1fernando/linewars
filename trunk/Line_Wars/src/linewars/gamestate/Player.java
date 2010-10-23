@@ -1,19 +1,20 @@
 package linewars.gamestate;
 import java.awt.Color;
 import java.util.*;
-import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Node;
-import linewars.gamestate.mapItems.ProjectileDefinition;
-import linewars.gamestate.mapItems.UnitDefinition;
-import java.util.*;
+
+import linewars.gamestate.mapItems.*;
+
 public class Player {
 
 	private Map map;
+	private Color playerColor;
 	private double stuffAmount;
 	private ArrayList<Node> ownedNodes;
 	private HashMap<Lane, Node> startPoints;
 	private HashMap<Lane, Double> flowDist;
+	private ArrayList<Unit> ownedUnits;
+	private ArrayList<Building> ownedBuildings;
+	private ArrayList<Projectile> ownedProjectiles;
 	private ArrayList<BuildingDefinition> buildingDefs;
 	private ArrayList<UnitDefinition> unitDefs;
 	private ArrayList<Tech> techLevels;
@@ -72,15 +73,20 @@ public class Player {
 	
 	//TODO add a color for the player
 	public Color getPlayerColor(){
-		return Color.red;
+		return playerColor;
 	}
 	
 	public String getPlayerName(){
 		return name;
 	}
 	
-	public double getFlowDist(Node n){
-		return flowDist.get(n);
+	public double getFlowDist(Lane l){
+		return flowDist.get(l);
+	}
+	
+	public HashMap<Lane, Double> getFlowDist()
+	{
+		return flowDist;
 	}
 	
 	public ArrayList<Node> getOwnedNodes(){
@@ -146,9 +152,9 @@ public class Player {
 	{
 		startPoints.put(l, n);
 	}
-	
+		
 	/**
-	 * spends the given amount of stuff, throws an exception if there
+	 * Spends the given amount of stuff, throws an exception if there
 	 * isn't enough stuff left to spend
 	 * 
 	 * @param amount	the amount of stuff to spend

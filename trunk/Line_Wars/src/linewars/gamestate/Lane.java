@@ -23,8 +23,10 @@ public class Lane
 	private Position p1;
 	private Position p2;
 	private Position p3;
+		
+//	private ArrayList<Wave> pendingWaves;
 	private ArrayList<Wave> waves;
-	private Wave frontlineWave;
+	private ArrayList<Wave> frontlineWaves;
 	private ArrayList<Node> nodes;
 	
 	/**
@@ -179,6 +181,6 @@ public class Lane
 		 * I need the positions for both to be able to display the colors
 		 * correctly in ColoredEdge.
 		 */
-		return new ArrayList<Wave>();
+		return frontlineWaves;
 	}
 }

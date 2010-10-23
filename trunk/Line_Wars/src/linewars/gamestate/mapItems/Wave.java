@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import linewars.gamestate.Lane;
 public class Wave {
 	private Lane owner;
+	boolean isVisible;
+	
 	ArrayList<Unit> units;
+	
 	/**
 	 * gets the lane that owns this wave
 	 * 
@@ -20,9 +23,13 @@ public class Wave {
 		return (Unit[])units.toArray();
 	}
 
-	public void addUnit(Unit u)
+	public boolean addUnit(Unit u)
 	{
-		units.add(u);
+		//Check if the wave is empty and if it's not, make sure the unit you're trying to add belongs to the same player as the wave.
+		if(!units.isEmpty() && u.getOwner().getPlayerColor() != units.get(0).getOwner().getPlayerColor()){
+			return false;
+		}
+		return units.add(u);
 	}
 	
 	public void addUnits(Unit[] u)

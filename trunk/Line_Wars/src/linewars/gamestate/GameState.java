@@ -19,6 +19,11 @@ public class GameState
 		return new Dimension(800, 600);
 	}
 	
+	public List<Player> getPlayers()
+	{
+		return new ArrayList<Player>();
+	}
+	
 	public long getTime()
 	{
 		return System.currentTimeMillis();

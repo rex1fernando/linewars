@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 
 
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
@@ -16,7 +17,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
  * points it has and what wave it is currently in.
  */
 public class Unit extends MapItem {
-	
+	private Player owner;
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
 	
@@ -104,6 +105,11 @@ public class Unit extends MapItem {
 		return true;
 	}
 
+	public Player getOwner()
+	{
+		return owner;
+	}
+	
 	@Override
 	protected MapItemDefinition getDefinition() {
 		return definition;

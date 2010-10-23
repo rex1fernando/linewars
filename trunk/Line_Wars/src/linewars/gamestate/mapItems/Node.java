@@ -2,14 +2,23 @@ package linewars.gamestate.mapItems;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
+
+import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Map;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Unit;
 
 public class Node {
+	private Map gameMap;
+	private GameState gameState;
 	private Player owner;
 	private Player invader;
 	private long occupationTime;
@@ -96,14 +105,58 @@ public class Node {
 		return center;
 	}
 	
-	void spawnWaves()
+	//TODO Get the timer tick to seed the random the same in all systems.
+	public void spawnWaves()
 	{
-		if(containedUnits.size() != 0)
+		Random rand = new Random(50);
+		HashMap<Player, double[]> flows = getAllFlow();
+		for(int i = 0; i < containedUnits.size(); i++)
 		{
+			Player owner = containedUnits.get(i).getOwner();
+			double totalFlow = getTotal(flows.get(owner));
+			double[] currentFlowSet = flows.get(owner);
+			double number = rand.nextDouble() * totalFlow;
 			
+			for(int j = 0; j < flows.get(owner).length; j++)
+			{
+				if(number <= currentFlowSet[j])
+				{
+					
+				}
+			}
 		}
 	}
 	
+	private double getTotal(double[] flows)
+	{
+		double ret = 0;
+		for(int i = 0; i < flows.length; i++)
+		{
+			ret = ret + flows[i];
+		}
+		return ret;
+	}
+	
+	private HashMap<Player, double[]> getAllFlow()
+	{
+		List<Player> players = gameState.getPlayers();
+		HashMap<Player, double[]> ret = new HashMap<Player, double[]>();
+		double[] flows;
+		for(int i = 0; i < players.size(); i++)
+		{
+			Lane[] l = gameMap.getLanes();
+			flows = new double[l.length];
+			Player p = players.get(i);
+			for(int j = 0; j < l.length; j++)
+			{
+				flows[j] = p.getFlowDist(l[j]);
+			}
+			Arrays.sort(flows);
+			ret.put(p, flows);
+		}
+		return ret;
+		
+	}
 	
 	/**
 	 * This method gets the next available position and rotation to build a
