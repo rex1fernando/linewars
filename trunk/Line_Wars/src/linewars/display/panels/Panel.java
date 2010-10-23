@@ -1,6 +1,5 @@
 package linewars.display.panels;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
@@ -15,14 +14,22 @@ public abstract class Panel extends JPanel
 {	
 	private enum ANIMATION { DEFAULT, ROLE_IN, ROLE_OUT }
 	
+	private int width;
+	private int height;
+	
 	protected GameStateManager stateManager;
 	private Animation[] animations;
 	protected Animation curAnimation;
 	
-	public Panel(GameStateManager stateManager, Animation ... animations)
+	public Panel(GameStateManager stateManager, int width, int height, Animation ... animations)
 	{
 		super(null);
 		setOpaque(false);
+		
+		this.width = width;
+		this.height = height;
+		
+		setSize(width, height);
 		
 		// check for correct animations
 		if (animations == null || animations.length != ANIMATION.values().length)
@@ -39,7 +46,10 @@ public abstract class Panel extends JPanel
 	 * Updates the size and location of the panel relative to its parent.  This method
 	 * is called when the containing panel is resized.
 	 */
-	public abstract void updateLocation();
+	public void updateLocation()
+	{
+		setSize(width, height);
+	}
 	
 	@Override
 	public void paint(Graphics g)

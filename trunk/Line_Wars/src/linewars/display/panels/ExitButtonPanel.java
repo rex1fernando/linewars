@@ -9,11 +9,14 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import linewars.display.Animation;
-import linewars.display.Display;
 import linewars.gamestate.GameStateManager;
 
+@SuppressWarnings("serial")
 public class ExitButtonPanel extends Panel
 {
+	/**
+	 * The height and width of the panel
+	 */
 	private static final int WIDTH = 75;
 	private static final int HEIGHT = 25;
 	
@@ -22,11 +25,9 @@ public class ExitButtonPanel extends Panel
 	
 	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Animation ... anims)
 	{
-		super(stateManager, anims);
+		super(stateManager, WIDTH, HEIGHT, anims);
 		
 		this.frame = frame;
-		
-		setSize(WIDTH, HEIGHT);
 		
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
@@ -57,8 +58,11 @@ public class ExitButtonPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		setSize(WIDTH, HEIGHT);
+		super.updateLocation();
+		
+		//resize the button
+		exitButton.setSize(WIDTH, HEIGHT);
+
 		setLocation(0, 0);
-		validate();
 	}
 }

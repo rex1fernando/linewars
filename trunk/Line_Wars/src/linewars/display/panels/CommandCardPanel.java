@@ -1,15 +1,12 @@
 package linewars.display.panels;
 
-import java.awt.Graphics;
 import java.awt.GridLayout;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import linewars.display.Animation;
-import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
-import linewars.gamestate.Position;
 
 /**
  * Encapsulates command card GUI information.
@@ -17,23 +14,43 @@ import linewars.gamestate.Position;
  * @author Titus Klinge
  * @author Ryan Tew
  */
+@SuppressWarnings("serial")
 public class CommandCardPanel extends Panel
 {
 	/**
-	 * These four variables represent the location and size of the
-	 * command card as a percentage of the screen real estate.
+	 * The height and width of the panel
 	 */
-	
 	private static final int WIDTH = 500;
 	private static final int HEIGHT = 400;
 	
+	/**
+	 * The factor that the image is scaled to in order to fill the panel
+	 */
+	private static final double scaleFactor = 1.0;
+	
+	/**
+	 * The number of buttons on the command card
+	 */
 	private static final int NUM_H_BUTTONS = 4;
 	private static final int NUM_V_BUTTONS = 3;
 	
-	private static final double BTN_PANEL_X = 0.1;
-	private static final double BTN_PANEL_Y = 0.1;
-	private static final double BTN_PANEL_WIDTH = 0.8;
-	private static final double BTN_PANEL_HEIGHT = 0.8;
+	/**
+	 * The location of the command button panel within the command card
+	 */
+	private static final int BTN_PANEL_X = 150;
+	private static final int BTN_PANEL_Y = 133;
+	
+	/**
+	 * The height and width of the command button panel
+	 */
+	private static final int BTN_PANEL_WIDTH = 341;
+	private static final int BTN_PANEL_HEIGHT = 258;
+	
+	/**
+	 * The gaps between the command buttons
+	 */
+	private static final int BTN_PANEL_H_GAP = 10;
+	private static final int BTN_PANEL_V_GAP = 11;
 	
 	private JPanel buttonPanel;
 	private JButton[] buttons;
@@ -51,18 +68,16 @@ public class CommandCardPanel extends Panel
 	 */
 	public CommandCardPanel(GameStateManager stateManager, Animation ... anims)
 	{
-		super(stateManager, anims);
-		
-		setSize(WIDTH, HEIGHT);
-		
-		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS));
+		super(stateManager, WIDTH, HEIGHT, anims);
+				
+		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor), (int)(BTN_PANEL_V_GAP * scaleFactor)));
 		buttonPanel.setOpaque(false);
 		
 		buttons = new JButton[NUM_V_BUTTONS * NUM_H_BUTTONS];
 		for (int i = 0; i < NUM_V_BUTTONS * NUM_H_BUTTONS; i++)
 		{
 			buttons[i] = new JButton();
-			buttons[i].setVisible(false);
+			buttons[i].setVisible(true);
 			buttonPanel.add(buttons[i]);
 		}
 		
@@ -72,8 +87,13 @@ public class CommandCardPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		setSize(WIDTH, HEIGHT);
+		super.updateLocation();
+		
 		setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
+		
+		// resizes the inner panel
+		buttonPanel.setLocation((int) (BTN_PANEL_X * scaleFactor), (int) (BTN_PANEL_Y * scaleFactor));
+		buttonPanel.setSize((int) (BTN_PANEL_WIDTH * scaleFactor), (int) (BTN_PANEL_HEIGHT * scaleFactor));
 	}
 	
 	/**
