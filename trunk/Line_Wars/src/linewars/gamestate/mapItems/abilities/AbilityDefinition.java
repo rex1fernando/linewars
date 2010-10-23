@@ -101,6 +101,12 @@ public abstract class AbilityDefinition {
 	 */
 	public abstract String getDescription();
 	
+	/**
+	 * 
+	 * @return	 the URI of the icon image associated with this ability
+	 */
+	public abstract String getIconURI();
+	
 	@Override
 	public abstract boolean equals(Object o);
 

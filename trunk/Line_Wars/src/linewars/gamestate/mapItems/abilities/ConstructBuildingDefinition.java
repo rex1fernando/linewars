@@ -5,6 +5,7 @@ import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.CommandCenterDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -64,6 +65,11 @@ public class ConstructBuildingDefinition extends AbilityDefinition {
 	@Override
 	public boolean checkValidity() {
 		return (buildingDefinition != null) && (owner instanceof CommandCenterDefinition);
+	}
+
+	@Override
+	public String getIconURI() {
+		return buildingDefinition.getParser().getStringValue(ParserKeys.icon);
 	}
 
 }

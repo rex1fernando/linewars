@@ -88,4 +88,9 @@ public class ResearchTechDefinition extends AbilityDefinition {
 		return (this.owner instanceof BuildingDefinition);
 	}
 
+	@Override
+	public String getIconURI() {
+		return tech.getParser().getStringValue(ParserKeys.icon);
+	}
+
 }

@@ -5,6 +5,7 @@ import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -65,6 +66,11 @@ public class ConstructUnitDefinition extends AbilityDefinition {
 			return unitDefinition.equals(((ConstructUnitDefinition)o).unitDefinition);
 		else
 			return false;
+	}
+
+	@Override
+	public String getIconURI() {
+		return unitDefinition.getParser().getStringValue(ParserKeys.icon);
 	}
 
 }

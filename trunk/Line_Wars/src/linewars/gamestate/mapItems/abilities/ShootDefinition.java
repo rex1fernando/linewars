@@ -5,6 +5,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -70,6 +71,11 @@ public class ShootDefinition extends AbilityDefinition {
 	public double getRange()
 	{
 		return range;
+	}
+
+	@Override
+	public String getIconURI() {
+		return ammo.getParser().getStringValue(ParserKeys.icon);
 	}
 
 }

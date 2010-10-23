@@ -9,5 +9,6 @@ public enum ParserKeys {
 	type, combatStrategy, 
 	movementStrategy, speed,
 	impactStrategy, damage, unitURI,
-	techURI, projectileURI, range
+	techURI, projectileURI, range,
+	icon
 }
