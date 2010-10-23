@@ -40,15 +40,13 @@ public class GateKeeper implements Runnable
 	
 	private DatagramSocket socket;
 	private int port;
-	private String serverAddress;
 	
 	private boolean listening;
 	private List<Message> messages;
 	private HashMap<Integer, List<MessagePacket>> incompletePackets;
 	
-	public GateKeeper(int port, String serverAddress) throws SocketException
+	public GateKeeper(int port) throws SocketException
 	{		
-		this.serverAddress = serverAddress;
 		messages = new LinkedList<Message>();
 		incompletePackets = new HashMap<Integer, List<MessagePacket>>();
 		
@@ -158,7 +156,7 @@ public class GateKeeper implements Runnable
 		for (MessagePacket p : packets)
 		{
 			byte[] packetData = serialize(p);
-			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(serverAddress), port));
+			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(address), port));
 		}
 	}
 	
