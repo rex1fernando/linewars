@@ -41,7 +41,7 @@ public class Client
 	
 	public Message[] getAllMessages()
 	{
-		return gateKeeper.getAllMessagesUrgently();
+		return null;
 	}
 	
 	public Message[] getLocalMessages()
