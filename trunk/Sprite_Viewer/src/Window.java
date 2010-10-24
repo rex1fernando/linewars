@@ -26,7 +26,8 @@ public class Window implements ActionListener {
 	private JFrame frame;
 	private Canvas canvas;
 	private BufferStrategy strategy;
-	private JButton openFiles;
+	private JButton addFiles;
+	private JButton clearFiles;
 	private JPanel scrollPanel;
 	
 	private ArrayList<Frame> list = new ArrayList<Frame>();
@@ -48,11 +49,14 @@ public class Window implements ActionListener {
 		frame = new JFrame("VN Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		openFiles = new JButton("Open Files");
-		openFiles.addActionListener(this);
+		addFiles = new JButton("Add Files");
+		addFiles.addActionListener(this);
+		clearFiles = new JButton("Clear Files");
+		clearFiles.addActionListener(this);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.add(openFiles, BorderLayout.NORTH);
+		panel.add(addFiles, BorderLayout.NORTH);
+		panel.add(clearFiles, BorderLayout.SOUTH);
 		scrollPanel = new JPanel();
 		JScrollPane scrollPane = new JScrollPane(scrollPanel);
 		panel.add(scrollPane, BorderLayout.CENTER);
@@ -73,6 +77,9 @@ public class Window implements ActionListener {
 		canvas.setFocusTraversalKeysEnabled(false);
 		canvas.createBufferStrategy(3);
 		strategy = canvas.getBufferStrategy();
+		
+		scrollPanel.removeAll();
+        scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
 		
 		
 		boolean b = true;
@@ -105,7 +112,13 @@ public class Window implements ActionListener {
 				
 			if(newList != null)
 			{
-				list = newList;
+				if(newList.isEmpty())
+					list.clear();
+				else
+				{
+					for(Frame f : newList)
+						list.add(f);
+				}
 				newList = null;
 			}
 			
@@ -116,7 +129,7 @@ public class Window implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if(arg0.getSource().equals(openFiles))
+		if(arg0.getSource().equals(addFiles))
 		{
 			JFileChooser fc = new JFileChooser();
 			fc.setMultiSelectionEnabled(true);
@@ -124,8 +137,7 @@ public class Window implements ActionListener {
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	            File[] file = fc.getSelectedFiles();
-	            scrollPanel.removeAll();
-	            scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+	            
 	            ArrayList<Frame> newList = new ArrayList<Frame>();
 	            for(File f : file)
 	            {
@@ -137,6 +149,12 @@ public class Window implements ActionListener {
 	            
 	            frame.pack();
 	        }
+		}
+		if(arg0.getSource().equals(clearFiles))
+		{
+			scrollPanel.removeAll();
+            scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+            newList = new ArrayList<Frame>();
 		}
 	}
 
