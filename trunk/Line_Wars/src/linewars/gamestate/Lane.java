@@ -31,7 +31,7 @@ public class Lane
 	private GameState gameState;
 	private HashMap<Node, ArrayList<Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
-	private Gate[] gates;
+	private HashMap<Node, Gate> gates;
 	private ArrayList<Node> nodes;
 	
 	/**
@@ -290,8 +290,8 @@ public class Lane
 		Gate closestGate = getClosestGate(n);
 		Position gatePos = closestGate.getPosition();
 		double ret;
-		double plus = gatePos.getX()+(closestGate.getWidth()/2);
-		double minus = gatePos.getX()-(closestGate.getWidth()/2);
+		double plus = n.getPosition().getX() - (gatePos.getX()+(closestGate.getWidth()/2));
+		double minus = n.getPosition().getX() - (gatePos.getX()-(closestGate.getWidth()/2));
 		if(Math.abs(plus) < Math.abs(minus))
 		{
 			ret = plus;
@@ -303,14 +303,7 @@ public class Lane
 	
 	private Gate getClosestGate(Node n)
 	{
-		Gate ret = gates[0];
-		Position closePos = ret.getPosition();
-		double currentDistance = closePos.distanceSquared(n.getPosition());
-		if(gates[1].getPosition().distanceSquared(n.getPosition()) < currentDistance)
-		{
-			ret = gates[1];
-		}
-		return ret;
+		return gates.get(n);
 	}	
 	/**
 	 * Gets the map items intersecting with the rectangle
@@ -356,5 +349,10 @@ public class Lane
 	public void update()
 	{
 		//TODO
+	}
+	
+	public Gate getGate(Node n)
+	{
+		return gates.get(n);
 	}
 }
