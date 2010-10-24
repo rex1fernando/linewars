@@ -34,7 +34,7 @@ public abstract class Panel extends JPanel
 		// check for correct animations
 		if (animations == null || animations.length != ANIMATION.values().length)
 		{
-			throw new IllegalArgumentException("The CommandCardPanel requires exactly " + ANIMATION.values().length + " animations!");
+			throw new IllegalArgumentException("A Panel requires exactly " + ANIMATION.values().length + " animations!");
 		}
 		
 		this.stateManager = stateManager;

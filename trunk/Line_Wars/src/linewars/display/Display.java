@@ -177,8 +177,8 @@ public class Display
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
 			add(nodeStatusPanel);
-//			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
-//			add(resourceDisplayPanel);
+			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null, null);
+			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(parent, stateManager, new Animation(new String[]{exitButton.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), new Animation(new String[]{exitButtonClicked.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null);
 			add(exitButtonPanel);
 			
@@ -225,7 +225,7 @@ public class Display
 			{
 				commandCardPanel.updateLocation();
 				nodeStatusPanel.updateLocation();
-//				resourceDisplayPanel.updateLocation();
+				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
 			}
 		}
