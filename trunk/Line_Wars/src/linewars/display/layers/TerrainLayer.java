@@ -13,6 +13,6 @@ public class TerrainLayer implements ILayer {
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
 	{
 		String uri = gamestate.getMap();
-		MapItemDrawer.getInstance().draw(g, uri, new Position(0,0), 0.0, scaleX, scaleY);
+		MapItemDrawer.getInstance().draw(g, uri, new Position(-visibleScreen.getX(), -visibleScreen.getY()), 0.0, scaleX, scaleY);
 	}
 }

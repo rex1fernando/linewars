@@ -1,5 +1,6 @@
 package linewars.display;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -8,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
@@ -118,11 +120,9 @@ public class Display
 		 */
 		private double zoomLevel;
 		
-		/**
-		 * The (x,y) location of the upper left corner of the visible
-		 * screen.  This changes as the user pans around the game map.
-		 */
-		private Point2D screenPosition;
+		private Point2D mousePosition;
+		private Rectangle2D viewport;
+		private Dimension2D mapSize;
 		
 		private CommandCardPanel commandCardPanel;
 		private ExitButtonPanel exitButtonPanel;
@@ -190,7 +190,7 @@ public class Display
 			
 			// starts the user fully zoomed out
 			zoomLevel = 1;
-			screenPosition = new Point2D.Double(0,0);
+			viewport = null;
 			
 			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
 			add(commandCardPanel);
@@ -213,7 +213,9 @@ public class Display
 			}).start();
 			
 			// adds the mouse input handler
-			addMouseWheelListener(new InputHandler());
+			InputHandler ih = new InputHandler();
+			addMouseWheelListener(ih);
+			addMouseMotionListener(ih);
 		}
 		
 		/**
@@ -225,14 +227,21 @@ public class Display
 		@Override
 		public void paint(Graphics g)
 		{
+			// draws the background black
+			g.setColor(Color.black);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			
 			GameState gamestate = stateManager.getDisplayGameState();
 			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 			
 			// calculates the visible screen size based off of the zoom level
-			Dimension2D mapSize = gamestate.getMapSize();
-			Dimension2D visibleSize = new Dimension();
-			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
-			Rectangle2D visibleScreen = new Rectangle2D.Double(screenPosition.getX(), screenPosition.getY(), visibleSize.getWidth(), visibleSize.getHeight());
+			if (viewport == null)
+			{
+				mapSize = gamestate.getMapSize();
+				Dimension2D visibleSize = new Dimension();
+				visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
+				viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
+			}
 			
 			
 			// double buffer implementation
@@ -240,12 +249,12 @@ public class Display
 			Graphics bufferedG = buffer.getGraphics();
 			
 			// calc scale
-			double scaleX = getWidth() / visibleScreen.getWidth();
-			double scaleY = getHeight() / visibleScreen.getHeight();
+			double scaleX = getWidth() / viewport.getWidth();
+			double scaleY = getHeight() / viewport.getHeight();
 			
 			for (int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(bufferedG, gamestate, visibleScreen, scaleX, scaleY);
+				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
@@ -274,14 +283,50 @@ public class Display
 		private class InputHandler extends MouseAdapter
 		{
 			@Override
+			public void mouseMoved(MouseEvent e)
+			{
+				mousePosition = e.getLocationOnScreen();
+			}
+			
+			@Override
 			public void mouseWheelMoved(MouseWheelEvent e)
 			{
-				double newZoom = zoomLevel + e.getWheelRotation() * 0.01;
+				// makes sure the zoom is within the max and min range
+				double newZoom = zoomLevel + e.getWheelRotation() * Math.exp(zoomLevel) * 0.03;
 				if (newZoom < MAX_ZOOM) newZoom = MAX_ZOOM;
 				if (newZoom > MIN_ZOOM) newZoom = MIN_ZOOM;
 				
-				zoomLevel = newZoom;
+				// calculates the ratios of the zoom and position
+				double zoomRatio = newZoom / zoomLevel;
+				double xRatio = viewport.getWidth() / getWidth();
+				double yRatio = viewport.getHeight() / getHeight();
 				
+				// converts the mouse point to the game space
+				double mouseX = mousePosition.getX() * xRatio;
+				double mouseY = mousePosition.getY() * yRatio;
+				
+				// calculates the change in postion of the viewport
+				double viewX = mouseX - mouseX * zoomRatio;
+				double viewY = mouseY - mouseY * zoomRatio;
+				
+				// calculates the new dimension of the viewport
+				double newW = viewport.getWidth() * zoomRatio;
+				double newH = viewport.getHeight() * zoomRatio;
+				
+				// calculates the new x for the viewport
+				double newX = viewport.getX() + viewX;
+				if (newX < 0) newX = 0;
+				if (newX > mapSize.getWidth() - newW) newX = mapSize.getWidth() - newW;
+				if (newW > mapSize.getWidth()) newX = (mapSize.getWidth() - newW) / 2;
+				
+				// calculates the new y for the viewport
+				double newY = viewport.getY() + viewY;
+				if (newY < 0) newY = 0;
+				if (newY > mapSize.getHeight() - newH) newY = mapSize.getHeight() - newH;
+				if (newH > mapSize.getHeight()) newY = (mapSize.getHeight() - newH) / 2;
+				
+				viewport.setRect(newX, newY, newW, newH);
+				zoomLevel = newZoom;
 			}
 		}
 	}
