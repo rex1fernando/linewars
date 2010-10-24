@@ -2,7 +2,9 @@ package linewars.gamestate.shapes;
 
 public class AggregateAnythingStrategy extends ShapeCollisionStrategy {
 	
-	//Normally there would be a static init bit here, but this strategy is special :)
+	static {
+		ShapeCollisionStrategy.addStrategy(new AggregateAnythingStrategy(), ShapeAggregate.class, ShapeAggregate.class);
+	}
 
 	@Override
 	public boolean collides(Shape first, Shape second) {

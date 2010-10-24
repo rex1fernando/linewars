@@ -61,6 +61,8 @@ public class ShapeAggregate extends Shape {
 
 	@Override
 	public Rectangle boundingRectangle() {
+		//TODO compute a bounding rectangle for each Shape
+		//TODO take the min and max of their x and y values to compute a bounding rect for all of them
 		// TODO Auto-generated method stub
 		return null;
 	}

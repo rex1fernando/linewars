@@ -4,9 +4,39 @@ import java.util.HashMap;
 
 public abstract class ShapeCollisionStrategy {
 	
-	protected static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;
-	{
-		definedStrategies = new HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>>();
+	private static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;
+	
+	//TODO document
+	//TODO test, heh
+	/**
+	 * Call this method to add your Strategy to the pool of usable strategy
+	 */
+	protected static void addStrategy(ShapeCollisionStrategy toAdd, Class<? extends Shape> first, Class<? extends Shape> second){
+		//instantiate if this hasn't been (singleton)
+		if(definedStrategies == null){
+			definedStrategies = new HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>>();
+		}
+		
+		//add strat to map both ways (symetrically)
+		addStrategyHelper(toAdd, first, second);
+		addStrategyHelper(toAdd, second, first);
+		
+		//add entry for agg-anything strat to first and second symmetrically
+		addStrategyHelper(new AggregateAnythingStrategy(), first, ShapeAggregate.class);
+		addStrategyHelper(new AggregateAnythingStrategy(), ShapeAggregate.class, first);
+		addStrategyHelper(new AggregateAnythingStrategy(), second, ShapeAggregate.class);
+		addStrategyHelper(new AggregateAnythingStrategy(), ShapeAggregate.class, second);
+	}
+	
+	//TODO document
+	private static void addStrategyHelper(ShapeCollisionStrategy toAdd, Class<? extends Shape> first, Class<? extends Shape> second){
+		if(definedStrategies.get(first) == null){
+			definedStrategies.put(first, new HashMap<Class<? extends Shape>, ShapeCollisionStrategy>());
+		}
+		HashMap<Class<? extends Shape>, ShapeCollisionStrategy> subMap = definedStrategies.get(first);
+		if(subMap.get(second) == null){
+			subMap.put(second, toAdd);
+		}
 	}
 	
 	/**
