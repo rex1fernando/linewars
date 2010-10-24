@@ -1,4 +1,4 @@
-package linewars.gamestate.mapItems;
+package linewars.gamestate;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Random;
 
 
-import linewars.gamestate.GameState;
-import linewars.gamestate.Lane;
-import linewars.gamestate.Map;
-import linewars.gamestate.Player;
-import linewars.gamestate.Position;
-import linewars.gamestate.Transformation;
+import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
 
 public class Node {
@@ -111,10 +107,9 @@ public class Node {
 		return center;
 	}
 	
-	//TODO Get the timer tick to seed the random the same in all systems.
 	public void generateWaves()
 	{
-		Random rand = new Random(50);
+		Random rand = new Random(GameTimeManager.currentTick());
 		HashMap<Player, double[]> flows = getAllFlow();
 		boolean foundDest;
 		for(int i = 0; i < containedUnits.size(); i++)

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import linewars.display.MapItemDrawer;
-import linewars.gamestate.mapItems.Node;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 

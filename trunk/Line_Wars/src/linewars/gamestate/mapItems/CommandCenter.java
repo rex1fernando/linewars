@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems;
 
+import linewars.gamestate.Node;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;

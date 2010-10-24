@@ -5,9 +5,9 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Node;
-import linewars.gamestate.mapItems.Wave;
+import linewars.gamestate.Wave;
 
 /**
  * This class handles drawing a Lane between two Nodes. It will draw the Lane in

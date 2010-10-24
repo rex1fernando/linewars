@@ -7,10 +7,10 @@ import linewars.display.ColoredEdge;
 import linewars.display.ColoredNode;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.CommandCenter;
-import linewars.gamestate.mapItems.Node;
 
 public class GraphLayer implements ILayer
 {

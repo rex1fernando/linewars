@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser.InvalidConfigFileException;

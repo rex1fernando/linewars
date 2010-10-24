@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Node;
 
 /**
  * This class handles drawing a Nodes. It will draw the Node in the color of the

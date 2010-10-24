@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.Wave;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;

@@ -1,11 +1,11 @@
-package linewars.gamestate.mapItems;
+package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import linewars.gamestate.Lane;
-import linewars.gamestate.Player;
-import linewars.gamestate.Position;
-import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.Gate;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Unit;
 public class Wave {
 	private Lane owner;
 	private Node origin;

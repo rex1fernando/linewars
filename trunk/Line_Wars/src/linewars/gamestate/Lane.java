@@ -13,10 +13,8 @@ import linewars.gamestate.mapItems.LaneBorder;
 import linewars.gamestate.mapItems.LaneBorderDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.Wave;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Lane
@@ -32,7 +30,6 @@ public class Lane
 	private Position p2;
 	private Position p3;
 		
-	private GameState gameState;
 	private HashMap<Node, ArrayList<Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
 	private HashMap<Node, Gate> gates;

@@ -2,11 +2,11 @@ package linewars.gamestate;
 
 import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import linewars.gamestate.mapItems.CommandCenter;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Node;
+
+import linewars.gamestate.mapItems.*;
 import linewars.parser.Parser;
 
 public class GameState
@@ -14,11 +14,17 @@ public class GameState
 	// TODO finish implementation!
 	
 	private Map map;
+	private HashMap<Integer, Player> players;
 	private int numPlayers;
 	
 	public int getNumPlayers()
 	{
 		return numPlayers;
+	}
+	
+	public Player getPlayer(int playerID)
+	{
+		return players.get(playerID);
 	}
 	
 	public GameState(Parser mapParser)

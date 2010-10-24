@@ -1,11 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
 import linewars.gameLogic.GameTimeManager;
+import linewars.gamestate.Node;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.mapItems.Node;
 
 /**
  * 
