@@ -173,13 +173,13 @@ public class Display
 			zoomLevel = 1;
 			screenPosition = new Point2D.Double(0,0);
 			
-			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightUIPanel.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null, null);
+			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
 			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftUIPanel.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null, null);
+			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
 			add(nodeStatusPanel);
 //			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
 //			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(parent, stateManager, new Animation(new String[]{exitButton.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), new Animation(new String[]{exitButtonClicked.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null);
+			exitButtonPanel = new ExitButtonPanel(parent, stateManager, new Animation(new String[]{exitButton.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), new Animation(new String[]{exitButtonClicked.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null);
 			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());

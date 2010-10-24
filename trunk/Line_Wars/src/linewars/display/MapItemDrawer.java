@@ -64,7 +64,7 @@ public class MapItemDrawer
 	 */
 	public void addImage(Parser parser) throws IOException
 	{
-		String uri = parser.getStringValue(ParserKeys.imageURI);
+		String uri = parser.getStringValue(ParserKeys.icon);
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
 
 		Image image;
