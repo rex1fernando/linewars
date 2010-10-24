@@ -1,12 +1,11 @@
 package linewars.gamestate;
 
-import java.awt.Dimension;
 import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Unit;
 import linewars.parser.Parser;
 
 public class GameState
@@ -61,5 +60,11 @@ public class GameState
 	public List<MapItem> getProjectiles()
 	{
 		return new ArrayList<MapItem>();
+	}
+	
+	public List<CommandCenter> getCommandCenters()
+	{
+		// TODO implement
+		return new ArrayList<CommandCenter>();
 	}
 }

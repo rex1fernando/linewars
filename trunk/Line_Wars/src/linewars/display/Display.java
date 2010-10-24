@@ -36,6 +36,7 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gamestate.GameState;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.mapItems.CommandCenter;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -60,7 +61,7 @@ public class Display
 	 */
 	private static final double ZOOM_THRESHOLD = 0.80;
 	
-	private static final double MAX_ZOOM = 0.01;
+	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
 	
 	/**
@@ -121,6 +122,7 @@ public class Display
 		private double zoomLevel;
 		
 		private Point2D mousePosition;
+		private Point2D lastClickPosition;
 		private Rectangle2D viewport;
 		private Dimension2D mapSize;
 		
@@ -132,6 +134,9 @@ public class Display
 		public GamePanel(JFrame parent)
 		{
 			super(null);
+			
+			mousePosition = new Point2D.Double();
+			lastClickPosition = new Point2D.Double();
 			
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
@@ -243,23 +248,39 @@ public class Display
 				viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
 			}
 			
-			
 			// double buffer implementation
 			Image buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics bufferedG = buffer.getGraphics();
 			
-			// calc scale
 			double scaleX = getWidth() / viewport.getWidth();
 			double scaleY = getHeight() / viewport.getHeight();
 			
+			// draws layers to scale
 			for (int i = 0; i < currentView.size(); i++)
 			{
 				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
 			
+			// checks for selected node
+			CommandCenter node = getSelectedNode(gamestate);
+			if (node != null)
+			{
+				
+			}
+			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
 			
 			super.paint(g);
+		}
+		
+		private CommandCenter getSelectedNode(GameState gs)
+		{
+			for (CommandCenter cc : gs.getCommandCenters())
+			{
+				
+			}
+			
+			return null;
 		}
 		
 		@Override
@@ -283,6 +304,12 @@ public class Display
 		private class InputHandler extends MouseAdapter
 		{
 			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				lastClickPosition = e.getLocationOnScreen();
+			}
+			
+			@Override
 			public void mouseMoved(MouseEvent e)
 			{
 				mousePosition = e.getLocationOnScreen();
@@ -292,7 +319,7 @@ public class Display
 			public void mouseWheelMoved(MouseWheelEvent e)
 			{
 				// makes sure the zoom is within the max and min range
-				double newZoom = zoomLevel + e.getWheelRotation() * Math.exp(zoomLevel) * 0.03;
+				double newZoom = zoomLevel + e.getWheelRotation() * Math.exp(zoomLevel) * 0.04;
 				if (newZoom < MAX_ZOOM) newZoom = MAX_ZOOM;
 				if (newZoom > MIN_ZOOM) newZoom = MIN_ZOOM;
 				
