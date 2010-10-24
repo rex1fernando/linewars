@@ -1,15 +1,20 @@
 package linewars.display.panels;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import linewars.display.Animation;
+import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.Position;
 
 @SuppressWarnings("serial")
 public class ExitButtonPanel extends Panel
@@ -32,6 +37,8 @@ public class ExitButtonPanel extends Panel
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
 		exitButton.setFocusable(false);
+		exitButton.setIcon(new ExitIcon(animations[0].getImage(0)));
+		exitButton.setPressedIcon(new ExitIcon(animations[1].getImage(0)));
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{
@@ -64,5 +71,33 @@ public class ExitButtonPanel extends Panel
 		exitButton.setSize(WIDTH, HEIGHT);
 
 		setLocation(0, 0);
+	}
+	
+	private class ExitIcon implements Icon
+	{
+		private String imageURI;
+		
+		public ExitIcon(String uri)
+		{
+			imageURI = uri;
+		}
+		
+		@Override
+		public int getIconHeight()
+		{
+			return HEIGHT;
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+			return WIDTH;
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+			MapItemDrawer.getInstance().draw(g, imageURI, new Position(x, y));
+		}
 	}
 }

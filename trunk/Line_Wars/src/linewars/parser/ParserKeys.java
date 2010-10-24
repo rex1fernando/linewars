@@ -10,5 +10,6 @@ public enum ParserKeys {
 	movementStrategy, speed,
 	impactStrategy, damage, unitURI,
 	techURI, projectileURI, range,
+	imageURI, imageHeight, imageWidth,
 	icon
 }

@@ -10,6 +10,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,10 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gamestate.GameState;
 import linewars.gamestate.GameStateManager;
+import linewars.parser.ConfigFile;
+import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
+import linewars.parser.ParserKeys;
 
 /**
  * Encapsulates the display information.
@@ -116,14 +121,35 @@ public class Display
 		
 		public GamePanel(JFrame parent)
 		{
-			String leftpane = File.separator + "resources" + File.separator + "display" + File.separator + "left_ui_panel.png";
-			String rightpane = File.separator + "resources" + File.separator + "display" + File.separator + "right_ui_panel.png";
-			
+			Parser leftUIPanel = null;
+			Parser rightUIPanel = null;
+			Parser exitButton = null;
+			Parser exitButtonClicked = null;
 			try
 			{
-				MapItemDrawer.getInstance().addImage(leftpane);
-				MapItemDrawer.getInstance().addImage(rightpane);
-			} catch (IOException e)
+				leftUIPanel = new Parser(new ConfigFile("resources/display/left_ui_panel.cfg"));
+				rightUIPanel = new Parser(new ConfigFile("resources/display/right_ui_panel.cfg"));
+				exitButton = new Parser(new ConfigFile("resources/display/Exit_Button.cfg"));
+				exitButtonClicked = new Parser(new ConfigFile("resources/display/Exit_Button_Clicked.cfg"));
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InvalidConfigFileException e)
+			{
+				e.printStackTrace();
+			}
+			
+			MapItemDrawer drawer = MapItemDrawer.getInstance();
+			try
+			{
+				drawer.addImage(leftUIPanel);
+				drawer.addImage(rightUIPanel);
+				drawer.addImage(exitButton);
+				drawer.addImage(exitButtonClicked);
+			}
+			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
@@ -147,14 +173,14 @@ public class Display
 			zoomLevel = 1;
 			screenPosition = new Point2D.Double(0,0);
 			
-			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightpane}, new double[]{1}, 0), null, null);
+			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightUIPanel.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null, null);
 			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftpane}, new double[]{1}, 0), null, null);
+			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftUIPanel.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null, null);
 			add(nodeStatusPanel);
 //			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null);
 //			add(resourceDisplayPanel);
-//			exitButtonPanel = new ExitButtonPanel(parent, stateManager, null, null, null);
-//			add(exitButtonPanel);
+			exitButtonPanel = new ExitButtonPanel(parent, stateManager, new Animation(new String[]{exitButton.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), new Animation(new String[]{exitButtonClicked.getStringValue(ParserKeys.imageURI)}, new double[]{1}, 0), null);
+			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());
 		}
@@ -200,7 +226,7 @@ public class Display
 				commandCardPanel.updateLocation();
 				nodeStatusPanel.updateLocation();
 //				resourceDisplayPanel.updateLocation();
-//				exitButtonPanel.updateLocation();
+				exitButtonPanel.updateLocation();
 			}
 		}
 	}

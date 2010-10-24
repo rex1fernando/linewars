@@ -18,7 +18,7 @@ public abstract class Panel extends JPanel
 	private int height;
 	
 	protected GameStateManager stateManager;
-	private Animation[] animations;
+	protected Animation[] animations;
 	protected Animation curAnimation;
 	
 	public Panel(GameStateManager stateManager, int width, int height, Animation ... animations)
