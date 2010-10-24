@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
@@ -87,6 +88,49 @@ public class Wave {
 	}
 	
 	/**
+	 * Fixes all of the current collisions in this wave.
+	 */
+	private void fixCollisions()
+	{
+		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
+		
+		for(int i = 0; i < units.size(); i++)
+		{
+			Unit currentUnit = units.get(i);
+			if(currentUnit.getState() == MapItemState.Moving)
+			{
+				Position collisionVector;
+				MapItem[] collisions = owner.getCollisions(currentUnit);
+				Position totalVector = new Position(0,0);
+				for(int j = 0; j < collisions.length; j++)
+				{
+					double d = Math.sqrt(currentUnit.getPosition().distanceSquared(collisions[j].getPosition()));
+					double dPrime = currentUnit.getRadius() + collisions[j].getRadius();
+					double deltaD = dPrime - d;
+					if(collisions[j].getState() == MapItemState.Moving)
+					{
+						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
+						collisionVector = collisionVector.scale(deltaD/2);
+					}else{
+						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
+						collisionVector = collisionVector.scale(deltaD);
+					}
+					totalVector.add(collisionVector);
+				}
+				collisionVectors.put(currentUnit, totalVector);
+			}else{
+				collisionVectors.put(currentUnit, currentUnit.getPosition());
+			}
+		}
+		
+		for(int i = 0; i < units.size(); i++)
+		{
+			units.get(i).setPosition(collisionVectors.get(units.get(i)));
+		}
+	}
+	
+	
+	/**
 	 * Updates all of the units of this wave according to the movement and combat strategies of the units in it.
 	 */
 	//TODO Update this to be general. Right now it assumes a straight lane and units only moving straight.
@@ -117,7 +161,10 @@ public class Wave {
 			units.get(j).getMovementStrategy().move();
 			units.get(j).update();
 		}
+		
+		fixCollisions();
 	}
+	
 
 	/**
 	 * Helper method for the update() method. Sets the targets for all the units in this wave based on the scale and returns the lowest move.
