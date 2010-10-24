@@ -10,6 +10,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.shapes.Shape;
 import linewars.parser.Parser;
 
 /**
@@ -27,7 +28,7 @@ public abstract class MapItem {
 	//the position of this map item in map coordinates
 	//and the rotation of this map item where 0 radians is facing directly right
 	//THIS IS THE CENTER OF THE MAP ITEM
-	private Transformation transformation;
+	private Shape body;
 	
 	//the state of the map item
 	private MapItemState state;
@@ -41,7 +42,7 @@ public abstract class MapItem {
 	
 	public MapItem(Transformation trans, Parser anim)
 	{
-		transformation = trans;
+		body = this.getDefinition().getBody().transform(trans);
 		state = MapItemState.Idle;
 		stateStart = GameTimeManager.currentTimeMillis();
 		
@@ -105,7 +106,7 @@ public abstract class MapItem {
 	 */
 	public Position getPosition()
 	{
-		return transformation.getPosition();
+		return body.position().getPosition();
 	}
 	
 	/**
@@ -114,7 +115,7 @@ public abstract class MapItem {
 	 */
 	public double getRotation()
 	{
-		return transformation.getRotation();
+		return body.position().getRotation();
 	}
 	
 	/**
@@ -123,7 +124,7 @@ public abstract class MapItem {
 	 */
 	public Transformation getTransformation()
 	{
-		return transformation;
+		return body.position();
 	}
 	
 	/**
@@ -132,7 +133,7 @@ public abstract class MapItem {
 	 */
 	public void setPosition(Position p)
 	{
-		transformation = new Transformation(p, transformation.getRotation());
+		body = body.transform(new Transformation(p, body.position().getRotation()));
 	}
 	
 	/**
@@ -141,7 +142,7 @@ public abstract class MapItem {
 	 */
 	public void setRotation(double rot)
 	{
-		transformation = new Transformation(transformation.getPosition(), rot);
+		body = body.transform(new Transformation(body.position().getPosition(), rot));
 	}
 	
 	/**
@@ -150,7 +151,7 @@ public abstract class MapItem {
 	 */
 	public void setTransformation(Transformation t)
 	{
-		transformation = t;
+		body = body.transform(t);
 	}
 	
 	/**
@@ -241,8 +242,7 @@ public abstract class MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		
-		return this.getDefinition().getBody().isCollidingWith(this.getTransformation(),
-				m.getDefinition().getBody(), m.getTransformation());
+		return this.getDefinition().getBody().isCollidingWith(m.body);
 	}
 	
 	/**
@@ -255,11 +255,11 @@ public abstract class MapItem {
 	}
 
 	public double getWidth() {
-		return this.getDefinition().getBody().getWidth();
+		return this.getDefinition().getBody().boundingRectangle().getWidth();
 	}
 
 	public double getHeight() {
-		return this.getDefinition().getBody().getHeight();
+		return this.getDefinition().getBody().boundingRectangle().getHeight();
 	}
 	
 	public Animation getAnimation()
@@ -267,12 +267,16 @@ public abstract class MapItem {
 		return animation;
 	}
 	
-	//TODO
 	/**
 	 * 
 	 * @return	the radius of the bounding circle of this unit
 	 */
 	public double getRadius() {
-		return 0;
+		return body.boundingCircle().getRadius();
+	}
+	
+	public Shape getBody()
+	{
+		return body;
 	}
 }

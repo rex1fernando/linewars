@@ -1,13 +1,12 @@
 package linewars.gamestate.mapItems;
 
-import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
-import linewars.gamestate.shapes.ShapeAggregate;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * 
@@ -23,7 +22,7 @@ public class Projectile extends MapItem {
 	private ImpactStrategy iStrat;
 	private Lane lane;
 	
-	private ShapeAggregate tempBody = null;
+	private Shape tempBody = null;
 	
 	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is, Lane l) {
 		super(t, null);
@@ -44,8 +43,11 @@ public class Projectile extends MapItem {
 		double r = this.getRotation();
 		Position change = this.getPosition().add(v*Math.sin(r), v*Math.cos(r));
 		
+		tempBody = this.getBody().stretch(new Transformation(change, this.getRotation()));
+		
 		//this is the raw list of items colliding with this projetile's path
 		MapItem[] rawCollisions = lane.getCollisions(this);
+		tempBody = null;
 		//this list will be the list of how far along that path each map item is
 		double[] scores = new double[rawCollisions.length];
 		//the negative sine of the angle that the path was rotated by from 0 rads
@@ -111,7 +113,7 @@ public class Projectile extends MapItem {
 			if(!m.getCollisionStrategy().canCollideWith(this))
 				return false;
 			else
-				return tempBody.isCollidingWith(getTransformation(), m.getDefinition().getBody(), m.getTransformation());
+				return tempBody.isCollidingWith(m.getBody());
 		}
 	}
 
