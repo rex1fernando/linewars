@@ -248,5 +248,14 @@ public abstract class MapItem {
 	public double getHeight() {
 		return this.getDefinition().getBody().getHeight();
 	}
+	
+	//TODO
+	/**
+	 * 
+	 * @return	the radius of the bounding circle of this unit
+	 */
+	public double getRadius() {
+		return 0;
+	}
 
 }

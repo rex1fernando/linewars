@@ -19,6 +19,8 @@ import linewars.parser.ParserKeys;
  */
 public abstract class AbilityDefinition {
 	
+	static private int IDS = 0;
+	
 	/**
 	 * Takes in a parser and uses it to parse the type of ability and its
 	 * parameters and then associates that ability definition with the given
@@ -59,6 +61,12 @@ public abstract class AbilityDefinition {
 	}
 	
 	protected MapItemDefinition owner = null;
+	private int ID;
+	
+	public AbilityDefinition()
+	{
+		ID = IDS++;
+	}
 	
 	/**
 	 * Checks to make sure that the associated MapItemDefinition can own
@@ -106,6 +114,15 @@ public abstract class AbilityDefinition {
 	 * @return	 the URI of the icon image associated with this ability
 	 */
 	public abstract String getIconURI();
+	
+	/**
+	 * 
+	 * @return	the unique ID of this ability definition
+	 */
+	public int getID()
+	{
+		return ID;
+	}
 	
 	@Override
 	public abstract boolean equals(Object o);

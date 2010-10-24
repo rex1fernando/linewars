@@ -4,6 +4,7 @@ import java.util.Queue;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
@@ -78,7 +79,7 @@ public class ShootClosestTarget implements CombatStrategy {
 		for(Unit u : availableTargets)
 		{
 			double nd = unit.getPosition().distanceSquared(u.getPosition());
-			if(nd < dis)
+			if(nd < dis && u.getState() != MapItemState.Dead)
 			{
 				dis = nd;
 				closest = u;

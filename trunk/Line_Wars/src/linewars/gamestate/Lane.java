@@ -5,6 +5,7 @@ import java.util.Queue;
 
 
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.Projectile;
@@ -33,6 +34,10 @@ public class Lane
 	 * The width of the lane.
 	 */
 	private double width;
+	
+	private PathFinding pathFinder = new PathFinding();
+	
+	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
 	public Lane(Position p0, Position p1, Position p2, Position p3, double width)
 	{
@@ -72,7 +77,6 @@ public class Lane
 		waves.remove(waveTwo);
 	}
 	
-	//TODO
 	/**
 	 * Finds a path as a series of positions from the current position to
 	 * the target within the range (i.e. the path doesn't have to get to the
@@ -85,10 +89,20 @@ public class Lane
 	 */
 	public Queue<Position> findPath(Unit unit, Position target, double range)
 	{
-		return null;
+		double c = 2;
+		double top = Math.min(unit.getPosition().getY(), target.getY()) - c*this.width;
+		double bottom = Math.max(unit.getPosition().getY(), target.getY()) + c*this.width;
+		double left = Math.min(unit.getPosition().getX(), target.getX()) - c*this.width;
+		double right = Math.max(unit.getPosition().getX(), target.getX()) + c*this.width;
+		MapItem[] os = this.getMapItemsIn(new Position(left, top), right - left, bottom - top);
+		ArrayList<MapItem> obstacles = new ArrayList<MapItem>();
+		for(MapItem m : os)
+			if(!(m instanceof Projectile || m instanceof Building) && unit.getCollisionStrategy().canCollideWith(m))
+				obstacles.add(m);
+		//TODO this path finder is kinda crappy
+		return pathFinder.findPath(unit, target, range, obstacles.toArray(new MapItem[0]), new Position(left, top), right - left, bottom - top);
 	}
 	
-	//TODO
 	/**
 	 * Gets all map items colliding with the given map item. Uses the isCollidingWith method
 	 * in map item to determine collisions.
@@ -98,7 +112,14 @@ public class Lane
 	 */
 	public MapItem[] getCollisions(MapItem m)
 	{
-		return null;
+		ArrayList<MapItem> collisions = new ArrayList<MapItem>();
+		MapItem[] ms = this.getMapItemsIn(
+				m.getPosition().subtract(m.getRadius() / 2, m.getRadius() / 2),
+				m.getRadius(), m.getRadius());
+		for(MapItem mapItem : ms)
+			if(m.isCollidingWith(mapItem))
+				collisions.add(mapItem);
+		return collisions.toArray(new MapItem[0]);
 	}
 	
 	/**
@@ -107,7 +128,16 @@ public class Lane
 	 */
 	public void addProjectile(Projectile p)
 	{
-		
+		projectiles.add(p);
+	}
+	
+	/**
+	 * 
+	 * @return	the list of projectiles in the lane
+	 */
+	public Projectile[] getProjectiles()
+	{
+		return projectiles.toArray(new Projectile[0]);
 	}
 
 	public double getWidth()
@@ -172,6 +202,7 @@ public class Lane
 	 * 
 	 * @return the front line waves.
 	 */
+	@Deprecated
 	public ArrayList<Wave> getFrontLineWaves()
 	{
 		/*
@@ -182,5 +213,51 @@ public class Lane
 		 * correctly in ColoredEdge.
 		 */
 		return frontlineWaves;
+	}
+	
+	/**
+	 * Gets the map items intersecting with the rectangle
+	 * 
+	 * @param upperLeft	the upper left of the rectangle
+	 * @param width		the width of the rectangle	
+	 * @param height	the height of the rectangle
+	 * @return			the list of map items in the rectangle
+	 */
+	public MapItem[] getMapItemsIn(Position upperLeft, double width, double height)
+	{
+		ArrayList<MapItem> items = new ArrayList<MapItem>();
+		for(Wave w : waves)
+		{
+			Unit[] us = w.getUnits();
+			for(Unit u : us)
+			{
+				Position p = upperLeft.subtract(u.getRadius(), u.getRadius());
+				if(u.getPosition().getX() >= p.getX() &&
+						u.getPosition().getY() >= p.getY() &&
+						u.getPosition().getX() <= p.getX() + width + u.getRadius() &&
+						u.getPosition().getY() <= p.getY() + height + u.getRadius())
+					items.add(u);
+			}
+		}
+		
+		for(Projectile prj : this.getProjectiles())
+		{
+			Position p = upperLeft.subtract(prj.getRadius(), prj.getRadius());
+			if(prj.getPosition().getX() >= p.getX() &&
+					prj.getPosition().getY() >= p.getY() &&
+					prj.getPosition().getX() <= p.getX() + width + prj.getRadius() &&
+					prj.getPosition().getY() <= p.getY() + height + prj.getRadius())
+				items.add(prj);
+		}
+		
+		return items.toArray(new MapItem[0]);
+	}
+	
+	/**
+	 * This method updates all the projectiles and waves in the lane
+	 */
+	public void update()
+	{
+		//TODO
 	}
 }

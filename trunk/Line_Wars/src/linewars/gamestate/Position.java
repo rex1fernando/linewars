@@ -72,4 +72,11 @@ public class Position {
 	{
 		return new Position(y, -x);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		//TODO how to implement hash code for positions?
+		return 0;
+	}
 }
