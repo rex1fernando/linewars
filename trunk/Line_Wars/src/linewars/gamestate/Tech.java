@@ -1,15 +1,42 @@
 package linewars.gamestate;
 
+import java.io.FileNotFoundException;
+
+import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.ProjectileDefinition;
+import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
+import linewars.parser.ParserKeys;
 
 public class Tech {
 	
-	public Tech(String URI, Player owner)
+	private MapItemDefinition definition;
+	private ParserKeys field;
+	private Function f;
+	private int currentResearch = 0;
+	private Parser parser;
+	private Tech[] prereqs;
+	private int maxTimesResearchable;
+	private String name;
+	
+	public Tech(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
-		//TODO
+		parser = new Parser(new ConfigFile(URI));
+		definition = owner.getMapItemDefinition(parser.getStringValue(ParserKeys.mapItemURI));
+		field = ParserKeys.valueOf(parser.getStringValue(ParserKeys.field));
+		f = new Function(parser.getParser(ParserKeys.valueFunction));
+		String[] list = parser.getList(ParserKeys.preReqs);
+		prereqs = new Tech[list.length];
+		for(int i = 0; i < list.length; i++)
+			prereqs[i] = owner.getTech(list[i]);
+		
+		maxTimesResearchable = (int) parser.getNumericValue(ParserKeys.maxTimesResearchable);
+		name = parser.getStringValue(ParserKeys.name);
 	}
 	
-	//TODO implement researchable
 	/**
 	 * This method checks to see if the pre-req's for this
 	 * tech have been researched.
@@ -18,10 +45,13 @@ public class Tech {
 	 */
 	public boolean researchable()
 	{
-		return false;
+		for(Tech t : prereqs)
+			if(t.currentResearch <= 0)
+				return false;
+		
+		return true;
 	}
 	
-	//TODO implement maxTimesResearchable
 	/**
 	 * This method returns the maximum number of times this tech
 	 * is allowed to be researched.
@@ -30,19 +60,24 @@ public class Tech {
 	 */
 	public int maxTimesResearchable()
 	{
-		return 0;
+		return maxTimesResearchable;
 	}
 	
-	//TODO implement research (maybe make it abstract)
 	/**
 	 * researches the tech
 	 */
 	public void research()
 	{
-		
+		if(field == ParserKeys.cost)
+			((BuildingDefinition)definition).setCost(f.f(++currentResearch));
+		else if(field == ParserKeys.buildTime)
+			((BuildingDefinition)definition).setBuildTime(f.f(++currentResearch));
+		else if(field == ParserKeys.maxHP)
+			((UnitDefinition)definition).setMaxHP(f.f(++currentResearch));
+		else if(field == ParserKeys.velocity)
+			((ProjectileDefinition)definition).setVelocity(f.f(++currentResearch));
 	}
 	
-	//TODO implement getName 
 	/**
 	 * gets the name of this tech
 	 * 
@@ -50,10 +85,9 @@ public class Tech {
 	 */
 	public String getName()
 	{
-		return null;
+		return name;
 	}
 	
-	//TODO implement getDescription
 	/**
 	 * returns the tooltip description of the tech
 	 * 
@@ -61,10 +95,9 @@ public class Tech {
 	 */
 	public String getDescription()
 	{
-		return null;
+		return "Modifies " + field.toString() + " in " + definition.getName() + " to " + f.f((double)(currentResearch + 1));
 	}
 	
-	//TODO implement getParser
 	/**
 	 * gets the parser associated with this tech
 	 * 
@@ -72,7 +105,7 @@ public class Tech {
 	 */
 	public Parser getParser()
 	{
-		return null;
+		return parser;
 	}
 
 }

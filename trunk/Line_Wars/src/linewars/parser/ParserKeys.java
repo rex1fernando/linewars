@@ -11,5 +11,7 @@ public enum ParserKeys {
 	impactStrategy, damage, unitURI,
 	techURI, projectileURI, range,
 	icon, imageHeight, imageWidth,
-	displayTime
+	displayTime, mapItemURI, field,
+	valueFunction, preReqs, 
+	maxTimesResearchable
 }

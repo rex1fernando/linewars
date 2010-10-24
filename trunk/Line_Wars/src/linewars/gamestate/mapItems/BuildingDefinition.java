@@ -56,5 +56,23 @@ public class BuildingDefinition extends MapItemDefinition {
 	{
 		return buildTime;
 	}
+	
+	/**
+	 * 
+	 * @param cost	the new cost of this building
+	 */
+	public void setCost(double cost)
+	{
+		this.cost = cost;
+	}
+	
+	/**
+	 * 
+	 * @param buildTime	the new build time to set this building to
+	 */
+	public void setBuildTime(double buildTime)
+	{
+		this.buildTime = buildTime;
+	}
 
 }

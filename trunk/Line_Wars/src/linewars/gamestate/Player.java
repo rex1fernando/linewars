@@ -209,8 +209,10 @@ public class Player {
 	 * 
 	 * @param URI	the URI of the unit definition
 	 * @return		the unit definition
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
 	 */
-	public Tech getTech(String URI)
+	public Tech getTech(String URI) throws FileNotFoundException, InvalidConfigFileException
 	{
 		Tech td = techLevels.get(URI);
 		if(td == null)
@@ -226,8 +228,8 @@ public class Player {
 	 * that projectileDefinition is not yet loaded, it loads it and then returns it.
 	 * Throws an exception if the definition can't be loaded
 	 * 
-	 * @param URI	the URI of the unit definition
-	 * @return		the unit definition
+	 * @param URI	the URI of the projectile definition
+	 * @return		the projectile definition
 	 * @throws InvalidConfigFileException 
 	 * @throws FileNotFoundException 
 	 */
@@ -240,6 +242,62 @@ public class Player {
 			projDefs.put(URI, pd);
 		}
 		return pd;
+	}
+	
+	/**
+	 * This method takes in a URI and returns the associated BuildingDefinition. If
+	 * that BuildingDefinition is not yet loaded, it loads it and then returns it.
+	 * Throws an exception if the definition can't be loaded
+	 * 
+	 * @param URI	the URI of the building definition
+	 * @return		the building definition
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
+	 */
+	public BuildingDefinition getBuildingDefinition(String URI) throws FileNotFoundException, InvalidConfigFileException
+	{
+		BuildingDefinition bd = buildingDefs.get(URI);
+		if(bd == null)
+		{
+			bd = new BuildingDefinition(URI, this);
+			buildingDefs.put(URI, bd);
+		}
+		return bd;
+	}
+	
+	/**
+	 * Gets the MapItemDefinition associated with the URI. Attempts to
+	 * load it if it needs to, returns null if unsuccessfull.
+	 * 
+	 * @param URI	the URI associated with the MapItemDefinition	
+	 * @return		the MapItemDefinition associated with the URI
+	 */
+	public MapItemDefinition getMapItemDefinition(String URI)
+	{
+		MapItemDefinition mid = null;
+		
+		try {
+			mid = this.getProjectileDefinition(URI);
+		} catch (FileNotFoundException e) {} 
+		catch (InvalidConfigFileException e) {}
+		
+		if(mid != null)
+			return mid;
+		
+		try {
+			mid = this.getUnitDefinition(URI);
+		} catch (FileNotFoundException e) {} 
+		catch (InvalidConfigFileException e) {}
+		
+		if(mid != null)
+			return mid;
+		
+		try {
+			mid = this.getBuildingDefinition(URI);
+		} catch (FileNotFoundException e) {} 
+		catch (InvalidConfigFileException e) {}
+		
+		return mid;
 	}
 	
 	public int getPlayerID()

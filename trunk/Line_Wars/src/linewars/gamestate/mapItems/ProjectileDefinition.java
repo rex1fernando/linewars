@@ -49,6 +49,15 @@ public class ProjectileDefinition extends MapItemDefinition {
 	}
 	
 	/**
+	 * 
+	 * @param velocity	the new velocity of the projectile
+	 */
+	public void setVelocity(double velocity)
+	{
+		this.velocity = velocity;
+	}
+	
+	/**
 	 * Creates a projectile
 	 * 
 	 * @param t	the transformation to create the projectile at

@@ -81,5 +81,14 @@ public class UnitDefinition extends MapItemDefinition {
 	{
 		return maxHp;
 	}
+	
+	/**
+	 * 
+	 * @param maxHp	the new max hp of the unit
+	 */
+	public void setMaxHP(double maxHp)
+	{
+		this.maxHp = maxHp;
+	}
 
 }
