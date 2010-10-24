@@ -6,6 +6,7 @@ import java.util.List;
 
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.Node;
 import linewars.parser.Parser;
 
 public class GameState
@@ -64,7 +65,10 @@ public class GameState
 	
 	public List<CommandCenter> getCommandCenters()
 	{
-		// TODO implement
-		return new ArrayList<CommandCenter>();
+		ArrayList<CommandCenter> ccs = new ArrayList<CommandCenter>();
+		Node[] nodes = map.getNodes();
+		for(Node n : nodes)
+			ccs.add(n.getCommandCenter());
+		return ccs;
 	}
 }
