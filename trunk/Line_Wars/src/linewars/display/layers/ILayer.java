@@ -21,6 +21,8 @@ public interface ILayer
 	 * @param gamestate
 	 *            The current drawable gamestate of the game.
 	 * @param visibleScreen TODO
+	 * @param scaleX TODO
+	 * @param scaleY TODO
 	 */
-	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen);
+	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY);
 }

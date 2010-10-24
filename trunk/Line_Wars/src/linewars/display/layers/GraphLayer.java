@@ -15,7 +15,7 @@ import linewars.gamestate.mapItems.Node;
 public class GraphLayer implements ILayer
 {
 	@Override
-	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen)
+	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
 	{
 		//the following code is for testing of the ColoredEdge class
 //		Lane l = new Lane(new Position(305, 350), new Position(10, 250), new Position(540, 115), new Position(350, 345), 10);

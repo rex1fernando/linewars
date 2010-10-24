@@ -3,13 +3,16 @@ package linewars.display;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
@@ -44,13 +48,18 @@ import linewars.parser.ParserKeys;
 public class Display
 {
 	/**
+	 * The number of milliseconds in-between draw events.
+	 */
+	private static final int DRAW_DELAY = 100;
+	
+	/**
 	 * The threshold when zooming out where the view switches
 	 * from tactical view to strategic view and vice versa.
 	 */
 	private static final double ZOOM_THRESHOLD = 0.80;
 	
 	private static final double MAX_ZOOM = 0.01;
-	private static final double MIN_ZOOM = 1.0;
+	private static final double MIN_ZOOM = 1.5;
 	
 	/**
 	 * The entry point for the program.
@@ -82,7 +91,7 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
-				f.setUndecorated(true);
+				//f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -122,6 +131,11 @@ public class Display
 		
 		public GamePanel(JFrame parent)
 		{
+			super(null);
+			
+			// ignores system generated repaints
+			setIgnoreRepaint(true);
+			
 			Parser leftUIPanel = null;
 			Parser rightUIPanel = null;
 			Parser exitButton = null;
@@ -188,6 +202,18 @@ public class Display
 			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());
+			
+			// spawns the paint driver for the display
+			new Timer(DRAW_DELAY, new ActionListener()
+			{
+				public void actionPerformed(ActionEvent arg0)
+				{
+					repaint();
+				}
+			}).start();
+			
+			// adds the mouse input handler
+			addMouseWheelListener(new InputHandler());
 		}
 		
 		/**
@@ -210,17 +236,27 @@ public class Display
 			
 			
 			// double buffer implementation
-			Image buffer = new BufferedImage((int) visibleScreen.getWidth(), (int) visibleScreen.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Image buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics bufferedG = buffer.getGraphics();
+			
+			// calc scale
+			double scaleX = getWidth() / visibleScreen.getWidth();
+			double scaleY = getHeight() / visibleScreen.getHeight();
 			
 			for (int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(bufferedG, gamestate, visibleScreen);
+				currentView.get(i).draw(bufferedG, gamestate, visibleScreen, scaleX, scaleY);
 			}
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
 			
 			super.paint(g);
+		}
+		
+		@Override
+		public void update(Graphics g)
+		{
+			paint(g);
 		}
 		
 		private class ResizeListener extends ComponentAdapter
@@ -232,6 +268,20 @@ public class Display
 				nodeStatusPanel.updateLocation();
 				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
+			}
+		}
+		
+		private class InputHandler extends MouseAdapter
+		{
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e)
+			{
+				double newZoom = zoomLevel + e.getWheelRotation() * 0.01;
+				if (newZoom < MAX_ZOOM) newZoom = MAX_ZOOM;
+				if (newZoom > MIN_ZOOM) newZoom = MIN_ZOOM;
+				
+				zoomLevel = newZoom;
+				
 			}
 		}
 	}

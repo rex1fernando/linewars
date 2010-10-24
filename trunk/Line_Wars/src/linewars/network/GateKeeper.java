@@ -263,7 +263,7 @@ public class GateKeeper implements Runnable
 	 *            The serializable object to be serialized.
 	 * @return An array of bytes representing the object provided.
 	 */
-	private byte[] serialize(Serializable s)
+	private byte[] serialize(Object s)
 	{
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();

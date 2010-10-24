@@ -82,6 +82,7 @@ public class CommandCardPanel extends Panel
 		}
 		
 		add(buttonPanel);
+		validate();
 	}
 	
 	@Override

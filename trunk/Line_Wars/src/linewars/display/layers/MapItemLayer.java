@@ -25,7 +25,7 @@ public class MapItemLayer implements ILayer
 	}
 	
 	@Override
-	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen)
+	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
 	{
 		for (MapItem mapItem : getMapItems(gamestate))
 		{
@@ -37,7 +37,7 @@ public class MapItemLayer implements ILayer
 			{
 				//TODO I fixed this line when I updated how the parser works -Connor
 				Animation anim = mapItem.getAnimation();
-				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime()), pos, rotation);
+				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime()), pos, rotation, scaleX, scaleY);
 			}
 		}
 	}

@@ -14,8 +14,8 @@ public abstract class Panel extends JPanel
 {	
 	private enum ANIMATION { DEFAULT, ROLE_IN, ROLE_OUT }
 	
-	private int width;
-	private int height;
+	private int panelWidth;
+	private int panelHeight;
 	
 	protected GameStateManager stateManager;
 	protected Animation[] animations;
@@ -26,10 +26,10 @@ public abstract class Panel extends JPanel
 		super(null);
 		setOpaque(false);
 		
-		this.width = width;
-		this.height = height;
+		this.panelWidth = width;
+		this.panelHeight = height;
 		
-		setSize(width, height);
+		setSize(panelWidth, panelHeight);
 		
 		// check for correct animations
 		if (animations == null || animations.length != ANIMATION.values().length)
@@ -48,7 +48,7 @@ public abstract class Panel extends JPanel
 	 */
 	public void updateLocation()
 	{
-		setSize(width, height);
+		setSize(panelWidth, panelHeight);
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public abstract class Panel extends JPanel
 //		g.setColor(Color.black);
 //		g.fillRect(0, 0, getWidth(), getHeight());
 		MapItemDrawer d = MapItemDrawer.getInstance();
-		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), 0.0);
+		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), 0.0, 1, 1);
 		super.paint(g);
 	}
 }

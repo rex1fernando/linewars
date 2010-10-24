@@ -98,10 +98,16 @@ public class MapItemDrawer
 	 * @param position
 	 *            The position to draw the image.
 	 * @param rotation TODO
+	 * @param scaleX TODO
+	 * @param scaleY TODO
 	 */
-	public void draw(Graphics g, String uri, Position position, double rotation)
+	public void draw(Graphics g, String uri, Position position, double rotation, double scaleX, double scaleY)
 	{
 		Image image = images.get(uri);
-		g.drawImage(image, (int)position.getY(), (int)position.getY(), null);
+		int x = (int) (position.getX() * scaleX);
+		int y = (int) (position.getY() * scaleY);
+		int w = (int) (image.getWidth(null) * scaleX);
+		int h = (int) (image.getHeight(null) * scaleY);
+		g.drawImage(image, x, y, w, h, null);
 	}
 }
