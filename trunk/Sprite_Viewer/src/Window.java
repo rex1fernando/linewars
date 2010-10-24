@@ -9,7 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferStrategy;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -83,22 +87,26 @@ public class Window implements ActionListener {
 		
 		
 		boolean b = true;
+		int current = 0;
+		long lastChangeTime = System.currentTimeMillis();
 		while(b)
 		{
 			
-			for(int i = 0; i < list.size(); i++)
+			if(!list.isEmpty())
 			{
 				//get graphics object to draw to
 				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-				list.get(i).getFrame().draw(g, 0, 0, canvas.getWidth(), canvas.getWidth());
+				g.setColor(Color.black);
+				g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+				list.get(current).getFrame().draw(g, 0, 0, canvas.getWidth(), canvas.getWidth());
 				//flip the buffers
 				g.dispose();
 				strategy.show();
-				try {
-					Thread.sleep(list.get(i - 1 >= 0 ? i - 1 : list.size() - 1).getTime());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				
+				if(System.currentTimeMillis() - lastChangeTime > list.get(current).getTime())
+				{
+					current = (current + 1)%list.size();
+					lastChangeTime = System.currentTimeMillis();
 				}
 			}
 			
@@ -132,6 +140,12 @@ public class Window implements ActionListener {
 		if(arg0.getSource().equals(addFiles))
 		{
 			JFileChooser fc = new JFileChooser();
+			
+			try {
+				Scanner s = new Scanner(new File("lastDirectory.txt"));
+				fc = new JFileChooser(s.nextLine());
+			} catch (FileNotFoundException e) {	}
+			
 			fc.setMultiSelectionEnabled(true);
 			int returnVal = fc.showOpenDialog(frame);
 
@@ -148,6 +162,15 @@ public class Window implements ActionListener {
 	            this.newList = newList;
 	            
 	            frame.pack();
+	            
+	            try {
+					FileWriter fWriter = new FileWriter("lastDirectory.txt");
+					fWriter.write(file[0].getParent());
+					fWriter.flush();
+					fWriter.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 	        }
 		}
 		if(arg0.getSource().equals(clearFiles))
