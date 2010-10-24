@@ -11,6 +11,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.collision.Ground;
 import linewars.gamestate.mapItems.strategies.collision.NoCollision;
+import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
@@ -37,7 +38,7 @@ public abstract class MapItemDefinition {
 	protected ArrayList<AbilityDefinition> abilities;
 	private Player owner;
 	protected CollisionStrategy cStrat;
-	protected ShapeAggregate body;
+	protected Shape body;
 	
 	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{
@@ -161,7 +162,7 @@ public abstract class MapItemDefinition {
 	 * 
 	 * @return	the shape aggregate associated with this map item
 	 */
-	public ShapeAggregate getBody()
+	public Shape getBody()
 	{
 		return body;
 	}

@@ -1,5 +1,6 @@
 package linewars.gamestate;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
@@ -8,12 +9,15 @@ import java.util.Queue;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.LaneBorder;
+import linewars.gamestate.mapItems.LaneBorderDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.Wave;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Lane
 {
@@ -42,6 +46,9 @@ public class Lane
 	private PathFinding pathFinder = new PathFinding();
 	
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
+	
+	static final double LANE_BORDER_RESOLUTION = 0.05;
 	
 	public Lane(Position p0, Position p1, Position p2, Position p3, double width)
 	{
@@ -50,6 +57,26 @@ public class Lane
 		this.p2 = p2;
 		this.p3 = p3;
 		this.width = width;
+		
+		double size = LANE_BORDER_RESOLUTION*this.getLength();
+		try {
+			LaneBorderDefinition lbd = new LaneBorderDefinition(size);
+			double dis = this.getWidth() + size;
+			for(double i = 0; i < 1; i += LANE_BORDER_RESOLUTION)
+			{
+				Transformation t = this.getPosition(i);
+				Transformation t1 = new Transformation(t.getPosition().subtract(
+						dis*Math.cos(t.getRotation()), 
+						dis*Math.sin(t.getRotation())), 0);
+				borders.add(lbd.createLaneBorder(t1));
+				Transformation t2 = new Transformation(t.getPosition().add(
+						dis*Math.cos(t.getRotation()), 
+						dis*Math.sin(t.getRotation())), 0);
+				borders.add(lbd.createLaneBorder(t2));
+			}
+		} catch (FileNotFoundException e) {
+		} catch (InvalidConfigFileException e) {}
+		
 	}
 
 	public Position getP0()
@@ -178,7 +205,7 @@ public class Lane
 	 * @return The position along the bezier curve represented by the percentage
 	 *         pos.
 	 */
-	public Position getPosition(double pos)
+	public Transformation getPosition(double pos)
 	{
 		/*
 		 * TODO this method has been implemented to find the position within
@@ -195,7 +222,8 @@ public class Lane
 		double posY = term0 * getP0().getY() + term1 * getP1().getY()
 				+ term2 * getP2().getY() + term3 * getP3().getY();
 
-		return new Position(posX, posY);
+		//TODO calculate the rotation at this point
+		return new Transformation(new Position(posX, posY), 0);
 	}
 
 	public void addToPending(Node n, Unit u) 
@@ -340,6 +368,16 @@ public class Lane
 				items.add(prj);
 		}
 		
+		for(LaneBorder lb : borders)
+		{
+			Position p = upperLeft.subtract(lb.getRadius(), lb.getRadius());
+			if(lb.getPosition().getX() >= p.getX() &&
+					lb.getPosition().getY() >= p.getY() &&
+					lb.getPosition().getX() <= p.getX() + width + lb.getRadius() &&
+					lb.getPosition().getY() <= p.getY() + height + lb.getRadius())
+				items.add(lb);
+		}
+		
 		return items.toArray(new MapItem[0]);
 	}
 	
@@ -348,11 +386,23 @@ public class Lane
 	 */
 	public void update()
 	{
-		//TODO
+		for(Wave w : waves)
+			w.update();
+		for(Projectile p : projectiles)
+		{
+			p.move();
+			p.update();
+		}
 	}
 	
 	public Gate getGate(Node n)
 	{
 		return gates.get(n);
+	}
+	
+	public double getLength()
+	{
+		//TODO
+		return 0;
 	}
 }

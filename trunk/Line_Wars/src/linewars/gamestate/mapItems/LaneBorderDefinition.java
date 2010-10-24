@@ -4,14 +4,15 @@ import java.io.FileNotFoundException;
 
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
+import linewars.gamestate.shapes.Circle;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class LaneBorderDefinition extends MapItemDefinition {
 
-	public LaneBorderDefinition() throws FileNotFoundException, InvalidConfigFileException {
+	public LaneBorderDefinition(double size) throws FileNotFoundException, InvalidConfigFileException {
 		super();
-		//TODO set default body for lane borders
-		body = null;
+		//TODO set the radius of the circle
+		body = new Circle();
 		
 		cStrat = new CollidesWithAll();
 	}
