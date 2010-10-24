@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
@@ -23,17 +24,17 @@ public class ConstructUnit implements Ability {
 		unitDefinition = ud;
 		building = b;
 		b.setState(MapItemState.Active);
-		startTime = System.currentTimeMillis();
+		startTime = GameTimeManager.currentTimeMillis();
 		this.buildTime = buildTime;
 	}
 
 	@Override
 	public void update() {
-		if(System.currentTimeMillis() - startTime > buildTime)
+		if(GameTimeManager.currentTimeMillis() - startTime > buildTime)
 		{
 			Unit u = unitDefinition.createUnit(building.getTransformation());
 			building.getNode().addUnit(u);
-			startTime = System.currentTimeMillis();
+			startTime = GameTimeManager.currentTimeMillis();
 		}
 	}
 

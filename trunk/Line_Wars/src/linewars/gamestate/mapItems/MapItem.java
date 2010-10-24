@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 
 import linewars.display.Animation;
+import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -42,7 +43,7 @@ public abstract class MapItem {
 	{
 		transformation = trans;
 		state = MapItemState.Idle;
-		stateStart = System.currentTimeMillis();
+		stateStart = GameTimeManager.currentTimeMillis();
 		
 		if(anim != null)
 		{
@@ -170,7 +171,7 @@ public abstract class MapItem {
 		if(this.getDefinition().isValidState(m))
 		{
 			state = m;
-			stateStart = System.currentTimeMillis();
+			stateStart = GameTimeManager.currentTimeMillis();
 		}
 		else
 			throw new IllegalStateException(m.toString() + " is not a valid state for a " + this.getDefinition().getName());
