@@ -3,6 +3,16 @@ package linewars.gamestate.shapes;
 import linewars.gamestate.Transformation;
 
 public class Circle extends Shape {
+	
+	//TODO document
+	private Transformation position;
+	private double radius;
+	
+	//TODO document
+	public Circle(Transformation pos, double radius){
+		this.radius = radius;
+		position = pos;
+	}
 
 	@Override
 	public Shape stretch(Transformation change) {
@@ -12,27 +22,28 @@ public class Circle extends Shape {
 
 	@Override
 	public Shape transform(Transformation change) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Circle(new Transformation(position.getPosition().add(change.getPosition()), position.getRotation() + change.getRotation()), radius);
 	}
 
 	@Override
 	public Transformation position() {
-		// TODO Auto-generated method stub
-		return null;
+		return position;
 	}
 
 	@Override
 	public Circle boundingCircle() {
-		// TODO Auto-generated method stub
 		return this;
 	}
 
 	@Override
 	public Rectangle boundingRectangle() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Rectangle(position, radius * 2, radius * 2);
 	}
 
-	public double getRadius(){return 0;}//TODO
+	/**
+	 * Returns the radius of the circle.
+	 */
+	public double getRadius(){
+		return radius;
+	}
 }
