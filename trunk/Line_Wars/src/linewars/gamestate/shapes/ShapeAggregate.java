@@ -2,6 +2,7 @@ package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
 
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
@@ -11,13 +12,14 @@ public class ShapeAggregate extends Shape {
 	private ArrayList<Shape> members;
 	//TODO rotation-related state variable needed?
 	
-	//TODO document
+	//TODO document and fix
 	public ShapeAggregate(Parser p){//TODO check to see if the Parser does in fact define a ShapeAggregate
 		members = new ArrayList<Shape>();
-		String[] keys = p.getList(ParserKeys.shapes);
-		for(String key : keys){
-			members.add(Shape.buildFromParser(p.getParser(key)));
-		}
+		members.add(new Circle(new Transformation(new Position(0, 0), 0), 0));
+//		String[] keys = p.getList(ParserKeys.shapes);
+//		for(String key : keys){
+//			members.add(Shape.buildFromParser(p.getParser(key)));
+//		}
 	}
 
 	//TODO document after implementing
