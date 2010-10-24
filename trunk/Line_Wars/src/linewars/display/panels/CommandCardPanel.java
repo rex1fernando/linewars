@@ -1,12 +1,21 @@
 package linewars.display.panels;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import linewars.display.Animation;
+import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 /**
  * Encapsulates command card GUI information.
@@ -54,14 +63,8 @@ public class CommandCardPanel extends Panel
 	
 	private JPanel buttonPanel;
 	private JButton[] buttons;
-	
-	/*
-	 * TODO actually implement once specified
-	 * 
-	 * private TechNode prevTechPosition;
-	 * private TechNode curTechPosition;
-	 * private GameNode selectedNode;
-	 */
+	private ButtonIcon[] buttonIcons;
+	private ClickHandler[] clickEvents;
 	
 	/**
 	 * Creates a new CommandCardPanel object.
@@ -74,11 +77,19 @@ public class CommandCardPanel extends Panel
 		buttonPanel.setOpaque(false);
 		
 		buttons = new JButton[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		buttonIcons = new ButtonIcon[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		clickEvents = new ClickHandler[NUM_V_BUTTONS * NUM_H_BUTTONS];
 		for (int i = 0; i < NUM_V_BUTTONS * NUM_H_BUTTONS; i++)
 		{
 			buttons[i] = new JButton();
-			buttons[i].setVisible(true);
+			buttons[i].setVisible(false);
 			buttonPanel.add(buttons[i]);
+			
+			buttonIcons[i] = new ButtonIcon();
+			buttons[i].setIcon(buttonIcons[i]);
+			
+			clickEvents[i] = new ClickHandler();
+			buttons[i].addActionListener(clickEvents[i]);
 		}
 		
 		add(buttonPanel);
@@ -102,8 +113,17 @@ public class CommandCardPanel extends Panel
 	 * button in the panel.  Also handles disabling buttons if they
 	 * are not usable.
 	 */
-	public void updateButtons()
+	public void updateButtons(CommandCenter cc, int nodeId)
 	{
+		AbilityDefinition[] ad = cc.getAvailableAbilities();
+		for (int i = 0; i < ad.length; i++)
+		{
+			buttons[i].setVisible(true);
+			buttonIcons[i].setURI(ad[i].getIconURI());
+			buttons[i].setToolTipText(ad[i].getDescription());
+			clickEvents[i].setIds(nodeId, ad[i].getID());
+			buttons[i].setEnabled(ad[i].unlocked());
+		}
 		/*
 		 * TODO actually implement once more specified
 		 * 
@@ -130,5 +150,57 @@ public class CommandCardPanel extends Panel
 		 * 		buttons[i].setVisible(false);
 		 * }
 		 */
+	}
+	
+	private class ButtonIcon implements Icon
+	{
+		private String uri;
+		
+		public ButtonIcon()
+		{
+			uri = "";
+		}
+		
+		public void setURI(String newUri)
+		{
+			uri = newUri;
+		}
+		
+		@Override
+		public int getIconHeight()
+		{
+			return getHeight();
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+			return getWidth();
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+			MapItemDrawer.getInstance().draw(g, uri, new Position(x, y), 0.0, 1, 1);
+		}
+	}
+	
+	private class ClickHandler implements ActionListener
+	{
+		private int nodeId;
+		private int abilityId;
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO implement
+			System.out.println("Created a message with node=" + nodeId + " and ability=" + abilityId);
+		}
+		
+		public void setIds(int nodeId, int abilityId)
+		{
+			this.nodeId = nodeId;
+			this.abilityId = abilityId;
+		}
 	}
 }

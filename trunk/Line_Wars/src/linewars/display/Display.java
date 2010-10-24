@@ -36,7 +36,9 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gamestate.GameState;
 import linewars.gamestate.GameStateManager;
+import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -262,10 +264,30 @@ public class Display
 			}
 			
 			// checks for selected node
-			CommandCenter node = getSelectedNode(gamestate);
-			if (node != null)
+			int nodeIndex = getSelectedNode(gamestate);
+			if (nodeIndex == -1)
 			{
+				nodeStatusPanel.setVisible(false);
+				commandCardPanel.setVisible(false);
+			}
+			else
+			{
+				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
 				
+				nodeStatusPanel.setVisible(true);
+				// TODO populate status panel
+				
+				commandCardPanel.setVisible(true);
+				commandCardPanel.updateButtons(node, nodeIndex);
+				
+				// draws a rectangle around the command center
+				Position p = node.getPosition();
+				int recX = (int) ((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
+				int recY = (int) ((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
+				int recW = (int) (node.getWidth() * viewport.getWidth() / mapSize.getWidth());
+				int recH = (int) (node.getHeight() * viewport.getHeight() / mapSize.getHeight());
+				g.setColor(Color.red);
+				g.drawRect(recX, recY, recW, recH);
 			}
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
@@ -273,14 +295,33 @@ public class Display
 			super.paint(g);
 		}
 		
-		private CommandCenter getSelectedNode(GameState gs)
+		/**
+		 * Returns the currently selected command center index for this player.  If
+		 * no command center is selected, this method returns -1.
+		 * 
+		 * @param gs	The current gamestate.
+		 * @return		The currently selected command center index or -1 if nothing is selected.
+		 */
+		private int getSelectedNode(GameState gs)
 		{
-			for (CommandCenter cc : gs.getCommandCenters())
+			double scaleX = viewport.getWidth() / mapSize.getWidth();
+			double scaleY = viewport.getHeight() / mapSize.getHeight();
+			Point2D point = new Point2D.Double(lastClickPosition.getX() * scaleX, lastClickPosition.getY() * scaleY);
+			
+			List<CommandCenter> cc = gs.getCommandCenters();
+			for (int i = 0; i < cc.size(); i++)
 			{
-				
+				Position p = cc.get(i).getPosition();
+				if (point.getX() > p.getX() && point.getY() > p.getY())
+				{
+					if (point.getX() < p.getX() + cc.get(i).getWidth() && point.getY() < p.getY() + cc.get(i).getHeight())
+					{
+						return i;
+					}
+				}
 			}
 			
-			return null;
+			return -1;
 		}
 		
 		@Override
