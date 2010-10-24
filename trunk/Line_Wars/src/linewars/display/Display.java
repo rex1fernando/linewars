@@ -96,7 +96,7 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
-				//f.setUndecorated(true);
+				f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -250,31 +250,31 @@ public class Display
 			}
 			
 			// checks for selected node
-			int nodeIndex = getSelectedNode(gamestate);
-			if (nodeIndex == -1)
-			{
-				nodeStatusPanel.setVisible(false);
-				commandCardPanel.setVisible(false);
-			}
-			else
-			{
-				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
-				
-				nodeStatusPanel.setVisible(true);
-				// TODO populate status panel
-				
-				commandCardPanel.setVisible(true);
-				commandCardPanel.updateButtons(node, nodeIndex);
-				
-				// draws a rectangle around the command center
-				Position p = node.getPosition();
-				int recX = (int) ((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
-				int recY = (int) ((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
-				int recW = (int) (node.getWidth() * viewport.getWidth() / mapSize.getWidth());
-				int recH = (int) (node.getHeight() * viewport.getHeight() / mapSize.getHeight());
-				g.setColor(Color.red);
-				g.drawRect(recX, recY, recW, recH);
-			}
+//			int nodeIndex = getSelectedNode(gamestate);
+//			if (nodeIndex == -1)
+//			{
+//				nodeStatusPanel.setVisible(false);
+//				commandCardPanel.setVisible(false);
+//			}
+//			else
+//			{
+//				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
+//				
+//				nodeStatusPanel.setVisible(true);
+//				// TODO populate status panel
+//				
+//				commandCardPanel.setVisible(true);
+//				commandCardPanel.updateButtons(node, nodeIndex);
+//				
+//				// draws a rectangle around the command center
+//				Position p = node.getPosition();
+//				int recX = (int) ((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
+//				int recY = (int) ((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
+//				int recW = (int) (node.getWidth() * viewport.getWidth() / mapSize.getWidth());
+//				int recH = (int) (node.getHeight() * viewport.getHeight() / mapSize.getHeight());
+//				g.setColor(Color.red);
+//				g.drawRect(recX, recY, recW, recH);
+//			}
 			
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
 			

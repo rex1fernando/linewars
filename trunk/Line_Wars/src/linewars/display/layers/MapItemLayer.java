@@ -86,6 +86,9 @@ public class MapItemLayer implements ILayer
 					stateToAnimationMap.put(state, anim);
 				}
 				
+				//get the items coordinates based on the visible screen
+				pos = new Position(pos.getX() - visibleScreen.getX(), pos.getY() - visibleScreen.getY());
+				
 				//draw the animation
 				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()), pos, rotation, scaleX, scaleY);
 			}
