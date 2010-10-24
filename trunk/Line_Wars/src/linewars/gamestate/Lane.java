@@ -7,6 +7,7 @@ import java.util.Queue;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Node;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
@@ -97,7 +98,9 @@ public class Lane
 		MapItem[] os = this.getMapItemsIn(new Position(left, top), right - left, bottom - top);
 		ArrayList<MapItem> obstacles = new ArrayList<MapItem>();
 		for(MapItem m : os)
-			if(!(m instanceof Projectile || m instanceof Building) && unit.getCollisionStrategy().canCollideWith(m))
+			if (!(m instanceof Projectile || m instanceof Building)
+					&& unit.getCollisionStrategy().canCollideWith(m)
+					&& m.getState() != MapItemState.Moving)
 				obstacles.add(m);
 		//TODO this path finder is kinda crappy
 		return pathFinder.findPath(unit, target, range, obstacles.toArray(new MapItem[0]), new Position(left, top), right - left, bottom - top);
