@@ -12,11 +12,14 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Map;
 import linewars.gamestate.Player;
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Unit;
 
 public class Node {
+	
+	private Transformation trans;
 	private Map gameMap;
 	private GameState gameState;
 	private Player owner;
@@ -29,14 +32,17 @@ public class Node {
 	private Transformation[] buildingSpots;
 	private int numBuildings;
 	
+	private HashMap<Double, Lane> laneMap;
+	
 	/*
 	 * TODO The Display needs the size of a Node to properly draw
 	 * the colored circle over it in strategic view.
 	 */
 	private Dimension size;
 	
-	public Node(Player owner, Lane[] lanes, CommandCenter center, Transformation[] buildingSpots)
+	public Node(Player owner, Lane[] lanes, CommandCenter center, Transformation[] buildingSpots, Transformation trans)
 	{
+		this.trans = trans;
 		this.owner = owner;
 		this.center = center;
 		invader = null; //Maybe have a special value to set this to in order to avoid null?
@@ -106,24 +112,43 @@ public class Node {
 	}
 	
 	//TODO Get the timer tick to seed the random the same in all systems.
-	public void spawnWaves()
+	public void generateWaves()
 	{
 		Random rand = new Random(50);
 		HashMap<Player, double[]> flows = getAllFlow();
+		boolean foundDest;
 		for(int i = 0; i < containedUnits.size(); i++)
 		{
+			foundDest = false;
+			Lane destination = null;
 			Player owner = containedUnits.get(i).getOwner();
 			double totalFlow = getTotal(flows.get(owner));
 			double[] currentFlowSet = flows.get(owner);
 			double number = rand.nextDouble() * totalFlow;
 			
-			for(int j = 0; j < flows.get(owner).length; j++)
+			for(int j = 0; j < currentFlowSet.length; j++)
 			{
-				if(number <= currentFlowSet[j])
+				if(number <= currentFlowSet[j] && !foundDest)
 				{
-					
+					destination = laneMap.get(currentFlowSet[j]);
+					if(owner.isStartPoint(destination, this))
+					{
+						foundDest = true;
+					}
 				}
 			}
+			
+			if(!foundDest)
+			{
+				containedUnits.remove(i);
+			}else{
+				destination.addToPending(this, containedUnits.get(i));
+			}
+		}
+		
+		for(int i = 0; i < attachedLanes.size(); i++)
+		{
+			attachedLanes.get(i).addPendingWaves(this);
 		}
 	}
 	
@@ -147,9 +172,12 @@ public class Node {
 			Lane[] l = gameMap.getLanes();
 			flows = new double[l.length];
 			Player p = players.get(i);
+			double total = 0;
 			for(int j = 0; j < l.length; j++)
 			{
-				flows[j] = p.getFlowDist(l[j]);
+				total = p.getFlowDist(l[j]) + total;
+				flows[j] = total;
+				laneMap.put(total, l[j]);
 			}
 			Arrays.sort(flows);
 			ret.put(p, flows);
@@ -210,5 +238,10 @@ public class Node {
 	public void addUnit(Unit u)
 	{
 		containedUnits.add(u);
+	}
+	
+	public Position getPosition()
+	{
+		return trans.getPosition();
 	}
 }

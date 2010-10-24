@@ -12,6 +12,12 @@ public class GameState
 	// TODO finish implementation!
 	
 	private Map map;
+	private int numPlayers;
+	
+	public int getNumPlayers()
+	{
+		return numPlayers;
+	}
 	
 	public Dimension2D getMapSize()
 	{

@@ -2,10 +2,10 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
+import linewars.gamestate.Player;
 public class Wave {
 	private Lane owner;
-	boolean isVisible;
-	
+	private Node origin;
 	ArrayList<Unit> units;
 	
 	/**
@@ -16,6 +16,28 @@ public class Wave {
 	public Lane getLane()
 	{
 		return owner;
+	}
+	
+	/**
+	 * Gets the Node that 
+	 * @return
+	 */
+	public Node getOrigin()
+	{
+		return origin;
+	}
+	
+	public Wave(Lane owner, Unit u)
+	{
+		this.owner = owner;
+		units = new ArrayList<Unit>();
+		units.add(u);
+	}
+	
+	public Wave(Lane owner)
+	{
+		this.owner = owner;
+		units = new ArrayList<Unit>();
 	}
 	
 	public Unit[] getUnits()
@@ -49,4 +71,6 @@ public class Wave {
 		//TODO implement this method
 		return 0.5;
 	}
+	
+	
 }

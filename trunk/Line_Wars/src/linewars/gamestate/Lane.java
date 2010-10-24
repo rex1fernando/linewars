@@ -1,10 +1,12 @@
 package linewars.gamestate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Queue;
 
 
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
@@ -26,9 +28,10 @@ public class Lane
 	private Position p2;
 	private Position p3;
 		
-//	private ArrayList<Wave> pendingWaves;
+	private GameState gameState;
+	private HashMap<Node, ArrayList<Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
-	private ArrayList<Wave> frontlineWaves;
+	private Gate[] gates;
 	private ArrayList<Node> nodes;
 	
 	/**
@@ -194,30 +197,121 @@ public class Lane
 
 		return new Position(posX, posY);
 	}
-	
-	/**
-	 * Gets the two front line waves in an ArrayList. The first wave in the
-	 * list is the wave that originated from the node at the front of the lane
-	 * (currently represented by p0), or null if there is no such wave. The
-	 * second wave in the list is the wave that originated from the node at the
-	 * end of the lane (currently represented by p3), or null if there is no
-	 * such wave.
-	 * 
-	 * @return the front line waves.
-	 */
-	@Deprecated
-	public ArrayList<Wave> getFrontLineWaves()
+
+	public void addToPending(Node n, Unit u) 
 	{
-		/*
-		 * TODO I thought there were two front-line waves, one for each player,
-		 * but this class is currently only storing information for one.
-		 * 
-		 * I need the positions for both to be able to display the colors
-		 * correctly in ColoredEdge.
-		 */
-		return frontlineWaves;
+		int playerID = u.getOwner().getPlayerID();
+		if(pendingWaves.get(playerID) == null)
+		{
+			pendingWaves.get(n).add(playerID, new Wave(this, u));
+		}else{
+			pendingWaves.get(n).get(playerID).addUnit(u);
+		}
 	}
 	
+	/**
+	 * For the given node, add all of the waves from that node to this lane.
+	 * @param n The node the units/waves are coming from.
+	 */
+	public void addPendingWaves(Node n)
+	{
+		int numBuckets = pendingWaves.get(n).size();
+		double bucketWidth = width/numBuckets;
+		double forwardBound = findForwardBound(n);
+		
+		//If the lane is backed up to the node, just destroy all of the pending units.
+		if(forwardBound == 0)
+		{
+			pendingWaves.get(n).clear();
+		}
+		
+		//For every bucket (A.K.A. every player with units coming from this node)
+		for(int i = 0; i < numBuckets; i++)
+		{
+			double currentCloseBound = 0;
+			double pendingCloseBound = 0;
+			double yTopBound = (bucketWidth * i);
+			double yBottomBound = yTopBound + bucketWidth;
+			double yCurrentBound = yTopBound;
+			
+			//For every unit going into the current bucket
+			for(int j = 0; j < pendingWaves.get(n).get(i).getUnits().length; j++)
+			{
+				Unit currentUnit = pendingWaves.get(n).get(i).getUnits()[j];
+				boolean placed = false;
+				
+				//Make sure the unit can fit in the current player's bucket.
+				if(currentUnit.getHeight() >= bucketWidth)
+				{
+					placed = true;
+				}
+				
+				while(!placed)
+				{
+					//Make sure the unit can fit width-wise
+					if(currentCloseBound + currentUnit.getWidth() <= forwardBound)
+					{
+						//If the unit can fit height-wise in the current "column" put it in. Otherwise advance to the next "column".
+						if(yCurrentBound + currentUnit.getHeight() <= yBottomBound)
+						{
+							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
+							
+							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
+							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
+							{
+								pendingCloseBound = currentCloseBound + currentUnit.getWidth();
+							}
+							yCurrentBound = yCurrentBound + currentUnit.getHeight();
+							placed = true;
+						}else{
+							currentCloseBound = pendingCloseBound;
+							yCurrentBound = yTopBound;
+						}
+					}else{
+						placed = true;
+					}
+				}
+				placed = false;
+			}
+		}
+		
+		//Destroy any units that got skipped because they couldn't be fit.
+		pendingWaves.get(n).clear();
+		
+	}	
+
+	/**
+	 * Finds the farthest point at which units can be spawned, defined as the position of the unit closest to the starting node. (Currently the gate)
+	 * Currently assumes that the gate is straight up and down.
+	 * TODO Later make it general.
+	 */
+	private double findForwardBound(Node n)
+	{
+		Gate closestGate = getClosestGate(n);
+		Position gatePos = closestGate.getPosition();
+		double ret;
+		double plus = gatePos.getX()+(closestGate.getWidth()/2);
+		double minus = gatePos.getX()-(closestGate.getWidth()/2);
+		if(Math.abs(plus) < Math.abs(minus))
+		{
+			ret = plus;
+		}else{
+			ret = minus;
+		}
+		return ret;
+	}
+	
+	private Gate getClosestGate(Node n)
+	{
+		Gate ret = gates[0];
+		Position closePos = ret.getPosition();
+		double currentDistance = closePos.distanceSquared(n.getPosition());
+		if(gates[1].getPosition().distanceSquared(n.getPosition()) < currentDistance)
+		{
+			ret = gates[1];
+		}
+		return ret;
+	}	
 	/**
 	 * Gets the map items intersecting with the rectangle
 	 * 

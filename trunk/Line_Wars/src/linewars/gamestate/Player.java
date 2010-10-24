@@ -7,6 +7,7 @@ import linewars.gamestate.mapItems.*;
 public class Player {
 
 	private Map map;
+	private int playerID;
 	private Color playerColor;
 	private double stuffAmount;
 	private ArrayList<Node> ownedNodes;
@@ -67,11 +68,15 @@ public class Player {
 		}
 	}
 	
+	public boolean isStartPoint(Lane l, Node n)
+	{
+		return startPoints.get(l).equals(n);
+	}
+	
 	public double getStuff(){
 		return stuffAmount;
 	}
 	
-	//TODO add a color for the player
 	public Color getPlayerColor(){
 		return playerColor;
 	}
@@ -208,5 +213,30 @@ public class Player {
 	public ProjectileDefinition getProjectileDefinition(String URI)
 	{
 		return null;
+	}
+	
+	public int getPlayerID()
+	{
+		return playerID;
+	}
+	
+	public boolean equals(Object obj)
+	{
+		if(obj == null){
+			return false;
+		}
+		
+		if(!this.getClass().equals(obj.getClass()))
+		{
+			return false;
+		}
+		
+		Player other = (Player)obj;
+		
+		if(this.playerID == other.getPlayerID())
+		{
+			return true;
+		}
+		return false;
 	}
 }
