@@ -25,7 +25,7 @@ public class Circle extends Shape {
 	@Override
 	public Circle boundingCircle() {
 		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
@@ -34,4 +34,5 @@ public class Circle extends Shape {
 		return null;
 	}
 
+	public double getRadius(){return 0;}//TODO
 }

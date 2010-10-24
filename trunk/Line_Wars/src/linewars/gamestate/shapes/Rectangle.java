@@ -33,5 +33,8 @@ public class Rectangle extends Shape {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public double getWidth(){return 0;}
+	public double getHeight(){return 0;}
 
 }
