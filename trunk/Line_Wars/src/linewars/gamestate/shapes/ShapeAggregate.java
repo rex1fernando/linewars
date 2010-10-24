@@ -5,21 +5,32 @@ import java.util.ArrayList;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser;
+import linewars.parser.Parser.NoSuchKeyException;
 import linewars.parser.ParserKeys;
 
 public class ShapeAggregate extends Shape {
 	
+	static {
+		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
+	}
+	
 	private ArrayList<Shape> members;
+	private double rotation;
 	//TODO rotation-related state variable needed?
 	
-	//TODO document and fix
+	//TODO document
 	public ShapeAggregate(Parser p){//TODO check to see if the Parser does in fact define a ShapeAggregate
 		members = new ArrayList<Shape>();
-		members.add(new Circle(new Transformation(new Position(300, 300), 0), 300));
-//		String[] keys = p.getList(ParserKeys.shapes);
-//		for(String key : keys){
-//			members.add(Shape.buildFromParser(p.getParser(key)));
-//		}
+//		members.add(new Circle(new Transformation(new Position(300, 300), 0), 300));
+		String[] keys = p.getList(ParserKeys.shapes);
+		for(String key : keys){
+			members.add(Shape.buildFromParser(p.getParser(key)));
+		}
+		try{
+			rotation = p.getNumericValue(ParserKeys.rotation);			
+		}catch(NoSuchKeyException e){
+			rotation = 0;//defaults to 0
+		}
 	}
 
 	//TODO document after implementing

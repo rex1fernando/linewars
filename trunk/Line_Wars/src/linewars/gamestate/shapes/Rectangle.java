@@ -1,11 +1,32 @@
 package linewars.gamestate.shapes;
 
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.parser.Parser;
+import linewars.parser.Parser.NoSuchKeyException;
+import linewars.parser.ParserKeys;
 
 public class Rectangle extends Shape {
+	
+	static {
+		Shape.addClassForInitialization("rectangle", Rectangle.class);
+	}
+	
 	//TODO document
 	private double width, height;
 	private Transformation position;
+	
+	public Rectangle(Parser config){
+		width = config.getNumericValue(ParserKeys.width);
+		height = config.getNumericValue(ParserKeys.height);
+		double rotation = 0;
+		try{
+			rotation = Math.PI * config.getNumericValue(ParserKeys.rotation);
+		}catch(NoSuchKeyException e){
+			//Just means rotation wasn't set, so it defaults to 0
+		}
+		position = new Transformation(new Position(config.getNumericValue(ParserKeys.x), config.getNumericValue(ParserKeys.y)), rotation);
+	}
 	
 	//TODO document
 	public Rectangle(Transformation position, double width, double height){

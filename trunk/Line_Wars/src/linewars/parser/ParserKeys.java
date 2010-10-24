@@ -13,5 +13,7 @@ public enum ParserKeys {
 	icon, imageHeight, imageWidth, shapes,
 	displayTime, mapItemURI, field,
 	valueFunction, preReqs, 
-	maxTimesResearchable
+	maxTimesResearchable, circle, rectangle,
+	radius, width, height, rotation,
+	shapetype, x, y
 }
