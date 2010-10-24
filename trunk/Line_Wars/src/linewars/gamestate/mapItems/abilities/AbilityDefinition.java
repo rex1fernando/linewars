@@ -1,10 +1,14 @@
 package linewars.gamestate.mapItems.abilities;
 
 
+import java.io.FileNotFoundException;
+
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
+import linewars.parser.Parser.NoSuchKeyException;
 import linewars.parser.ParserKeys;
 
 /**
@@ -29,8 +33,11 @@ public abstract class AbilityDefinition {
 	 * @param parser	the parser containing the relavent information for the ability definition
 	 * @param m			the MapItemDefinition that owns this ability definition.
 	 * @return			the created ability definition
+	 * @throws InvalidConfigFileException 
+	 * @throws NoSuchKeyException 
+	 * @throws FileNotFoundException 
 	 */
-	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m)
+	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
 	{
 		AbilityDefinition ad = null;
 		if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))

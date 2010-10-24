@@ -19,7 +19,7 @@ import linewars.parser.ParserKeys;
  * knows the velocity of the projectile and a template for its impact
  * strategy.
  */
-public abstract class ProjectileDefinition extends MapItemDefinition {
+public class ProjectileDefinition extends MapItemDefinition {
 	
 	private double velocity;
 	private ImpactStrategy iStrat;

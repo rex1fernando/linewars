@@ -1,8 +1,10 @@
 package linewars.gamestate;
 import java.awt.Color;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 import linewars.gamestate.mapItems.*;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Player {
 
@@ -16,9 +18,10 @@ public class Player {
 	private ArrayList<Unit> ownedUnits;
 	private ArrayList<Building> ownedBuildings;
 	private ArrayList<Projectile> ownedProjectiles;
-	private ArrayList<BuildingDefinition> buildingDefs;
-	private ArrayList<UnitDefinition> unitDefs;
-	private ArrayList<Tech> techLevels;
+	private HashMap<String, BuildingDefinition> buildingDefs;
+	private HashMap<String, UnitDefinition> unitDefs;
+	private HashMap<String, ProjectileDefinition> projDefs;
+	private HashMap<String, Tech> techLevels;
 	private String name;
 	
 	public Player(double startingStuff, Node[] startingNodes, Race r){
@@ -34,9 +37,10 @@ public class Player {
 		startPoints = new HashMap<Lane, Node>();
 		flowSetup();
 		
-		buildingDefs = new ArrayList<BuildingDefinition>();
-		unitDefs = new ArrayList<UnitDefinition>();
-		techLevels = new ArrayList<Tech>();
+		buildingDefs = new HashMap<String, BuildingDefinition>();
+		unitDefs = new HashMap<String, UnitDefinition>();
+		projDefs = new HashMap<String, ProjectileDefinition>();
+		techLevels = new HashMap<String, Tech>();
 	}
 	
 	/**
@@ -99,20 +103,19 @@ public class Player {
 	}
 	
 	public UnitDefinition[] getUnitDefinitions(){
-		return (UnitDefinition[])unitDefs.toArray();
+		return unitDefs.entrySet().toArray(new UnitDefinition[0]);
 	}
 	
 	public BuildingDefinition[] getBuildingDefintions()
 	{
-		return (BuildingDefinition[])buildingDefs.toArray();
+		return buildingDefs.entrySet().toArray(new BuildingDefinition[0]);
 	}
 	
 	public Tech[] getTech()
 	{
-		return (Tech[])techLevels.toArray();
+		return techLevels.entrySet().toArray(new Tech[0]);
 	}
 	
-	//TODO implement addMapItem
 	/**
 	 * adds the given mapItem to the player's master list of owned items
 	 * 
@@ -120,7 +123,12 @@ public class Player {
 	 */
 	public void addMapItem(MapItem m)
 	{
-		
+		if(m instanceof Building)
+			ownedBuildings.add((Building) m);
+		else if(m instanceof Unit)
+			ownedUnits.add((Unit) m);
+		else if(m instanceof Projectile)
+			ownedProjectiles.add((Projectile) m);
 	}
 	
 	/**
@@ -173,7 +181,6 @@ public class Player {
 		stuffAmount = stuffAmount - amount;
 	}
 	
-	//TODO
 	/**
 	 * This method takes in a URI and returns the associated unitDefinition. If
 	 * that unitDefinition is not yet loaded, it loads it and then returns it.
@@ -181,13 +188,20 @@ public class Player {
 	 * 
 	 * @param URI	the URI of the unit definition
 	 * @return		the unit definition
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
 	 */
-	public UnitDefinition getUnitDefinition(String URI)
+	public UnitDefinition getUnitDefinition(String URI) throws FileNotFoundException, InvalidConfigFileException
 	{
-		return null;
+		UnitDefinition ud = unitDefs.get(URI);
+		if(ud == null)
+		{
+			ud = new UnitDefinition(URI, this);
+			unitDefs.put(URI, ud);
+		}
+		return ud;
 	}
 	
-	//TODO
 	/**
 	 * This method takes in a URI and returns the associated tech. If
 	 * that tech is not yet loaded, it loads it and then returns it.
@@ -198,10 +212,15 @@ public class Player {
 	 */
 	public Tech getTech(String URI)
 	{
-		return null;
+		Tech td = techLevels.get(URI);
+		if(td == null)
+		{
+			td = new Tech(URI, this);
+			techLevels.put(URI, td);
+		}
+		return td;
 	}
 	
-	//TODO
 	/**
 	 * This method takes in a URI and returns the associated projectileDefinition. If
 	 * that projectileDefinition is not yet loaded, it loads it and then returns it.
@@ -209,10 +228,18 @@ public class Player {
 	 * 
 	 * @param URI	the URI of the unit definition
 	 * @return		the unit definition
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
 	 */
-	public ProjectileDefinition getProjectileDefinition(String URI)
+	public ProjectileDefinition getProjectileDefinition(String URI) throws FileNotFoundException, InvalidConfigFileException
 	{
-		return null;
+		ProjectileDefinition pd = projDefs.get(URI);
+		if(pd == null)
+		{
+			pd = new ProjectileDefinition(URI, this);
+			projDefs.put(URI, pd);
+		}
+		return pd;
 	}
 	
 	public int getPlayerID()

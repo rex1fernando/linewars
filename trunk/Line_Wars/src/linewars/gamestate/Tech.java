@@ -4,6 +4,11 @@ import linewars.parser.Parser;
 
 public class Tech {
 	
+	public Tech(String URI, Player owner)
+	{
+		//TODO
+	}
+	
 	//TODO implement researchable
 	/**
 	 * This method checks to see if the pre-req's for this
