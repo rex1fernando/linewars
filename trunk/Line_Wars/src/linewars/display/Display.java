@@ -149,10 +149,10 @@ public class Display
 			Parser exitButtonClicked = null;
 			try
 			{
-				leftUIPanel = new Parser(new ConfigFile("resources/display/left_ui_panel.cfg"));
-				rightUIPanel = new Parser(new ConfigFile("resources/display/right_ui_panel.cfg"));
-				exitButton = new Parser(new ConfigFile("resources/display/Exit_Button.cfg"));
-				exitButtonClicked = new Parser(new ConfigFile("resources/display/Exit_Button_Clicked.cfg"));
+				leftUIPanel = new Parser(new ConfigFile("resources/animations/left_ui_panel.cfg"));
+				rightUIPanel = new Parser(new ConfigFile("resources/animations/right_ui_panel.cfg"));
+				exitButton = new Parser(new ConfigFile("resources/animations/Exit_Button.cfg"));
+				exitButtonClicked = new Parser(new ConfigFile("resources/animations/Exit_Button_Clicked.cfg"));
 			}
 			catch (FileNotFoundException e)
 			{
@@ -161,21 +161,7 @@ public class Display
 			catch (InvalidConfigFileException e)
 			{
 				e.printStackTrace();
-			}
-			
-			MapItemDrawer drawer = MapItemDrawer.getInstance();
-			try
-			{
-				drawer.addImage(leftUIPanel);
-				drawer.addImage(rightUIPanel);
-				drawer.addImage(exitButton);
-				drawer.addImage(exitButtonClicked);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			
+			}			
 			
 			this.parent = parent;
 			
@@ -199,13 +185,13 @@ public class Display
 			zoomLevel = 1;
 			viewport = null;
 			
-			commandCardPanel = new CommandCardPanel(stateManager, new Animation(new String[]{rightUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
+			commandCardPanel = new CommandCardPanel(stateManager, rightUIPanel);
 			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(stateManager, new Animation(new String[]{leftUIPanel.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null, null);
+			nodeStatusPanel = new NodeStatusPanel(stateManager, leftUIPanel);
 			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null, null, null, null);
+			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null);
 			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(parent, stateManager, new Animation(new String[]{exitButton.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), new Animation(new String[]{exitButtonClicked.getStringValue(ParserKeys.icon)}, new double[]{1}, 0), null);
+			exitButtonPanel = new ExitButtonPanel(parent, stateManager, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());
@@ -239,7 +225,7 @@ public class Display
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
 			GameState gamestate = stateManager.getDisplayGameState();
-			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
+			List<ILayer> currentView = tacticalView;//(zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 			
 			// calculates the visible screen size based off of the zoom level
 			if (viewport == null)

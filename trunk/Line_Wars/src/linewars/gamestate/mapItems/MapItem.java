@@ -38,22 +38,12 @@ public abstract class MapItem {
 	//all the current abilities active on this map item
 	private ArrayList<Ability> activeAbilities;
 	
-	private Animation animation;
-	
-	public MapItem(Transformation trans, Parser anim)
+	public MapItem(Transformation trans, MapItemDefinition def)
 	{
-		body = this.getDefinition().getBody().transform(trans);
+		Shape b = def.getBody();
+		body = def.getBody().transform(trans);
 		state = MapItemState.Idle;
 		stateStart = GameTimeManager.currentTimeMillis();
-		
-		if(anim != null)
-		{
-			animation = new Animation(anim, 0.0);
-		}
-		else
-		{
-			animation = null;
-		}
 	}
 	
 	protected abstract MapItemDefinition getDefinition();
@@ -261,12 +251,8 @@ public abstract class MapItem {
 	public double getHeight() {
 		return this.getDefinition().getBody().boundingRectangle().getHeight();
 	}
-	
-	public Animation getAnimation()
-	{
-		return animation;
-	}
-	
+		
+	//TODO
 	/**
 	 * 
 	 * @return	the radius of the bounding circle of this unit

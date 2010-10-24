@@ -17,7 +17,7 @@ public class Building extends MapItem {
 	private Node node;
 
 	public Building(Transformation t, BuildingDefinition def, Node n) {
-		super(t, null);
+		super(t, def);
 		definition = def;
 		node = n;
 	}

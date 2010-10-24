@@ -28,11 +28,13 @@ public class Map {
 	{
 		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
 		mapURI = mapParser.getStringValue(ParserKeys.icon);
+		int width = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
+		int height = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 		
 		//load the map image
 		try
 		{
-			MapItemDrawer.getInstance().addImage(mapParser);
+			MapItemDrawer.getInstance().addImage(mapURI, width, height);
 		}
 		catch (IOException e)
 		{

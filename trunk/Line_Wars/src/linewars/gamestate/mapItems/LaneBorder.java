@@ -8,7 +8,7 @@ public class LaneBorder extends MapItem {
 	private LaneBorderDefinition lbd = null;
 
 	public LaneBorder(Transformation trans, LaneBorderDefinition ld) {
-		super(trans, null);
+		super(trans, ld);
 		lbd = ld;
 	}
 

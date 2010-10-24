@@ -15,7 +15,7 @@ public class ShapeAggregate extends Shape {
 	//TODO document and fix
 	public ShapeAggregate(Parser p){//TODO check to see if the Parser does in fact define a ShapeAggregate
 		members = new ArrayList<Shape>();
-		members.add(new Circle(new Transformation(new Position(0, 0), 0), 0));
+		members.add(new Circle(new Transformation(new Position(300, 300), 0), 300));
 //		String[] keys = p.getList(ParserKeys.shapes);
 //		for(String key : keys){
 //			members.add(Shape.buildFromParser(p.getParser(key)));
@@ -40,14 +40,14 @@ public class ShapeAggregate extends Shape {
 			//TODO rotate by change
 			//TODO translate by this.position and change
 		//TODO change any rotation-related state variables?
-		return null;
+		return this;
 	}
 
 	@Override
 	public Transformation position() {
 		//TODO compute average position of the composing Shapes (ideally weighted by their area)
 		//TODO how to compute rotation?
-		return null;
+		return members.get(0).position();
 	}
 	
 	//TODO document
@@ -66,6 +66,6 @@ public class ShapeAggregate extends Shape {
 		//TODO compute a bounding rectangle for each Shape
 		//TODO take the min and max of their x and y values to compute a bounding rect for all of them
 		// TODO Auto-generated method stub
-		return null;
+		return members.get(0).boundingRectangle();
 	}
 }

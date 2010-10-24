@@ -1,13 +1,17 @@
 package linewars.gamestate;
 
 import java.awt.geom.Dimension2D;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
 import linewars.gamestate.mapItems.*;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 public class GameState
 {
@@ -54,8 +58,28 @@ public class GameState
 	
 	public List<MapItem> getUnits()
 	{
-		//Unit unit = new Unit
+		//test code
+		Transformation t = new Transformation(new Position(300, 300), 0);
+		UnitDefinition def = null;
+		try
+		{
+			def = new UnitDefinition("resources/units/dummy_unit.cfg", null);
+		}
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InvalidConfigFileException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Unit unit = new Unit(t, def, null, null);
 		List<MapItem> units = new ArrayList<MapItem>();
+		units.add(unit);
+		//end test code
+		
 		return units;
 	}
 	

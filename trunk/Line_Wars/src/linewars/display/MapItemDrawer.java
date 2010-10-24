@@ -12,7 +12,6 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import linewars.gamestate.Position;
-import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 
 /**
@@ -55,16 +54,14 @@ public class MapItemDrawer
 
 	/**
 	 * Adds an image to the MapItemDrawer's repository of images.
-	 * @param parser
-	 *            The parser that holds the height and width information from
-	 *            the config file.
-	 * 
+	 * @param uri TODO
+	 * @param width TODO
+	 * @param height TODO
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(Parser parser) throws IOException
+	public void addImage(String uri, int width, int height) throws IOException
 	{
-		String uri = parser.getStringValue(ParserKeys.icon);
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
 
 		Image image;
@@ -76,9 +73,6 @@ public class MapItemDrawer
 		{
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
-
-		int width = (int)parser.getNumericValue(ParserKeys.imageWidth);
-		int height = (int)parser.getNumericValue(ParserKeys.imageHeight);
 
 		BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 

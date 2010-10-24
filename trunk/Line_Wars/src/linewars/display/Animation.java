@@ -1,6 +1,13 @@
 package linewars.display;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.shapes.ShapeAggregate;
+import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
 /**
@@ -11,36 +18,15 @@ import linewars.parser.ParserKeys;
  */
 public class Animation
 {
-	private final String[] imageURIs;
-	private final double[] displayTimes;
-	private final double creationTime;
+	private String[] imageURIs;
+	private double[] displayTimes;
 
-	/**
-	 * Initializes the animation with the specified image file URIs,
-	 * corresponding display times, and its creation time.
-	 * 
-	 * @param imageURIs
-	 *            The image URIs that make up the animation.
-	 * @param displayTimes
-	 *            The time each image is displayed.
-	 * @param creationTime
-	 *            The time the animation object is created.
-	 */
-	public Animation(String[] imageURIs, double[] displayTimes, double creationTime)
+	public Animation(Parser parser, int width, int height)
 	{
-		if (imageURIs == null || displayTimes == null || imageURIs.length != displayTimes.length)
-		{
-			throw new IllegalArgumentException(
-					"The number of URIs and display times must be the same!");
-		}
-		
-		this.imageURIs = imageURIs;
-		this.displayTimes = displayTimes;
-		this.creationTime = creationTime;
-	}
-	
-	public Animation(Parser parser, double creationTime)
-	{
+		//get the animation images
+		imageURIs = parser.getList(ParserKeys.icon);
+
+		//get the display times from the config file
 		String[] times = parser.getList(ParserKeys.displayTime);
 		displayTimes = new double[times.length];
 		for(int i = 0; i < times.length; ++i)
@@ -48,8 +34,18 @@ public class Animation
 			displayTimes[i] = new Double(times[i]).doubleValue();
 		}
 		
-		imageURIs = parser.getList(ParserKeys.icon);
-		this.creationTime = creationTime;
+		//load images
+		for(String uri : imageURIs)
+		{			
+			try
+			{
+				MapItemDrawer.getInstance().addImage(uri, width, height);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -57,11 +53,12 @@ public class Animation
 	 * 
 	 * @param gameTime
 	 *            The time of the game.
+	 * @param creationTime TODO
 	 * 
 	 * @return The string URI associated with the image to be used at the
 	 *         current game time.
 	 */
-	public String getImage(double gameTime)
+	public String getImage(double gameTime, double creationTime)
 	{
 		if (imageURIs.length == 1) return imageURIs[0];
 		

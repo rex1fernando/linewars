@@ -110,7 +110,7 @@ public class Parser {
 		s.useDelimiter(",");
 		
 		while(s.hasNext())
-			list.add(s.next());
+			list.add(s.next().trim());
 		
 		return list.toArray(new String[0]);
 	}

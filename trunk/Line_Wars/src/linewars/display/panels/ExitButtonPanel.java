@@ -11,10 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
 import linewars.gamestate.Position;
+import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
 public class ExitButtonPanel extends Panel
@@ -28,7 +28,7 @@ public class ExitButtonPanel extends Panel
 	private JFrame frame;
 	private JButton exitButton;
 	
-	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Animation ... anims)
+	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		
@@ -37,8 +37,8 @@ public class ExitButtonPanel extends Panel
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
 		exitButton.setFocusable(false);
-		exitButton.setIcon(new ExitIcon(animations[0].getImage(0)));
-		exitButton.setPressedIcon(new ExitIcon(animations[1].getImage(0)));
+		exitButton.setIcon(new ExitIcon(animations[0].getImage(0, 0.0)));
+		exitButton.setPressedIcon(new ExitIcon(animations[1].getImage(0, 0.0)));
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e)
 			{

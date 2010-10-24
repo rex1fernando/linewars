@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import linewars.display.Animation;
 import linewars.gamestate.GameStateManager;
 import linewars.gamestate.Player;
+import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
 public class ResourceDisplayPanel extends Panel
@@ -18,7 +19,7 @@ public class ResourceDisplayPanel extends Panel
 	
 	private Player player;
 	
-	public ResourceDisplayPanel(GameStateManager stateManager, Player curPlayer, Animation ... anims)
+	public ResourceDisplayPanel(GameStateManager stateManager, Player curPlayer, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		

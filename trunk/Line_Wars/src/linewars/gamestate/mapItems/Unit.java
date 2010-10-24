@@ -28,14 +28,15 @@ public class Unit extends MapItem {
 	
 	private Wave currentWave = null;
 
-	Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
-		super(t, null);
+	//TODO remove the public, it is here for testing purposes
+	public Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
+		super(t, def);
 		definition = def;
 		hp = definition.getMaxHP();
 		mStrat = ms;
-		mStrat.setUnit(this);
+//		mStrat.setUnit(this);
 		cStrat = cs;
-		cStrat.setUnit(this);
+//		cStrat.setUnit(this);
 	}
 	
 	/**

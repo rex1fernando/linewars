@@ -8,6 +8,7 @@ import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameStateManager;
 import linewars.gamestate.Position;
+import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
 public abstract class Panel extends JPanel
@@ -21,25 +22,39 @@ public abstract class Panel extends JPanel
 	protected Animation[] animations;
 	protected Animation curAnimation;
 	
-	public Panel(GameStateManager stateManager, int width, int height, Animation ... animations)
+	public Panel(GameStateManager stateManager, int width, int height, Parser ... animations)
 	{
 		super(null);
 		setOpaque(false);
 		
-		this.panelWidth = width;
-		this.panelHeight = height;
+		panelWidth = width;
+		panelHeight = height;
 		
 		setSize(panelWidth, panelHeight);
 		
 		// check for correct animations
-		if (animations == null || animations.length != ANIMATION.values().length)
-		{
-			throw new IllegalArgumentException("A Panel requires exactly " + ANIMATION.values().length + " animations!");
-		}
+//		if (animations == null || animations.length != ANIMATION.values().length)
+//		{
+//			throw new IllegalArgumentException("A Panel requires exactly " + ANIMATION.values().length + " animations!");
+//		}
 		
 		this.stateManager = stateManager;
-		this.animations = animations;
-		curAnimation = animations[ANIMATION.DEFAULT.ordinal()];
+		
+		
+		this.animations = new Animation[animations.length];
+		for(int i = 0; i < animations.length; ++i)
+		{
+			this.animations[i] = new Animation(animations[i], width, height);
+		}
+		
+		if(this.animations.length != 0)
+		{
+			curAnimation = this.animations[ANIMATION.DEFAULT.ordinal()];
+		}
+		else
+		{
+			curAnimation = null;
+		}
 	}
 	
 	/**
@@ -56,8 +71,10 @@ public abstract class Panel extends JPanel
 	{
 //		g.setColor(Color.black);
 //		g.fillRect(0, 0, getWidth(), getHeight());
-		MapItemDrawer d = MapItemDrawer.getInstance();
-		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), 0.0, 1, 1);
+		if(curAnimation != null)
+		{
+			MapItemDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime(), 0.0), new Position(0,0), 0.0, 1, 1);
+		}
 		super.paint(g);
 	}
 }
