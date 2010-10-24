@@ -6,10 +6,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.parser.ParserKeys;
 
 public class MapItemLayer implements ILayer
 {
@@ -29,12 +31,13 @@ public class MapItemLayer implements ILayer
 		{
 			Position pos = mapItem.getPosition();
 			Rectangle2D rect = new Rectangle2D.Double(pos.getX(), pos.getY(), mapItem.getWidth(), mapItem.getHeight());
+			double rotation = mapItem.getRotation();
 			
 			if (visibleScreen.intersects(rect))
 			{
 				//TODO I fixed this line when I updated how the parser works -Connor
-				String uri = mapItem.getParser().getConfigFile().getURI();
-				MapItemDrawer.getInstance().draw(g, uri, pos);
+				Animation anim = mapItem.getAnimation();
+				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime()), pos, rotation);
 			}
 		}
 	}

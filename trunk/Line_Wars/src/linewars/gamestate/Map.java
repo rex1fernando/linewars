@@ -1,10 +1,15 @@
 package linewars.gamestate;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.geom.Dimension2D;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import linewars.display.MapItemDrawer;
 import linewars.gamestate.mapItems.Node;
+import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -17,11 +22,25 @@ public class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
 	private Dimension2D dimensions;
+	private String mapURI;
 	
 	
-	public Map(ArrayList<Node> nodes, ArrayList<Lane> lanes)
+	public Map(Parser mapParser, ArrayList<Node> nodes, ArrayList<Lane> lanes)
 	{
-		dimensions = new Dimension(800, 600);
+		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
+		mapURI = mapParser.getStringValue(ParserKeys.icon);
+		
+		//load the map image
+		try
+		{
+			MapItemDrawer.getInstance().addImage(mapParser);
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		this.nodes = nodes;
 		this.lanes = lanes;
 	}
@@ -67,5 +86,10 @@ public class Map {
 	public Dimension2D getDimensions()
 	{
 		return dimensions;
+	}
+	
+	public String getMapURI()
+	{
+		return mapURI;
 	}
 }

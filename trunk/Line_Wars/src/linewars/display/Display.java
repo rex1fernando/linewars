@@ -23,6 +23,7 @@ import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
 import linewars.display.layers.MapItemLayer.MapItemType;
+import linewars.display.layers.TerrainLayer;
 import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
@@ -81,7 +82,7 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
-				//f.setUndecorated(true);
+				f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
@@ -159,10 +160,14 @@ public class Display
 			
 			setOpaque(false);
 			
+			TerrainLayer terrain = new TerrainLayer();
+			
 			strategicView = new ArrayList<ILayer>(2);
+			strategicView.add(terrain);
 			strategicView.add(new GraphLayer());
 			
 			tacticalView = new ArrayList<ILayer>();
+			tacticalView.add(terrain);
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));

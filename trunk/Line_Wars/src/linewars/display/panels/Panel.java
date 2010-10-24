@@ -57,7 +57,7 @@ public abstract class Panel extends JPanel
 //		g.setColor(Color.black);
 //		g.fillRect(0, 0, getWidth(), getHeight());
 		MapItemDrawer d = MapItemDrawer.getInstance();
-		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0));
+		d.draw(g, curAnimation.getImage(stateManager.getDisplayGameState().getTime()), new Position(0,0), 0.0);
 		super.paint(g);
 	}
 }

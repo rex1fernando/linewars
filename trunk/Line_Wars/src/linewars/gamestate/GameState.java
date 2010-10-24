@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.Unit;
+import linewars.parser.Parser;
 
 public class GameState
 {
@@ -19,10 +21,19 @@ public class GameState
 		return numPlayers;
 	}
 	
+	public GameState(Parser mapParser)
+	{
+		map = new Map(mapParser, null, null);
+	}
+	
 	public Dimension2D getMapSize()
 	{
-		//return map.getDimensions();
-		return new Dimension(800, 600);
+		return map.getDimensions();
+	}
+	
+	public String getMap()
+	{
+		return map.getMapURI();
 	}
 	
 	public List<Player> getPlayers()
@@ -37,7 +48,9 @@ public class GameState
 	
 	public List<MapItem> getUnits()
 	{
-		return new ArrayList<MapItem>();
+		//Unit unit = new Unit
+		List<MapItem> units = new ArrayList<MapItem>();
+		return units;
 	}
 	
 	public List<MapItem> getBuildings()

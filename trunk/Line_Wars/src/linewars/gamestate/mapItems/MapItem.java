@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
+import linewars.display.Animation;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -35,11 +36,22 @@ public abstract class MapItem {
 	//all the current abilities active on this map item
 	private ArrayList<Ability> activeAbilities;
 	
-	public MapItem(Transformation trans)
+	private Animation animation;
+	
+	public MapItem(Transformation trans, Parser anim)
 	{
 		transformation = trans;
 		state = MapItemState.Idle;
 		stateStart = System.currentTimeMillis();
+		
+		if(anim != null)
+		{
+			animation = new Animation(anim, 0.0);
+		}
+		else
+		{
+			animation = null;
+		}
 	}
 	
 	protected abstract MapItemDefinition getDefinition();
@@ -249,6 +261,11 @@ public abstract class MapItem {
 		return this.getDefinition().getBody().getHeight();
 	}
 	
+	public Animation getAnimation()
+	{
+		return animation;
+	}
+	
 	//TODO
 	/**
 	 * 
@@ -257,5 +274,4 @@ public abstract class MapItem {
 	public double getRadius() {
 		return 0;
 	}
-
 }

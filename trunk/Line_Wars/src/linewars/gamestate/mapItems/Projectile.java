@@ -26,7 +26,7 @@ public class Projectile extends MapItem {
 	private ShapeAggregate tempBody = null;
 	
 	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is, Lane l) {
-		super(t);
+		super(t, null);
 		definition = def;
 		cStrat = cs.createInstanceOf(this);
 		iStrat = is.createInstanceOf(this);

@@ -1,5 +1,8 @@
 package linewars.display;
 
+import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
+
 /**
  * Encapsulates animation information.
  * 
@@ -33,6 +36,19 @@ public class Animation
 		
 		this.imageURIs = imageURIs;
 		this.displayTimes = displayTimes;
+		this.creationTime = creationTime;
+	}
+	
+	public Animation(Parser parser, double creationTime)
+	{
+		String[] times = parser.getList(ParserKeys.displayTime);
+		displayTimes = new double[times.length];
+		for(int i = 0; i < times.length; ++i)
+		{
+			displayTimes[i] = new Double(times[i]).doubleValue();
+		}
+		
+		imageURIs = parser.getList(ParserKeys.icon);
 		this.creationTime = creationTime;
 	}
 

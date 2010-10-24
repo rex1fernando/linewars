@@ -97,8 +97,9 @@ public class MapItemDrawer
 	 *            The URI of the image to be drawn.
 	 * @param position
 	 *            The position to draw the image.
+	 * @param rotation TODO
 	 */
-	public void draw(Graphics g, String uri, Position position)
+	public void draw(Graphics g, String uri, Position position, double rotation)
 	{
 		Image image = images.get(uri);
 		g.drawImage(image, (int)position.getY(), (int)position.getY(), null);

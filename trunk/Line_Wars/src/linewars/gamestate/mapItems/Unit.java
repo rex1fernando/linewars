@@ -28,7 +28,7 @@ public class Unit extends MapItem {
 	private Wave currentWave = null;
 
 	Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
-		super(t);
+		super(t, null);
 		definition = def;
 		hp = definition.getMaxHP();
 		mStrat = ms;
