@@ -75,7 +75,7 @@ public class GameState
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Unit unit = new Unit(t, def, null, null);
+		Unit unit = def.createUnit(t);
 		List<MapItem> units = new ArrayList<MapItem>();
 		units.add(unit);
 		//end test code
