@@ -6,6 +6,7 @@ import java.awt.Graphics;
 
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
+import linewars.gamestate.shapes.Circle;
 
 /**
  * This class handles drawing a Nodes. It will draw the Node in the color of the
@@ -41,8 +42,8 @@ public class ColoredNode
 		}
 		
 		Position pos = node.getCommandCenter().getPosition();
-		Dimension size = node.getSize();
+		double radius = node.getBoundingCircle().getRadius();
 		
-		g.fillOval((int)(pos.getX() - size.width / 2), (int)(pos.getY() - size.height / 2), size.width, size.height);
+		g.fillOval((int)(pos.getX() - radius), (int)(pos.getY() - radius), (int)(2 * radius), (int)(2 * radius));
 	}
 }

@@ -12,7 +12,7 @@ public class TerrainLayer implements ILayer {
 	@Override
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
 	{
-		String uri = gamestate.getMap();
+		String uri = gamestate.getMap().getMapURI();
 		MapItemDrawer.getInstance().draw(g, uri, new Position(-visibleScreen.getX(), -visibleScreen.getY()), 0.0, scaleX, scaleY);
 	}
 }
