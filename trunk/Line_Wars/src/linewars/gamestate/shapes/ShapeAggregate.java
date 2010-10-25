@@ -79,4 +79,10 @@ public class ShapeAggregate extends Shape {
 		// TODO Auto-generated method stub
 		return members.get(0).boundingRectangle();
 	}
+
+	@Override
+	public boolean positionIsInShape(Position toTest) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

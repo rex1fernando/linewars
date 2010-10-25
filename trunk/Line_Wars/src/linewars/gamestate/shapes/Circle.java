@@ -67,4 +67,9 @@ public class Circle extends Shape {
 	public double getRadius(){
 		return radius;
 	}
+
+	@Override
+	public boolean positionIsInShape(Position toTest) {
+		return toTest.distanceSquared(position.getPosition()) < radius * radius;
+	}
 }

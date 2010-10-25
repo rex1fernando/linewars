@@ -87,8 +87,38 @@ public class Rectangle extends Shape {
 		Position halfHeight = new Position(Math.cos(position.getRotation()) * height, Math.sin(position.getRotation()) * height).scale(.5);
 		ret[0] = position.getPosition().add(halfHeight).add(halfWidth);
 		ret[1] = position.getPosition().add(halfHeight).subtract(halfWidth);
-		ret[2] = position.getPosition().subtract(halfHeight).add(halfWidth);
-		ret[3] = position.getPosition().subtract(halfHeight).subtract(halfWidth);
+		ret[2] = position.getPosition().subtract(halfHeight).subtract(halfWidth);
+		ret[3] = position.getPosition().subtract(halfHeight).add(halfWidth);
 		return ret;
+	}
+	
+	//TODO document
+	//counter-clockwise edge vectors
+	public Position[] getEdgeVectors(){
+		Position[] ret = new Position[4];
+		Position w = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width);
+		Position h = new Position(Math.cos(position.getRotation()) * height, Math.sin(position.getRotation()) * height);
+		ret[0] = w;
+		ret[1] = h;
+		ret[2] = w.scale(-1);
+		ret[3] = h.scale(-1);
+		return ret;
+	}
+
+	@Override
+	public boolean positionIsInShape(Position toTest) {
+		//TODO test
+		//ray-casting algorithm, look it up.  Implementation might be wrong :(
+		int numCrossings = 0;
+		Position[] vertices = getVertexPositions();
+		
+		for(int i = 0, j = vertices.length - 1; i < vertices.length; j = i, i++){
+			if(vertices[i].getY() < toTest.getY() && vertices[j].getY() >= toTest.getY()
+				|| vertices[j].getY() < toTest.getY() && vertices[i].getY() >= toTest.getY()){
+					numCrossings++;
+				}
+		}
+		
+		return numCrossings % 2 == 1;
 	}
 }

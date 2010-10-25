@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
@@ -164,4 +165,6 @@ public abstract class Shape {
 	public abstract Circle boundingCircle();
 	//TODO document
 	public abstract Rectangle boundingRectangle();
+	//TODO document
+	public abstract boolean positionIsInShape(Position toTest);
 }
