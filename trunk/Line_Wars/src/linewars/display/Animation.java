@@ -1,13 +1,8 @@
 package linewars.display;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import linewars.gamestate.mapItems.MapItemDefinition;
-import linewars.gamestate.shapes.ShapeAggregate;
-import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
 import linewars.parser.ParserKeys;
 
 /**
@@ -23,8 +18,17 @@ public class Animation
 
 	public Animation(Parser parser, int width, int height)
 	{
+		//get the file the animation is in
+		String file =  "/" + parser.getConfigFile().getURI();
+		file = file.substring(0, file.lastIndexOf('/') + 1);
+		
 		//get the animation images
-		imageURIs = parser.getList(ParserKeys.icon);
+		String[] uris = parser.getList(ParserKeys.icon);
+		imageURIs = new String[uris.length];
+		for(int i = 0; i < uris.length; ++i)
+		{
+			imageURIs[i] = file + uris[i];
+		}
 
 		//get the display times from the config file
 		String[] times = parser.getList(ParserKeys.displayTime);
