@@ -10,8 +10,8 @@ import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class TimingManager implements Runnable{
-	private static final int TIME_PER_TICK_MILLIS = 100;
-	private static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 100.0;
+	public static final int TIME_PER_TICK_MILLIS = 100;
+	public static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 1000.0;
 	
 	private GameStateUpdater manager;
 	private MessageProvider network;
