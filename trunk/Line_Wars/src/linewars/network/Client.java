@@ -24,7 +24,7 @@ import linewars.network.messages.Message;
  * 
  * @author Titus Klinge
  */
-public class Client
+public class Client implements MessageProvider, MessageReceiver
 {
 	private List<Message> messages;
 	private GateKeeper gateKeeper;
@@ -34,6 +34,7 @@ public class Client
 		messages = new LinkedList<Message>();
 	}
 	
+	@Override
 	public void addMessage(Message msg)
 	{
 		messages.add(msg);
@@ -47,5 +48,11 @@ public class Client
 	public Message[] getLocalMessages()
 	{
 		return messages.toArray(new Message[messages.size()]);
+	}
+
+	@Override
+	public Message[] getMessagesForTick(int tickID) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
