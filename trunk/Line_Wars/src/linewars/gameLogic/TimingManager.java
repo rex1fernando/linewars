@@ -1,0 +1,60 @@
+package linewars.gameLogic;
+
+import java.io.FileNotFoundException;
+import java.util.List;
+
+import linewars.network.Client;
+import linewars.network.MessageProvider;
+import linewars.network.messages.Message;
+import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
+
+public class TimingManager implements Runnable{
+	private static final int TIME_PER_TICK_MILLIS = 100;
+	private static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 100.0;
+	
+	private GameStateUpdater manager;
+	private MessageProvider network;
+
+	private int nextTickID;
+	private double gameSpeed;
+	private long lastUpdateTime;
+	
+	public TimingManager(String mapURI, int numPlayers, List<String> raceURIs) throws FileNotFoundException, InvalidConfigFileException{
+		manager = new LogicBlockingManager(mapURI, numPlayers, raceURIs);
+		gameSpeed = 1;
+		nextTickID = 1;
+	}
+	
+	public void setClientReference(MessageProvider n){
+		network = n;
+	}
+
+	@Override
+	public void run() {
+		//TODO any startup code here?
+		lastUpdateTime = System.currentTimeMillis();
+		while(true){//TODO some exit condition?
+			//get orders from network
+			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
+			//TODO process them as needed - game speed change orders in particular!
+			//give orders to manager
+			manager.addOrdersForTick(nextTickID, messagesForTick);
+			//update tick id
+			++nextTickID;
+			//compute time to sleep for
+			long nextUpdateTime = lastUpdateTime + TIME_PER_TICK_MILLIS;
+			long timeToSleep = nextUpdateTime - System.currentTimeMillis();
+			//TODO update game speed if necessary?
+			//sleepif(timeToSleep > 0){
+			try {
+				Thread.sleep(timeToSleep);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		// TODO exit code?
+	}
+	
+}

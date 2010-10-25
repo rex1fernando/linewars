@@ -1,11 +1,14 @@
 package linewars.gameLogic;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import linewars.gamestate.GameState;
 import linewars.network.messages.Message;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
 
 //TODO thread safety
 //TODO document
@@ -19,11 +22,11 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 	//Display: render continuously
 	//Means all swapping must happen in getCurrentGameState()
 	boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
-	
-	public LogicBlockingManager(Parser initialState){
+
+	public LogicBlockingManager(String mapURI, int numPlayers, List<String> raceURIs) throws FileNotFoundException, InvalidConfigFileException {
 		orders = new HashMap<Integer, Message[]>();
-		viewableState = new GameState(initialState);
-		freeState = new GameState(initialState);
+		viewableState = new GameState(mapURI, numPlayers, raceURIs);
+		freeState = new GameState(mapURI, numPlayers, raceURIs);
 		
 		fullyUpdated = true;
 	}
