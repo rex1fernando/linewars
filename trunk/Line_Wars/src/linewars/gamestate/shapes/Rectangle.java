@@ -80,4 +80,15 @@ public class Rectangle extends Shape {
 	public double getHeight(){
 		return height;
 	}
+	
+	public Position[] getVertexPositions(){
+		Position[] ret = new Position[4];
+		Position halfWidth = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width).scale(.5);
+		Position halfHeight = new Position(Math.cos(position.getRotation()) * height, Math.sin(position.getRotation()) * height).scale(.5);
+		ret[0] = position.getPosition().add(halfHeight).add(halfWidth);
+		ret[1] = position.getPosition().add(halfHeight).subtract(halfWidth);
+		ret[2] = position.getPosition().subtract(halfHeight).add(halfWidth);
+		ret[3] = position.getPosition().subtract(halfHeight).subtract(halfWidth);
+		return ret;
+	}
 }

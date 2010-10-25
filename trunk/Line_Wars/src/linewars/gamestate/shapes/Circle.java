@@ -35,8 +35,10 @@ public class Circle extends Shape {
 
 	@Override
 	public Shape stretch(Transformation change) {
-		// TODO Auto-generated method stub
-		return null;
+		double length = radius * 2 + Math.sqrt(change.getPosition().distanceSquared(new Position(0, 0)));
+		double width = radius * 2;
+		double rotation = Math.atan(change.getPosition().getY() / change.getPosition().getX());
+		return new Rectangle(new Transformation(position.getPosition().add(change.getPosition().scale(.5)), rotation), length, width);
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class Position {
 		return scale(1 / length);
 	}
 
-	public Position orthagonal()
+	public Position orthogonal()
 	{
 		return new Position(y, -x);
 	}

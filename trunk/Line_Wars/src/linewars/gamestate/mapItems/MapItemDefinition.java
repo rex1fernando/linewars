@@ -87,7 +87,7 @@ public abstract class MapItemDefinition {
 		if(!cStrat.isValidMapItem(this))
 			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
 		
-		body = new ShapeAggregate(parser.getParser(ParserKeys.body));
+		body = Shape.buildFromParser(parser.getParser(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
 	}
 	
 	protected MapItemDefinition()

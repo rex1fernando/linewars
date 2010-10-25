@@ -113,8 +113,8 @@ public class ColoredEdge
 
 		// get the normalized vectors that are orthagonal to the lane
 		// we will use these to get the bounding points on the segment
-		Position normOrthStart = segBefore.orthagonal().add(segment.orthagonal()).normalize();
-		Position normOrthEnd = segment.orthagonal().add(segAfter.orthagonal()).normalize();
+		Position normOrthStart = segBefore.orthogonal().add(segment.orthogonal()).normalize();
+		Position normOrthEnd = segment.orthogonal().add(segAfter.orthogonal()).normalize();
 
 		// generate the points that bound the segment to be drawn
 		int[] x = {(int)(startPos.getX() + normOrthStart.getX() * lane.getWidth() / 2),
