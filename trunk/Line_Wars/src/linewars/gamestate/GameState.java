@@ -90,7 +90,7 @@ public class GameState
 		return GameTimeManager.currentTimeMillis();
 	}
 	
-	public List<MapItem> getMapItemsOfType(MapItemType type)
+	public List<? extends MapItem> getMapItemsOfType(MapItemType type)
 	{
 		switch (type)
 		{
