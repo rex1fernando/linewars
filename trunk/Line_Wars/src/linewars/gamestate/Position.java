@@ -73,6 +73,20 @@ public class Position {
 		return new Position(y, -x);
 	}
 	
+	public double dot(Position other){
+		return x * other.x + y * other.y;
+	}
+	
+	public double scalarProjection(Position axis){
+		Position axisHitler = axis.normalize();
+		return this.dot(axisHitler);
+	}
+	
+	public Position vectorProjection(Position axis){
+		Position axisHitler = axis.normalize();
+		return axisHitler.scale(scalarProjection(axis));
+	}
+	
 	@Override
 	public int hashCode()
 	{
