@@ -93,4 +93,27 @@ public class Map {
 	{
 		return mapURI;
 	}
+	
+	//TODO implement
+	/**
+	 * 
+	 * @return	the number of nodes players are allowed to start at
+	 */
+	public int getNumStartNodes()
+	{
+		return 0;
+	}
+	
+	//TODO implement
+	/**
+	 * This method takes in an integer i and returns the ith node
+	 * that players are allowed to start on.
+	 * 
+	 * @param i		the position in the list of the node to start on
+	 * @return		the ith start node
+	 */
+	public Node getStartNode(int i)
+	{
+		return null;
+	}
 }

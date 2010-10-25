@@ -1,6 +1,8 @@
 package linewars.gamestate;
 
 import java.awt.geom.Dimension2D;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,11 +10,16 @@ import java.util.List;
 
 import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.*;
+import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
+import linewars.parser.Parser.InvalidConfigFileException;
+import linewars.parser.Parser.NoSuchKeyException;
 
 public class GameState
 {
 	// TODO finish implementation!
+	
+	private static final int STARTING_STUFF = 100;
 	
 	private Map map;
 	private HashMap<Integer, Player> players;
@@ -29,10 +36,33 @@ public class GameState
 		return players.get(playerID);
 	}
 	
-	public GameState(Parser mapParser)
+	/**
+	 * This constructor constructs the game state. It takes in the parser for the map,
+	 * the number of players, and the list of race URIs, in order for each player
+	 * (eg the 1st spot in the list is the race for the 1st player and so on).
+	 * 
+	 * @param mapParser		the parser for the map	
+	 * @param numPlayers	the number of players
+	 * @param raceURIs		the URI's of the races
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
+	public GameState(String mapURI, int numPlayers, List<String> raceURIs) throws FileNotFoundException, InvalidConfigFileException
 	{
+		Parser mapParser = new Parser(new ConfigFile(mapURI));
 		map = new Map(mapParser, null, null);
+		players = new HashMap<Integer, Player>();
+		this.numPlayers = numPlayers;
 		
+		races = new ArrayList<Race>();
+		for(int i = 0; i < raceURIs.size(); i++)
+		{
+			Race r = new Race(new Parser(new ConfigFile(raceURIs.get(i))));
+			if(!races.contains(r))
+				races.add(r);
+			Node[] startNode = { map.getStartNode(i) };
+			Player p = new Player(STARTING_STUFF, startNode, r);
+		}
 	}
 	
 	public Dimension2D getMapSize()
