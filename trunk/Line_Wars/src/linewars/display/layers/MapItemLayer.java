@@ -37,7 +37,7 @@ public class MapItemLayer implements ILayer
 	@Override
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
 	{
-		for (MapItem mapItem : getMapItems(gamestate))
+		for (MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
 			Position pos = mapItem.getPosition();
 			Rectangle2D rect = new Rectangle2D.Double(pos.getX(), pos.getY(), mapItem.getWidth(), mapItem.getHeight());
@@ -94,20 +94,4 @@ public class MapItemLayer implements ILayer
 			}
 		}
 	}
-	
-	private List<MapItem> getMapItems(GameState gamestate)
-	{
-		switch (mapItemType)
-		{
-		case UNIT:
-			return gamestate.getUnits();
-		case PROJECTILE:
-			return gamestate.getProjectiles();
-		case BUILDING:
-			return gamestate.getBuildings();
-		default:
-			return new ArrayList<MapItem>(0);	
-		}
-	}
-
 }

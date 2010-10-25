@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.*;
 import linewars.parser.ConfigFile;
@@ -87,6 +88,21 @@ public class GameState
 	public long getTime()
 	{
 		return GameTimeManager.currentTimeMillis();
+	}
+	
+	public List<MapItem> getMapItemsOfType(MapItemType type)
+	{
+		switch (type)
+		{
+		case UNIT:
+			return getUnits();
+		case PROJECTILE:
+			return getProjectiles();
+		case BUILDING:
+			return getBuildings();
+		default:
+			return new ArrayList<MapItem>(0);
+		}
 	}
 	
 	public List<Unit> getUnits()
