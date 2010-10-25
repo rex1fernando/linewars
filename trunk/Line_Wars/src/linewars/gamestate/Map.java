@@ -6,7 +6,6 @@ import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import linewars.display.MapItemDrawer;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 
@@ -21,13 +20,13 @@ public class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
 	private Dimension2D dimensions;
-	private String mapURI;
+	private Parser parser;
 	
 	
 	public Map(Parser mapParser, ArrayList<Node> nodes, ArrayList<Lane> lanes)
 	{
 		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
-		mapURI = mapParser.getStringValue(ParserKeys.icon);
+		parser = mapParser;
 		int width = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
 		int height = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 		
@@ -91,7 +90,16 @@ public class Map {
 	
 	public String getMapURI()
 	{
-		return mapURI;
+		return parser.getConfigFile().getURI();
+	}
+	
+	/**
+	 * 
+	 * @return	the parser for the map configuration
+	 */
+	public Parser getParser()
+	{
+		return parser;
 	}
 	
 	//TODO implement
