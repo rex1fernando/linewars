@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 
-import linewars.gameLogic.GameTimeManager;
+
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
@@ -99,7 +99,7 @@ public class Node {
 	
 	public void generateWaves()
 	{
-		Random rand = new Random(GameTimeManager.currentTick());
+		Random rand = new Random(gameState.getTimerTick());
 		HashMap<Player, double[]> flows = getAllFlow();
 		boolean foundDest;
 		for(int i = 0; i < containedUnits.size(); i++)

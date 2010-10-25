@@ -9,6 +9,7 @@ import java.util.List;
 
 
 import linewars.display.layers.MapItemLayer.MapItemType;
+import linewars.gameLogic.TimingManager;
 import linewars.gamestate.mapItems.*;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
@@ -21,6 +22,7 @@ public class GameState
 	
 	private static final double STARTING_STUFF = 100;
 	
+	private int timerTick;
 	private Map map;
 	private HashMap<Integer, Player> players;
 	private int numPlayers;
@@ -53,6 +55,7 @@ public class GameState
 		map = new Map(mapParser, null, null);
 		players = new HashMap<Integer, Player>();
 		this.numPlayers = numPlayers;
+		timerTick = 0;
 		
 		races = new ArrayList<Race>();
 		for(int i = 0; i < raceURIs.size(); i++)
@@ -84,9 +87,14 @@ public class GameState
 		return players;
 	}
 	
-	public long getTime()
+	public double getTime()
 	{
-		return GameTimeManager.currentTimeMillis();
+		return timerTick * TimingManager.GAME_TIME_PER_TICK_S;
+	}
+	
+	public int getTimerTick()
+	{
+		return timerTick;
 	}
 	
 	public List<? extends MapItem> getMapItemsOfType(MapItemType type)
