@@ -86,7 +86,6 @@ public class Lane
 		return p1;
 	}
 	
-	
 	public Position getP2()
 	{
 		return p2;
@@ -315,8 +314,8 @@ public class Lane
 		Gate closestGate = getClosestGate(n);
 		Position gatePos = closestGate.getPosition();
 		double ret;
-		double plus = n.getPosition().getX() - (gatePos.getX()+(closestGate.getWidth()/2));
-		double minus = n.getPosition().getX() - (gatePos.getX()-(closestGate.getWidth()/2));
+		double plus = n.getPosition().getPosition().getX() - (gatePos.getX()+(closestGate.getWidth()/2));
+		double minus = n.getPosition().getPosition().getX() - (gatePos.getX()-(closestGate.getWidth()/2));
 		if(Math.abs(plus) < Math.abs(minus))
 		{
 			ret = plus;

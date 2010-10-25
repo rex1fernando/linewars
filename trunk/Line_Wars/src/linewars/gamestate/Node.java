@@ -1,6 +1,5 @@
 package linewars.gamestate;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,10 +11,10 @@ import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.shapes.*;
 
 public class Node {
 	
-	private Transformation trans;
 	private Map gameMap;
 	private GameState gameState;
 	private Player owner;
@@ -23,37 +22,31 @@ public class Node {
 	private long occupationTime;
 	private ArrayList<Lane> attachedLanes;
 	private ArrayList<Building> containedBuildings;
-	private CommandCenter center;
+	private CommandCenter cCenter;
 	private ArrayList<Unit> containedUnits;
 	private Transformation[] buildingSpots;
 	private int numBuildings;
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	/*
-	 * TODO The Display needs the size of a Node to properly draw
-	 * the colored circle over it in strategic view.
-	 */
-	private Dimension size;
+	private Shape shape;
 	
-	public Node(Player owner, Lane[] lanes, CommandCenter center, Transformation[] buildingSpots, Transformation trans)
+	public Node(Player owner, Lane[] lanes, CommandCenter cCenter, Transformation[] buildingSpots, Shape shape)
 	{
-		this.trans = trans;
 		this.owner = owner;
-		this.center = center;
-		invader = null; //Maybe have a special value to set this to in order to avoid null?
+		this.cCenter = cCenter;
+		invader = null;
 		occupationTime = 0;
 		attachedLanes = new ArrayList<Lane>();
 		for(int i = 0; i < lanes.length; i++)
 		{
 			attachedLanes.add(lanes[i]);
 		}
-		this.center = center;
+		this.cCenter = cCenter;
 		containedUnits = new ArrayList<Unit>();
 		this.buildingSpots = buildingSpots;
 		
-		//TODO set the size of the Node
-		size = new Dimension(100, 100);
+		this.shape = shape;
 	}
 	
 	public Player getOwner()
@@ -96,15 +89,14 @@ public class Node {
 		return numBuildings;
 	}
 	
-	public Dimension getSize()
+	public Circle getBoundingCircle()
 	{
-		return size;
+		return shape.boundingCircle();
 	}
 	
-	//TODO The display also needs access to information regarding the center of the Node
 	public CommandCenter getCommandCenter()
 	{
-		return center;
+		return cCenter;
 	}
 	
 	public void generateWaves()
@@ -235,8 +227,12 @@ public class Node {
 		containedUnits.add(u);
 	}
 	
-	public Position getPosition()
+	/**
+	 * Gets the position of the shape that makes up this Node, defined as the center of the Node.
+	 * @return a Transformation representing the center of this Node.
+	 */
+	public Transformation getPosition()
 	{
-		return trans.getPosition();
+		return shape.position();
 	}
 }
