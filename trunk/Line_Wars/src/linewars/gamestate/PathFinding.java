@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
 
@@ -34,12 +33,18 @@ public class PathFinding {
 	private double width;
 	private double height;
 	private HashMap<Position, Node> nodeMap;
+	private GameState gameState;
+	
+	public PathFinding(GameState gameState)
+	{
+		this.gameState = gameState;
+	}
 	
 	public Queue<Position> findPath(Unit unit, Position target, double radius, MapItem[] obstacles, Position upperLeft, double width, double height)
 	{
-		if(currentTick != GameTimeManager.currentTick())
+		if(currentTick != gameState.getTimerTick())
 		{
-			currentTick = GameTimeManager.currentTick();
+			currentTick = gameState.getTimerTick();
 			hashOfMaps = new HashMap<String, HashMap<Position, Node>>();
 		}
 		

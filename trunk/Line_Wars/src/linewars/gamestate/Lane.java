@@ -40,20 +40,22 @@ public class Lane
 	 */
 	private double width;
 	
-	private PathFinding pathFinder = new PathFinding();
+	private PathFinding pathFinder;
 	
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
 	static final double LANE_BORDER_RESOLUTION = 0.05;
 	
-	public Lane(Position p0, Position p1, Position p2, Position p3, double width)
+	public Lane(Position p0, Position p1, Position p2, Position p3, double width, GameState gameState)
 	{
 		this.p0 = p0;
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
 		this.width = width;
+		
+		pathFinder = new PathFinding(gameState);
 		
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
 		try {
