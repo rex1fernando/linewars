@@ -1,17 +1,14 @@
 package linewars.gamestate;
 
 import java.awt.geom.Dimension2D;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
+import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.*;
-import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 public class GameState
 {
@@ -20,6 +17,7 @@ public class GameState
 	private Map map;
 	private HashMap<Integer, Player> players;
 	private int numPlayers;
+	private ArrayList<Race> races;
 	
 	public int getNumPlayers()
 	{
@@ -34,6 +32,7 @@ public class GameState
 	public GameState(Parser mapParser)
 	{
 		map = new Map(mapParser, null, null);
+		
 	}
 	
 	public Dimension2D getMapSize()
@@ -48,49 +47,62 @@ public class GameState
 	
 	public List<Player> getPlayers()
 	{
-		return new ArrayList<Player>();
+		List<Player> players = new ArrayList<Player>();
+		for(int i = 0; i < numPlayers; i++)
+			players.add(this.players.get(i));
+		
+		return players;
 	}
 	
 	public long getTime()
 	{
-		return System.currentTimeMillis();
+		return GameTimeManager.currentTimeMillis();
 	}
 	
-	public List<MapItem> getUnits()
+	public List<Unit> getUnits()
 	{
-		//test code
-		Transformation t = new Transformation(new Position(300, 300), 0);
-		UnitDefinition def = null;
-		try
+		List<Unit> units = new ArrayList<Unit>();
+		Lane[] lanes = map.getLanes();
+		for(Lane l : lanes)
 		{
-			def = new UnitDefinition("resources/units/dummy_unit.cfg", null);
+			Wave[] waves = l.getWaves();
+			for(Wave w : waves)
+			{
+				Unit[] us = w.getUnits();
+				for(Unit u : us)
+					units.add(u);
+			}
 		}
-		catch (FileNotFoundException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (InvalidConfigFileException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Unit unit = def.createUnit(t);
-		List<MapItem> units = new ArrayList<MapItem>();
-		units.add(unit);
-		//end test code
 		
 		return units;
 	}
 	
-	public List<MapItem> getBuildings()
+	public List<Building> getBuildings()
 	{
-		return new ArrayList<MapItem>();
+		List<Building> buildings = new ArrayList<Building>();
+		Node[] nodes = map.getNodes();
+		for(Node n : nodes)
+		{
+			Building[] bs = n.getContainedBuildings();
+			for(Building b : bs)
+				buildings.add(b);
+		}
+		
+		return buildings;
 	}
 	
-	public List<MapItem> getProjectiles()
+	public List<Projectile> getProjectiles()
 	{
-		return new ArrayList<MapItem>();
+		List<Projectile> projectiles = new ArrayList<Projectile>();
+		Lane[] lanes = map.getLanes();
+		for(Lane l : lanes)
+		{
+			Projectile[] ps = l.getProjectiles();
+			for(Projectile p : ps)
+				projectiles.add(p);
+		}
+		
+		return projectiles;
 	}
 	
 	public List<CommandCenter> getCommandCenters()
