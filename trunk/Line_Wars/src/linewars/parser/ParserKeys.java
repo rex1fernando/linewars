@@ -9,10 +9,10 @@ public enum ParserKeys {
 	type, combatStrategy, 
 	movementStrategy, speed,
 	impactStrategy, damage, unitURI,
-	techURI, projectileURI, range,
+	techURI, projectileURI, buildingURI, range,
 	icon, imageHeight, imageWidth, shapes,
 	displayTime, mapItemURI, field,
-	valueFunction, preReqs, 
+	valueFunction, preReqs, commandCenterURI, 
 	maxTimesResearchable, circle, rectangle,
 	radius, width, height, rotation,
 	shapetype, x, y

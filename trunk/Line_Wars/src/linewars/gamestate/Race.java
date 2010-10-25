@@ -1,5 +1,6 @@
 package linewars.gamestate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import linewars.parser.Parser;
@@ -10,32 +11,47 @@ public class Race {
 	
 	private String name;
 	private String[] unitURIs;
-	private List<String> techURIs;
-	private List<String> buildingURIs;
+	private String[] techURIs;
+	private String[] buildingURIs;
 	private String commandCenterURI;
 	
 	public Race(Parser p)
 	{
 		name = p.getStringValue(ParserKeys.name);
 		unitURIs = p.getList(ParserKeys.unitURI);
+		techURIs = p.getList(ParserKeys.techURI);
+		buildingURIs = p.getList(ParserKeys.buildingURI);
+		commandCenterURI = p.getStringValue(ParserKeys.commandCenterURI);
 	}
 	
-	//TODO
 	public List<String> getBuildingURIs()
 	{
-		return null;
+		ArrayList<String> ret = new ArrayList<String>();
+		for(int i = 0; i < buildingURIs.length; i++)
+		{
+			ret.add(buildingURIs[i]);
+		}
+		return ret;
 	}
-	
-	//TODO
+
 	public List<String> getUnitURIs()
 	{
-		return null;
+		ArrayList<String> ret = new ArrayList<String>();
+		for(int i = 0; i < unitURIs.length; i++)
+		{
+			ret.add(unitURIs[i]);
+		}
+		return ret;
 	}
 	
-	//TODO
 	public List<String> getTechURIs()
 	{
-		return null;
+		ArrayList<String> ret = new ArrayList<String>();
+		for(int i = 0; i < techURIs.length; i++)
+		{
+			ret.add(techURIs[i]);
+		}
+		return ret;
 	}
 	
 	//TODO
@@ -44,11 +60,15 @@ public class Race {
 	{
 		return false;
 	}
-	
-	//TODO
+
 	public String getCommandCenterURI()
 	{
-		return null;
+		return commandCenterURI;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 
 }
