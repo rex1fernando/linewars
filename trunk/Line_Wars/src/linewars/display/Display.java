@@ -96,7 +96,7 @@ public class Display
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setContentPane(panel);
 				f.setSize(new Dimension(800, 600));
-				f.setUndecorated(true);
+				// f.setUndecorated(true);
 				f.setVisible(true);
 				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
