@@ -181,6 +181,20 @@ public class Display
 			
 			stateManager = new GameStateManager();
 			
+			//add the map image to the MapItemDrawer
+			Parser mapParser = stateManager.getDisplayGameState().getMap().getParser();
+			String mapURI = mapParser.getStringValue(ParserKeys.icon);
+			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
+			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
+			try
+			{
+				MapItemDrawer.getInstance().addImage(mapURI, mapWidth, mapHeight);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 			viewport = null;

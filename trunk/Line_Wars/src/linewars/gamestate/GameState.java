@@ -71,9 +71,9 @@ public class GameState
 		return map.getDimensions();
 	}
 	
-	public String getMap()
+	public Map getMap()
 	{
-		return map.getMapURI();
+		return map;
 	}
 	
 	public List<Player> getPlayers()

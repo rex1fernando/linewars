@@ -27,19 +27,6 @@ public class Map {
 	{
 		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
 		parser = mapParser;
-		int width = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
-		int height = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
-		
-		//load the map image
-		try
-		{
-			MapItemDrawer.getInstance().addImage(mapURI, width, height);
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		this.nodes = nodes;
 		this.lanes = lanes;
