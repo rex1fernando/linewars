@@ -31,10 +31,8 @@ public class Node {
 	
 	private Shape shape;
 	
-	public Node(Player owner, Lane[] lanes, CommandCenter cCenter, Transformation[] buildingSpots, Shape shape)
+	public Node(Lane[] lanes, Transformation[] buildingSpots, Shape shape)
 	{
-		this.owner = owner;
-		this.cCenter = cCenter;
 		invader = null;
 		occupationTime = 0;
 		attachedLanes = new ArrayList<Lane>();
@@ -234,5 +232,21 @@ public class Node {
 	public Transformation getPosition()
 	{
 		return shape.position();
+	}
+	
+	//TODO
+	/**
+	 * This method updates everything in the node. It calls update on all the buildings (including the
+	 * comand center). It also redistributes the units in the node (puts them in waves when needed)
+	 */
+	public void update()
+	{
+		
+	}
+	
+	//TODO
+	public void setOwner(Player p)
+	{
+		
 	}
 }

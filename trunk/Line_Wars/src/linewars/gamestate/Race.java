@@ -36,5 +36,11 @@ public class Race {
 	{
 		return false;
 	}
+	
+	//TODO
+	public String getCommandCenterURI()
+	{
+		return null;
+	}
 
 }

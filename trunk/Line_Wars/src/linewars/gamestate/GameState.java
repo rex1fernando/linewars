@@ -9,7 +9,6 @@ import java.util.List;
 
 
 import linewars.display.layers.MapItemLayer.MapItemType;
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.mapItems.*;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
@@ -20,7 +19,7 @@ public class GameState
 {
 	// TODO finish implementation!
 	
-	private static final int STARTING_STUFF = 100;
+	private static final double STARTING_STUFF = 100;
 	
 	private Map map;
 	private HashMap<Integer, Player> players;
@@ -48,7 +47,7 @@ public class GameState
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public GameState(String mapURI, int numPlayers, List<String> raceURIs) throws FileNotFoundException, InvalidConfigFileException
+	public GameState(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames) throws FileNotFoundException, InvalidConfigFileException
 	{
 		Parser mapParser = new Parser(new ConfigFile(mapURI));
 		map = new Map(mapParser, null, null);
@@ -62,7 +61,7 @@ public class GameState
 			if(!races.contains(r))
 				races.add(r);
 			Node[] startNode = { map.getStartNode(i) };
-			Player p = new Player(STARTING_STUFF, startNode, r);
+			Player p = new Player(this, startNode, r, playerNames.get(i), i);
 		}
 	}
 	
@@ -158,5 +157,10 @@ public class GameState
 		for(Node n : nodes)
 			ccs.add(n.getCommandCenter());
 		return ccs;
+	}
+	
+	public double getStartingStuffAmount()
+	{
+		return STARTING_STUFF;
 	}
 }

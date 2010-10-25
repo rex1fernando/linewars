@@ -1,5 +1,4 @@
 package linewars.gamestate;
-import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -8,9 +7,8 @@ import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Player {
 
-	private Map map;
+	private GameState gameState;
 	private int playerID;
-	private Color playerColor;
 	private double stuffAmount;
 	private ArrayList<Node> ownedNodes;
 	private HashMap<Lane, Node> startPoints;
@@ -22,10 +20,15 @@ public class Player {
 	private HashMap<String, UnitDefinition> unitDefs;
 	private HashMap<String, ProjectileDefinition> projDefs;
 	private HashMap<String, Tech> techLevels;
+	private CommandCenterDefinition ccd;
 	private String name;
 	
-	public Player(double startingStuff, Node[] startingNodes, Race r){
-		stuffAmount = startingStuff;
+	public Player(GameState gameState, Node[] startingNodes, Race r, String name, int ID) throws FileNotFoundException, InvalidConfigFileException{
+		stuffAmount = gameState.getStartingStuffAmount();
+		this.gameState = gameState;
+		playerID = ID;
+		this.name = name;
+		
 		ownedNodes = new ArrayList<Node>();
 		
 		for(int i = 0; i < startingNodes.length; i++)
@@ -38,9 +41,32 @@ public class Player {
 		flowSetup();
 		
 		buildingDefs = new HashMap<String, BuildingDefinition>();
+		List<String> URIs = r.getBuildingURIs();
+		for(String uri : URIs)
+		{
+			BuildingDefinition bd = new BuildingDefinition(uri, this);
+			buildingDefs.put(uri, bd);
+		}
+		
 		unitDefs = new HashMap<String, UnitDefinition>();
+		URIs = r.getUnitURIs();
+		for(String uri : URIs)
+		{
+			UnitDefinition ud = new UnitDefinition(uri, this);
+			unitDefs.put(uri, ud);
+		}
+		
 		projDefs = new HashMap<String, ProjectileDefinition>();
+		
 		techLevels = new HashMap<String, Tech>();
+		URIs = r.getTechURIs();
+		for(String uri : URIs)
+		{
+			Tech t = new Tech(uri, this);
+			techLevels.put(uri, t);
+		}
+		
+		ccd = new CommandCenterDefinition(r.getCommandCenterURI(), this);
 	}
 	
 	/**
@@ -52,7 +78,7 @@ public class Player {
 	private void flowSetup()
 	{
 		boolean foundOwnedNode = false;
-		Lane[] lanes = map.getLanes();
+		Lane[] lanes = gameState.getMap().getLanes();
 		for(int i = 0; i < lanes.length; i++)
 		{
 			Node[] currentNodes = lanes[i].getNodes();
@@ -79,10 +105,6 @@ public class Player {
 	
 	public double getStuff(){
 		return stuffAmount;
-	}
-	
-	public Color getPlayerColor(){
-		return playerColor;
 	}
 	
 	public String getPlayerName(){
@@ -300,6 +322,11 @@ public class Player {
 		return mid;
 	}
 	
+	public CommandCenterDefinition getCommandCenterDefinition()
+	{
+		return ccd;
+	}
+	
 	public int getPlayerID()
 	{
 		return playerID;
@@ -323,5 +350,11 @@ public class Player {
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return playerID;
 	}
 }
