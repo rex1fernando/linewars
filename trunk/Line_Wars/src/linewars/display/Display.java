@@ -50,7 +50,7 @@ import linewars.parser.ParserKeys;
  * @author Titus Klinge
  * @author Ryan Tew
  */
-public class Display
+public class Display implements Runnable
 {
 	/**
 	 * The number of milliseconds in-between draw events.
@@ -397,5 +397,11 @@ public class Display
 				zoomLevel = newZoom;
 			}
 		}
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		SwingUtilities.invokeLater(buildGUI());
 	}
 }

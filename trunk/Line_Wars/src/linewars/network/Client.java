@@ -24,14 +24,16 @@ import linewars.network.messages.Message;
  * 
  * @author Titus Klinge
  */
-public class Client implements MessageProvider, MessageReceiver
+public class Client implements MessageProvider, MessageReceiver, Runnable
 {
 	private List<Message> messages;
 	private GateKeeper gateKeeper;
+	String serverAddress;
 	
-	public Client()
+	public Client(String serverAddress)
 	{
 		messages = new LinkedList<Message>();
+		this.serverAddress = serverAddress;
 	}
 	
 	@Override
@@ -54,5 +56,11 @@ public class Client implements MessageProvider, MessageReceiver
 	public Message[] getMessagesForTick(int tickID) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 }
