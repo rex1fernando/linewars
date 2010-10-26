@@ -21,7 +21,8 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 	
 	//Display: render continuously
 	//Means all swapping must happen in getCurrentGameState()
-	boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
+	private boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
+	private boolean locked;//true if users have locked the viewableState
 
 	public LogicBlockingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException {
 		orders = new HashMap<Integer, Message[]>();
@@ -29,6 +30,7 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 		freeState = new GameState(mapURI, numPlayers, raceURIs, players);
 		
 		fullyUpdated = true;
+		locked = false;
 	}
 
 	@Override
@@ -50,6 +52,7 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 			}
 		}
 		updateFreeState(tickID);
+		swapStatesIfPossible();
 	}
 	
 	private void updateFreeState(int maxTickID){
@@ -62,15 +65,36 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 
 	@Override
 	public GameState getCurrentGameState() {
-		if(fullyUpdated){//if the free state is fully updated
+		if(!locked){
+			throw new IllegalStateException("Cannot return an unlocked GameState, please lock the GameState before requesting it.");
+		}
+		return viewableState;
+	}
+
+	@Override
+	public void lockViewableGameState() {
+		if(locked){
+			throw new IllegalStateException("GameState is already locked!");
+		}
+		swapStatesIfPossible();
+		locked = true;
+	}
+
+	@Override
+	public void unlockViewableGameState() {
+		locked = false;
+		swapStatesIfPossible();
+	}
+	
+	private void swapStatesIfPossible(){
+		if(fullyUpdated && !locked){//if the free state is fully updated
 			//swap
 			GameState temp = freeState;
 			freeState = viewableState;
 			viewableState = temp;
 			//free state is no longer necessarily fully updated
 			fullyUpdated = false;
-		}
-		return viewableState;
+		}		
 	}
 
 }
