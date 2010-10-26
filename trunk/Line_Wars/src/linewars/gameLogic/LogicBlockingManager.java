@@ -23,10 +23,10 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 	//Means all swapping must happen in getCurrentGameState()
 	boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
 
-	public LogicBlockingManager(String mapURI, int numPlayers, List<String> raceURIs) throws FileNotFoundException, InvalidConfigFileException {
+	public LogicBlockingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException {
 		orders = new HashMap<Integer, Message[]>();
-		viewableState = new GameState(mapURI, numPlayers, raceURIs);
-		freeState = new GameState(mapURI, numPlayers, raceURIs);
+		viewableState = new GameState(mapURI, numPlayers, raceURIs, players);
+		freeState = new GameState(mapURI, numPlayers, raceURIs, players);
 		
 		fullyUpdated = true;
 	}
