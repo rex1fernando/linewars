@@ -34,11 +34,11 @@ import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
+import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
-import linewars.gamestate.GameStateManager;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.network.MessageReceiver;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -50,7 +50,7 @@ import linewars.parser.ParserKeys;
  * @author Titus Klinge
  * @author Ryan Tew
  */
-public class Display implements Runnable
+public class Display extends JFrame implements Runnable
 {
 	/**
 	 * The number of milliseconds in-between draw events.
@@ -65,6 +65,11 @@ public class Display implements Runnable
 	
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
+	
+	public Display(GameStateProvider provider, MessageReceiver receiver)
+	{
+		
+	}
 	
 	/**
 	 * The entry point for the program.
