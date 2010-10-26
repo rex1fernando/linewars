@@ -60,7 +60,7 @@ public class Game {
 			e.printStackTrace();
 		}
 		networking = new Client(serverAddress);
-		display = new Display(logic, networking);
+		display = new Display(logic.getGameStateManager(), networking);
 		//TODO
 	}
 	

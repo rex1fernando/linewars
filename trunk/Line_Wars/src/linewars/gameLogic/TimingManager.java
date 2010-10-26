@@ -29,6 +29,10 @@ public class TimingManager implements Runnable{
 	public void setClientReference(MessageProvider n){
 		network = n;
 	}
+	
+	public GameStateProvider getGameStateManager(){
+		return (GameStateProvider) manager;//TODO safety
+	}
 
 	@Override
 	public void run() {
