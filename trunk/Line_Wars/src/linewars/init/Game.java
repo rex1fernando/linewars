@@ -8,6 +8,8 @@ import linewars.gameLogic.TimingManager;
 import linewars.network.Client;
 import linewars.parser.Parser.InvalidConfigFileException;
 
+//TODO test
+//TODO document
 public class Game {
 	private Display display;
 	private Client networking;
@@ -48,7 +50,7 @@ public class Game {
 			e.printStackTrace();
 		}
 		networking = new Client(serverAddress);
-		display = new Display();//TODO args here?
+		display = new Display(logic, networking);
 		//TODO
 	}
 	
@@ -61,7 +63,5 @@ public class Game {
 		log.start();
 		Thread disp = new Thread(display);
 		disp.start();
-		//TODO starting threads properly?
-		//TODO any problem just starting the threads independently? Does, for example, the Display have to start everything else?
 	}
 }
