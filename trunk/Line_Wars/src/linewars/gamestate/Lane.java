@@ -84,6 +84,26 @@ public class Lane
 		
 	}
 
+	/**
+	 * Removes the gate guarding n from this Lane.
+	 * @param n The node the gate to remove is guarding.
+	 */
+	public void removeGate(Node n)
+	{
+		gates.remove(n);
+	}
+	
+	/**
+	 * Replaces the gate guarding the node n with g.
+	 * @param n The Node the gate to be changed is guarding.
+	 * @param g The new gate to guard n.
+	 */
+	public void replaceGate(Node n, Gate g)
+	{
+		gates.remove(n);
+		gates.put(n, g);
+	}
+	
 	public Position getP0()
 	{
 		return p0;
@@ -405,6 +425,11 @@ public class Lane
 	public Gate getGate(Node n)
 	{
 		return gates.get(n);
+	}
+	
+	public void addGate(Node n, Player p)
+	{
+		
 	}
 	
 	public void addNode(Node n)

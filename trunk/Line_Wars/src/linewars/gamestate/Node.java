@@ -21,6 +21,7 @@ public class Node {
 	private Player owner;
 	private Player invader;
 	private long occupationTime;
+	private boolean changedOwners;
 	
 	private ArrayList<Building> containedBuildings;
 	private CommandCenter cCenter;
@@ -35,6 +36,7 @@ public class Node {
 	
 	public Node(Parser parser, GameState gameState, Lane[] lanes)
 	{
+		changedOwners = false;
 		invader = null;
 		owner = null;
 		occupationTime = 0;
@@ -111,7 +113,10 @@ public class Node {
 		return cCenter;
 	}
 	
-	public void generateWaves()
+	/**
+	 * This method is the "entry point" for distributing the units in this node into waves in the correct lanes.
+	 */
+	private void generateWaves()
 	{
 		Random rand = new Random(gameState.getTimerTick());
 		HashMap<Player, double[]> flows = getAllFlow();
@@ -162,21 +167,40 @@ public class Node {
 	}
 	
 	//TODO I don't understand how this method works (Connor)
+	/**
+	 * This method is a helper method for spawnWaves that generates the array of flow values that spawnWaves
+	 * uses to randomly decide what lanes to send each player's units to.
+	 */
 	private HashMap<Player, double[]> getAllFlow()
 	{
+		
 		List<Player> players = gameState.getPlayers();
 		HashMap<Player, double[]> ret = new HashMap<Player, double[]>();
 		double[] flows;
+		
+		//Iterate through every player.
 		for(int i = 0; i < players.size(); i++)
 		{
+			
 			Lane[] l = gameState.getMap().getLanes();
 			flows = new double[l.length];
 			Player p = players.get(i);
 			double total = 0;
+			
+			/**
+			 * This loop is where the work gets done. It creates an array of unique doubles such that every
+			 * element is the sum of itself and all of the elements before it. This allows the random
+			 * lane chooser to pick a random double between 0 and the total while maintaining an arbitrary
+			 * weight.
+			 */
 			for(int j = 0; j < l.length; j++)
 			{
 				total = p.getFlowDist(l[j]) + total;
 				flows[j] = total;
+				/**
+				 * This map exists to maintain the mapping from each of the new doubles to the lanes, so the
+				 * random lane chooser knows which values correspond to which lanes.
+				 */
 				laneMap.put(total, l[j]);
 			}
 			Arrays.sort(flows);
@@ -244,21 +268,34 @@ public class Node {
 		return shape.position();
 	}
 	
-	//TODO
 	/**
 	 * This method updates everything in the node. It calls update on all the buildings (including the
-	 * comand center). It also redistributes the units in the node (puts them in waves when needed) It also
+	 * command center). It also redistributes the units in the node (puts them in waves when needed) It also
 	 * needs to make sure to place gates if it gets taken over
 	 */
 	public void update()
 	{
+		for(Building b : containedBuildings)
+		{
+			b.update();
+		}
 		
+		cCenter.update();
+		
+		generateWaves();
+		
+		if(changedOwners)
+		{
+			for(Lane l : attachedLanes)
+			{
+				l.addGate(this, owner);
+			}
+		}
 	}
 	
-	//TODO
 	public void setOwner(Player p)
 	{
-		
+		owner = p;
 	}
 	
 	public Shape getShape()
