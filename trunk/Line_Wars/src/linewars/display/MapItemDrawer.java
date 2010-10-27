@@ -54,9 +54,13 @@ public class MapItemDrawer
 
 	/**
 	 * Adds an image to the MapItemDrawer's repository of images.
-	 * @param uri TODO
-	 * @param width TODO
-	 * @param height TODO
+	 * 
+	 * @param uri
+	 *            TODO
+	 * @param width
+	 *            TODO
+	 * @param height
+	 *            TODO
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
@@ -91,17 +95,37 @@ public class MapItemDrawer
 	 *            The URI of the image to be drawn.
 	 * @param position
 	 *            The position to draw the image.
-	 * @param rotation TODO
-	 * @param scaleX TODO
-	 * @param scaleY TODO
+	 * @param rotation
+	 *            The rotation of the image.
+	 * @param scaleX
+	 *            The amount to scale the image on the x-axis.
+	 * @param scaleY
+	 *            The amount to scale the image on the y-axis.
 	 */
 	public void draw(Graphics g, String uri, Position position, double rotation, double scaleX, double scaleY)
 	{
+		//TODO rotate the image
 		Image image = images.get(uri);
-		int x = (int) (position.getX() * scaleX);
-		int y = (int) (position.getY() * scaleY);
-		int w = (int) (image.getWidth(null) * scaleX);
-		int h = (int) (image.getHeight(null) * scaleY);
+		int x = (int)(position.getX() * scaleX);
+		int y = (int)(position.getY() * scaleY);
+		int w = (int)(image.getWidth(null) * scaleX);
+		int h = (int)(image.getHeight(null) * scaleY);
 		g.drawImage(image, x, y, w, h, null);
+	}
+
+	/**
+	 * Retrieves the color for the specified player assuming there are
+	 * numPlayers players.
+	 * 
+	 * @param playerIndex
+	 *            The zero based index of the player we want the color for.
+	 * @param numPlayers
+	 *            The number of players in the game.
+	 * @return The color for the specified player.
+	 */
+	public static Color getPlayerColor(int playerIndex, int numPlayers)
+	{
+		double mask = Math.log(0xFFFFFF) / Math.log(numPlayers);
+		return new Color((int)Math.pow(mask, playerIndex) - 1);
 	}
 }

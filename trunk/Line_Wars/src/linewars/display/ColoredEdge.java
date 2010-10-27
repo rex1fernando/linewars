@@ -21,16 +21,20 @@ public class ColoredEdge
 {
 	private static final double SEGMENT_STEP = 0.01;
 	private Lane lane;
+	private int numPlayers;
 
 	/**
 	 * Constructs a ColoredEdge.
 	 * 
 	 * @param l
 	 *            The Lane that this ColoredEdge will color.
+	 * @param numPlayers
+	 *            The number of players in the game.
 	 */
-	public ColoredEdge(Lane l)
+	public ColoredEdge(Lane l, int numPlayers)
 	{
 		lane = l;
+		this.numPlayers = numPlayers;
 	}
 
 	/**
@@ -41,46 +45,36 @@ public class ColoredEdge
 	 */
 	public void draw(Graphics g)
 	{
-		ArrayList<Wave> frontlines = lane.getFrontLineWaves();
-		ArrayList<Node> nodes = lane.getNodesList();
-		Wave currentWave = frontlines.get(0);
-		Node currentNode = nodes.get(0);
+		Wave[] waves = lane.getWaves();
+
+		Color curColor;
+		int curIndex;
 		double pos = 0.0;
-
-		if(currentWave != null)
+		
+		// get the playerID and Color for the first wave
+		int prevIndex = waves[0].getUnits()[0].getOwner().getPlayerID();
+		for(Wave wave : waves)
 		{
-			// draw portion that is "owned" by the first wave
-			g.setColor(currentNode.getOwner().getPlayerColor());
-			for(; pos < currentWave.getPosition(); pos += SEGMENT_STEP)
+			//set the current color
+			curColor = MapItemDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
+			
+			// if this wave belongs to a different player than the previous one
+			// set the current color to white
+			curIndex = wave.getUnits()[0].getOwner().getPlayerID();
+			if(curIndex != prevIndex)
 			{
-				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos
-						+ 2 * SEGMENT_STEP);
-			}
-		}
-
-		currentWave = frontlines.get(1);
-		currentNode = nodes.get(1);
-
-		g.setColor(Color.white);
-		if(currentWave != null)
-		{
-			// draw the neutral area between the two waves
-			for(; pos < currentWave.getPosition(); pos += SEGMENT_STEP)
-			{
-				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos
-						+ 2 * SEGMENT_STEP);
+				prevIndex = curIndex;
+				curColor = Color.white;
 			}
 
-			g.setColor(currentNode.getOwner().getPlayerColor());
-		}
-
-		// draw the portion that is "owned" by the second wave
-		// if the second wave was null then this draws the neutral section
-		// between the first wave and the second node
-		for(; pos < 1 - SEGMENT_STEP; pos += SEGMENT_STEP)
-		{
-			drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2
-					* SEGMENT_STEP);
+			//set the graphics color
+			g.setColor(curColor);
+			
+			//draw the edge segment between the previous wave and the current wave
+			for(; pos < wave.getPosition(); pos += SEGMENT_STEP)
+			{
+				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP);
+			}
 		}
 	}
 
@@ -101,10 +95,10 @@ public class ColoredEdge
 			double end, double after)
 	{
 		// get the start and end positions
-		Position beforePos = lane.getPosition(before);
-		Position startPos = lane.getPosition(start);
-		Position endPos = lane.getPosition(end);
-		Position afterPos = lane.getPosition(after);
+		Position beforePos = lane.getPosition(before).getPosition();
+		Position startPos = lane.getPosition(start).getPosition();
+		Position endPos = lane.getPosition(end).getPosition();
+		Position afterPos = lane.getPosition(after).getPosition();
 
 		// get the vectors that represents the line segments
 		Position segBefore = beforePos.subtract(startPos);

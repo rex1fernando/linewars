@@ -18,18 +18,22 @@ import linewars.gamestate.shapes.Circle;
 public class ColoredNode
 {
 	private Node node;
+	private int numPlayers;
 
 	/**
 	 * Constructs a ColoredNode
 	 * 
 	 * @param n
 	 *            The Node that this ColoredNode will color.
+	 * @param numPlayers
+	 *            The number of players in the game.
 	 */
-	public ColoredNode(Node n)
+	public ColoredNode(Node n, int numPlayers)
 	{
 		node = n;
+		this.numPlayers = numPlayers;
 	}
-	
+
 	public void draw(Graphics g)
 	{
 		if(node.isContested() || node.getOwner() == null)
@@ -38,12 +42,14 @@ public class ColoredNode
 		}
 		else
 		{
-			g.setColor(node.getOwner().getPlayerColor());
+			int playerIndex = node.getOwner().getPlayerID();
+			Color playerColor = MapItemDrawer.getInstance().getPlayerColor(playerIndex, numPlayers);
+			g.setColor(playerColor);
 		}
-		
+
 		Position pos = node.getCommandCenter().getPosition();
 		double radius = node.getBoundingCircle().getRadius();
-		
+
 		g.fillOval((int)(pos.getX() - radius), (int)(pos.getY() - radius), (int)(2 * radius), (int)(2 * radius));
 	}
 }
