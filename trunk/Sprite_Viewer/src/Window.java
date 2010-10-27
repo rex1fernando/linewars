@@ -23,9 +23,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
 import parser.ConfigFile;
@@ -40,10 +42,17 @@ public class Window implements ActionListener {
 	private Canvas canvas;
 	private BufferStrategy strategy;
 	private JButton addFiles;
+	private JButton resetSpeed;
 	private JMenuItem clearFiles;
 	private JMenuItem export;
 	private JMenuItem open;
+	private JMenuItem setBackground;
+	private JMenuItem clearBackground;
+	private JMenuItem setSpeedRange;
 	private JPanel scrollPanel;
+	private JSlider speedSlider;
+	
+	private Sprite background = null;
 	
 	private ArrayList<Frame> list = new ArrayList<Frame>();
 	private ArrayList<Frame> newList = null;
@@ -71,12 +80,21 @@ public class Window implements ActionListener {
 		export.addActionListener(this);
 		open = new JMenuItem("Open");
 		open.addActionListener(this);
+		setBackground = new JMenuItem("Set Background");
+		setBackground.addActionListener(this);
+		clearBackground = new JMenuItem("Clear Background");
+		clearBackground.addActionListener(this);
+		setSpeedRange = new JMenuItem("Set Background Speed Max");
+		setSpeedRange.addActionListener(this);
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
 		JMenu edit = new JMenu("Edit");
 		file.add(export);
 		file.add(open);
 		edit.add(clearFiles);
+		edit.add(setBackground);
+		edit.add(clearBackground);
+		edit.add(setSpeedRange);
 		menuBar.add(file);
 		menuBar.add(edit);
 		frame.setJMenuBar(menuBar);
@@ -88,10 +106,18 @@ public class Window implements ActionListener {
 		
 		ArithmaticPanel ap = new ArithmaticPanel(this);
 		
+		speedSlider = new JSlider(JSlider.VERTICAL, -1000, 1000, 0);
+		speedSlider.setMinorTickSpacing(1);
+		
+		resetSpeed = new JButton("Reset Background Speed");
+		resetSpeed.addActionListener(this);
+		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(addFiles);
 		buttonPanel.add(new JSeparator(JSeparator.VERTICAL));
 		buttonPanel.add(ap);
+		buttonPanel.add(speedSlider);
+		buttonPanel.add(resetSpeed);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -119,24 +145,41 @@ public class Window implements ActionListener {
 		
 		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+        
+        try {
+        	Scanner s = new Scanner(new File("lastBackground.txt"));
+        	background = new Sprite(s.nextLine());
+        }
+        catch(Exception e) {}
 		
 		
 		boolean b = true;
 		int current = 0;
 		long lastChangeTime = System.currentTimeMillis();
+		int backgroundPos = 0;
+		long loopTime = System.currentTimeMillis();
 		while(b)
 		{
+			//get graphics object to draw to
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			g.setColor(Color.black);
+			g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+			
+			//draw the background if there is one
+			if(background != null)
+			{
+				int height = (int) (((double)canvas.getWidth()/background.getWidth())*background.getHeight());
+				backgroundPos += ((double)-speedSlider.getValue()*(System.currentTimeMillis() - loopTime)/1000.0);
+				backgroundPos %= height;
+				loopTime = System.currentTimeMillis();
+				
+				for(int pos = backgroundPos - height; pos <= canvas.getHeight(); pos += height )
+					background.draw(g, 0, pos, canvas.getWidth(), height);
+			}
 			
 			if(!list.isEmpty())
 			{
-				//get graphics object to draw to
-				Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-				g.setColor(Color.black);
-				g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 				list.get(current).getFrame().draw(g, 0, 0, canvas.getWidth(), canvas.getWidth());
-				//flip the buffers
-				g.dispose();
-				strategy.show();
 				
 				if(System.currentTimeMillis() - lastChangeTime > list.get(current).getTime())
 				{
@@ -144,14 +187,14 @@ public class Window implements ActionListener {
 					lastChangeTime = System.currentTimeMillis();
 				}
 			}
-			
-			if(list.isEmpty())
+			else if(background == null)
 				try {
 					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} catch (InterruptedException e) {}
+				
+			//flip the buffers
+			g.dispose();
+			strategy.show();
 				
 			if(newList != null)
 			{
@@ -165,7 +208,9 @@ public class Window implements ActionListener {
 				newList = null;
 			}
 			
-			
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {}
 			
 		}
 	}
@@ -301,6 +346,47 @@ public class Window implements ActionListener {
 	            	return;
 	            }
 	        }
+		}
+		else if(arg0.getSource().equals(setBackground))
+		{
+			JFileChooser fc = new JFileChooser();
+			
+			try {
+				Scanner s = new Scanner(new File("lastDirectory.txt"));
+				fc = new JFileChooser(s.nextLine());
+			} catch (FileNotFoundException e) {	}
+			
+			fc.setMultiSelectionEnabled(false);
+			int returnVal = fc.showOpenDialog(frame);
+
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	        	background = new Sprite(fc.getSelectedFile().getAbsolutePath());
+	        	FileWriter fw;
+				try {
+					fw = new FileWriter("lastBackground.txt");
+					fw.write(background.toString());
+		        	fw.flush();
+		        	fw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	        }
+		}
+		else if(arg0.getSource().equals(clearBackground))
+		{
+			background = null;
+		}
+		else if(arg0.getSource().equals(resetSpeed))
+		{
+			speedSlider.setValue(0);
+		}
+		else if(arg0.getSource().equals(setSpeedRange))
+		{
+			String s = (String)JOptionPane.showInputDialog(frame, "Input the maximum background speed", "",
+					JOptionPane.PLAIN_MESSAGE, null, null, "" + speedSlider.getMaximum());
+			int i = Integer.valueOf(s);
+			speedSlider.setMaximum(i);
+			speedSlider.setMinimum(-i);
 		}
 	}
 	
