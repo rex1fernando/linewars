@@ -8,6 +8,7 @@ import linewars.gamestate.mapItems.strategies.combat.ShootClosestTarget;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 import linewars.gamestate.mapItems.strategies.movement.Straight;
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.parser.Parser;
@@ -30,8 +31,8 @@ public class UnitDefinition extends MapItemDefinition {
 	private CombatStrategy combatStrat;
 	private MovementStrategy mStrat;
 
-	public UnitDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner);
+	public UnitDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException {
+		super(URI, owner, gameState);
 		
 		maxHp = super.getParser().getNumericValue(ParserKeys.maxHP);
 		

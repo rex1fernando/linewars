@@ -12,39 +12,59 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
+import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
 
 public class Node {
 	
-	private Map gameMap;
 	private GameState gameState;
 	private Player owner;
 	private Player invader;
 	private long occupationTime;
-	private ArrayList<Lane> attachedLanes;
+	
 	private ArrayList<Building> containedBuildings;
 	private CommandCenter cCenter;
 	private ArrayList<Unit> containedUnits;
+	
+	private ArrayList<Lane> attachedLanes;
 	private Transformation[] buildingSpots;
-	private int numBuildings;
+	private Shape shape;
+	private boolean isStartNode;
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	private Shape shape;
-	
-	public Node(Lane[] lanes, Transformation[] buildingSpots, Shape shape)
+	public Node(Parser parser, GameState gameState)
 	{
 		invader = null;
+		owner = null;
 		occupationTime = 0;
-		attachedLanes = new ArrayList<Lane>();
-		for(int i = 0; i < lanes.length; i++)
-		{
-			attachedLanes.add(lanes[i]);
-		}
-		this.cCenter = cCenter;
+		this.cCenter = null;
 		containedUnits = new ArrayList<Unit>();
-		this.buildingSpots = buildingSpots;
+		containedBuildings = new ArrayList<Building>();
 		
-		this.shape = shape;
+		this.gameState = gameState;
+		
+		attachedLanes = new ArrayList<Lane>();
+		String[] laneNames = parser.getList(ParserKeys.lanes);
+		Lane[] lanes = gameState.getMap().getLanes();
+		for(String name : laneNames)
+			for(Lane l : lanes)
+				if(name.equals(l.getName()))
+					attachedLanes.add(l);
+		
+		String[] transformNames = parser.getList(ParserKeys.buildingSpots);
+		buildingSpots = new Transformation[transformNames.length];
+		for(int i = 0; i < transformNames.length; i++)
+			buildingSpots[i] = new Transformation(parser.getParser(transformNames[i]));
+		
+		laneMap = new HashMap<Double, Lane>();
+		
+		shape = Shape
+				.buildFromParser(parser.getParser(ParserKeys.shape))
+				.transform(new Transformation(
+								parser.getParser(ParserKeys.commandCenterTransformation)));
+		
+		isStartNode = Boolean.parseBoolean(parser.getStringValue(ParserKeys.isStartNode));
 	}
 	
 	public Player getOwner()
@@ -80,11 +100,6 @@ public class Node {
 	public Unit[] getContainedUnits()
 	{
 		return (Unit[])containedUnits.toArray();
-	}
-	
-	public int getNumBuildings()
-	{
-		return numBuildings;
 	}
 	
 	public Circle getBoundingCircle()
@@ -147,6 +162,7 @@ public class Node {
 		return ret;
 	}
 	
+	//TODO I don't understand how this method works (Connor)
 	private HashMap<Player, double[]> getAllFlow()
 	{
 		List<Player> players = gameState.getPlayers();
@@ -154,7 +170,7 @@ public class Node {
 		double[] flows;
 		for(int i = 0; i < players.size(); i++)
 		{
-			Lane[] l = gameMap.getLanes();
+			Lane[] l = gameState.getMap().getLanes();
 			flows = new double[l.length];
 			Player p = players.get(i);
 			double total = 0;
@@ -181,11 +197,11 @@ public class Node {
 	 */
 	public Transformation getNextAvailableBuildingSpot()
 	{
-		if(numBuildings >= buildingSpots.length)
+		if(containedBuildings.size() >= buildingSpots.length)
 		{
 			return null;
 		}
-		return buildingSpots[numBuildings];
+		return buildingSpots[containedBuildings.size()];
 	}
 	
 	/**
@@ -206,12 +222,7 @@ public class Node {
 				return false;
 			}
 		}
-		if(containedBuildings.add(b))
-		{
-			numBuildings++;
-			return true;
-		}
-		return false;
+		return containedBuildings.add(b);
 	}
 	
 	
@@ -237,7 +248,8 @@ public class Node {
 	//TODO
 	/**
 	 * This method updates everything in the node. It calls update on all the buildings (including the
-	 * comand center). It also redistributes the units in the node (puts them in waves when needed)
+	 * comand center). It also redistributes the units in the node (puts them in waves when needed) It also
+	 * needs to make sure to place gates if it gets taken over
 	 */
 	public void update()
 	{
@@ -248,5 +260,15 @@ public class Node {
 	public void setOwner(Player p)
 	{
 		
+	}
+	
+	public Shape getShape()
+	{
+		return shape;
+	}
+	
+	public boolean isStartNode()
+	{
+		return isStartNode;
 	}
 }

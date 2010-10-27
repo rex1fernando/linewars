@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
@@ -39,10 +40,13 @@ public abstract class MapItemDefinition {
 	private Player owner;
 	protected CollisionStrategy cStrat;
 	protected Shape body;
+	private GameState gameState;
 	
-	public MapItemDefinition(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
+	public MapItemDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException
 	{
 		parser = new Parser(new ConfigFile(URI));
+		
+		this.gameState = gameState;
 		
 		this.owner = owner;
 		validStates = new ArrayList<MapItemState>();
@@ -176,6 +180,11 @@ public abstract class MapItemDefinition {
 		}
 		else
 			return false;
+	}
+	
+	public GameState getGameState()
+	{
+		return gameState;
 	}
 	
 }

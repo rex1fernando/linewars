@@ -15,6 +15,8 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.parser.Parser;
+import linewars.parser.ParserKeys;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Lane
@@ -29,6 +31,8 @@ public class Lane
 	private Position p1;
 	private Position p2;
 	private Position p3;
+	
+	private String name;
 		
 	private HashMap<Node, ArrayList<Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
@@ -47,13 +51,15 @@ public class Lane
 	
 	static final double LANE_BORDER_RESOLUTION = 0.05;
 	
-	public Lane(Position p0, Position p1, Position p2, Position p3, double width, GameState gameState)
+	public Lane(GameState gameState, Parser parser, String name)
 	{
-		this.p0 = p0;
-		this.p1 = p1;
-		this.p2 = p2;
-		this.p3 = p3;
-		this.width = width;
+		//TODO
+		this.p0 = new Position(parser.getStringValue(ParserKeys.p0));
+		this.p1 = new Position(parser.getStringValue(ParserKeys.p1));
+		this.p2 = new Position(parser.getStringValue(ParserKeys.p2));
+		this.p3 = new Position(parser.getStringValue(ParserKeys.p3));
+		this.width = parser.getNumericValue(ParserKeys.width);
+		this.name = name;
 		
 		pathFinder = new PathFinding(gameState);
 		
@@ -384,6 +390,9 @@ public class Lane
 	 */
 	public void update()
 	{
+		if(nodes.size() != 2)
+			throw new IllegalStateException("This lane doesn't know about both its end point nodes");
+		
 		for(Wave w : waves)
 			w.update();
 		for(Projectile p : projectiles)
@@ -396,6 +405,18 @@ public class Lane
 	public Gate getGate(Node n)
 	{
 		return gates.get(n);
+	}
+	
+	public void addNode(Node n)
+	{
+		if(nodes.size() == 2)
+			throw new IllegalArgumentException("Can't add more than 2 nodes to a lane");
+		nodes.add(n);
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 	
 	public double getLength()

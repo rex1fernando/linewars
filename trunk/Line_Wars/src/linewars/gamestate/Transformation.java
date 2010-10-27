@@ -1,5 +1,7 @@
 package linewars.gamestate;
 
+import linewars.parser.*;
+
 public class Transformation {
 	
 	private Position pos;
@@ -10,6 +12,12 @@ public class Transformation {
 	{
 		pos = p;
 		rotation = rot;
+	}
+	
+	public Transformation(Parser p)
+	{
+		pos = new Position(p.getNumericValue(ParserKeys.x), p.getNumericValue(ParserKeys.y));
+		rotation = p.getNumericValue(ParserKeys.rotation);
 	}
 	
 	public Position getPosition()

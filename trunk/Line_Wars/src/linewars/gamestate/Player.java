@@ -21,6 +21,7 @@ public class Player {
 	private HashMap<String, ProjectileDefinition> projDefs;
 	private HashMap<String, Tech> techLevels;
 	private CommandCenterDefinition ccd;
+	private GateDefinition gateDefinition;
 	private String name;
 	
 	public Player(GameState gameState, Node[] startingNodes, Race r, String name, int ID) throws FileNotFoundException, InvalidConfigFileException{
@@ -44,7 +45,7 @@ public class Player {
 		List<String> URIs = r.getBuildingURIs();
 		for(String uri : URIs)
 		{
-			BuildingDefinition bd = new BuildingDefinition(uri, this);
+			BuildingDefinition bd = new BuildingDefinition(uri, this, gameState);
 			buildingDefs.put(uri, bd);
 		}
 		
@@ -52,7 +53,7 @@ public class Player {
 		URIs = r.getUnitURIs();
 		for(String uri : URIs)
 		{
-			UnitDefinition ud = new UnitDefinition(uri, this);
+			UnitDefinition ud = new UnitDefinition(uri, this, gameState);
 			unitDefs.put(uri, ud);
 		}
 		
@@ -66,7 +67,8 @@ public class Player {
 			techLevels.put(uri, t);
 		}
 		
-		ccd = new CommandCenterDefinition(r.getCommandCenterURI(), this);
+		ccd = new CommandCenterDefinition(r.getCommandCenterURI(), this, gameState);
+		gateDefinition = new GateDefinition(r.getGateURI(), this, gameState);
 	}
 	
 	/**
@@ -218,7 +220,7 @@ public class Player {
 		UnitDefinition ud = unitDefs.get(URI);
 		if(ud == null)
 		{
-			ud = new UnitDefinition(URI, this);
+			ud = new UnitDefinition(URI, this, gameState);
 			unitDefs.put(URI, ud);
 		}
 		return ud;
@@ -260,7 +262,7 @@ public class Player {
 		ProjectileDefinition pd = projDefs.get(URI);
 		if(pd == null)
 		{
-			pd = new ProjectileDefinition(URI, this);
+			pd = new ProjectileDefinition(URI, this, gameState);
 			projDefs.put(URI, pd);
 		}
 		return pd;
@@ -281,7 +283,7 @@ public class Player {
 		BuildingDefinition bd = buildingDefs.get(URI);
 		if(bd == null)
 		{
-			bd = new BuildingDefinition(URI, this);
+			bd = new BuildingDefinition(URI, this, gameState);
 			buildingDefs.put(URI, bd);
 		}
 		return bd;
@@ -325,6 +327,11 @@ public class Player {
 	public CommandCenterDefinition getCommandCenterDefinition()
 	{
 		return ccd;
+	}
+	
+	public GateDefinition getGateDefinition()
+	{
+		return gateDefinition;
 	}
 	
 	public int getPlayerID()

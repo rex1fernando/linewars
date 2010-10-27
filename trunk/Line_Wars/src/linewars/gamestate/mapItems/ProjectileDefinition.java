@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -24,9 +25,9 @@ public class ProjectileDefinition extends MapItemDefinition {
 	private double velocity;
 	private ImpactStrategy iStrat;
 
-	public ProjectileDefinition(String URI, Player owner)
+	public ProjectileDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner);
+		super(URI, owner, gameState);
 		
 		velocity = super.getParser().getNumericValue(ParserKeys.velocity);
 		Parser is = super.getParser().getParser(ParserKeys.impactStrategy);

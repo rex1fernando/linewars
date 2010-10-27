@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.Node;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.Building;
@@ -23,7 +22,7 @@ public class ConstructBuilding implements Ability {
 	public ConstructBuilding(Node n, BuildingDefinition bd)
 	{
 		buildingDefinition = bd;
-		startTime = GameTimeManager.currentTimeMillis();
+		startTime = (long) (buildingDefinition.getGameState().getTime()*1000);
 		
 		Transformation t = n.getNextAvailableBuildingSpot();
 		//can't construct the building
@@ -44,7 +43,7 @@ public class ConstructBuilding implements Ability {
 	
 	@Override
 	public void update() {
-		if(!built && GameTimeManager.currentTimeMillis() - startTime >= buildingDefinition.getBuildTime())
+		if(!built && (long) (buildingDefinition.getGameState().getTime()*1000) - startTime >= buildingDefinition.getBuildTime())
 		{
 			built = true;
 			building.setState(MapItemState.Idle);

@@ -52,7 +52,7 @@ public class GameState
 	public GameState(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames) throws FileNotFoundException, InvalidConfigFileException
 	{
 		Parser mapParser = new Parser(new ConfigFile(mapURI));
-		map = new Map(mapParser, null, null);
+		map = new Map(this, mapParser);
 		players = new HashMap<Integer, Player>();
 		this.numPlayers = numPlayers;
 		timerTick = 0;

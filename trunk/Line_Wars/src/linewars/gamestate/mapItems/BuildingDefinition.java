@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -21,9 +22,9 @@ public class BuildingDefinition extends MapItemDefinition {
 	private double cost;
 	private double buildTime;
 
-	public BuildingDefinition(String URI, Player owner)
+	public BuildingDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner);
+		super(URI, owner, gameState);
 		cost = super.getParser().getNumericValue(ParserKeys.cost);
 		buildTime = super.getParser().getNumericValue(ParserKeys.buildTime);
 	}

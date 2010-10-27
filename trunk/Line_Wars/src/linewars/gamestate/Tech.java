@@ -107,5 +107,10 @@ public class Tech {
 	{
 		return parser;
 	}
+	
+	public MapItemDefinition getMapItemDefinition()
+	{
+		return definition;
+	}
 
 }

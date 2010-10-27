@@ -2,8 +2,6 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
-import linewars.display.Animation;
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -42,8 +40,7 @@ public abstract class MapItem {
 	{
 		Shape b = def.getBody();
 		body = def.getBody().transform(trans);
-		state = MapItemState.Idle;
-		stateStart = GameTimeManager.currentTimeMillis();
+		this.setState(MapItemState.Idle);
 	}
 	
 	protected abstract MapItemDefinition getDefinition();
@@ -162,7 +159,7 @@ public abstract class MapItem {
 		if(this.getDefinition().isValidState(m))
 		{
 			state = m;
-			stateStart = GameTimeManager.currentTimeMillis();
+			stateStart = (long) (this.getDefinition().getGameState().getTime()*1000);
 		}
 		else
 			throw new IllegalStateException(m.toString() + " is not a valid state for a " + this.getDefinition().getName());

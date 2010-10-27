@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
@@ -16,9 +17,9 @@ import linewars.parser.Parser.InvalidConfigFileException;
  */
 public class GateDefinition extends UnitDefinition {
 
-	public GateDefinition(String URI, Player owner)
+	public GateDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner);
+		super(URI, owner, gameState);
 	}
 	
 	@Override

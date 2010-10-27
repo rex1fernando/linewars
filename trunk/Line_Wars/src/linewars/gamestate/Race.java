@@ -70,5 +70,11 @@ public class Race {
 	{
 		return name;
 	}
+	
+	//TODO
+	public String getGateURI()
+	{
+		return null;
+	}
 
 }

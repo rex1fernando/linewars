@@ -1,5 +1,7 @@
 package linewars.gamestate;
 
+import java.util.Scanner;
+
 public class Position {
 	
 	private double x;
@@ -9,6 +11,17 @@ public class Position {
 	{
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Position(String toParse)
+	{
+		for(int i = 0; i < toParse.length(); i++)
+			if ((toParse.charAt(i) < '0' || toParse.charAt(i) > '9')
+					&& toParse.charAt(i) != '.' && toParse.charAt(i) != ' ')
+				toParse = toParse.replace(toParse.charAt(i), ' ');
+		Scanner s = new Scanner(toParse);
+		x = s.nextDouble();
+		y = s.nextDouble();
 	}
 	
 	public double getX()

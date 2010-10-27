@@ -2,7 +2,6 @@ package linewars.gamestate.mapItems.strategies.combat;
 
 import java.util.Queue;
 
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItemState;
@@ -144,9 +143,11 @@ public class ShootClosestTarget implements CombatStrategy {
 	
 	private void updatePath(Position target)
 	{
-		if(GameTimeManager.currentTimeMillis() - pathLockout >= MINIMUM_PATH_WAIT_TIME)
+		//NOTE: System.currentTimeMillis() is used here because the lockout time
+		//for getting an updated path shouldn't be dependant on the game speed
+		if(System.currentTimeMillis() - pathLockout >= MINIMUM_PATH_WAIT_TIME)
 		{
-			pathLockout = GameTimeManager.currentTimeMillis();
+			pathLockout = System.currentTimeMillis();
 			path = unit.getWave().getLane().findPath(unit, target, shootDefinition.getRange());
 		}
 		else

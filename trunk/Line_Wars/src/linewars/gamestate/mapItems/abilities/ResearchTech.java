@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.gameLogic.GameTimeManager;
 import linewars.gamestate.Tech;
 
 /**
@@ -20,7 +19,7 @@ public class ResearchTech implements Ability {
 	{
 		tech = t;
 		researchTime = rTime;
-		startTime = GameTimeManager.currentTimeMillis();
+		startTime = (long)(tech.getMapItemDefinition().getGameState().getTime()*1000);
 		//dud is whether or not this is a "dud" research attempt i.e. the player
 		//doesn't have enough stuff so this ability gets added and immediately removed
 		researched = dud;
@@ -28,7 +27,7 @@ public class ResearchTech implements Ability {
 	
 	@Override
 	public void update() {
-		if(!researched && GameTimeManager.currentTimeMillis() - startTime >= researchTime)
+		if(!researched && (long)(tech.getMapItemDefinition().getGameState().getTime()*1000) - startTime >= researchTime)
 		{
 			researched = true;
 			tech.research();

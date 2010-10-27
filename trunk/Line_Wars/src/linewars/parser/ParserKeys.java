@@ -15,5 +15,7 @@ public enum ParserKeys {
 	valueFunction, preReqs, commandCenterURI, 
 	maxTimesResearchable, circle, rectangle,
 	radius, width, height, rotation,
-	shapetype, x, y
+	shapetype, x, y, lanes, nodes, p0, p1, p2, p3,
+	buildingSpots, shape, commandCenterTransformation,
+	isStartNode
 }

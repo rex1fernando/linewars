@@ -23,13 +23,20 @@ public class Map {
 	private Parser parser;
 	
 	
-	public Map(Parser mapParser, ArrayList<Node> nodes, ArrayList<Lane> lanes)
+	public Map(GameState gameState, Parser mapParser)
 	{
 		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
 		parser = mapParser;
 		
-		this.nodes = nodes;
-		this.lanes = lanes;
+		lanes = new ArrayList<Lane>();
+		String[] ls = mapParser.getList(ParserKeys.lanes);
+		for(String l : ls)
+			lanes.add(new Lane(gameState, mapParser.getParser(l), l));
+		
+		nodes = new ArrayList<Node>();
+		String[] ns = mapParser.getList(ParserKeys.nodes);
+		for(String n : ns)
+			nodes.add(new Node(mapParser.getParser(n), gameState));
 	}
 	/**
 	 * This method gets a list of the lanes attached to the Node n
@@ -89,17 +96,19 @@ public class Map {
 		return parser;
 	}
 	
-	//TODO implement
 	/**
 	 * 
 	 * @return	the number of nodes players are allowed to start at
 	 */
 	public int getNumStartNodes()
 	{
-		return 0;
+		int num = 0;
+		for(Node n : nodes)
+			if(n.isStartNode())
+				num++;
+		return num;
 	}
 	
-	//TODO implement
 	/**
 	 * This method takes in an integer i and returns the ith node
 	 * that players are allowed to start on.
@@ -109,6 +118,13 @@ public class Map {
 	 */
 	public Node getStartNode(int i)
 	{
+		int current = 0;
+		for(Node n : nodes)
+			if(n.isStartNode())
+				if(current == i)
+					return n;
+				else
+					current++;
 		return null;
 	}
 }
