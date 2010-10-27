@@ -10,13 +10,12 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
-import linewars.gamestate.GameStateManager;
-import linewars.parser.Parser;
+import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.parser.Parser;
 
 /**
  * Encapsulates command card GUI information.
@@ -70,7 +69,7 @@ public class CommandCardPanel extends Panel
 	/**
 	 * Creates a new CommandCardPanel object.
 	 */
-	public CommandCardPanel(GameStateManager stateManager, Parser ... anims)
+	public CommandCardPanel(GameStateProvider stateManager, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 				

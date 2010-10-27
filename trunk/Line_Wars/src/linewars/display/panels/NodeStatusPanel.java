@@ -1,7 +1,6 @@
 package linewars.display.panels;
 
-import linewars.display.Animation;
-import linewars.gamestate.GameStateManager;
+import linewars.gameLogic.GameStateProvider;
 import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
@@ -13,7 +12,7 @@ public class NodeStatusPanel extends Panel
 	private static final int WIDTH = 500;
 	private static final int HEIGHT = 400;
 	
-	public NodeStatusPanel(GameStateManager stateManager, Parser ... anims)
+	public NodeStatusPanel(GameStateProvider stateManager, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 	}

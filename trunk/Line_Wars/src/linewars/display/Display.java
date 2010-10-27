@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import linewars.display.layers.GraphLayer;
@@ -50,6 +49,7 @@ import linewars.parser.ParserKeys;
  * @author Titus Klinge
  * @author Ryan Tew
  */
+@SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
 	/**
@@ -66,46 +66,35 @@ public class Display extends JFrame implements Runnable
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
 	
+	private GameStateProvider gameStateProvider;
+	private MessageReceiver messageReceiver;
+	private GamePanel gamePanel;
+	
 	public Display(GameStateProvider provider, MessageReceiver receiver)
 	{
-		
+		super("Line Wars");
+		gamePanel = new GamePanel();
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setContentPane(gamePanel);				
+		setSize(new Dimension(800, 600));
+		// setUndecorated(true);
 	}
 	
-	/**
-	 * The entry point for the program.
-	 * 
-	 * TODO Add instantiation of other threads and game object
-	 *      within this method.
-	 * 
-	 * @param args Command line arguments are not used currently.
-	 */
-	public static void main(String[] args)
+	@Override
+	public void run()
 	{
-		SwingUtilities.invokeLater(buildGUI());
-	}
-
-	/**
-	 * Constructs a runnable object that creates the swing
-	 * components that drive the graphics for the program.
-	 * 
-	 * @return The runnable object.
-	 */
-	private static Runnable buildGUI()
-	{
-		return new Runnable()
+		// shows the display
+		setVisible(true);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		
+		// spawns the paint driver for the display
+		new Timer(DRAW_DELAY, new ActionListener()
 		{
-			public void run()
+			public void actionPerformed(ActionEvent e)
 			{
-				JFrame f = new JFrame("Line Wars");
-				GamePanel panel = new GamePanel(f);
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				f.setContentPane(panel);
-				f.setSize(new Dimension(800, 600));
-				// f.setUndecorated(true);
-				f.setVisible(true);
-				f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				gamePanel.repaint();
 			}
-		};
+		}).start();
 	}
 	
 	/**
@@ -113,12 +102,8 @@ public class Display extends JFrame implements Runnable
 	 * for drawing everything in the game.
 	 */
 	@SuppressWarnings("serial")
-	private static class GamePanel extends JPanel
-	{
-		private JFrame parent;
-		
-		private GameStateManager stateManager;
-		
+	private class GamePanel extends JPanel
+	{	
 		private List<ILayer> strategicView;
 		private List<ILayer> tacticalView;
 		
@@ -138,7 +123,7 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		
-		public GamePanel(JFrame parent)
+		public GamePanel()
 		{
 			super(null);
 			
@@ -168,8 +153,6 @@ public class Display extends JFrame implements Runnable
 				e.printStackTrace();
 			}			
 			
-			this.parent = parent;
-			
 			setOpaque(false);
 			
 			TerrainLayer terrain = new TerrainLayer();
@@ -184,10 +167,8 @@ public class Display extends JFrame implements Runnable
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));
 			
-			stateManager = new GameStateManager();
-			
 			//add the map image to the MapItemDrawer
-			Parser mapParser = stateManager.getDisplayGameState().getMap().getParser();
+			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
 			String mapURI = mapParser.getStringValue(ParserKeys.icon);
 			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
 			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
@@ -204,25 +185,16 @@ public class Display extends JFrame implements Runnable
 			zoomLevel = 1;
 			viewport = null;
 			
-			commandCardPanel = new CommandCardPanel(stateManager, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(gameStateProvider, rightUIPanel);
 			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(stateManager, leftUIPanel);
+			nodeStatusPanel = new NodeStatusPanel(gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(stateManager, null);
+			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, null);
 			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(parent, stateManager, exitButton, exitButtonClicked);
+			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
 			
 			addComponentListener(new ResizeListener());
-			
-			// spawns the paint driver for the display
-			new Timer(DRAW_DELAY, new ActionListener()
-			{
-				public void actionPerformed(ActionEvent arg0)
-				{
-					repaint();
-				}
-			}).start();
 			
 			// adds the mouse input handler
 			InputHandler ih = new InputHandler();
@@ -239,11 +211,8 @@ public class Display extends JFrame implements Runnable
 		@Override
 		public void paint(Graphics g)
 		{
-			// draws the background black
-			g.setColor(Color.black);
-			g.fillRect(0, 0, getWidth(), getHeight());
-			
-			GameState gamestate = stateManager.getDisplayGameState();
+			GameState gamestate = gameStateProvider.getCurrentGameState();
+			// TODO make sure to change this back so it uses strategic view as well!
 			List<ILayer> currentView = tacticalView;//(zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 			
 			// calculates the visible screen size based off of the zoom level
@@ -258,46 +227,61 @@ public class Display extends JFrame implements Runnable
 			// double buffer implementation
 			Image buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics bufferedG = buffer.getGraphics();
-			
-			double scaleX = getWidth() / viewport.getWidth();
-			double scaleY = getHeight() / viewport.getHeight();
+			bufferedG.setColor(Color.black);
+			bufferedG.fillRect(0, 0, getWidth(), getHeight());
 			
 			// draws layers to scale
+			double scaleX = getWidth() / viewport.getWidth();
+			double scaleY = getHeight() / viewport.getHeight();
 			for (int i = 0; i < currentView.size(); i++)
 			{
 				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
 			
-			// checks for selected node
-//			int nodeIndex = getSelectedNode(gamestate);
-//			if (nodeIndex == -1)
-//			{
-//				nodeStatusPanel.setVisible(false);
-//				commandCardPanel.setVisible(false);
-//			}
-//			else
-//			{
-//				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
-//				
-//				nodeStatusPanel.setVisible(true);
-//				// TODO populate status panel
-//				
-//				commandCardPanel.setVisible(true);
-//				commandCardPanel.updateButtons(node, nodeIndex);
-//				
-//				// draws a rectangle around the command center
-//				Position p = node.getPosition();
-//				int recX = (int) ((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
-//				int recY = (int) ((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
-//				int recW = (int) (node.getWidth() * viewport.getWidth() / mapSize.getWidth());
-//				int recH = (int) (node.getHeight() * viewport.getHeight() / mapSize.getHeight());
-//				g.setColor(Color.red);
-//				g.drawRect(recX, recY, recW, recH);
-//			}
+			// draws the panels if they are shown
+			updatePanels(g, gamestate);
 			
-			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), parent);
+			// draws the offscreen image to the graphics object
+			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
 			
+			// paints other things on top
 			super.paint(g);
+		}
+		
+		private void updatePanels(Graphics g, GameState gamestate)
+		{
+			// checks for selected node
+			int nodeIndex = getSelectedNode(gamestate);
+			if (nodeIndex == -1)
+			{
+				nodeStatusPanel.setVisible(false);
+				commandCardPanel.setVisible(false);
+			}
+			else
+			{
+				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
+				
+				nodeStatusPanel.setVisible(true);
+				// TODO populate status panel
+				
+				commandCardPanel.setVisible(true);
+				commandCardPanel.updateButtons(node, nodeIndex);
+				
+				// draws a rectangle around the command center
+				Position p = node.getPosition();
+				int recX = (int) ((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
+				int recY = (int) ((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
+				int recW = (int) (node.getWidth() * viewport.getWidth() / mapSize.getWidth());
+				int recH = (int) (node.getHeight() * viewport.getHeight() / mapSize.getHeight());
+				g.setColor(Color.red);
+				g.drawRect(recX, recY, recW, recH);
+			}
+		}
+		
+		@Override
+		public void update(Graphics g)
+		{
+			paint(g);
 		}
 		
 		/**
@@ -327,12 +311,6 @@ public class Display extends JFrame implements Runnable
 			}
 			
 			return -1;
-		}
-		
-		@Override
-		public void update(Graphics g)
-		{
-			paint(g);
 		}
 		
 		private class ResizeListener extends ComponentAdapter
@@ -402,11 +380,5 @@ public class Display extends JFrame implements Runnable
 				zoomLevel = newZoom;
 			}
 		}
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		SwingUtilities.invokeLater(buildGUI());
 	}
 }

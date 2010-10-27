@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import linewars.display.MapItemDrawer;
-import linewars.gamestate.GameStateManager;
+import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.parser.Parser;
 
@@ -28,7 +28,7 @@ public class ExitButtonPanel extends Panel
 	private JFrame frame;
 	private JButton exitButton;
 	
-	public ExitButtonPanel(JFrame frame, GameStateManager stateManager, Parser ... anims)
+	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		
