@@ -36,7 +36,7 @@ public class Map {
 		nodes = new ArrayList<Node>();
 		String[] ns = mapParser.getList(ParserKeys.nodes);
 		for(String n : ns)
-			nodes.add(new Node(mapParser.getParser(n), gameState));
+			nodes.add(new Node(mapParser.getParser(n), gameState, lanes.toArray(new Lane[0])));
 	}
 	/**
 	 * This method gets a list of the lanes attached to the Node n

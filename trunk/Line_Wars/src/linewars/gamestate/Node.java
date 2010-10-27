@@ -33,7 +33,7 @@ public class Node {
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	public Node(Parser parser, GameState gameState)
+	public Node(Parser parser, GameState gameState, Lane[] lanes)
 	{
 		invader = null;
 		owner = null;
@@ -46,7 +46,6 @@ public class Node {
 		
 		attachedLanes = new ArrayList<Lane>();
 		String[] laneNames = parser.getList(ParserKeys.lanes);
-		Lane[] lanes = gameState.getMap().getLanes();
 		for(String name : laneNames)
 			for(Lane l : lanes)
 				if(name.equals(l.getName()))

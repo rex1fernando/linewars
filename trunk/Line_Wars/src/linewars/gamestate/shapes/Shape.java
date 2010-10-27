@@ -148,7 +148,7 @@ public abstract class Shape {
 
 	public static Shape buildFromParser(Parser parser) {
 		String type = parser.getStringValue(ParserKeys.shapetype);
-		Class<? extends Shape> initializer = typeToClass.get(type);
+		Class<? extends Shape> initializer = typeToClass.get(type.toLowerCase());
 		Shape ret = null;
 		try{
 			ret = initializer.getConstructor(Parser.class).newInstance(parser);

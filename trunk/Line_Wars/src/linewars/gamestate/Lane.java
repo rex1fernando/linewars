@@ -65,7 +65,7 @@ public class Lane
 		
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
 		try {
-			LaneBorderDefinition lbd = new LaneBorderDefinition(size);
+			LaneBorderDefinition lbd = new LaneBorderDefinition(gameState, size);
 			double dis = this.getWidth() + size;
 			for(double i = 0; i < 1; i += LANE_BORDER_RESOLUTION)
 			{

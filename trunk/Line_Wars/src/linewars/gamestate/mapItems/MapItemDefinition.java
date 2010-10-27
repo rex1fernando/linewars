@@ -94,7 +94,7 @@ public abstract class MapItemDefinition {
 		body = Shape.buildFromParser(parser.getParser(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
 	}
 	
-	protected MapItemDefinition()
+	protected MapItemDefinition(GameState gameState)
 	{
 		validStates = new ArrayList<MapItemState>();
 		validStates.add(MapItemState.Idle);
@@ -104,6 +104,7 @@ public abstract class MapItemDefinition {
 		abilities = new ArrayList<AbilityDefinition>();
 		cStrat = null;
 		body = null;
+		this.gameState = gameState;
 	}
 
 	/**

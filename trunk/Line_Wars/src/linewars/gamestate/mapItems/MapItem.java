@@ -40,7 +40,8 @@ public abstract class MapItem {
 	{
 		Shape b = def.getBody();
 		body = def.getBody().transform(trans);
-		this.setState(MapItemState.Idle);
+		state = MapItemState.Idle;
+		stateStart = (long) (def.getGameState().getTime()*1000);
 	}
 	
 	protected abstract MapItemDefinition getDefinition();
@@ -249,7 +250,6 @@ public abstract class MapItem {
 		return this.getDefinition().getBody().boundingRectangle().getHeight();
 	}
 		
-	//TODO
 	/**
 	 * 
 	 * @return	the radius of the bounding circle of this unit
