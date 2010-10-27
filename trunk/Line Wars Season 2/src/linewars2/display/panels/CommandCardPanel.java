@@ -1,5 +1,5 @@
 package linewars2.display.panels;
 
-public class CommandCardPanel extends Panel {
+class CommandCardPanel extends Panel {
 
 }
