@@ -1,7 +1,5 @@
 package linewars2.display;
 
-import linewars2.gamelogic.GameStateProvider;
-import linewars2.network.MessageReceiver;
 
 public class Display implements Runnable {
 
