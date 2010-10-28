@@ -20,8 +20,9 @@ public class ConstructUnitDefinition extends AbilityDefinition {
 	private UnitDefinition unitDefinition = null;
 	private long buildtime;
 	
-	public ConstructUnitDefinition(UnitDefinition ud, MapItemDefinition owner, long buildTime)
+	public ConstructUnitDefinition(UnitDefinition ud, MapItemDefinition owner, long buildTime, int ID)
 	{
+		super(ID);
 		unitDefinition = ud;
 		this.owner = owner;
 		this.buildtime = buildTime;

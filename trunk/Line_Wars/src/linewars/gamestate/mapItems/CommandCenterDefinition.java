@@ -29,11 +29,11 @@ public class CommandCenterDefinition extends BuildingDefinition {
 		
 		BuildingDefinition[] bds = owner.getBuildingDefintions();
 		for(BuildingDefinition b : bds)
-			abilities.add(new ConstructBuildingDefinition(b, this));
+			abilities.add(new ConstructBuildingDefinition(b, this, abilities.size()));
 		
 		Tech[] techs = owner.getTech();
 		for(Tech t : techs)
-			abilities.add(new ResearchTechDefinition(t, this));
+			abilities.add(new ResearchTechDefinition(t, this, abilities.size()));
 	}
 	
 	/**

@@ -110,7 +110,7 @@ public class Tech {
 	 */
 	public String getDescription()
 	{
-		return "Modifies " + field.toString() + " in " + definition.getName() + " to " + f.f((double)(currentResearch + 1));
+		return "Modifies " + field.toString() + " in " + definition.getName() + " by " + f.f((double)(currentResearch + 1));
 	}
 	
 	/**

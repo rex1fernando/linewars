@@ -62,7 +62,7 @@ public abstract class MapItemDefinition {
 			vs = parser.getList(ParserKeys.abilities);
 			for(String s : vs)
 			{
-				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(parser.getParser(s), this);
+				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(parser.getParser(s), this, abilities.size());
 				abilities.add(ad);
 			}
 		}

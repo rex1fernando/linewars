@@ -20,8 +20,9 @@ public class ShootDefinition extends AbilityDefinition {
 	private ProjectileDefinition ammo = null;
 	private double range;
 	
-	public ShootDefinition(ProjectileDefinition pd, MapItemDefinition owner, double range)
+	public ShootDefinition(ProjectileDefinition pd, MapItemDefinition owner, double range, int ID)
 	{
+		super(ID);
 		ammo = pd;
 		this.owner = owner;
 		this.range = range;

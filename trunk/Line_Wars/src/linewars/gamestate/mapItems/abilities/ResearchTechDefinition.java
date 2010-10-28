@@ -26,8 +26,9 @@ public class ResearchTechDefinition extends AbilityDefinition {
 	private Function costFunction = null;
 	private long researchTime;
 	
-	public ResearchTechDefinition(Tech t, MapItemDefinition owner)
+	public ResearchTechDefinition(Tech t, MapItemDefinition owner, int ID)
 	{
+		super(ID);
 		tech = t;
 		this.owner = owner;
 		costFunction = new Function(tech.getParser().getParser(ParserKeys.costFunction));

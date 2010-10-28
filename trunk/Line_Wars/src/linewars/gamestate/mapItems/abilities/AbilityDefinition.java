@@ -23,8 +23,6 @@ import linewars.parser.ParserKeys;
  */
 public abstract class AbilityDefinition {
 	
-	static private int IDS = 0;
-	
 	/**
 	 * Takes in a parser and uses it to parse the type of ability and its
 	 * parameters and then associates that ability definition with the given
@@ -37,24 +35,24 @@ public abstract class AbilityDefinition {
 	 * @throws NoSuchKeyException 
 	 * @throws FileNotFoundException 
 	 */
-	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
+	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m, int ID) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
 	{
 		AbilityDefinition ad = null;
 		if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))
 		{
 			ad = new ConstructUnitDefinition(m.getOwner().getUnitDefinition(
 					parser.getStringValue(ParserKeys.unitURI)), m,
-					(long) parser.getNumericValue(ParserKeys.buildTime));
+					(long) parser.getNumericValue(ParserKeys.buildTime), ID);
 		}
 		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ResearchTech"))
 		{
-			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getStringValue(ParserKeys.techURI)), m);
+			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getStringValue(ParserKeys.techURI)), m, ID);
 		}
 		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("Shoot"))
 		{
 			ad = new ShootDefinition(m.getOwner().getProjectileDefinition(
 					parser.getStringValue(ParserKeys.projectileURI)), m,
-					parser.getNumericValue(ParserKeys.range));
+					parser.getNumericValue(ParserKeys.range), ID);
 		}
 		else
 			throw new IllegalArgumentException(
@@ -70,9 +68,9 @@ public abstract class AbilityDefinition {
 	protected MapItemDefinition owner = null;
 	private int ID;
 	
-	public AbilityDefinition()
+	public AbilityDefinition(int id)
 	{
-		ID = IDS++;
+		ID = id;
 	}
 	
 	/**

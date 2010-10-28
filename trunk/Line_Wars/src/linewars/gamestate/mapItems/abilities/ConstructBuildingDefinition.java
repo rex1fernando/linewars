@@ -18,8 +18,9 @@ public class ConstructBuildingDefinition extends AbilityDefinition {
 	
 	private BuildingDefinition buildingDefinition = null;
 	
-	public ConstructBuildingDefinition(BuildingDefinition bd, MapItemDefinition owner)
+	public ConstructBuildingDefinition(BuildingDefinition bd, MapItemDefinition owner, int ID)
 	{
+		super(ID);
 		buildingDefinition = bd;
 		this.owner = owner;
 	}
