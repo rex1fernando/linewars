@@ -10,6 +10,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 import linewars.display.MapItemDrawer;
 import linewars.gameLogic.GameStateProvider;
@@ -26,13 +27,15 @@ public class ExitButtonPanel extends Panel
 	private static final int HEIGHT = 25;
 	
 	private JFrame frame;
+	private Timer timer;
 	private JButton exitButton;
 	
-	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, Parser ... anims)
+	public ExitButtonPanel(JFrame frame, Timer toStop, GameStateProvider stateManager, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		
 		this.frame = frame;
+		this.timer = toStop;
 		
 		setLayout(new GridLayout(1,1));
 		exitButton = new JButton();
@@ -56,6 +59,7 @@ public class ExitButtonPanel extends Panel
 				if (n == JOptionPane.YES_OPTION)
 				{
 					ExitButtonPanel.this.frame.dispose();
+					timer.stop();
 				}
 			}
 		});

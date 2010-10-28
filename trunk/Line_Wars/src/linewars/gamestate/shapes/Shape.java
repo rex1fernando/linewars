@@ -22,10 +22,8 @@ public abstract class Shape {
 		try {
 			List<Class> classes = getClasses(Shape.class.getPackage().getName());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -98,14 +96,25 @@ public abstract class Shape {
         return classes;
     }
 	
-	//TODO document
+    /**
+     * 
+     * Adds the given Class object to a HashMap so it can be looked up by the factory method.
+     * 
+     * When creating a new Shape, call this method with the value of the 'type' ParserKey you are using for your Shape.
+     * 
+     * @argument type
+     * A String that identifies the type of the Shape you being added
+     * @argument entry
+     * The Class of the Shape being added
+     */
 	protected static void addClassForInitialization(String type, Class<? extends Shape> entry){
 		if(typeToClass == null){
 			typeToClass = new HashMap<String, Class<? extends Shape>>();
 		}
 		
 		//TODO any checks here?
-		typeToClass.put(type, entry);
+		//to lower case to reduce incidence of errors in the config file
+		typeToClass.put(type.toLowerCase(), entry);
 	}
 	
 	/**
@@ -156,15 +165,40 @@ public abstract class Shape {
 			e.printStackTrace();
 		}
 		if(ret == null){
-			//TODO error here
+			throw new IllegalArgumentException("A Shape could not be constructed from the given Parser " + parser.toString());
 		}
 		return ret;
 	}
 	
-	//TODO document
+	/**
+	 * Returns a Circle which bounds the Shape, such that anything which intersects the Shape also
+	 * intersects the Circle and any point which is contained in the Shape is also
+	 * contained in the Circle.
+	 * 
+	 * May not compute the smallest possible bounding circle.
+	 * 
+	 * @return A Circle bounding the object.
+	 */
 	public abstract Circle boundingCircle();
-	//TODO document
+	
+	/**
+	 * Returns a Rectangle which bounds the Shape, such that anything which intersects the Shape also
+	 * intersects the Rectangle and any point which is contained in the Shape is also
+	 * contained in the Rectangle.
+	 * 
+	 * May not compute the smallest possible bounding rectangle.
+	 * 
+	 * @return A Rectangle bounding the object.
+	 */
 	public abstract Rectangle boundingRectangle();
-	//TODO document
+	
+	/**
+	 * Computes whether a given position is contained in the Shape.
+	 * The result of this method may be undefined for Positions
+	 * exactly on the boundary of the Shape.
+	 * 
+	 * @param toTest The position to be tested.
+	 * @return true if the Position is contained within the Shape, false otherwise.
+	 */
 	public abstract boolean positionIsInShape(Position toTest);
 }

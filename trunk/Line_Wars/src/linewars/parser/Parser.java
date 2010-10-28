@@ -62,6 +62,12 @@ public class Parser {
 		endLine = configFile.nextLineNumber() - 1;
 	}
 	
+	@Override
+	public String toString()
+	{
+		return configFile.getURI() + " from " + startLine + " to " + endLine;
+	}
+	
 	/**
 	 * gets the string value associated with the key. If the value
 	 * can't be represented as a string, retursn null.

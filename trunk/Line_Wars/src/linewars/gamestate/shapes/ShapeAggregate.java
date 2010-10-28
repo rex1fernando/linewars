@@ -16,12 +16,22 @@ public class ShapeAggregate extends Shape {
 	
 	private ArrayList<Shape> members;
 	private double rotation;
-	//TODO rotation-related state variable needed?
-	
-	//TODO document
-	public ShapeAggregate(Parser p){//TODO check to see if the Parser does in fact define a ShapeAggregate
+
+
+	/**
+	 * Constructs a ShapeAggregate on the given Parser.
+	 * This constructor expects to see a list of shape names mapped to
+	 * the ParserKeys.shapes key which each have a Parser mapped to them.
+	 * 
+	 * If the ParserKeys.rotation key is specified, that value will be the
+	 * default rotation of the ShapeAggregate; if it is not specified, it
+	 * to 0 (facing to the right).
+	 * 
+	 * @param p
+	 * The Parser which defines this ShapeAggregate
+	 */
+	public ShapeAggregate(Parser p){
 		members = new ArrayList<Shape>();
-//		members.add(new Circle(new Transformation(new Position(300, 300), 0), 300));
 		String[] keys = p.getList(ParserKeys.shapes);
 		for(String key : keys){
 			members.add(Shape.buildFromParser(p.getParser(key)));
@@ -61,7 +71,9 @@ public class ShapeAggregate extends Shape {
 		return members.get(0).position();
 	}
 	
-	//TODO document
+	/**
+	 * Returns the Shapes which compose this ShapeAggregate
+	 */
 	public Shape[] getMembers() {
 		return members.toArray(new Shape[0]);
 	}
@@ -82,7 +94,12 @@ public class ShapeAggregate extends Shape {
 
 	@Override
 	public boolean positionIsInShape(Position toTest) {
-		// TODO Auto-generated method stub
+		//The point is in the Shape if it is in any of the sub-shapes
+		for(Shape currentShape : members){
+			if(currentShape.positionIsInShape(toTest)){
+				return true;
+			}
+		}
 		return false;
 	}
 }

@@ -363,6 +363,7 @@ public class Lane
 	}	
 	/**
 	 * Gets the map items intersecting with the rectangle
+	 * TODO Refactor this to use Shapes?
 	 * 
 	 * @param upperLeft	the upper left of the rectangle
 	 * @param width		the width of the rectangle	

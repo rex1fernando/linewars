@@ -69,10 +69,21 @@ public class Display extends JFrame implements Runnable
 	private GameStateProvider gameStateProvider;
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
+	private Timer updateLoop;
 
 	public Display(GameStateProvider provider, MessageReceiver receiver)
 	{
 		super("Line Wars");
+
+		// spawns the paint driver for the display
+		updateLoop = new Timer(DRAW_DELAY, new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				gamePanel.repaint();
+			}
+		});
+		
 		gameStateProvider = provider;
 		gamePanel = new GamePanel();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -88,14 +99,7 @@ public class Display extends JFrame implements Runnable
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		// spawns the paint driver for the display
-		new Timer(DRAW_DELAY, new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				gamePanel.repaint();
-			}
-		}).start();
+		updateLoop.start();
 	}
 
 	/**
@@ -196,7 +200,7 @@ public class Display extends JFrame implements Runnable
 			add(nodeStatusPanel);
 			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, null);
 			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
+			exitButtonPanel = new ExitButtonPanel(Display.this, updateLoop, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
 
 			addComponentListener(new ResizeListener());

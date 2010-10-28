@@ -34,7 +34,7 @@ public class Game {
 		ArrayList<String> raceURIs = new ArrayList<String>();
 		ArrayList<String> players = new ArrayList<String>();
 		int numPlayers = Integer.parseInt(args[1]);
-		for(int i = 0; i < Integer.parseInt(args[2]); i++){
+		for(int i = 0; i < numPlayers; i++){
 			raceURIs.add(args[3 + i]);
 			players.add(args[3 + numPlayers + i]);
 		}
