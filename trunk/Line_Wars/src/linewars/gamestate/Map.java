@@ -54,7 +54,7 @@ public class Map {
 	 */
 	public Lane[] getLanes()
 	{
-		return (Lane[])lanes.toArray();
+		return lanes.toArray(new Lane[0]);
 	}
 	
 	/**
@@ -74,7 +74,7 @@ public class Map {
 	 */
 	public Node[] getNodes()
 	{
-		return (Node[])nodes.toArray();
+		return nodes.toArray(new Node[0]);
 	}
 	
 	public Dimension2D getDimensions()

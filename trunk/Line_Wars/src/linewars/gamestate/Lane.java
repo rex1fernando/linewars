@@ -60,6 +60,8 @@ public class Lane
 		this.p3 = new Position(parser.getStringValue(ParserKeys.p3));
 		this.width = parser.getNumericValue(ParserKeys.width);
 		this.name = name;
+		this.nodes = new ArrayList<Node>();
+		this.waves = new ArrayList<Wave>();
 		
 		pathFinder = new PathFinding(gameState);
 		
@@ -204,12 +206,12 @@ public class Lane
 	
 	public Wave[] getWaves()
 	{
-		return (Wave[])waves.toArray();
+		return waves.toArray(new Wave[0]);
 	}
 	
 	public Node[] getNodes()
 	{
-		return (Node[])nodes.toArray();
+		return nodes.toArray(new Node[0]);
 	}
 	
 	public ArrayList<Node> getNodesList()

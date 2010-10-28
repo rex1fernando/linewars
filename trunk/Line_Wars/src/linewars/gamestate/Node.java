@@ -90,7 +90,7 @@ public class Node {
 	
 	public Building[] getContainedBuildings()
 	{
-		return (Building[])containedBuildings.toArray();
+		return containedBuildings.toArray(new Building[0]);
 	}
 	
 	public Lane[] getAttachedLanes()

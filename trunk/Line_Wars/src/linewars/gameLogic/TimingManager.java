@@ -50,12 +50,15 @@ public class TimingManager implements Runnable{
 			long nextUpdateTime = lastUpdateTime + TIME_PER_TICK_MILLIS;
 			long timeToSleep = nextUpdateTime - System.currentTimeMillis();
 			//TODO update game speed if necessary?
-			//sleepif(timeToSleep > 0){
-			try {
-				Thread.sleep(timeToSleep);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			//sleepif(timeToSleep > 0)
+			if(timeToSleep > 0)
+			{
+				try {
+					Thread.sleep(timeToSleep);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		// TODO exit code?

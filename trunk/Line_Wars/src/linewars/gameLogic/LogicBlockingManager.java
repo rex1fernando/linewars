@@ -40,7 +40,7 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 		}
 		
 		//add new orders to the map
-		Message[] copy = newOrders.clone();
+		Message[] copy = newOrders == null ? null : newOrders.clone();
 		orders.put(tickID, copy);
 		
 		while(fullyUpdated){
