@@ -42,6 +42,7 @@ public abstract class MapItem {
 		body = def.getBody().transform(trans);
 		state = MapItemState.Idle;
 		stateStart = (long) (def.getGameState().getTime()*1000);
+		activeAbilities = new ArrayList<Ability>();
 	}
 	
 	protected abstract MapItemDefinition getDefinition();

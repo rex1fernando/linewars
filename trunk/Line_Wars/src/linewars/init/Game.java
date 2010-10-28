@@ -73,6 +73,7 @@ public class Game {
 			e.printStackTrace();
 		}
 		display = new Display(logic.getGameStateManager(), networking);
+		logic.setClientReference(networking);
 		//TODO
 	}
 	

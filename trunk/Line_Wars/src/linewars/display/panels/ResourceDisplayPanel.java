@@ -2,6 +2,8 @@ package linewars.display.panels;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Player;
@@ -36,8 +38,13 @@ public class ResourceDisplayPanel extends Panel
 	@Override
 	public void paint(Graphics g)
 	{
-		g.setColor(Color.white);
-		g.drawString(Integer.toString(3527), 0, HEIGHT);
+		Image buf = new BufferedImage(36, 12, BufferedImage.TYPE_INT_ARGB);
+		Graphics b = buf.getGraphics();
+		
+		b.setColor(Color.white);
+		b.drawString(Integer.toString(3527), 0, 12);
 //		g.drawString(Integer.toString((int)player.getStuff()), 0, HEIGHT);
+		
+		g.drawImage(buf, 0, 0, WIDTH, HEIGHT, null);
 	}
 }

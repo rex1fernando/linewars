@@ -12,6 +12,7 @@ import linewars.display.Animation;
 import linewars.display.MapItemDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.parser.ConfigFile;
@@ -82,15 +83,21 @@ public class MapItemLayer implements ILayer
 					}
 					
 					//add an animation mapping for this state
-					anim = new Animation(parser, (int)mapItem.getWidth(), (int)mapItem.getHeight());
+					anim = new Animation(parser, mapItem.getURI(), (int)mapItem.getWidth(), (int)mapItem.getHeight());
 					stateToAnimationMap.put(state, anim);
 				}
 				
 				//get the items coordinates based on the visible screen
-				pos = new Position(pos.getX() - visibleScreen.getX(), pos.getY() - visibleScreen.getY());
+				pos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
+				
+				if(!(mapItem instanceof CommandCenter))
+				{
+					System.out.println(pos.getX() + " " + pos.getY());
+					System.out.println(mapItem.getState());
+				}
 				
 				//draw the animation
-				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()), pos, rotation, scaleX, scaleY);
+				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scaleX, scaleY);
 			}
 		}
 	}

@@ -16,7 +16,7 @@ public class Animation
 	private String[] imageURIs;
 	private double[] displayTimes;
 
-	public Animation(Parser parser, int width, int height)
+	public Animation(Parser parser, String unitURI, int width, int height)
 	{
 		//get the file the animation is in
 		String file =  "/" + parser.getConfigFile().getURI();
@@ -43,7 +43,7 @@ public class Animation
 		{			
 			try
 			{
-				MapItemDrawer.getInstance().addImage(uri, width, height);
+				MapItemDrawer.getInstance().addImage(uri, unitURI, width, height);
 			}
 			catch (IOException e)
 			{

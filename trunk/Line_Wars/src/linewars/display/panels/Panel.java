@@ -44,7 +44,7 @@ public abstract class Panel extends JPanel
 		this.animations = new Animation[animations.length];
 		for(int i = 0; i < animations.length; ++i)
 		{
-			this.animations[i] = new Animation(animations[i], width, height);
+			this.animations[i] = new Animation(animations[i], "", width, height);
 		}
 		
 		if(this.animations.length != 0)

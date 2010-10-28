@@ -57,6 +57,7 @@ public class MapItemDrawer
 	 * 
 	 * @param uri
 	 *            TODO
+	 * @param unitURI TODO
 	 * @param width
 	 *            TODO
 	 * @param height
@@ -64,7 +65,7 @@ public class MapItemDrawer
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, int width, int height) throws IOException
+	public void addImage(String uri, String unitURI, int width, int height) throws IOException
 	{
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
 
@@ -83,7 +84,7 @@ public class MapItemDrawer
 		Graphics g = scaledImage.getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
 
-		images.put(uri, scaledImage);
+		images.put(uri + unitURI, scaledImage);
 	}
 
 	/**

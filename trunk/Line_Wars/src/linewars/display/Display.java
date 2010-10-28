@@ -170,6 +170,7 @@ public class Display extends JFrame implements Runnable
 			// get the map parser from the gamestate
 			gameStateProvider.lockViewableGameState();
 			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
+			//TEST gameStateProvider.getCurrentGameState().getCommandCenters().get(0).addActiveAbility(gameStateProvider.getCurrentGameState().getCommandCenters().get(0).getAvailableAbilities()[0].createAbility(gameStateProvider.getCurrentGameState().getCommandCenters().get(0)));
 			gameStateProvider.unlockViewableGameState();
 
 			// add the map image to the MapItemDrawer
@@ -178,7 +179,7 @@ public class Display extends JFrame implements Runnable
 			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 			try
 			{
-				MapItemDrawer.getInstance().addImage(mapURI, mapWidth, mapHeight);
+				MapItemDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
 			}
 			catch (IOException e)
 			{
@@ -204,6 +205,7 @@ public class Display extends JFrame implements Runnable
 			InputHandler ih = new InputHandler();
 			addMouseWheelListener(ih);
 			addMouseMotionListener(ih);
+			addMouseListener(ih);
 		}
 
 		/**
@@ -250,14 +252,14 @@ public class Display extends JFrame implements Runnable
 			// draws the panels if they are shown
 			updatePanels(g, gamestate);
 
-			// we are done with the gamestate, we should unlock it ASAP
-			gameStateProvider.unlockViewableGameState();
-
 			// draws the offscreen image to the graphics object
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
 
 			// paints other things on top
 			super.paint(g);
+
+			// we are done with the gamestate, we should unlock it ASAP
+			gameStateProvider.unlockViewableGameState();
 		}
 
 		private void updatePanels(Graphics g, GameState gamestate)

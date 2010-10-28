@@ -31,7 +31,10 @@ public class Player {
 		playerID = ID;
 		this.name = name;
 		
+		ownedBuildings = new ArrayList<Building>();
 		ownedNodes = new ArrayList<Node>();
+		ownedProjectiles = new ArrayList<Projectile>();
+		ownedUnits = new ArrayList<Unit>();
 		
 		for(int i = 0; i < startingNodes.length; i++)
 		{

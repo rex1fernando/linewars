@@ -93,7 +93,13 @@ public class Node {
 	
 	public Building[] getContainedBuildings()
 	{
-		return containedBuildings.toArray(new Building[0]);
+		ArrayList<Building> ret = new ArrayList<Building>(containedBuildings);
+		if(cCenter != null)
+		{
+			ret.add(cCenter);
+		}
+		
+		return ret.toArray(new Building[0]);
 	}
 	
 	public Lane[] getAttachedLanes()
