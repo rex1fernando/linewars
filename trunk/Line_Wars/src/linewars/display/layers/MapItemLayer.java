@@ -90,12 +90,6 @@ public class MapItemLayer implements ILayer
 				//get the items coordinates based on the visible screen
 				pos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
 				
-				if(!(mapItem instanceof CommandCenter))
-				{
-					System.out.println(pos.getX() + " " + pos.getY());
-					System.out.println(mapItem.getState());
-				}
-				
 				//draw the animation
 				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scaleX, scaleY);
 			}

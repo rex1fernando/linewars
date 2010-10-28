@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -118,8 +119,19 @@ public class CommandCardPanel extends Panel
 		AbilityDefinition[] ad = cc.getAvailableAbilities();
 		for (int i = 0; i < ad.length; i++)
 		{
+			String iconURI = ad[i].getIconURI();
+			try
+			{
+				MapItemDrawer.getInstance().addImage(iconURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			buttons[i].setVisible(true);
-			buttonIcons[i].setURI(ad[i].getIconURI());
+			buttonIcons[i].setURI(iconURI);
 			buttons[i].setToolTipText(ad[i].getDescription());
 			clickEvents[i].setIds(nodeId, ad[i].getID());
 			buttons[i].setEnabled(ad[i].unlocked());

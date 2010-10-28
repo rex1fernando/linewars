@@ -114,7 +114,7 @@ public class Display extends JFrame implements Runnable
 		private double zoomLevel;
 
 		private Point2D mousePosition;
-		private Point2D lastClickPosition;
+		private Position lastClickPosition;
 		private Rectangle2D viewport;
 		private Dimension2D mapSize;
 
@@ -128,7 +128,7 @@ public class Display extends JFrame implements Runnable
 			super(null);
 
 			mousePosition = new Point2D.Double();
-			lastClickPosition = new Point2D.Double();
+			lastClickPosition = new Position(0, 0);
 
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
@@ -249,11 +249,11 @@ public class Display extends JFrame implements Runnable
 				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
 
-			// draws the panels if they are shown
-			updatePanels(g, gamestate);
-
 			// draws the offscreen image to the graphics object
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
+
+			// draws the panels if they are shown
+			updatePanels(g, gamestate);
 
 			// paints other things on top
 			super.paint(g);
@@ -283,12 +283,13 @@ public class Display extends JFrame implements Runnable
 
 				// draws a rectangle around the command center
 				Position p = node.getPosition();
-				int recX = (int)((p.getX() - node.getWidth() / 2) * viewport.getWidth() / mapSize.getWidth());
-				int recY = (int)((p.getY() - node.getHeight() / 2) * viewport.getHeight() / mapSize.getHeight());
-				int recW = (int)(node.getWidth() * viewport.getWidth() / mapSize.getWidth());
-				int recH = (int)(node.getHeight() * viewport.getHeight() / mapSize.getHeight());
+				int recX = (int)(p.getX() - node.getWidth() / 2);
+				int recY = (int)(p.getY() - node.getHeight() / 2);
+				Position pos = toScreenCoord(new Position(recX, recY));
+				int recW = (int)(node.getWidth() / (viewport.getWidth() / getWidth()));
+				int recH = (int)(node.getHeight() / (viewport.getHeight() / getHeight()));
 				g.setColor(Color.red);
-				g.drawRect(recX, recY, recW, recH);
+				g.drawRect((int)pos.getX(), (int)pos.getY(), recW, recH);
 			}
 		}
 
@@ -309,10 +310,6 @@ public class Display extends JFrame implements Runnable
 		 */
 		private int getSelectedNode(GameState gs)
 		{
-			double scaleX = viewport.getWidth() / mapSize.getWidth();
-			double scaleY = viewport.getHeight() / mapSize.getHeight();
-			Point2D point = new Point2D.Double(lastClickPosition.getX() * scaleX, lastClickPosition.getY() * scaleY);
-
 			List<CommandCenter> ccs = gs.getCommandCenters();
 			for(int i = 0; i < ccs.size(); i++)
 			{
@@ -321,10 +318,11 @@ public class Display extends JFrame implements Runnable
 				if(cc != null)
 				{
 					Position p = cc.getPosition();
-					if(point.getX() > p.getX() && point.getY() > p.getY())
+					if(lastClickPosition.getX() > p.getX() - ccs.get(i).getWidth() / 2
+							&& lastClickPosition.getY() > p.getY() - ccs.get(i).getHeight() / 2)
 					{
-						if(point.getX() < p.getX() + ccs.get(i).getWidth()
-								&& point.getY() < p.getY() + ccs.get(i).getHeight())
+						if(lastClickPosition.getX() < p.getX() + ccs.get(i).getWidth() / 2
+								&& lastClickPosition.getY() < p.getY() + ccs.get(i).getHeight() / 2)
 						{
 							return i;
 						}
@@ -333,6 +331,20 @@ public class Display extends JFrame implements Runnable
 			}
 
 			return -1;
+		}
+		
+		Position toScreenCoord(Position gameCoord)
+		{
+			double scaleX = getWidth() / viewport.getWidth();
+			double scaleY = getHeight() / viewport.getHeight();
+			return new Position((gameCoord.getX() - viewport.getX()) * scaleX, (gameCoord.getY() - viewport.getY()) * scaleY);
+		}
+		
+		Position toGameCoord(Position screenCoord)
+		{
+			double scaleX = getWidth() / viewport.getWidth();
+			double scaleY = getHeight() / viewport.getHeight();
+			return new Position((screenCoord.getX() / scaleX) + viewport.getX(), (screenCoord.getY() / scaleY) + viewport.getY());
 		}
 
 		private class ResizeListener extends ComponentAdapter
@@ -352,7 +364,8 @@ public class Display extends JFrame implements Runnable
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				lastClickPosition = e.getLocationOnScreen();
+				Position p = new Position(e.getLocationOnScreen().getX(), e.getLocationOnScreen().getY());
+				lastClickPosition = toGameCoord(p);
 			}
 
 			@Override
