@@ -61,6 +61,11 @@ public class Message implements Serializable
 		return 0;
 	}
 	
+	public void setTimeStep(int step)
+	{
+		// TODO implement
+	}
+	
 	public int getId()
 	{
 		// TODO implement

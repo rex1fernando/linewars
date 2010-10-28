@@ -1,10 +1,12 @@
 package linewars.network;
 
-import java.util.Arrays;
+import java.net.SocketException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import linewars.network.messages.Message;
+import linewars.network.messages.SupDawgMessage;
 
 /**
  * Encapsulates the process of collating and distributing the Messages - in both
@@ -26,41 +28,55 @@ import linewars.network.messages.Message;
  */
 public class Client implements MessageProvider, MessageReceiver, Runnable
 {
+	private static final int K = 6;
+	
 	private List<Message> messages;
 	private GateKeeper gateKeeper;
-	String serverAddress;
+	private String serverAddress;
 	
-	public Client(String serverAddress)
+	private int currentTick;
+	
+	private Object tickLock = new Object();
+	
+	public Client(String serverAddress, int port) throws SocketException
 	{
-		messages = new LinkedList<Message>();
 		this.serverAddress = serverAddress;
+		gateKeeper = new GateKeeper(port);
+		
+		currentTick = 1;
+		messages = new LinkedList<Message>();
 	}
 	
 	@Override
 	public void addMessage(Message msg)
 	{
-		messages.add(msg);
-	}
-	
-	public Message[] getAllMessages()
-	{
-		return null;
-	}
-	
-	public Message[] getLocalMessages()
-	{
-		return messages.toArray(new Message[messages.size()]);
+		synchronized(tickLock)
+		{
+			msg.setTimeStep(currentTick + K);
+			messages.add(msg);
+		}
 	}
 
 	@Override
-	public Message[] getMessagesForTick(int tickID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+	public Message[] getMessagesForTick(int tickID)
+	{
+		Message[] toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID);
 		
+		synchronized(tickLock)
+		{
+			Message[] msgs = messages.toArray(new Message[messages.size()]);
+			gateKeeper.pushMessagesForTick(msgs, currentTick + K);
+			currentTick++;
+		}
+		
+		return toReturn;
+	}
+
+	@Override
+	public void run()
+	{
+		// NOTE this method steals this thread!  the start listening uses
+		// the current thread to do the listening.
+		gateKeeper.startListening();
 	}
 }

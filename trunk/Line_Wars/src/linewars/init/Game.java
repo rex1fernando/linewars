@@ -1,6 +1,7 @@
 package linewars.init;
 
 import java.io.FileNotFoundException;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import linewars.display.Display;
@@ -11,6 +12,9 @@ import linewars.parser.Parser.InvalidConfigFileException;
 //TODO test
 //TODO document
 public class Game {
+	
+	private static final int SOCKET_PORT = 9001;
+	
 	private Display display;
 	private Client networking;
 	private TimingManager logic;
@@ -59,7 +63,15 @@ public class Game {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		networking = new Client(serverAddress);
+		try
+		{
+			networking = new Client(serverAddress, SOCKET_PORT);
+		}
+		catch (SocketException e)
+		{
+			// if this happens.... well crap...
+			e.printStackTrace();
+		}
 		display = new Display(logic.getGameStateManager(), networking);
 		//TODO
 	}

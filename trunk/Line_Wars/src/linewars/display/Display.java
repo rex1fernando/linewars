@@ -102,7 +102,6 @@ public class Display extends JFrame implements Runnable
 	 * The main content panel for the main window. It is responsible for drawing
 	 * everything in the game.
 	 */
-	@SuppressWarnings("serial")
 	private class GamePanel extends JPanel
 	{
 		private List<ILayer> strategicView;

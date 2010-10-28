@@ -1,10 +1,10 @@
 package linewars.network;
 
 /**
- * Like Client, except it’s a server.
+ * Like Client, except it's a server.
  * 
  * Polls (Lazily ask) the Gatekeeper for Messages for the current tick x from the set of players from whom the server
- * hasn’t heard this tick.
+ * hasn't heard this tick.
  * 		- If the Gatekeeper doesn’t get all of the Messages for the current tick within a certain time window, the
  * 		  server starts urgently polling
  * 
@@ -15,11 +15,9 @@ package linewars.network;
  */
 public class Server implements Runnable
 {
-
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+	public void run()
+	{
 		
 	}
-
 }

@@ -1,6 +1,6 @@
 package linewars.network.messages;
 
-public class SupDawgMessage
+public class SupDawgMessage extends Message
 {
 
 }
