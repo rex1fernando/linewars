@@ -79,4 +79,19 @@ public class ShootDefinition extends AbilityDefinition {
 		return ammo.getParser().getStringValue(ParserKeys.icon);
 	}
 
+	@Override
+	public String getPressedIconURI() {
+		return ammo.getParser().getStringValue(ParserKeys.pressedIcon);
+	}
+
+	@Override
+	public String getRolloverIconURI() {
+		return ammo.getParser().getStringValue(ParserKeys.rolloverIcon);
+	}
+
+	@Override
+	public String getSelectedIconURI() {
+		return ammo.getParser().getStringValue(ParserKeys.selectedIcon);
+	}
+
 }

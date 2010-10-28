@@ -73,4 +73,19 @@ public class ConstructBuildingDefinition extends AbilityDefinition {
 		return buildingDefinition.getParser().getStringValue(ParserKeys.icon);
 	}
 
+	@Override
+	public String getPressedIconURI() {
+		return buildingDefinition.getParser().getStringValue(ParserKeys.pressedIcon);
+	}
+
+	@Override
+	public String getRolloverIconURI() {
+		return buildingDefinition.getParser().getStringValue(ParserKeys.rolloverIcon);
+	}
+
+	@Override
+	public String getSelectedIconURI() {
+		return buildingDefinition.getParser().getStringValue(ParserKeys.selectedIcon);
+	}
+
 }

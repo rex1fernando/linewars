@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -63,8 +64,11 @@ public class CommandCardPanel extends Panel
 	private static final int BTN_PANEL_V_GAP = 11;
 	
 	private JPanel buttonPanel;
-	private JButton[] buttons;
+	private CommandButton[] buttons;
 	private ButtonIcon[] buttonIcons;
+	private ButtonIcon[] pressedIcons;
+	private ButtonIcon[] rolloverIcons;
+	private ButtonIcon[] selectedIcons;
 	private ClickHandler[] clickEvents;
 	
 	/**
@@ -77,18 +81,31 @@ public class CommandCardPanel extends Panel
 		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor), (int)(BTN_PANEL_V_GAP * scaleFactor)));
 		buttonPanel.setOpaque(false);
 		
-		buttons = new JButton[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		buttons = new CommandButton[NUM_V_BUTTONS * NUM_H_BUTTONS];
 		buttonIcons = new ButtonIcon[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		pressedIcons = new ButtonIcon[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		rolloverIcons = new ButtonIcon[NUM_V_BUTTONS * NUM_H_BUTTONS];
+		selectedIcons = new ButtonIcon[NUM_V_BUTTONS * NUM_H_BUTTONS];
 		clickEvents = new ClickHandler[NUM_V_BUTTONS * NUM_H_BUTTONS];
 		for (int i = 0; i < NUM_V_BUTTONS * NUM_H_BUTTONS; i++)
 		{
-			buttons[i] = new JButton();
+			buttons[i] = new CommandButton();
+			buttons[i].setOpaque(false);
 			buttons[i].setVisible(false);
 			buttonPanel.add(buttons[i]);
 			
 			buttonIcons[i] = new ButtonIcon();
 			buttons[i].setIcon(buttonIcons[i]);
 			
+			pressedIcons[i] = new ButtonIcon();
+			buttons[i].setPressedIcon(pressedIcons[i]);
+
+			rolloverIcons[i] = new ButtonIcon();
+			buttons[i].setRolloverIcon(rolloverIcons[i]);
+			
+			selectedIcons[i] = new ButtonIcon();
+			buttons[i].setSelectedIcon( selectedIcons[i]);
+
 			clickEvents[i] = new ClickHandler();
 			buttons[i].addActionListener(clickEvents[i]);
 		}
@@ -120,9 +137,15 @@ public class CommandCardPanel extends Panel
 		for (int i = 0; i < ad.length; i++)
 		{
 			String iconURI = ad[i].getIconURI();
+			String pressedURI = ad[i].getPressedIconURI();
+			String rolloverURI = ad[i].getRolloverIconURI();
+			String selectedURI = ad[i].getSelectedIconURI();
 			try
 			{
 				MapItemDrawer.getInstance().addImage(iconURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				MapItemDrawer.getInstance().addImage(pressedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				MapItemDrawer.getInstance().addImage(rolloverURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				MapItemDrawer.getInstance().addImage(selectedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
 			}
 			catch (IOException e)
 			{
@@ -132,6 +155,9 @@ public class CommandCardPanel extends Panel
 			
 			buttons[i].setVisible(true);
 			buttonIcons[i].setURI(iconURI);
+			pressedIcons[i].setURI(pressedURI);
+			rolloverIcons[i].setURI(rolloverURI);
+			selectedIcons[i].setURI(selectedURI);
 			buttons[i].setToolTipText(ad[i].getDescription());
 			clickEvents[i].setIds(nodeId, ad[i].getID());
 			buttons[i].setEnabled(ad[i].unlocked());
@@ -162,6 +188,24 @@ public class CommandCardPanel extends Panel
 		 * 		buttons[i].setVisible(false);
 		 * }
 		 */
+	}
+	
+	private class CommandButton extends JButton
+	{
+		@Override
+		public void paint(Graphics g)
+		{
+			DefaultButtonModel model = (DefaultButtonModel) getModel();
+			if(model.isPressed())
+				getPressedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isSelected())
+				getSelectedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isRollover())
+				getRolloverIcon().paintIcon(this, g, 0, 0);
+			else
+				getIcon().paintIcon(this, g, 0, 0);
+
+		}
 	}
 	
 	private class ButtonIcon implements Icon

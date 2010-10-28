@@ -122,6 +122,24 @@ public abstract class AbilityDefinition {
 	
 	/**
 	 * 
+	 * @return	 the URI of the pressed icon image associated with this ability
+	 */
+	public abstract String getPressedIconURI();
+	
+	/**
+	 * 
+	 * @return	 the URI of the roll-over icon image associated with this ability
+	 */
+	public abstract String getRolloverIconURI();
+	
+	/**
+	 * 
+	 * @return	 the URI of the selected icon image associated with this ability
+	 */
+	public abstract String getSelectedIconURI();
+	
+	/**
+	 * 
 	 * @return	the unique ID of this ability definition
 	 */
 	public int getID()

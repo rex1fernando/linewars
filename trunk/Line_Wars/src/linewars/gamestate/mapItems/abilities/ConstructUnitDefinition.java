@@ -74,4 +74,19 @@ public class ConstructUnitDefinition extends AbilityDefinition {
 		return unitDefinition.getParser().getStringValue(ParserKeys.icon);
 	}
 
+	@Override
+	public String getPressedIconURI() {
+		return unitDefinition.getParser().getStringValue(ParserKeys.pressedIcon);
+	}
+
+	@Override
+	public String getRolloverIconURI() {
+		return unitDefinition.getParser().getStringValue(ParserKeys.rolloverIcon);
+	}
+
+	@Override
+	public String getSelectedIconURI() {
+		return unitDefinition.getParser().getStringValue(ParserKeys.selectedIcon);
+	}
+
 }

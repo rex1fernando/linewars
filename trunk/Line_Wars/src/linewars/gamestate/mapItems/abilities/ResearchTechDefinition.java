@@ -94,4 +94,19 @@ public class ResearchTechDefinition extends AbilityDefinition {
 		return tech.getParser().getStringValue(ParserKeys.icon);
 	}
 
+	@Override
+	public String getPressedIconURI() {
+		return tech.getParser().getStringValue(ParserKeys.pressedIcon);
+	}
+
+	@Override
+	public String getRolloverIconURI() {
+		return tech.getParser().getStringValue(ParserKeys.rolloverIcon);
+	}
+
+	@Override
+	public String getSelectedIconURI() {
+		return tech.getParser().getStringValue(ParserKeys.selectedIcon);
+	}
+
 }
