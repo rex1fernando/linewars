@@ -31,6 +31,7 @@ public class Node {
 	private Transformation[] buildingSpots;
 	private Shape shape;
 	private boolean isStartNode;
+	private Transformation cCenterTransform;
 	
 	private HashMap<Double, Lane> laneMap;
 	
@@ -51,7 +52,10 @@ public class Node {
 		for(String name : laneNames)
 			for(Lane l : lanes)
 				if(name.equals(l.getName()))
+				{
 					attachedLanes.add(l);
+					l.addNode(this);
+				}
 		
 		String[] transformNames = parser.getList(ParserKeys.buildingSpots);
 		buildingSpots = new Transformation[transformNames.length];
@@ -60,10 +64,9 @@ public class Node {
 		
 		laneMap = new HashMap<Double, Lane>();
 		
-		shape = Shape
-				.buildFromParser(parser.getParser(ParserKeys.shape))
-				.transform(new Transformation(
-								parser.getParser(ParserKeys.commandCenterTransformation)));
+		shape = Shape.buildFromParser(parser.getParser(ParserKeys.shape));
+		
+		cCenterTransform = new Transformation(parser.getParser(ParserKeys.commandCenterTransformation));
 		
 		isStartNode = Boolean.parseBoolean(parser.getStringValue(ParserKeys.isStartNode));
 	}
@@ -296,6 +299,8 @@ public class Node {
 	public void setOwner(Player p)
 	{
 		owner = p;
+		//TODO change the command center somewhere
+		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform, this);
 	}
 	
 	public Shape getShape()

@@ -1,6 +1,7 @@
 package linewars.gamestate;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.Map.Entry;
 
 import linewars.gamestate.mapItems.*;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -41,6 +42,8 @@ public class Player {
 		startPoints = new HashMap<Lane, Node>();
 		flowSetup();
 		
+		projDefs = new HashMap<String, ProjectileDefinition>();
+		
 		buildingDefs = new HashMap<String, BuildingDefinition>();
 		List<String> URIs = r.getBuildingURIs();
 		for(String uri : URIs)
@@ -57,8 +60,6 @@ public class Player {
 			unitDefs.put(uri, ud);
 		}
 		
-		projDefs = new HashMap<String, ProjectileDefinition>();
-		
 		techLevels = new HashMap<String, Tech>();
 		URIs = r.getTechURIs();
 		for(String uri : URIs)
@@ -69,6 +70,9 @@ public class Player {
 		
 		ccd = new CommandCenterDefinition(r.getCommandCenterURI(), this, gameState);
 		gateDefinition = new GateDefinition(r.getGateURI(), this, gameState);
+		
+		for(Node n : startingNodes)
+			n.setOwner(this);
 	}
 	
 	/**
@@ -127,17 +131,32 @@ public class Player {
 	}
 	
 	public UnitDefinition[] getUnitDefinitions(){
-		return unitDefs.entrySet().toArray(new UnitDefinition[0]);
+		Set<Entry<String, UnitDefinition>> set = unitDefs.entrySet();
+		Iterator<Entry<String, UnitDefinition>> it = set.iterator();
+		ArrayList<UnitDefinition> ret = new ArrayList<UnitDefinition>();
+		while(it.hasNext())
+			ret.add(it.next().getValue());
+		return ret.toArray(new UnitDefinition[0]);
 	}
 	
 	public BuildingDefinition[] getBuildingDefintions()
 	{
-		return buildingDefs.entrySet().toArray(new BuildingDefinition[0]);
+		Set<Entry<String, BuildingDefinition>> set = buildingDefs.entrySet();
+		Iterator<Entry<String, BuildingDefinition>> it = set.iterator();
+		ArrayList<BuildingDefinition> ret = new ArrayList<BuildingDefinition>();
+		while(it.hasNext())
+			ret.add(it.next().getValue());
+		return ret.toArray(new BuildingDefinition[0]);
 	}
 	
 	public Tech[] getTech()
 	{
-		return techLevels.entrySet().toArray(new Tech[0]);
+		Set<Entry<String, Tech>> set = techLevels.entrySet();
+		Iterator<Entry<String, Tech>> it = set.iterator();
+		ArrayList<Tech> ret = new ArrayList<Tech>();
+		while(it.hasNext())
+			ret.add(it.next().getValue());
+		return ret.toArray(new Tech[0]);
 	}
 	
 	/**
@@ -300,27 +319,15 @@ public class Player {
 	{
 		MapItemDefinition mid = null;
 		
-		try {
-			mid = this.getProjectileDefinition(URI);
-		} catch (FileNotFoundException e) {} 
-		catch (InvalidConfigFileException e) {}
-		
+		mid = projDefs.get(URI);
 		if(mid != null)
 			return mid;
 		
-		try {
-			mid = this.getUnitDefinition(URI);
-		} catch (FileNotFoundException e) {} 
-		catch (InvalidConfigFileException e) {}
-		
+		mid = unitDefs.get(URI);
 		if(mid != null)
 			return mid;
 		
-		try {
-			mid = this.getBuildingDefinition(URI);
-		} catch (FileNotFoundException e) {} 
-		catch (InvalidConfigFileException e) {}
-		
+		mid = buildingDefs.get(URI);
 		return mid;
 	}
 	

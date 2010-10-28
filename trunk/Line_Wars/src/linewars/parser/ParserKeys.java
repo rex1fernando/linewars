@@ -17,5 +17,5 @@ public enum ParserKeys {
 	radius, width, height, rotation,
 	shapetype, x, y, lanes, nodes, p0, p1, p2, p3,
 	buildingSpots, shape, commandCenterTransformation,
-	isStartNode
+	isStartNode, gateURI
 }

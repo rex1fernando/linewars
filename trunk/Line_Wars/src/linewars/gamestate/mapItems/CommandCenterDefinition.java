@@ -3,8 +3,10 @@ package linewars.gamestate.mapItems;
 import java.io.FileNotFoundException;
 
 import linewars.gamestate.GameState;
+import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Tech;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -43,6 +45,15 @@ public class CommandCenterDefinition extends BuildingDefinition {
 	void removeTech(ResearchTechDefinition rtd)
 	{
 		abilities.remove(rtd);
+	}
+	
+	public Building createCommandCenter(Transformation t, Node n) {
+		return new CommandCenter(t, this, n);
+	}
+	
+	@Override
+	public Building createBuilding(Transformation t, Node n) {
+		throw new UnsupportedOperationException();
 	}
 
 }

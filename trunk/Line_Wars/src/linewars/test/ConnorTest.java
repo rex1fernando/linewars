@@ -14,7 +14,11 @@ public class ConnorTest {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException, InvalidConfigFileException {
-		GameState gs = new GameState("resources/maps/map1.cfg", 0, new ArrayList<String>(), new ArrayList<String>());
+		ArrayList<String> players = new ArrayList<String>();
+		players.add("thatOneGuy");
+		ArrayList<String> raceURIs = new ArrayList<String>();
+		raceURIs.add("resources/races/thatOneRace.cfg");
+		GameState gs = new GameState("resources/maps/map1.cfg", 1, raceURIs, players);
 		//testing the constructor of GameMap
 		System.out.println("Success!");
 	}

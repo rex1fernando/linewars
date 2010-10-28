@@ -9,6 +9,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
+import linewars.parser.Parser.NoSuchKeyException;
 import linewars.parser.ParserKeys;
 
 public class Tech {
@@ -28,12 +29,26 @@ public class Tech {
 		definition = owner.getMapItemDefinition(parser.getStringValue(ParserKeys.mapItemURI));
 		field = ParserKeys.valueOf(parser.getStringValue(ParserKeys.field));
 		f = new Function(parser.getParser(ParserKeys.valueFunction));
+		try
+		{
 		String[] list = parser.getList(ParserKeys.preReqs);
 		prereqs = new Tech[list.length];
 		for(int i = 0; i < list.length; i++)
 			prereqs[i] = owner.getTech(list[i]);
+		}
+		catch (NoSuchKeyException e)
+		{
+			prereqs = new Tech[0];
+		}
 		
-		maxTimesResearchable = (int) parser.getNumericValue(ParserKeys.maxTimesResearchable);
+		try
+		{
+			maxTimesResearchable = (int) parser.getNumericValue(ParserKeys.maxTimesResearchable);
+		}
+		catch(NoSuchKeyException e)
+		{
+			maxTimesResearchable = Integer.MAX_VALUE;
+		}
 		name = parser.getStringValue(ParserKeys.name);
 	}
 	

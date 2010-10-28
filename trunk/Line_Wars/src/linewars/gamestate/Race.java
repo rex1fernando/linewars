@@ -14,6 +14,7 @@ public class Race {
 	private String[] techURIs;
 	private String[] buildingURIs;
 	private String commandCenterURI;
+	private String gateURI;
 	
 	public Race(Parser p)
 	{
@@ -22,6 +23,7 @@ public class Race {
 		techURIs = p.getList(ParserKeys.techURI);
 		buildingURIs = p.getList(ParserKeys.buildingURI);
 		commandCenterURI = p.getStringValue(ParserKeys.commandCenterURI);
+		gateURI = p.getStringValue(ParserKeys.gateURI);
 	}
 	
 	public List<String> getBuildingURIs()
@@ -74,7 +76,7 @@ public class Race {
 	//TODO
 	public String getGateURI()
 	{
-		return null;
+		return gateURI;
 	}
 
 }
