@@ -74,13 +74,52 @@ public class GateKeeper
 //		}
 //	}
 	
-	public Message[] urgentlyPollMessagesForTick(int tickID)
+	/**
+	 * Polls the Gatekeeper for Messages which have arrived from the given address
+	 * which are due to be implemented on the given tickID.
+	 * 
+	 * If the Messages are not all available, in addition to returning null, the
+	 * Gatekeeper will take action to obtain the required Messages - in a nonblocking fashion.
+	 * 
+	 * @param tickID
+	 * The tickID associated with the list of Messages
+	 * @param address
+	 * The address from which the user needs Messages.
+	 * @return
+	 * If all Messages associated with the given tickID from the given address have been received, those Messages.
+	 * If some Messages from that set are not yet received, null.
+	 */
+	public Message[] urgentlyPollMessagesForTick(int tickID, String address)
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	public void pushMessagesForTick(Message[] msgs, int tickID)
+	/**
+	 * Polls the Gatekeeper for Messages which have arrived from the given address
+	 * which are due to be implemented on the given tickID.
+	 * 
+	 * @param tickID
+	 * The tickID associated with the list of Messages
+	 * @param address
+	 * The address from which the user needs Messages.
+	 * @return
+	 * If all Messages associated with the given tickID from the given address have been received, those Messages.
+	 * If some Messages from that set are not yet received, null.
+	 */
+	public Message[] pollMessagesForTick(int tickID, String address){
+		//TODO
+		return null;
+	}
+	
+	/**
+	 * Sends the given Messages out to the given targetAddress.
+	 * @param msgs
+	 * The Messages to be sent out.
+	 * @param targetAddress
+	 * The address to which they are to be sent.
+	 */
+	public void pushMessagesForTick(Message[] msgs, String targetAddress)//TODO int tickID isn't needed since the Client is responsible for setting the tickID of outgoing Messages
 	{
 		// TODO Auto-generated method stub
 	}

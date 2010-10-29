@@ -57,15 +57,21 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 		}
 	}
 
+	//TODO I changed this method a bit; it now sets the Messages' time steps itself
+	//and it also tells the Gatekeeper where to send the Messages and where the Messages should have
+	//come from (The Server demands this functionality)
 	@Override
 	public Message[] getMessagesForTick(int tickID)
 	{
-		Message[] toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID);
+		Message[] toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
 		
 		synchronized(tickLock)
 		{
 			Message[] msgs = messages.toArray(new Message[messages.size()]);
-			gateKeeper.pushMessagesForTick(msgs, currentTick + K);
+			for(int i = 0; i < msgs.length; i++){
+				msgs[i].setTimeStep(currentTick + K);
+			}
+			gateKeeper.pushMessagesForTick(msgs, serverAddress);
 			currentTick++;
 		}
 		
