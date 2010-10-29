@@ -30,7 +30,7 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 {
 	private static final int K = 6;
 	
-	private List<Message> messages;
+	private List<Message> outgoingMessages;
 	private GateKeeper gateKeeper;
 	private String serverAddress;
 	
@@ -44,7 +44,7 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 		gateKeeper = new GateKeeper(port);
 		
 		currentTick = 1;
-		messages = new LinkedList<Message>();
+		outgoingMessages = new LinkedList<Message>();
 	}
 	
 	@Override
@@ -52,8 +52,7 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 	{
 		synchronized(tickLock)
 		{
-			msg.setTimeStep(currentTick + K);
-			messages.add(msg);
+			outgoingMessages.add(msg);
 		}
 	}
 
@@ -65,13 +64,19 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 	{
 		Message[] toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
 		
+		if(toReturn == null){
+			return toReturn;
+		}
+		
+		//At this point we know we have received the full set of messages from the server
+		//Now we need to send the messages that have been added to the outgoing queue
 		synchronized(tickLock)
 		{
-			Message[] msgs = messages.toArray(new Message[messages.size()]);
-			for(int i = 0; i < msgs.length; i++){
-				msgs[i].setTimeStep(currentTick + K);
+			Message[] toSend = outgoingMessages.toArray(new Message[outgoingMessages.size()]);
+			for(int i = 0; i < toSend.length; i++){
+				toSend[i].setTimeStep(currentTick + K);
 			}
-			gateKeeper.pushMessagesForTick(msgs, serverAddress);
+			gateKeeper.pushMessagesForTick(toSend, serverAddress);
 			currentTick++;
 		}
 		
