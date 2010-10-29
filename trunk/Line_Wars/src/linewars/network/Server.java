@@ -1,6 +1,7 @@
 package linewars.network;
 
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import linewars.network.messages.Message;
 
@@ -28,8 +29,6 @@ public class Server implements Runnable
 	int currentTick;
 	Message[][] messagesForTick;
 	
-	private boolean lateData;
-	
 	public Server(String[] clientAddresses, int port) throws SocketException{
 		this.clientAddresses = clientAddresses.clone();
 		gateKeeper = new GateKeeper(port);//TODO retry if it fails?
@@ -37,72 +36,6 @@ public class Server implements Runnable
 		currentTick = 1;
 	}
 	
-	private void doTick(){
-		messagesForTick = new Message[clientAddresses.length][];
-		lateData = false;
-		
-		//Check lazily for a while first
-		for(int c = 0; c < MAX_NUM_LAZY_CHECKS; c++){
-			boolean hasAllMessages = true;
-			for(int i = 0; i < clientAddresses.length; i++){
-				messagesForTick[i] = gateKeeper.pollMessagesForTick(currentTick, clientAddresses[i]);
-				if(messagesForTick[i] == null){
-					hasAllMessages = false;
-				}else{
-					lateData = true;
-				}
-			}
-			if(hasAllMessages){
-				//send messages
-				sendMessages();
-				//ready state for next tick
-				finalizeTick();
-				return;
-			}
-			//sleep so the thread isn't going nuts
-			try {
-				Thread.sleep(POLLING_INTERVAL_MS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		//if we reach this point, we have determined that some of the data is late
-		//so we should get some urgent polling on
-		while(true){//TODO give up eventually?
-			boolean hasAllMessages = true;
-			for(int i = 0; i < clientAddresses.length; i++){
-				messagesForTick[i] = gateKeeper.urgentlyPollMessagesForTick(currentTick, clientAddresses[i]);
-				if(messagesForTick[i] == null){
-					hasAllMessages = false;
-				}
-			}
-			if(hasAllMessages){
-				//send messages
-				sendMessages();
-				//ready state for next tick
-				finalizeTick();
-				return;
-			}
-			//sleep so the thread isn't going nuts
-			try {
-				Thread.sleep(POLLING_INTERVAL_MS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	private void finalizeTick() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void sendMessages() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void run()
 	{
@@ -119,4 +52,157 @@ public class Server implements Runnable
 			doTick();
 		}
 	}
+	
+	/**
+	 * Handles receiving and distributing a single tick's worth of Messages.
+	 */
+	private void doTick(){
+		//setup
+		messagesForTick = new Message[clientAddresses.length][];
+		
+		//poll lazily until some messages are found//////////////////////////////////////////////////////////////////
+		getInitialMessageSet();
+		//send messages if they were all found
+		if(allMessagesFound()){
+			sendMessages();
+			finalizeTick();
+			return;			
+		}
+		
+		//poll lazily for a certain amount of time after that or until everything is found///////////////////////////
+		getAllMessagesLazily();
+		//send messages if they were all found
+		if(allMessagesFound()){
+			sendMessages();
+			finalizeTick();
+			return;			
+		}
+		
+		//some data is late, poll urgently until everything is found/////////////////////////////////////////////////
+		getAllMessagesUrgently();
+		//send messages if they were all found
+		if(allMessagesFound()){
+			sendMessages();
+			finalizeTick();
+			return;			
+		}
+	}
+	
+	/**
+	 * Checks if all messages have been found for this tick.
+	 * @return
+	 * true iff all messages have been received for this tick, false otherwise
+	 */
+	private boolean allMessagesFound() {
+		for(int i = 0; i < clientAddresses.length; i++){
+			if(messagesForTick[i] == null){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Urgently polls the GateKeeper for the Messages from each client associated with the current tickID.
+	 */
+	private void getAllMessagesUrgently() {
+		while(true){//TODO give up eventually?
+			boolean hasAllMessages = true;
+			for(int i = 0; i < clientAddresses.length; i++){
+				messagesForTick[i] = gateKeeper.urgentlyPollMessagesForTick(currentTick, clientAddresses[i]);
+				if(messagesForTick[i] == null){
+					hasAllMessages = false;
+				}
+			}
+			if(hasAllMessages){
+				return;
+			}
+			//sleep so the thread isn't going nuts
+			try {
+				Thread.sleep(POLLING_INTERVAL_MS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Lazily polls the GateKeeper for the Messages from each client associated with the current tickID.
+	 * 
+	 * This method will poll for POLLING_INTERVAL_MS * MAX_NUM_LAZY_CHECKS milliseconds before giving up and returning.
+	 */
+	private void getAllMessagesLazily() {
+		//Check lazily for a while first
+		for(int c = 0; c < MAX_NUM_LAZY_CHECKS; c++){
+			boolean hasAllMessages = true;
+			for(int i = 0; i < clientAddresses.length; i++){
+				messagesForTick[i] = gateKeeper.pollMessagesForTick(currentTick, clientAddresses[i]);
+				if(messagesForTick[i] == null){
+					hasAllMessages = false;
+				}
+			}
+			
+			if(hasAllMessages){
+				return;
+			}
+			
+			//sleep so the thread isn't going nuts
+			try {
+				Thread.sleep(POLLING_INTERVAL_MS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Lazily polls the GateKeeper for the Messages from each client associated with the current tickID.
+	 * 
+	 * This method will poll until it receives a full set of Messages from any client.
+	 */
+	private void getInitialMessageSet() {
+		boolean messagesFound = false;
+		while(!messagesFound){
+			for(int i = 0; i < clientAddresses.length; i++){
+				messagesForTick[i] = gateKeeper.pollMessagesForTick(currentTick, clientAddresses[i]);
+				if(messagesForTick[i] != null){//if any messages were found
+					return;
+				}
+			}
+			
+			//sleep so the thread isn't going nuts
+			try {
+				Thread.sleep(POLLING_INTERVAL_MS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Readies the Server for the start of the next tick.
+	 */
+	private void finalizeTick() {
+		messagesForTick = null;
+		currentTick++;
+	}
+
+	/**
+	 * Pushes all of the received Messages out to each client
+	 */
+	private void sendMessages() {
+		//Compile the messages received this tick into one big list
+		ArrayList<Message> allMessages = new ArrayList<Message>();
+		for(int i = 0; i < clientAddresses.length; i++){
+			for(Message toAdd : messagesForTick[i]){
+				allMessages.add(toAdd);
+			}
+		}
+		
+		//send the list out to everyone!
+		for(int i = 0; i < clientAddresses.length; i++){
+			gateKeeper.pushMessagesForTick(allMessages.toArray(new Message[0]), clientAddresses[i]);
+		}
+	}
+
 }
