@@ -44,34 +44,28 @@ public abstract class Message implements Serializable
 {
 	private static final long serialVersionUID = 690292317101282722L;
 	
-	private byte[] data;
+	private int playerID;
+	private int timeStep;
 	
-	public Message()
+	public Message(int pID, int ts)
 	{
-		data = new byte[1500];
+		playerID = pID;
+		timeStep = ts;
 	}
 	
 	public int getPlayerId()
 	{
-		// TODO implement
-		return 0;
+		return playerID;
 	}
 	
 	public int getTimeStep()
 	{
-		// TODO implement
-		return 0;
+		return timeStep;
 	}
 	
 	public void setTimeStep(int step)
 	{
-		// TODO implement
-	}
-	
-	public int getId()
-	{
-		// TODO implement
-		return 0;
+		timeStep = step;
 	}
 	
 	public abstract void apply(GameState gameState);

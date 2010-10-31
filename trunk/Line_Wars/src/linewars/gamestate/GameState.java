@@ -11,6 +11,10 @@ import java.util.List;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.gameLogic.TimingManager;
 import linewars.gamestate.mapItems.*;
+import linewars.network.messages.AdjustFlowDistributionMessage;
+import linewars.network.messages.BuildMessage;
+import linewars.network.messages.Message;
+import linewars.network.messages.UpgradeMessage;
 import linewars.parser.ConfigFile;
 import linewars.parser.Parser;
 import linewars.parser.Parser.InvalidConfigFileException;
@@ -172,5 +176,17 @@ public class GameState
 	public double getStartingStuffAmount()
 	{
 		return STARTING_STUFF;
+	}
+	
+	public void update(Message[] messages)
+	{
+		for(Message m : messages)
+			m.apply(this);
+		
+		for(Node n : map.getNodes())
+			n.update();
+		
+		for(Lane l : map.getLanes())
+			l.update();
 	}
 }

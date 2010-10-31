@@ -1,9 +1,20 @@
 package linewars.network.messages;
 
 import linewars.gamestate.GameState;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 public class BuildMessage extends Message
 {
+
+	private int nodeID;
+	private int abilityID;
+	
+	public BuildMessage(int pID, int ts, int nodeID, int abilityID) {
+		super(pID, ts);
+		
+		this.nodeID = nodeID;
+		this.abilityID = abilityID;
+	}
 
 	/**
 	 * 
@@ -12,8 +23,11 @@ public class BuildMessage extends Message
 
 	@Override
 	public void apply(GameState gameState) {
-		// TODO Auto-generated method stub
-		
+		AbilityDefinition ad = gameState.getMap().getNodes()[nodeID].getCommandCenter().getAvailableAbilities()[abilityID];	
+		gameState.getMap().getNodes()[nodeID].getCommandCenter()
+				.addActiveAbility(
+						ad.createAbility(gameState.getMap().getNodes()[nodeID]
+								.getCommandCenter()));
 	}
 
 }
