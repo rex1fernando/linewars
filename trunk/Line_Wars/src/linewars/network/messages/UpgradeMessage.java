@@ -1,6 +1,14 @@
 package linewars.network.messages;
 
-public class UpgradeMessage
+import linewars.gamestate.GameState;
+
+public class UpgradeMessage extends Message
 {
+
+	@Override
+	public void apply(GameState gameState) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

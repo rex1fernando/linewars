@@ -2,6 +2,8 @@ package linewars.network.messages;
 
 import java.io.Serializable;
 
+import linewars.gamestate.GameState;
+
 /**
  * Encapsulates a single command.
  * 
@@ -38,7 +40,7 @@ import java.io.Serializable;
  * @author Titus Klinge
  * 
  */
-public class Message implements Serializable
+public abstract class Message implements Serializable
 {
 	private static final long serialVersionUID = 690292317101282722L;
 	
@@ -71,5 +73,7 @@ public class Message implements Serializable
 		// TODO implement
 		return 0;
 	}
+	
+	public abstract void apply(GameState gameState);
 	
 }
