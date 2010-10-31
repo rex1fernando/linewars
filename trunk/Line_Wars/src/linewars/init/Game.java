@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import linewars.display.Display;
 import linewars.gameLogic.TimingManager;
 import linewars.network.Client;
+import linewars.network.SinglePlayerNetworkProxy;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 //TODO test
@@ -16,7 +17,8 @@ public class Game {
 	private static final int SOCKET_PORT = 9001;
 	
 	private Display display;
-	private Client networking;
+	//private Client networking; TODO
+	private SinglePlayerNetworkProxy networking;
 	private TimingManager logic;
 	
 	private String mapDefinitionURI;
@@ -57,30 +59,30 @@ public class Game {
 		try {
 			logic = new TimingManager(mapDefinitionURI, numPlayers, raceDefinitionURIs, playerNames);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidConfigFileException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		networking = new SinglePlayerNetworkProxy();
+		/*TODO
 		try
 		{
-			networking = new Client(serverAddress, SOCKET_PORT);
+			//networking = new Client(serverAddress, SOCKET_PORT);
 		}
 		catch (SocketException e)
 		{
 			// if this happens.... well crap...
 			e.printStackTrace();
-		}
+		}*/
 		display = new Display(logic.getGameStateManager(), networking);
 		logic.setClientReference(networking);
 		//TODO
 	}
 	
 	public void run(){
-		Thread net = new Thread(networking);
-		net.setDaemon(true);
-		net.start();
+		//Thread net = new Thread(networking); TODO
+		//net.setDaemon(true);
+		//net.start();
 		Thread log = new Thread(logic);
 		log.setDaemon(true);
 		log.start();
