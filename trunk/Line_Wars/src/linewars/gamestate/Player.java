@@ -198,7 +198,27 @@ public class Player {
 	 */
 	public void setFlowDist(Lane l, Double val)
 	{
+		double currentVal = flowDist.get(l);
+		if((val > 0 && currentVal < 0) || (val < 0 && currentVal > 0))
+		{
+			swapStartPoints(l);
+		}
 		flowDist.put(l, val);
+	}
+	
+	/**
+	 * Swaps the start point for this player for the given Lane.
+	 * @param l The lane to swap start points.
+	 */
+	private void swapStartPoints(Lane l)
+	{
+		Node[] nodes = l.getNodes();
+		if(nodes[0].equals(startPoints.get(l)))
+		{
+			setStartPoint(l, nodes[1]);
+		}else{
+			setStartPoint(l, nodes[0]);
+		}
 	}
 	
 	/**
