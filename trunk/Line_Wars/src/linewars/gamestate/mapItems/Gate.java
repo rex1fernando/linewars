@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
  */
 public class Gate extends Unit {
 	
-	Gate(Transformation t, GateDefinition def, MovementStrategy ms,
+	public Gate(Transformation t, GateDefinition def, MovementStrategy ms,
 			CombatStrategy cs) {
 		super(t, def, ms, cs);
 	}

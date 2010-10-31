@@ -20,8 +20,10 @@ public class Node {
 	private GameState gameState;
 	private Player owner;
 	private Player invader;
+	private Player nextOwner;
 	private long occupationTime;
 	private boolean changedOwners;
+	private long timeToOccupy;
 	
 	private ArrayList<Building> containedBuildings;
 	private CommandCenter cCenter;
@@ -293,20 +295,34 @@ public class Node {
 		
 		generateWaves();
 		
+		//Check whether the node should change owners. 
+		//TODO Is this the correct way to do this?
+		if(occupationTime >= timeToOccupy)
+		{
+			nextOwner = invader;
+			invader = null;
+			changedOwners = true;
+		}
+		
 		if(changedOwners)
 		{
-			for(Lane l : attachedLanes)
-			{
-				l.addGate(this, owner);
-			}
+			setOwner(nextOwner);
 		}
 	}
 	
+	/**
+	 * Sets the owner of this Node to p and sets this node up for the new player.
+	 * @param p
+	 */
 	public void setOwner(Player p)
 	{
 		owner = p;
-		//TODO change the command center somewhere
 		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform, this);
+		containedBuildings.clear();
+		for(Lane l : attachedLanes)
+		{
+			l.addGate(this, owner);
+		}
 	}
 	
 	public Shape getShape()
@@ -317,5 +333,10 @@ public class Node {
 	public boolean isStartNode()
 	{
 		return isStartNode;
+	}
+	
+	public void setInvader(Player p)
+	{
+		invader = p;
 	}
 }

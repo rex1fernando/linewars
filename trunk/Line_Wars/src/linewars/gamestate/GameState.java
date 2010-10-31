@@ -64,7 +64,9 @@ public class GameState
 			if(!races.contains(r))
 				races.add(r);
 			Node[] startNode = { map.getStartNode(i) };
+			//TODO I'm changing this to add the players to the HashMap. Let me know if that's incorrect. -John G.
 			Player p = new Player(this, startNode, r, playerNames.get(i), i);
+			players.put(i, p);
 		}
 	}
 	

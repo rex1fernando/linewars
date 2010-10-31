@@ -56,10 +56,19 @@ public class Race {
 		return ret;
 	}
 	
-	//TODO
+	//Is the name of the race sufficient for equals()? Will it be possible to name different races the same thing?
 	@Override
 	public boolean equals(Object o)
 	{
+		if(o == null || o.getClass() != this.getClass()){
+			return false;
+		}
+		
+		if(((Race)o).getName() == this.name)
+		{
+			return true;
+		}
+		
 		return false;
 	}
 
@@ -73,7 +82,6 @@ public class Race {
 		return name;
 	}
 	
-	//TODO
 	public String getGateURI()
 	{
 		return gateURI;
