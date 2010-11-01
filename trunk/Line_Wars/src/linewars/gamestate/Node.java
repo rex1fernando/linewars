@@ -135,7 +135,7 @@ public class Node {
 		Random rand = new Random(gameState.getTimerTick());
 		HashMap<Player, double[]> flows = getAllFlow();
 		boolean foundDest;
-		for(int i = 0; i < containedUnits.size(); i++)
+		for(int i = 0; i < containedUnits.size();)
 		{
 			foundDest = false;
 			Lane destination = null;
@@ -156,12 +156,9 @@ public class Node {
 				}
 			}
 			
-			if(!foundDest)
-			{
-				containedUnits.remove(i);
-			}else{
+			if(foundDest)
 				destination.addToPending(this, containedUnits.get(i));
-			}
+			containedUnits.remove(i);
 		}
 		
 		for(int i = 0; i < attachedLanes.size(); i++)

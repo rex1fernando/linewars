@@ -22,7 +22,6 @@ import linewars.parser.Parser.NoSuchKeyException;
 
 public class GameState
 {
-	// TODO finish implementation!
 	
 	private static final double STARTING_STUFF = 10000;
 	
