@@ -48,7 +48,7 @@ public class Wave {
 	
 	public Unit[] getUnits()
 	{
-		return (Unit[])units.toArray();
+		return units.toArray(new Unit[0]);
 	}
 
 	/**

@@ -31,6 +31,7 @@ public class Lane
 	private HashMap<Node, Gate> gates;
 	private ArrayList<Node> nodes;
 	private double gatePos;
+	private GameState gameState;
 	
 	/**
 	 * The width of the lane.
@@ -57,7 +58,7 @@ public class Lane
 		this.gates = new HashMap<Node, Gate>();
 		
 		this.pendingWaves = new HashMap<Node, ArrayList<Wave>>();
-		
+		this.gameState = gameState;
 		pathFinder = new PathFinding(gameState);
 		
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
@@ -220,7 +221,13 @@ public class Lane
 	public void addToPending(Node n, Unit u) 
 	{
 		int playerID = u.getOwner().getPlayerID();
-		if(pendingWaves.get(playerID) == null)
+		if(pendingWaves.get(n) == null){
+			pendingWaves.put(n, new ArrayList<Wave>());
+			for(int i = 0; i < gameState.getNumPlayers(); i++){
+				pendingWaves.get(n).add(new Wave(this));
+			}
+		}
+		if(pendingWaves.get(n).get(playerID) == null)
 		{
 			pendingWaves.get(n).add(playerID, new Wave(this, u));
 		}else{
@@ -300,6 +307,9 @@ public class Lane
 		
 		//Destroy any units that got skipped because they couldn't be fit.
 		pendingWaves.get(n).clear();
+		for(int i = 0; i < gameState.getNumPlayers(); i++){
+			pendingWaves.get(n).add(new Wave(this));
+		}
 		
 	}	
 

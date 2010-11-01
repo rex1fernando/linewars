@@ -295,9 +295,8 @@ public class Node {
 		}
 		if(cCenter != null){
 			cCenter.update();
+			generateWaves();
 		}
-		
-		generateWaves();
 		
 		//Check whether the node should change owners. 
 		//TODO Is this the correct way to do this?

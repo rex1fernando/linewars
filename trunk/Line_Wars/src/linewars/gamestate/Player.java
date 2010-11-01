@@ -46,8 +46,9 @@ public class Player {
 		flowSetup();
 		
 		projDefs = new HashMap<String, ProjectileDefinition>();
-		
+		unitDefs = new HashMap<String, UnitDefinition>();
 		buildingDefs = new HashMap<String, BuildingDefinition>();
+		
 		List<String> URIs = r.getBuildingURIs();
 		for(String uri : URIs)
 		{
@@ -55,7 +56,6 @@ public class Player {
 			buildingDefs.put(uri, bd);
 		}
 		
-		unitDefs = new HashMap<String, UnitDefinition>();
 		URIs = r.getUnitURIs();
 		for(String uri : URIs)
 		{

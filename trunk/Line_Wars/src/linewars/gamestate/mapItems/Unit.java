@@ -18,7 +18,6 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
  * points it has and what wave it is currently in.
  */
 public class Unit extends MapItem {
-	private Player owner;
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
 	
@@ -105,11 +104,6 @@ public class Unit extends MapItem {
 			if(!a.killable())
 				return false;
 		return true;
-	}
-
-	public Player getOwner()
-	{
-		return owner;
 	}
 	
 	@Override
