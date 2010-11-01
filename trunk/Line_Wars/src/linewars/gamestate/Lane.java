@@ -238,6 +238,7 @@ public class Lane
 	/**
 	 * For the given node, add all of the waves from that node to this lane.
 	 * @param n The node the units/waves are coming from.
+	 * TODO this is actually a fairly tricky problem, since we have no particular constraints on the size of anything (except nonnegativity ofc).  Seems fun. - Taylor
 	 */
 	public void addPendingWaves(Node n)
 	{
@@ -250,7 +251,7 @@ public class Lane
 		double forwardBound = findForwardBound(n);
 		
 		//If the lane is backed up to the node, just destroy all of the pending units.
-		if(forwardBound == 0)
+		if(forwardBound == 0)//TODO checking if a double is equal to 0 here instead of within rounding errors; is this intended?
 		{
 			pendingWaves.get(n).clear();
 		}
@@ -285,6 +286,8 @@ public class Lane
 						if(yCurrentBound + currentUnit.getHeight() <= yBottomBound)
 						{
 							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
+							waves.add(new Wave(this, currentUnit));
+							System.out.println("Added a unit!");//TODO
 							
 							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
 							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
@@ -317,11 +320,13 @@ public class Lane
 	 * Finds the farthest point at which units can be spawned, defined as the position of the unit closest to the starting node. (Currently the gate)
 	 * Currently assumes that the gate is straight up and down.
 	 * TODO Later make it general.
+	 * TODO the doc for this method says it returns a point, but it is returning a double... they are equiv given the assumption though
 	 */
 	private double findForwardBound(Node n)
 	{
 		Gate closestGate = getClosestGate(n);
 		Position gatePos = closestGate.getPosition();
+		/*
 		double ret;
 		double plus = n.getPosition().getPosition().getX() - (gatePos.getX()+(closestGate.getWidth()/2));
 		double minus = n.getPosition().getPosition().getX() - (gatePos.getX()-(closestGate.getWidth()/2));
@@ -331,7 +336,14 @@ public class Lane
 		}else{
 			ret = minus;
 		}
-		return ret;
+		return ret;*/
+		/*TODO Taylor's attempt at an implementation, not sure what the contract of this method is*/
+		double preRet = Math.sqrt(gatePos.distanceSquared(n.getPosition().getPosition()));//the distance between the node and the closest gate
+		preRet -= closestGate.getWidth() / 2;//less half the width of the gate
+		if(n.getPosition().getPosition().getX() > gatePos.getX()){//if the gate is to the left of the node
+			preRet *= -1;
+		}
+		return preRet;
 	}
 	
 	private Gate getClosestGate(Node n)

@@ -144,6 +144,9 @@ public class Wave {
 			}
 		}
 		double lowestMove = 1;
+		if(destGate == null){
+			return;//TODO haxed together a NPE fix here, prob still a logical error here
+		}
 		Position gatePos = destGate.getPosition();
 		if(opponent == null)
 		{
