@@ -341,4 +341,9 @@ public class Node {
 	{
 		invader = p;
 	}
+	
+	public int getID()
+	{
+		return ID;
+	}
 }
