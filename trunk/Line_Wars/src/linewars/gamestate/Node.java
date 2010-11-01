@@ -34,11 +34,13 @@ public class Node {
 	private Shape shape;
 	private boolean isStartNode;
 	private Transformation cCenterTransform;
+	private int ID;
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	public Node(Parser parser, GameState gameState, Lane[] lanes)
+	public Node(Parser parser, GameState gameState, Lane[] lanes, int id)
 	{
+		ID = id;
 		changedOwners = false;
 		invader = null;
 		owner = null;
