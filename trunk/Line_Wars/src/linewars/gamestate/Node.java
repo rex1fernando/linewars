@@ -45,6 +45,7 @@ public class Node {
 		invader = null;
 		owner = null;
 		occupationTime = 0;
+		timeToOccupy = 9001;
 		this.cCenter = null;
 		containedUnits = new ArrayList<Unit>();
 		containedBuildings = new ArrayList<Building>();
@@ -292,14 +293,15 @@ public class Node {
 		{
 			b.update();
 		}
-		
-		cCenter.update();
+		if(cCenter != null){
+			cCenter.update();
+		}
 		
 		generateWaves();
 		
 		//Check whether the node should change owners. 
 		//TODO Is this the correct way to do this?
-		if(occupationTime >= timeToOccupy)
+		if(occupationTime > timeToOccupy)
 		{
 			nextOwner = invader;
 			invader = null;

@@ -56,7 +56,7 @@ public class LogicBlockingManager implements GameStateProvider, GameStateUpdater
 	}
 	
 	private void updateFreeState(int maxTickID){
-		for(int i = (int) (freeState.getTime() + 1); i <= maxTickID; i++){
+		for(int i = (int) (freeState.getTimerTick() + 1); i <= maxTickID; i++){
 			Message[] currentOrders = orders.get(i);
 			
 			freeState.update(currentOrders);

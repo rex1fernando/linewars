@@ -12,11 +12,20 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import linewars.display.Display;
 import linewars.display.MapItemDrawer;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.GameState;
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
+import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
+import linewars.network.MessageReceiver;
+import linewars.network.messages.BuildMessage;
+import linewars.network.messages.Message;
+import linewars.network.messages.UpgradeMessage;
 import linewars.parser.Parser;
 
 /**
@@ -71,12 +80,20 @@ public class CommandCardPanel extends Panel
 	private ButtonIcon[] selectedIcons;
 	private ClickHandler[] clickEvents;
 	
+	private Display display;
+	private MessageReceiver receiver;
+	
 	/**
 	 * Creates a new CommandCardPanel object.
+	 * @param disp TODO
+	 * @param receiver TODO
 	 */
-	public CommandCardPanel(GameStateProvider stateManager, Parser ... anims)
+	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver, Parser ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
+		
+		this.display = display;
+		this.receiver = receiver;
 				
 		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor), (int)(BTN_PANEL_V_GAP * scaleFactor)));
 		buttonPanel.setOpaque(false);
@@ -131,7 +148,7 @@ public class CommandCardPanel extends Panel
 	 * button in the panel.  Also handles disabling buttons if they
 	 * are not usable.
 	 */
-	public void updateButtons(CommandCenter cc, int nodeId)
+	public void updateButtons(CommandCenter cc, Node node)
 	{
 		AbilityDefinition[] ad = cc.getAvailableAbilities();
 		for (int i = 0; i < ad.length; i++)
@@ -159,7 +176,7 @@ public class CommandCardPanel extends Panel
 			rolloverIcons[i].setURI(rolloverURI);
 			selectedIcons[i].setURI(selectedURI);
 			buttons[i].setToolTipText(ad[i].getDescription());
-			clickEvents[i].setIds(nodeId, ad[i].getID());
+			clickEvents[i].setAbility(node, ad[i]);
 			buttons[i].setEnabled(ad[i].unlocked());
 		}
 		/*
@@ -243,20 +260,33 @@ public class CommandCardPanel extends Panel
 	
 	private class ClickHandler implements ActionListener
 	{
-		private int nodeId;
-		private int abilityId;
+		private Node node;
+		private AbilityDefinition ability;
+		
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			// TODO implement
-			System.out.println("Created a message with node=" + nodeId + " and ability=" + abilityId);
+			// TODO remove debug output
+			System.out.println("Created a message with node=" + node + " and ability=" + ability);
+			
+			Message message = null;
+			if(ability instanceof ConstructBuildingDefinition)
+			{
+				message = new BuildMessage(node.getOwner().getPlayerID(), display.getTimeTick() + 3, node.getID(), ability.getID());
+			}
+			else if(ability instanceof ResearchTechDefinition)
+			{
+				message = new UpgradeMessage(node.getOwner().getPlayerID(), display.getTimeTick() + 3, node.getID(), ability.getID());
+			}
+			
+			CommandCardPanel.this.receiver.addMessage(message);
 		}
 		
-		public void setIds(int nodeId, int abilityId)
+		public void setAbility(Node node, AbilityDefinition ability)
 		{
-			this.nodeId = nodeId;
-			this.abilityId = abilityId;
+			this.node = node;
+			this.ability = ability;
 		}
 	}
 }

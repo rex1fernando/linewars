@@ -41,6 +41,13 @@ public class TimingManager implements Runnable{
 		while(true){//TODO some exit condition?
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
+			
+			if(messagesForTick.length > 0)
+			{
+				int i = 0;
+				i = i + 1;
+			}
+			
 			//TODO process them as needed - game speed change orders in particular!
 			//give orders to manager
 			manager.addOrdersForTick(nextTickID, messagesForTick);

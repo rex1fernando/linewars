@@ -35,6 +35,7 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.network.MessageReceiver;
@@ -55,7 +56,7 @@ public class Display extends JFrame implements Runnable
 	/**
 	 * The number of milliseconds in-between draw events.
 	 */
-	private static final int DRAW_DELAY = 100;
+	private static final int DRAW_DELAY = 10;
 
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
@@ -65,6 +66,8 @@ public class Display extends JFrame implements Runnable
 
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
+	
+	private int currentTimeTick;
 
 	private GameStateProvider gameStateProvider;
 	private MessageReceiver messageReceiver;
@@ -74,6 +77,8 @@ public class Display extends JFrame implements Runnable
 	public Display(GameStateProvider provider, MessageReceiver receiver)
 	{
 		super("Line Wars");
+		
+		messageReceiver = receiver;
 
 		// spawns the paint driver for the display
 		updateLoop = new Timer(DRAW_DELAY, new ActionListener()
@@ -101,6 +106,11 @@ public class Display extends JFrame implements Runnable
 
 		updateLoop.start();
 	}
+	
+	public int getTimeTick()
+	{
+		return currentTimeTick;
+	}
 
 	/**
 	 * The main content panel for the main window. It is responsible for drawing
@@ -126,6 +136,8 @@ public class Display extends JFrame implements Runnable
 		private ExitButtonPanel exitButtonPanel;
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
+		
+		private long lastTime;
 
 		public GamePanel()
 		{
@@ -194,7 +206,7 @@ public class Display extends JFrame implements Runnable
 			zoomLevel = 1;
 			viewport = null;
 
-			commandCardPanel = new CommandCardPanel(gameStateProvider, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
@@ -221,14 +233,17 @@ public class Display extends JFrame implements Runnable
 		@Override
 		public void paint(Graphics g)
 		{
+			long curTime = System.currentTimeMillis();
+			double fps = 1000.0 / (curTime - lastTime);
+			lastTime = curTime;
+			
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
-			// TODO make sure to change this back so it uses strategic view as
-			// well!
-			List<ILayer> currentView = tacticalView;// (zoomLevel >=
-													// ZOOM_THRESHOLD) ?
-													// strategicView :
-													// tacticalView;
+			
+			currentTimeTick = gamestate.getTimerTick();
+			
+			// TODO make sure to change this back so it uses strategic view as well!
+			List<ILayer> currentView = tacticalView;// (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			// calculates the visible screen size based off of the zoom level
 			if(viewport == null)
@@ -252,6 +267,9 @@ public class Display extends JFrame implements Runnable
 			{
 				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
+			
+			bufferedG.setColor(Color.white);
+			bufferedG.drawString(Double.toString(fps), 300, 300);
 
 			// draws the offscreen image to the graphics object
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
@@ -269,29 +287,29 @@ public class Display extends JFrame implements Runnable
 		private void updatePanels(Graphics g, GameState gamestate)
 		{
 			// checks for selected node
-			int nodeIndex = getSelectedNode(gamestate);
-			if(nodeIndex == -1)
+			Node node = getSelectedNode(gamestate);
+			if(node == null)
 			{
 				nodeStatusPanel.setVisible(false);
 				commandCardPanel.setVisible(false);
 			}
 			else
 			{
-				CommandCenter node = gamestate.getCommandCenters().get(nodeIndex);
+				CommandCenter cc = node.getCommandCenter();
 
 				nodeStatusPanel.setVisible(true);
 				// TODO populate status panel
 
 				commandCardPanel.setVisible(true);
-				commandCardPanel.updateButtons(node, nodeIndex);
+				commandCardPanel.updateButtons(cc, node);
 
 				// draws a rectangle around the command center
-				Position p = node.getPosition();
-				int recX = (int)(p.getX() - node.getWidth() / 2);
-				int recY = (int)(p.getY() - node.getHeight() / 2);
+				Position p = cc.getPosition();
+				int recX = (int)(p.getX() - cc.getWidth() / 2);
+				int recY = (int)(p.getY() - cc.getHeight() / 2);
 				Position pos = toScreenCoord(new Position(recX, recY));
-				int recW = (int)(node.getWidth() / (viewport.getWidth() / getWidth()));
-				int recH = (int)(node.getHeight() / (viewport.getHeight() / getHeight()));
+				int recW = (int)(cc.getWidth() / (viewport.getWidth() / getWidth()));
+				int recH = (int)(cc.getHeight() / (viewport.getHeight() / getHeight()));
 				g.setColor(Color.red);
 				g.drawRect((int)pos.getX(), (int)pos.getY(), recW, recH);
 			}
@@ -312,7 +330,7 @@ public class Display extends JFrame implements Runnable
 		 * @return The currently selected command center index or -1 if nothing
 		 *         is selected.
 		 */
-		private int getSelectedNode(GameState gs)
+		private Node getSelectedNode(GameState gs)
 		{
 			List<CommandCenter> ccs = gs.getCommandCenters();
 			for(int i = 0; i < ccs.size(); i++)
@@ -328,13 +346,13 @@ public class Display extends JFrame implements Runnable
 						if(lastClickPosition.getX() < p.getX() + ccs.get(i).getWidth() / 2
 								&& lastClickPosition.getY() < p.getY() + ccs.get(i).getHeight() / 2)
 						{
-							return i;
+							return cc.getNode();
 						}
 					}
 				}
 			}
 
-			return -1;
+			return null;
 		}
 		
 		Position toScreenCoord(Position gameCoord)

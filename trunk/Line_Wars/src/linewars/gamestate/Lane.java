@@ -54,6 +54,9 @@ public class Lane
 		this.name = name;
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
+		this.gates = new HashMap<Node, Gate>();
+		
+		this.pendingWaves = new HashMap<Node, ArrayList<Wave>>();
 		
 		pathFinder = new PathFinding(gameState);
 		
@@ -231,6 +234,10 @@ public class Lane
 	 */
 	public void addPendingWaves(Node n)
 	{
+		if(pendingWaves.isEmpty())
+		{
+			return;
+		}
 		int numBuckets = pendingWaves.get(n).size();
 		double bucketWidth = width/numBuckets;
 		double forwardBound = findForwardBound(n);

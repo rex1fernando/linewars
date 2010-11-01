@@ -24,7 +24,7 @@ public class GameState
 {
 	// TODO finish implementation!
 	
-	private static final double STARTING_STUFF = 100;
+	private static final double STARTING_STUFF = 10000;
 	
 	private int timerTick;
 	private Map map;
@@ -188,5 +188,7 @@ public class GameState
 		
 		for(Lane l : map.getLanes())
 			l.update();
+		
+		timerTick++;
 	}
 }
