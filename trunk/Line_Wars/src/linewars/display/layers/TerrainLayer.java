@@ -3,7 +3,7 @@ package linewars.display.layers;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 
-import linewars.display.MapItemDrawer;
+import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.parser.ParserKeys;
@@ -15,6 +15,6 @@ public class TerrainLayer implements ILayer
 	{
 		//TODO remove this comment
 		String uri = gamestate.getMap().getParser().getStringValue(ParserKeys.icon);
-		MapItemDrawer.getInstance().draw(g, uri, new Position(-visibleScreen.getX(), -visibleScreen.getY()), 0.0, scaleX, scaleY);
+		ImageDrawer.getInstance().draw(g, uri, new Position(-visibleScreen.getX(), -visibleScreen.getY()), 0.0, scaleX, scaleY);
 	}
 }

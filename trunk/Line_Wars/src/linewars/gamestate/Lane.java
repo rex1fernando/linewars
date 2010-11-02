@@ -287,7 +287,6 @@ public class Lane
 						{
 							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
 							waves.add(new Wave(this, currentUnit));
-							System.out.println("Added a unit!");//TODO
 							
 							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
 							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
@@ -422,6 +421,7 @@ public class Lane
 		return gates.get(n);
 	}
 	
+	//TODO fix this
 	public void addGate(Node n, Player p)
 	{
 		gates.put(n, new Gate(getPosition(gatePos), p.getGateDefinition(), new Immovable(), new NoCombat()));

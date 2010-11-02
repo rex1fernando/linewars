@@ -43,7 +43,7 @@ public class Animation
 		{			
 			try
 			{
-				MapItemDrawer.getInstance().addImage(uri, unitURI, width, height);
+				ImageDrawer.getInstance().addImage(uri, unitURI, width, height);
 			}
 			catch (IOException e)
 			{

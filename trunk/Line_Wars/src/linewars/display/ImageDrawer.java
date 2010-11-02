@@ -20,15 +20,15 @@ import linewars.parser.ParserKeys;
  * @author Titus Klinge
  * @author Ryan Tew
  */
-public class MapItemDrawer
+public class ImageDrawer
 {
-	private HashMap<String, Image> images;
-	private static MapItemDrawer instance;
+	private HashMap<String, GameImage> images;
+	private static ImageDrawer instance;
 	private static final Object lock = new Object();
 
-	private MapItemDrawer()
+	private ImageDrawer()
 	{
-		images = new HashMap<String, Image>();
+		images = new HashMap<String, GameImage>();
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class MapItemDrawer
 	 * 
 	 * @return The instance of the singleton MapItemDrawer.
 	 */
-	public static MapItemDrawer getInstance()
+	public static ImageDrawer getInstance()
 	{
 		if(instance == null)
 		{
@@ -44,7 +44,7 @@ public class MapItemDrawer
 			{
 				if(instance == null)
 				{
-					instance = new MapItemDrawer();
+					instance = new ImageDrawer();
 				}
 			}
 		}
@@ -67,6 +67,9 @@ public class MapItemDrawer
 	 */
 	public void addImage(String uri, String unitURI, int width, int height) throws IOException
 	{
+		if(images.get(uri + unitURI) != null)
+			return;
+		
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
 
 		Image image;
@@ -79,10 +82,7 @@ public class MapItemDrawer
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
 
-		BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-		Graphics g = scaledImage.getGraphics();
-		g.drawImage(image, 0, 0, width, height, null);
+		GameImage scaledImage = new GameImage(image, width, height);
 
 		images.put(uri + unitURI, scaledImage);
 	}
@@ -106,12 +106,12 @@ public class MapItemDrawer
 	public void draw(Graphics g, String uri, Position position, double rotation, double scaleX, double scaleY)
 	{
 		//TODO rotate the image
-		Image image = images.get(uri);
+		GameImage image = images.get(uri);
 		int x = (int)(position.getX() * scaleX);
 		int y = (int)(position.getY() * scaleY);
 		int w = (int)(image.getWidth(null) * scaleX);
 		int h = (int)(image.getHeight(null) * scaleY);
-		g.drawImage(image, x, y, w, h, null);
+		g.drawImage(image.scaleImage(scaleX, scaleY), x, y, null);
 	}
 
 	/**

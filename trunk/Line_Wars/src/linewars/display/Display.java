@@ -36,6 +36,7 @@ import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.network.MessageReceiver;
@@ -104,7 +105,7 @@ public class Display extends JFrame implements Runnable
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		updateLoop.start();
+		//updateLoop.start();
 	}
 	
 	public int getTimeTick()
@@ -137,8 +138,6 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		
-		private long lastTime;
-
 		public GamePanel()
 		{
 			super(null);
@@ -186,7 +185,8 @@ public class Display extends JFrame implements Runnable
 			// get the map parser from the gamestate
 			gameStateProvider.lockViewableGameState();
 			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
-			//TEST gameStateProvider.getCurrentGameState().getCommandCenters().get(0).addActiveAbility(gameStateProvider.getCurrentGameState().getCommandCenters().get(0).getAvailableAbilities()[0].createAbility(gameStateProvider.getCurrentGameState().getCommandCenters().get(0)));
+			//TODO get the correct player
+			Player thisPlayer = gameStateProvider.getCurrentGameState().getPlayer(0);
 			gameStateProvider.unlockViewableGameState();
 
 			// add the map image to the MapItemDrawer
@@ -195,7 +195,7 @@ public class Display extends JFrame implements Runnable
 			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 			try
 			{
-				MapItemDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
+				ImageDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
 			}
 			catch (IOException e)
 			{
@@ -210,7 +210,7 @@ public class Display extends JFrame implements Runnable
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, null);
+			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, thisPlayer);
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, updateLoop, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
@@ -233,10 +233,6 @@ public class Display extends JFrame implements Runnable
 		@Override
 		public void paint(Graphics g)
 		{
-			long curTime = System.currentTimeMillis();
-			double fps = 1000.0 / (curTime - lastTime);
-			lastTime = curTime;
-			
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
@@ -268,9 +264,6 @@ public class Display extends JFrame implements Runnable
 				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
 			}
 			
-			bufferedG.setColor(Color.white);
-			bufferedG.drawString(Double.toString(fps), 300, 300);
-
 			// draws the offscreen image to the graphics object
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
 
@@ -282,6 +275,8 @@ public class Display extends JFrame implements Runnable
 
 			// we are done with the gamestate, we should unlock it ASAP
 			gameStateProvider.unlockViewableGameState();
+			
+			this.repaint();
 		}
 
 		private void updatePanels(Graphics g, GameState gamestate)

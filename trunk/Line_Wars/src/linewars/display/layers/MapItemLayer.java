@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import linewars.display.Animation;
-import linewars.display.MapItemDrawer;
+import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
@@ -91,7 +91,7 @@ public class MapItemLayer implements ILayer
 				pos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
 				
 				//draw the animation
-				MapItemDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scaleX, scaleY);
+				ImageDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scaleX, scaleY);
 			}
 		}
 	}

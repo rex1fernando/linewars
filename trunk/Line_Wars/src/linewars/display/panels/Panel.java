@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import linewars.display.Animation;
-import linewars.display.MapItemDrawer;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.parser.Parser;
@@ -73,7 +73,7 @@ public abstract class Panel extends JPanel
 //		g.fillRect(0, 0, getWidth(), getHeight());
 		if(curAnimation != null)
 		{
-			MapItemDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, 1, 1);
+			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, 1, 1);
 		}
 		super.paint(g);
 	}

@@ -42,8 +42,8 @@ public class ResourceDisplayPanel extends Panel
 		Graphics b = buf.getGraphics();
 		
 		b.setColor(Color.white);
-		b.drawString(Integer.toString(3527), 0, 12);
-//		g.drawString(Integer.toString((int)player.getStuff()), 0, HEIGHT);
+//		b.drawString(Integer.toString(3527), 0, 12);
+		g.drawString(Integer.toString((int)player.getStuff()), 0, HEIGHT);
 		
 		g.drawImage(buf, 0, 0, WIDTH, HEIGHT, null);
 	}

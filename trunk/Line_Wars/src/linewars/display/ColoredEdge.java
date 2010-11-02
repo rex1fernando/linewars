@@ -56,7 +56,7 @@ public class ColoredEdge
 		for(Wave wave : waves)
 		{
 			//set the current color
-			curColor = MapItemDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
+			curColor = ImageDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
 			
 			// if this wave belongs to a different player than the previous one
 			// set the current color to white

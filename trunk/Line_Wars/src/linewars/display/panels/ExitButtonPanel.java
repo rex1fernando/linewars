@@ -12,7 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import linewars.display.MapItemDrawer;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.parser.Parser;
@@ -101,7 +101,7 @@ public class ExitButtonPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			MapItemDrawer.getInstance().draw(g, imageURI, new Position(x, y), 0.0, 1, 1);
+			ImageDrawer.getInstance().draw(g, imageURI, new Position(x, y), 0.0, 1, 1);
 		}
 	}
 }

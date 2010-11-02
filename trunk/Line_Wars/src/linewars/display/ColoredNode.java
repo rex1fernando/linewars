@@ -43,7 +43,7 @@ public class ColoredNode
 		else
 		{
 			int playerIndex = node.getOwner().getPlayerID();
-			Color playerColor = MapItemDrawer.getInstance().getPlayerColor(playerIndex, numPlayers);
+			Color playerColor = ImageDrawer.getInstance().getPlayerColor(playerIndex, numPlayers);
 			g.setColor(playerColor);
 		}
 

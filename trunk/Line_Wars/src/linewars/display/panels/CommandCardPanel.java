@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import linewars.display.Display;
-import linewars.display.MapItemDrawer;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
@@ -159,10 +159,10 @@ public class CommandCardPanel extends Panel
 			String selectedURI = ad[i].getSelectedIconURI();
 			try
 			{
-				MapItemDrawer.getInstance().addImage(iconURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				MapItemDrawer.getInstance().addImage(pressedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				MapItemDrawer.getInstance().addImage(rolloverURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				MapItemDrawer.getInstance().addImage(selectedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				ImageDrawer.getInstance().addImage(iconURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				ImageDrawer.getInstance().addImage(pressedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				ImageDrawer.getInstance().addImage(rolloverURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				ImageDrawer.getInstance().addImage(selectedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
 			}
 			catch (IOException e)
 			{
@@ -254,7 +254,7 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			MapItemDrawer.getInstance().draw(g, uri, new Position(x, y), 0.0, 1, 1);
+			ImageDrawer.getInstance().draw(g, uri, new Position(x, y), 0.0, 1, 1);
 		}
 	}
 	
