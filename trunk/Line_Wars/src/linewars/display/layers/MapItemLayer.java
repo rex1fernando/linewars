@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import linewars.display.Animation;
+import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
@@ -36,7 +37,7 @@ public class MapItemLayer implements ILayer
 	}
 	
 	@Override
-	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
+	public void draw(Graphics g, Display display, GameState gamestate, Rectangle2D visibleScreen, double scale)
 	{
 		for (MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
@@ -88,10 +89,11 @@ public class MapItemLayer implements ILayer
 				}
 				
 				//get the items coordinates based on the visible screen
+//				pos = display.toScreenCoord(pos);
 				pos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
 				
 				//draw the animation
-				ImageDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scaleX, scaleY);
+				ImageDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scale);
 			}
 		}
 	}

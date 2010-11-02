@@ -7,8 +7,7 @@ import java.awt.image.ImageObserver;
 
 public class GameImage
 {
-	private double lastScaleX;
-	private double lastScaleY;
+	private double lastScale;
 	private Image originalImage;
 	private Image lastScaledImage;
 
@@ -20,20 +19,22 @@ public class GameImage
 		g.drawImage(image, 0, 0, width, height, null);
 
 		lastScaledImage = originalImage;
-		lastScaleX = 1.0;
-		lastScaleY = 1.0;
+		lastScale = 1.0;
 	}
 
-	public Image scaleImage(double scaleX, double scaleY)
+	public Image scaleImage(double scale)
 	{
-		if(scaleX != lastScaleX || scaleY != lastScaleY)
+		if(scale != lastScale)
 		{
-			lastScaledImage = new BufferedImage((int)(originalImage.getWidth(null) * scaleX), (int)(originalImage.getHeight(null) * scaleY), BufferedImage.TYPE_INT_ARGB);
+			int width = (int)(originalImage.getWidth(null) * scale);
+			int height = (int)(originalImage.getHeight(null) * scale);
+			
+			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			
 			Graphics g = lastScaledImage.getGraphics();
-			g.drawImage(originalImage, 0, 0, (int)(originalImage.getWidth(null) * scaleX), (int)(originalImage.getHeight(null) * scaleY), null);
+			g.drawImage(originalImage, 0, 0, width, height, null);
 	
-			lastScaleX = scaleX;
-			lastScaleY = scaleY;
+			lastScale = scale;
 		}
 		
 		return lastScaledImage;

@@ -113,6 +113,18 @@ public class Display extends JFrame implements Runnable
 		return currentTimeTick;
 	}
 
+	public Position toGameCoord(Position screenCoord)
+	{
+		double scale = gamePanel.getWidth() / gamePanel.viewport.getWidth();
+		return new Position((screenCoord.getX() / scale) + gamePanel.viewport.getX(), (screenCoord.getY() / scale) + gamePanel.viewport.getY());
+	}
+
+	public Position toScreenCoord(Position gameCoord)
+	{
+		double scale = gamePanel.getWidth() / gamePanel.viewport.getWidth();
+		return new Position((gameCoord.getX() - gamePanel.viewport.getX()) * scale, (gameCoord.getY() - gamePanel.viewport.getY()) * scale);
+	}
+
 	/**
 	 * The main content panel for the main window. It is responsible for drawing
 	 * everything in the game.
@@ -148,6 +160,24 @@ public class Display extends JFrame implements Runnable
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
 
+			// get the map parser from the gamestate
+			gameStateProvider.lockViewableGameState();
+			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
+			gameStateProvider.unlockViewableGameState();
+
+			// add the map image to the MapItemDrawer
+			String mapURI = mapParser.getStringValue(ParserKeys.icon);
+//			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
+//			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
+//			try
+//			{
+//				ImageDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
+//			}
+//			catch (IOException e)
+//			{
+//				e.printStackTrace();
+//			}
+
 			Parser leftUIPanel = null;
 			Parser rightUIPanel = null;
 			Parser exitButton = null;
@@ -170,7 +200,7 @@ public class Display extends JFrame implements Runnable
 
 			setOpaque(false);
 
-			TerrainLayer terrain = new TerrainLayer();
+			TerrainLayer terrain = new TerrainLayer(mapURI);
 
 			strategicView = new ArrayList<ILayer>(2);
 			strategicView.add(terrain);
@@ -182,26 +212,6 @@ public class Display extends JFrame implements Runnable
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));
 
-			// get the map parser from the gamestate
-			gameStateProvider.lockViewableGameState();
-			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
-			//TODO get the correct player
-			Player thisPlayer = gameStateProvider.getCurrentGameState().getPlayer(0);
-			gameStateProvider.unlockViewableGameState();
-
-			// add the map image to the MapItemDrawer
-			String mapURI = mapParser.getStringValue(ParserKeys.icon);
-			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
-			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
-			try
-			{
-				ImageDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 			viewport = null;
@@ -210,7 +220,7 @@ public class Display extends JFrame implements Runnable
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, thisPlayer);
+			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider);
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, updateLoop, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
@@ -257,11 +267,10 @@ public class Display extends JFrame implements Runnable
 			bufferedG.fillRect(0, 0, getWidth(), getHeight());
 
 			// draws layers to scale
-			double scaleX = getWidth() / viewport.getWidth();
-			double scaleY = getHeight() / viewport.getHeight();
+			double scale = getWidth() / viewport.getWidth();
 			for(int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(bufferedG, gamestate, viewport, scaleX, scaleY);
+				currentView.get(i).draw(bufferedG, Display.this, gamestate, viewport, scale);
 			}
 			
 			// draws the offscreen image to the graphics object
@@ -350,20 +359,6 @@ public class Display extends JFrame implements Runnable
 			return null;
 		}
 		
-		Position toScreenCoord(Position gameCoord)
-		{
-			double scaleX = getWidth() / viewport.getWidth();
-			double scaleY = getHeight() / viewport.getHeight();
-			return new Position((gameCoord.getX() - viewport.getX()) * scaleX, (gameCoord.getY() - viewport.getY()) * scaleY);
-		}
-		
-		Position toGameCoord(Position screenCoord)
-		{
-			double scaleX = getWidth() / viewport.getWidth();
-			double scaleY = getHeight() / viewport.getHeight();
-			return new Position((screenCoord.getX() / scaleX) + viewport.getX(), (screenCoord.getY() / scaleY) + viewport.getY());
-		}
-
 		private class ResizeListener extends ComponentAdapter
 		{
 			@Override

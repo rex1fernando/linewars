@@ -73,7 +73,7 @@ public abstract class Panel extends JPanel
 //		g.fillRect(0, 0, getWidth(), getHeight());
 		if(curAnimation != null)
 		{
-			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, 1, 1);
+			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, 1);
 		}
 		super.paint(g);
 	}

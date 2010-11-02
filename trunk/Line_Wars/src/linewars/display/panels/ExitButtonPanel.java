@@ -101,7 +101,7 @@ public class ExitButtonPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			ImageDrawer.getInstance().draw(g, imageURI, new Position(x, y), 0.0, 1, 1);
+			ImageDrawer.getInstance().draw(g, imageURI, new Position(x, y), 0.0, 1);
 		}
 	}
 }

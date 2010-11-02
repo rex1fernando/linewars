@@ -5,6 +5,7 @@ import java.awt.geom.Rectangle2D;
 
 import linewars.display.ColoredEdge;
 import linewars.display.ColoredNode;
+import linewars.display.Display;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
@@ -15,7 +16,7 @@ import linewars.gamestate.mapItems.CommandCenter;
 public class GraphLayer implements ILayer
 {
 	@Override
-	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scaleX, double scaleY)
+	public void draw(Graphics g, Display display, GameState gamestate, Rectangle2D visibleScreen, double scale)
 	{
 		//the following code is for testing of the ColoredEdge class
 //		Lane l = new Lane(new Position(305, 350), new Position(10, 250), new Position(540, 115), new Position(350, 345), 10);

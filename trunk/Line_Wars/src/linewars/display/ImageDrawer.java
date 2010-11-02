@@ -70,9 +70,18 @@ public class ImageDrawer
 		if(images.get(uri + unitURI) != null)
 			return;
 		
+		Image image = loadImage(uri);
+
+		GameImage scaledImage = new GameImage(image, width, height);
+
+		images.put(uri + unitURI, scaledImage);
+	}
+
+	public BufferedImage loadImage(String uri) throws IOException
+	{
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
 
-		Image image;
+		BufferedImage image;
 		try
 		{
 			image = ImageIO.read(new URL(absURI));
@@ -81,10 +90,8 @@ public class ImageDrawer
 		{
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
-
-		GameImage scaledImage = new GameImage(image, width, height);
-
-		images.put(uri + unitURI, scaledImage);
+		
+		return image;
 	}
 
 	/**
@@ -103,15 +110,13 @@ public class ImageDrawer
 	 * @param scaleY
 	 *            The amount to scale the image on the y-axis.
 	 */
-	public void draw(Graphics g, String uri, Position position, double rotation, double scaleX, double scaleY)
+	public void draw(Graphics g, String uri, Position position, double rotation, double scale)
 	{
 		//TODO rotate the image
 		GameImage image = images.get(uri);
-		int x = (int)(position.getX() * scaleX);
-		int y = (int)(position.getY() * scaleY);
-		int w = (int)(image.getWidth(null) * scaleX);
-		int h = (int)(image.getHeight(null) * scaleY);
-		g.drawImage(image.scaleImage(scaleX, scaleY), x, y, null);
+		int x = (int)(position.getX() * scale);
+		int y = (int)(position.getY() * scale);
+		g.drawImage(image.scaleImage(scale), x, y, null);
 	}
 
 	/**
