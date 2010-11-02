@@ -2,6 +2,8 @@ package linewars.gamestate;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Queue;
 
@@ -221,18 +223,15 @@ public class Lane
 	public void addToPending(Node n, Unit u) 
 	{
 		int playerID = u.getOwner().getPlayerID();
-		if(pendingWaves.get(n) == null){
+		if(pendingWaves.get(n) == null)
 			pendingWaves.put(n, new ArrayList<Wave>());
-			for(int i = 0; i < gameState.getNumPlayers(); i++){
-				pendingWaves.get(n).add(new Wave(this));
-			}
-		}
-		if(pendingWaves.get(n).get(playerID) == null)
-		{
-			pendingWaves.get(n).add(playerID, new Wave(this, u));
-		}else{
-			pendingWaves.get(n).get(playerID).addUnit(u);
-		}
+		
+		ArrayList<Wave> waves = pendingWaves.get(n);
+		for(int i = 0; i < waves.size(); i++)
+			if(waves.get(i).getUnits()[0].getOwner().getPlayerID() == playerID)
+				waves.get(i).addUnit(u);
+		
+		waves.add(new Wave(this, u));
 	}
 	
 	/**
@@ -240,80 +239,159 @@ public class Lane
 	 * @param n The node the units/waves are coming from.
 	 * TODO this is actually a fairly tricky problem, since we have no particular constraints on the size of anything (except nonnegativity ofc).  Seems fun. - Taylor
 	 */
+//	public void addPendingWaves(Node n)
+//	{
+//		if(pendingWaves.isEmpty())
+//		{
+//			return;
+//		}
+//		int numBuckets = pendingWaves.get(n).size();
+//		double bucketWidth = width/numBuckets;
+//		double forwardBound = findForwardBound(n);
+//		
+//		//If the lane is backed up to the node, just destroy all of the pending units.
+//		if(forwardBound == 0)//TODO checking if a double is equal to 0 here instead of within rounding errors; is this intended?
+//		{
+//			pendingWaves.get(n).clear();
+//		}
+//		
+//		//For every bucket (A.K.A. every player with units coming from this node)
+//		for(int i = 0; i < numBuckets; i++)
+//		{
+//			double currentCloseBound = 0;
+//			double pendingCloseBound = 0;
+//			double yTopBound = (bucketWidth * i);
+//			double yBottomBound = yTopBound + bucketWidth;
+//			double yCurrentBound = yTopBound;
+//			
+//			//For every unit going into the current bucket
+//			for(int j = 0; j < pendingWaves.get(n).get(i).getUnits().length; j++)
+//			{
+//				Unit currentUnit = pendingWaves.get(n).get(i).getUnits()[j];
+//				boolean placed = false;
+//				
+//				//Make sure the unit can fit in the current player's bucket.
+//				if(currentUnit.getHeight() >= bucketWidth)
+//				{
+//					placed = true;
+//				}
+//				
+//				while(!placed)
+//				{
+//					//Make sure the unit can fit width-wise
+//					if(currentCloseBound + currentUnit.getWidth() <= forwardBound)
+//					{
+//						//If the unit can fit height-wise in the current "column" put it in. Otherwise advance to the next "column".
+//						if(yCurrentBound + currentUnit.getHeight() <= yBottomBound)
+//						{
+//							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
+//							waves.add(new Wave(this, currentUnit));
+//							
+//							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
+//							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
+//							{
+//								pendingCloseBound = currentCloseBound + currentUnit.getWidth();
+//							}
+//							yCurrentBound = yCurrentBound + currentUnit.getHeight();
+//							placed = true;
+//						}else{
+//							currentCloseBound = pendingCloseBound;
+//							yCurrentBound = yTopBound;
+//						}
+//					}else{
+//						placed = true;
+//					}
+//				}
+//				placed = false;
+//			}
+//		}
+//		
+//		//Destroy any units that got skipped because they couldn't be fit.
+//		pendingWaves.get(n).clear();
+//		for(int i = 0; i < gameState.getNumPlayers(); i++){
+//			pendingWaves.get(n).add(new Wave(this));
+//		}
+//		
+//	}	
+	
 	public void addPendingWaves(Node n)
 	{
 		if(pendingWaves.isEmpty())
-		{
 			return;
-		}
-		int numBuckets = pendingWaves.get(n).size();
-		double bucketWidth = width/numBuckets;
-		double forwardBound = findForwardBound(n);
 		
-		//If the lane is backed up to the node, just destroy all of the pending units.
-		if(forwardBound == 0)//TODO checking if a double is equal to 0 here instead of within rounding errors; is this intended?
-		{
-			pendingWaves.get(n).clear();
-		}
+		ArrayList<Wave> waves = pendingWaves.get(n);
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		for(Wave w : waves)
+			for(Unit u : w.getUnits())
+				units.add(u);
 		
-		//For every bucket (A.K.A. every player with units coming from this node)
-		for(int i = 0; i < numBuckets; i++)
-		{
-			double currentCloseBound = 0;
-			double pendingCloseBound = 0;
-			double yTopBound = (bucketWidth * i);
-			double yBottomBound = yTopBound + bucketWidth;
-			double yCurrentBound = yTopBound;
-			
-			//For every unit going into the current bucket
-			for(int j = 0; j < pendingWaves.get(n).get(i).getUnits().length; j++)
-			{
-				Unit currentUnit = pendingWaves.get(n).get(i).getUnits()[j];
-				boolean placed = false;
-				
-				//Make sure the unit can fit in the current player's bucket.
-				if(currentUnit.getHeight() >= bucketWidth)
-				{
-					placed = true;
-				}
-				
-				while(!placed)
-				{
-					//Make sure the unit can fit width-wise
-					if(currentCloseBound + currentUnit.getWidth() <= forwardBound)
-					{
-						//If the unit can fit height-wise in the current "column" put it in. Otherwise advance to the next "column".
-						if(yCurrentBound + currentUnit.getHeight() <= yBottomBound)
-						{
-							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
-							waves.add(new Wave(this, currentUnit));
-							
-							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
-							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
-							{
-								pendingCloseBound = currentCloseBound + currentUnit.getWidth();
-							}
-							yCurrentBound = yCurrentBound + currentUnit.getHeight();
-							placed = true;
-						}else{
-							currentCloseBound = pendingCloseBound;
-							yCurrentBound = yTopBound;
-						}
-					}else{
-						placed = true;
-					}
-				}
-				placed = false;
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getRadius() - u2.getRadius() < 0)
+					return 1;
+				else if((u1.getRadius() - u2.getRadius() > 0))
+					return -1;
+				else
+					return 0;
 			}
+		});
+		
+		Gate closestGate = gates.get(n);
+		double start = 0;
+		if (closestGate.getPosition().distanceSquared(
+				this.getPosition(1).getPosition()) < closestGate.getPosition()
+				.distanceSquared(this.getPosition(0).getPosition()))
+			start = 1;
+		
+		double minForward = (start == 0 ? closestGate.getRadius() : start - closestGate.getRadius());
+		double nextMinForward = minForward;
+		double forwardBound = findForwardBound(n);
+		double startWidth = width;
+		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
+		while(minForward < forwardBound)
+		{
+			for(int i = 0; i < units.size() && startWidth > -width;) //look for the biggest unit that will fit
+			{
+				Unit u = units.get(i);
+				
+				if((start == 0 && minForward + 2*u.getRadius()/this.getLength() > forwardBound) //if this unit will never fit
+					|| (start == 1 && minForward - 2*u.getRadius()/this.getLength() < forwardBound)
+					|| (2*u.getRadius() > width))
+				{
+					units.remove(i); //get rid of it
+					deletedUnits.add(u);
+				}
+				
+				if(startWidth - 2*u.getRadius() > -width) //if there's enough room to fit the unit
+				{
+					double pos = u.getRadius()/this.getLength();
+					pos = minForward + (start == 0 ? pos : -pos);
+					Transformation tpos = this.getPosition(pos);
+					double w = startWidth - u.getRadius();
+					tpos = new Transformation(
+							new Position(tpos.getPosition().getX() + w*Math.cos(tpos.getRotation()),
+										tpos.getPosition().getY() + w*Math.sin(tpos.getRotation())),
+							tpos.getRotation() - Math.PI);
+					u.setTransformation(tpos);
+					startWidth -= 2*u.getRadius();
+					
+					units.remove(i);
+					if(start == 0)
+						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward)
+							nextMinForward = 2*u.getRadius()/this.getLength() + minForward;
+					else
+						if(minForward - 2*u.getRadius()/this.getLength() < nextMinForward)
+							nextMinForward = minForward - 2*u.getRadius()/this.getLength();
+				}
+				else //if there's not enough room, check the next biggest unit
+					i++;
+			}
+			minForward = nextMinForward;
 		}
 		
-		//Destroy any units that got skipped because they couldn't be fit.
-		pendingWaves.get(n).clear();
-		for(int i = 0; i < gameState.getNumPlayers(); i++){
-			pendingWaves.get(n).add(new Wave(this));
-		}
+		//TODO do something about the deleted units, check over code above
 		
-	}	
+	}
 
 	/**
 	 * Finds the farthest point at which units can be spawned, defined as the position of the unit closest to the starting node. (Currently the gate)
