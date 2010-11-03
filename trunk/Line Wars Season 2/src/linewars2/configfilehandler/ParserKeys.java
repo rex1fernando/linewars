@@ -10,5 +10,5 @@ package linewars2.configfilehandler;
  *
  */
 public enum ParserKeys {
-
+	validConfigFile
 }

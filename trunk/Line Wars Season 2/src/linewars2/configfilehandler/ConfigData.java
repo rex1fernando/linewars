@@ -26,6 +26,11 @@ public class ConfigData {
 		this.startLine = startLine;
 	}
 	
+	public ConfigData()
+	{
+		URI = "";
+	}
+	
 	void setEndLine(int end)
 	{
 		endLine = end;
