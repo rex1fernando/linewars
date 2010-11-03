@@ -127,26 +127,85 @@ public class ConfigData {
 	
 	
 	
-	/**
-	 * Maps the given value to the given key
-	 * @param key
-	 * The key to which the new value is to be mapped.
-	 * @param newValue
-	 * The data to be mapped.
-	 */
-	public void set(ParserKeys key, Object newValue){
-		
+	public void set(ParserKeys key, String newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		v.add(newValue);
+		map.put(key, v);
 	}
 	
-	/**
-	 * Adds the given value to the given key
-	 * @param key
-	 * The key to which the given value is to be mapped
-	 * @param toAdd
-	 * The data which is to be added to the given key
-	 */
-	public void add(ParserKeys key, Object toAdd){
-		
+	public void set(ParserKeys key, String[] newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		for(String s : newValue)
+			v.add(s);
+		map.put(key, v);
+	}
+	
+	public void set(ParserKeys key, Double newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		v.add(newValue);
+		map.put(key, v);
+	}
+	
+	public void set(ParserKeys key, Double[] newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		for(Double s : newValue)
+			v.add(s);
+		map.put(key, v);
+	}
+	
+	public void set(ParserKeys key, ConfigData newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		v.add(newValue);
+		map.put(key, v);
+	}
+	
+	public void set(ParserKeys key, ConfigData[] newValue){
+		if(map.containsKey(key))
+			map.remove(key);
+		Value v = new Value();
+		for(ConfigData s : newValue)
+			v.add(s);
+		map.put(key, v);
+	}
+	
+	public void add(ParserKeys key, String toAdd){
+		Value v = map.get(key);
+		if(v == null)
+		{
+			v = new Value();
+			map.put(key, v);
+		}
+		v.add(toAdd);
+	}
+	
+	public void add(ParserKeys key, Double toAdd){
+		Value v = map.get(key);
+		if(v == null)
+		{
+			v = new Value();
+			map.put(key, v);
+		}
+		v.add(toAdd);
+	}
+	
+	public void add(ParserKeys key, ConfigData toAdd){
+		Value v = map.get(key);
+		if(v == null)
+		{
+			v = new Value();
+			map.put(key, v);
+		}
+		v.add(toAdd);
 	}
 	
 	/**
@@ -158,8 +217,28 @@ public class ConfigData {
 	 * @return
 	 * True iff the value was found and removed.
 	 */
-	public boolean remove(ParserKeys key, Object toRemove){
-		return false;
+	public boolean remove(ParserKeys key, String toRemove){
+		checkKey(key);
+		Value v = map.get(key);
+		boolean ret = v.getStringList().contains(toRemove);
+		v.getStringList().remove(toRemove);
+		return ret;
+	}
+	
+	public boolean remove(ParserKeys key, Double toRemove){
+		checkKey(key);
+		Value v = map.get(key);
+		boolean ret = v.getNumberList().contains(toRemove);
+		v.getNumberList().remove(toRemove);
+		return ret;
+	}
+	
+	public boolean remove(ParserKeys key, ConfigData toRemove){
+		checkKey(key);
+		Value v = map.get(key);
+		boolean ret = v.getConfigList().contains(toRemove);
+		v.getConfigList().remove(toRemove);
+		return ret;
 	}
 	
 	private void checkKey(ParserKeys key)
