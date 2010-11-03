@@ -263,4 +263,17 @@ public abstract class MapItem {
 	{
 		return body;
 	}
+	
+	/**
+	 * 
+	 * @return	whether or not this unit is finished and may be removed from the field
+	 */
+	public boolean finished()
+	{
+		Ability[] activeAbilities = this.getActiveAbilities();
+		for(Ability a : activeAbilities)
+			if(!a.killable())
+				return false;
+		return true;
+	}
 }

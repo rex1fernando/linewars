@@ -394,4 +394,19 @@ public class Player {
 	{
 		return playerID;
 	}
+	
+	public void removeUnit(Unit u)
+	{
+		ownedUnits.remove(u);
+	}
+	
+	public void removeBuilding(Building u)
+	{
+		ownedBuildings.remove(u);
+	}
+	
+	public void removeProjectile(Projectile u)
+	{
+		ownedProjectiles.remove(u);
+	}
 }

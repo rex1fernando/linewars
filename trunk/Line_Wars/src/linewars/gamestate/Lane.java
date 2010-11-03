@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Queue;
 
 
@@ -19,12 +20,16 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
+import linewars.gamestate.shapes.Circle;
 import linewars.parser.Parser;
 import linewars.parser.ParserKeys;
 import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Lane
 {
+	private static final double LANE_SPAWN_DISTANCE = 0.1;
+	static final double LANE_BORDER_RESOLUTION = 0.05;
+	
 	private String name;
 	
 	private BezierCurve curve;
@@ -45,7 +50,6 @@ public class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
-	static final double LANE_BORDER_RESOLUTION = 0.05;
 		
 	public Lane(GameState gameState, Parser parser, String name)
 	{
@@ -348,7 +352,7 @@ public class Lane
 		double forwardBound = findForwardBound(n);
 		double startWidth = width;
 		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
-		while(minForward < forwardBound)
+		while(minForward < forwardBound && !units.isEmpty())
 		{
 			for(int i = 0; i < units.size() && startWidth > -width;) //look for the biggest unit that will fit
 			{
@@ -360,6 +364,7 @@ public class Lane
 				{
 					units.remove(i); //get rid of it
 					deletedUnits.add(u);
+					u.getOwner().removeUnit(u);
 				}
 				
 				if(startWidth - 2*u.getRadius() > -width) //if there's enough room to fit the unit
@@ -389,43 +394,32 @@ public class Lane
 			minForward = nextMinForward;
 		}
 		
-		//TODO do something about the deleted units, check over code above
+		for(Wave w : waves)
+		{
+			for(Unit u : deletedUnits)
+				if(w.contains(u))
+					w.remove(u);
+		}
 		
 	}
 
 	/**
-	 * Finds the farthest point at which units can be spawned, defined as the position of the unit closest to the starting node. (Currently the gate)
-	 * Currently assumes that the gate is straight up and down.
-	 * TODO Later make it general.
-	 * TODO the doc for this method says it returns a point, but it is returning a double... they are equiv given the assumption though
+	 * Finds the farthest point at which units can be spawned, defined as the position
+	 * farthest away from the gate that units are allowed to spawn
 	 */
 	private double findForwardBound(Node n)
 	{
-		Gate closestGate = getClosestGate(n);
-		Position gatePos = closestGate.getPosition();
-		/*
-		double ret;
-		double plus = n.getPosition().getPosition().getX() - (gatePos.getX()+(closestGate.getWidth()/2));
-		double minus = n.getPosition().getPosition().getX() - (gatePos.getX()-(closestGate.getWidth()/2));
-		if(Math.abs(plus) < Math.abs(minus))
-		{
-			ret = plus;
-		}else{
-			ret = minus;
-		}
-		return ret;*/
-		/*TODO Taylor's attempt at an implementation, not sure what the contract of this method is*/
-		double preRet = Math.sqrt(gatePos.distanceSquared(n.getPosition().getPosition()));//the distance between the node and the closest gate
-		preRet -= closestGate.getWidth() / 2;//less half the width of the gate
-		if(n.getPosition().getPosition().getX() > gatePos.getX()){//if the gate is to the left of the node
-			preRet *= -1;
-		}
-		return preRet;
-	}
-	
-	private Gate getClosestGate(Node n)
-	{
-		return gates.get(n);
+		Gate closestGate = gates.get(n);
+		double start = 0;
+		if (closestGate.getPosition().distanceSquared(
+				this.getPosition(1).getPosition()) < closestGate.getPosition()
+				.distanceSquared(this.getPosition(0).getPosition()))
+			start = 1;
+		
+		if(start == 0)
+			return LANE_SPAWN_DISTANCE;
+		else 
+			return 1 - LANE_SPAWN_DISTANCE;
 	}	
 	
 	/**
@@ -477,6 +471,22 @@ public class Lane
 		return items.toArray(new MapItem[0]);
 	}
 	
+	public List<Unit> getUnitsIn(Circle c)
+	{
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		for(Wave w : waves)
+		{
+			Unit[] us = w.getUnits();
+			for(Unit u : us)
+			{
+				if(u.getPosition().distanceSquared(c.position().getPosition()) <= Math.pow(c.getRadius() + u.getRadius(), 2))
+					units.add(u);
+			}
+		}
+		
+		return units;
+	}
+	
 	/**
 	 * This method updates all the projectiles and waves in the lane
 	 */
@@ -485,12 +495,27 @@ public class Lane
 		if(nodes.size() != 2)
 			throw new IllegalStateException("This lane doesn't know about both its end point nodes");
 		
-		for(Wave w : waves)
-			w.update();
-		for(Projectile p : projectiles)
+		for(int i = 0; i < waves.size();)
 		{
+			Wave w = waves.get(i);
+			w.update();
+			//get rid of dead waves
+			if(w.getUnits().length == 0)
+				waves.remove(i);
+			else
+				i++;
+		}
+		
+		for(int i = 0; i < projectiles.size();)
+		{
+			Projectile p = projectiles.get(i);
 			p.move();
 			p.update();
+			//get rid of dead projectiles
+			if(p.getState() == MapItemState.Dead && p.finished())
+				projectiles.remove(i);
+			else
+				i++;
 		}
 	}
 	
@@ -499,10 +524,29 @@ public class Lane
 		return gates.get(n);
 	}
 	
-	//TODO fix this
 	public void addGate(Node n, Player p)
 	{
-		gates.put(n, new Gate(getPosition(gatePos), p.getGateDefinition(), new Immovable(), new NoCombat()));
+		Transformation t = null;
+		if (n.getPosition().getPosition().distanceSquared(
+				this.getPosition(1).getPosition()) < n.getPosition().getPosition()
+				.distanceSquared(this.getPosition(0).getPosition()))
+			t = this.getPosition(1);
+		else
+			t = this.getPosition(0);
+		Gate g = p.getGateDefinition().createGate(t);
+		Gate oldG = gates.get(n);
+		gates.put(n, g);
+		//if there is already a gate here, find the wave that contains it and remove it
+		for(Wave w : waves)
+			if(w.contains(oldG))
+			{
+				w.remove(oldG);
+				w.addUnit(g);
+				return;
+			}
+		
+		//if there isn't a gate, then make a new wave that contains it
+		waves.add(new Wave(this, g));
 	}
 	
 	public void addNode(Node n)
@@ -520,5 +564,10 @@ public class Lane
 	public double getLength()
 	{
 		return curve.getLength();
+	}
+	
+	public double getClosestPointRatio(Position p) 
+	{
+		return curve.getClosestPointRatio(p);
 	}
 }

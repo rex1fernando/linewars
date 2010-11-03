@@ -93,19 +93,6 @@ public class Unit extends MapItem {
 		return mStrat;
 	}
 	
-	/**
-	 * 
-	 * @return	whether or not this unit is finished and may be removed from the field
-	 */
-	public boolean finished()
-	{
-		Ability[] activeAbilities = this.getActiveAbilities();
-		for(Ability a : activeAbilities)
-			if(!a.killable())
-				return false;
-		return true;
-	}
-	
 	@Override
 	protected MapItemDefinition getDefinition() {
 		return definition;

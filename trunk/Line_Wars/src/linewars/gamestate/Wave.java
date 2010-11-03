@@ -1,11 +1,13 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.shapes.Circle;
 public class Wave {
 	private Lane owner;
 	private Node origin;
@@ -83,8 +85,14 @@ public class Wave {
 	 */
 	public double getPosition()
 	{
-		//TODO implement this method
-		return 0.5;
+		double min = 1;
+		for(Unit u : units)
+		{
+			double d = owner.getClosestPointRatio(u.getPosition()) - u.getRadius()/owner.getLength();
+			if(d < min)
+				min = d;
+		}
+		return min;
 	}
 	
 	/**
@@ -133,39 +141,124 @@ public class Wave {
 	/**
 	 * Updates all of the units of this wave according to the movement and combat strategies of the units in it.
 	 */
-	//TODO Update this to be general. Right now it assumes a straight lane and units only moving straight.
 	public void update()
 	{
-		Gate destGate = null;
-		for(int i = 0; i < owner.getNodes().length; i++)
+		//first check for dead units
+		for(int i = 0; i < units.size();)
+			if(units.get(i).getState() == MapItemState.Dead)
+				units.remove(i);
+			else
+				i++;
+		
+		//don't do anything if there are no units
+		if(units.size() <= 0)
+			return;
+		
+		//first get the max radius
+		double maxRad = 0;
+		Position center = this.getCenter();
+		for(Unit u : units)
 		{
-			if(owner.getNodes()[i] != origin){
-				destGate = owner.getGate(owner.getNodes()[i]);
-			}
-		}
-		double lowestMove = 1;
-		if(destGate == null){
-			return;//TODO haxed together a NPE fix here, prob still a logical error here
-		}
-		Position gatePos = destGate.getPosition();
-		if(opponent == null)
-		{
-			lowestMove = setTransformations(destGate, gatePos, 1);
-			setTransformations(destGate, gatePos, lowestMove);
-		}else{
-			Unit[] enemies = opponent.getUnits();
-			for(int i = 0; i < units.size(); i++)
-			{
-				units.get(i).getCombatStrategy().fight(enemies);
-			}
-		}
-		for(int j = 0; j < units.size(); j++)
-		{
-			units.get(j).getMovementStrategy().move();
-			units.get(j).update();
+			double rad = Math.sqrt(center.distanceSquared(u.getPosition())) + u.getCombatStrategy().getRange();
+			if(rad > maxRad)
+				maxRad = rad;
 		}
 		
+		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
+		//remove friendly units
+		for(int i = 0; i < unitsInRange.size();)
+			if(unitsInRange.get(i).getOwner().equals(units.get(0).getOwner()))
+				unitsInRange.remove(i);
+			else
+				i++;
+		
+		//if there are units, we're in combat!
+		if(unitsInRange.size() > 0)
+		{
+			//for efficiency reasons
+			Unit[] unitsInRangeArray = unitsInRange.toArray(new Unit[0]);
+			for(Unit u : units)
+				u.getCombatStrategy().fight(unitsInRangeArray);
+		}
+		else
+		{
+			//figure out which direction we're going
+			int dir = 1;
+			if (origin.getPosition().getPosition().distanceSquared(
+					owner.getPosition(1).getPosition()) < origin.getPosition().getPosition()
+					.distanceSquared(owner.getPosition(0).getPosition()))
+				dir = -1;
+			
+			//we're gonna move straight forward because I said so -Connor
+			double wayTheFuckOutThere = 100000000;
+			double min = 1;
+			
+			//for efficiency reasons
+			ArrayList<Transformation> closestPoints = new ArrayList<Transformation>();
+			
+			//go through each unit and see how far it's going to go
+			for(Unit u : units)
+			{
+				Transformation t = owner.getPosition(owner.getClosestPointRatio(u.getPosition()));
+				closestPoints.add(t);
+				double angle = t.getRotation();
+				if(dir < 0)
+					angle -= Math.PI;
+				double m = u.getMovementStrategy().setTarget(
+						new Transformation(u.getPosition().add(
+								wayTheFuckOutThere * Math.cos(angle),
+								wayTheFuckOutThere * Math.sin(angle)), angle));
+				if(m < min)
+					min = m;
+			}
+			
+			//go through each unit and set its actual target
+			double dis = wayTheFuckOutThere*min;
+			for(int i = 0; i < units.size(); i++)
+			{
+				double angle = closestPoints.get(i).getRotation();
+				if(dir < 0)
+					angle -= Math.PI;
+				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle))));
+				units.get(i).getMovementStrategy().setTarget(t);
+			}
+		}
+		
+		for(Unit u : units)
+			u.getMovementStrategy().move();
+		
 		fixCollisions();
+		
+//		Gate destGate = null;
+//		for(int i = 0; i < owner.getNodes().length; i++)
+//		{
+//			if(owner.getNodes()[i] != origin){
+//				destGate = owner.getGate(owner.getNodes()[i]);
+//			}
+//		}
+//		double lowestMove = 1;
+//		if(destGate == null){
+//			return;//TODO haxed together a NPE fix here, prob still a logical error here
+//		}
+//		Position gatePos = destGate.getPosition();
+//		if(opponent == null)
+//		{
+//			lowestMove = setTransformations(destGate, gatePos, 1);
+//			setTransformations(destGate, gatePos, lowestMove);
+//		}else{
+//			Unit[] enemies = opponent.getUnits();
+//			for(int i = 0; i < units.size(); i++)
+//			{
+//				units.get(i).getCombatStrategy().fight(enemies);
+//			}
+//		}
+//		for(int j = 0; j < units.size(); j++)
+//		{
+//			units.get(j).getMovementStrategy().move();
+//			units.get(j).update();
+//		}
+//		
+//		fixCollisions();
 	}
 	
 
@@ -202,5 +295,27 @@ public class Wave {
 			}
 		}
 		return ret;
+	}
+	
+	public boolean contains(Unit u)
+	{
+		return units.contains(u);
+	}
+	
+	public void remove(Unit u)
+	{
+		units.remove(u);
+	}
+	
+	public Position getCenter()
+	{
+		Position average = new Position(0,0);
+		int num = 0;
+		for(Unit u : units)
+		{
+			average = average.scale(num).add(u.getPosition()).scale(1.0/(num + 1.0));
+			num++;
+		}
+		return average;
 	}
 }

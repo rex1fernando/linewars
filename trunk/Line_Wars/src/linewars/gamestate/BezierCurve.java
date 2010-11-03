@@ -150,4 +150,17 @@ public class BezierCurve {
 		
 		return new Position(posX, posY);
 	}
+	
+	//TODO implement this method
+	/**
+	 * first finds the closest point in the curve to p, then returns that
+	 * position's ratio along the curve (ie [0,1])
+	 * 
+	 * @param p		the position to find the ratio for
+	 * @return		the ratio along the curve [0,1] of p
+	 */
+	public double getClosestPointRatio(Position p) 
+	{
+		return 0.5;
+	}
 }

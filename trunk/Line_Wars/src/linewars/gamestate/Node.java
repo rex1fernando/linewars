@@ -17,13 +17,12 @@ import linewars.parser.ParserKeys;
 
 public class Node {
 	
+	private static final long TIME_TO_OCCUPY = 30000;
+	
 	private GameState gameState;
 	private Player owner;
 	private Player invader;
-	private Player nextOwner;
-	private long occupationTime;
-	private boolean changedOwners;
-	private long timeToOccupy;
+	private long occupationStartTime;
 	
 	private ArrayList<Building> containedBuildings;
 	private CommandCenter cCenter;
@@ -41,11 +40,9 @@ public class Node {
 	public Node(Parser parser, GameState gameState, Lane[] lanes, int id)
 	{
 		ID = id;
-		changedOwners = false;
 		invader = null;
 		owner = null;
-		occupationTime = 0;
-		timeToOccupy = 9001;
+		occupationStartTime = -1;
 		this.cCenter = null;
 		containedUnits = new ArrayList<Unit>();
 		containedBuildings = new ArrayList<Building>();
@@ -83,7 +80,7 @@ public class Node {
 	
 	public boolean isContested()
 	{
-		return occupationTime != 0;
+		return occupationStartTime >= 0;
 	}
 	
 	public Player getInvader()
@@ -91,9 +88,9 @@ public class Node {
 		return invader;
 	}
 	
-	public long getOccupationTime()
+	public long getOccupationStartTime()
 	{
-		return occupationTime;
+		return occupationStartTime;
 	}
 	
 	public Building[] getContainedBuildings()
@@ -286,28 +283,19 @@ public class Node {
 	 */
 	public void update()
 	{
-		for(Building b : containedBuildings)
+		if(!this.isContested())
 		{
-			b.update();
+			for(Building b : containedBuildings)
+				b.update();
+			if(cCenter != null)
+				cCenter.update();
 		}
-		if(cCenter != null){
-			cCenter.update();
+		if(cCenter != null)
 			generateWaves();
-		}
 		
 		//Check whether the node should change owners. 
-		//TODO Is this the correct way to do this?
-		if(occupationTime > timeToOccupy)
-		{
-			nextOwner = invader;
-			invader = null;
-			changedOwners = true;
-		}
-		
-		if(changedOwners)
-		{
-			setOwner(nextOwner);
-		}
+		if(gameState.getTime()*1000 - occupationStartTime > TIME_TO_OCCUPY)
+			setOwner(invader);
 	}
 	
 	/**
@@ -323,6 +311,8 @@ public class Node {
 		{
 			l.addGate(this, owner);
 		}
+		invader = null;
+		occupationStartTime = -1;
 	}
 	
 	public Shape getShape()
@@ -338,6 +328,9 @@ public class Node {
 	public void setInvader(Player p)
 	{
 		invader = p;
+		occupationStartTime = (long) (gameState.getTime()*1000);
+		for(Lane l : attachedLanes)
+			l.removeGate(this);
 	}
 	
 	public int getID()
