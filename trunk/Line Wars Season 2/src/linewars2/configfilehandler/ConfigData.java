@@ -59,7 +59,70 @@ public class ConfigData {
 		
 		//have to check each one individually, no other way
 		//first check String
-		
+		if(this.getString(key) != null)
+		{
+			list.add(valueType.String);
+			list.add(valueType.StringList);
+		}
+		if(this.getNumber(key) != null)
+		{
+			list.add(valueType.Number);
+			list.add(valueType.NumberList);
+		}
+		if(this.getConfig(key) != null)
+		{
+			list.add(valueType.Config);
+			list.add(valueType.ConfigList);
+		}
+		return list;
+	}
+	
+	public String getString(ParserKeys key)
+	{
+		checkKey(key);
+		Value v = map.get(key);
+		if(v.getStringList().size() != 1)
+			return null;
+		else
+			return v.getStringList().get(0);
+	}
+	
+	public List<String> getStringList(ParserKeys key)
+	{
+		checkKey(key);
+		return new ArrayList<String>(map.get(key).getStringList());
+	}
+	
+	public Double getNumber(ParserKeys key)
+	{
+		checkKey(key);
+		Value v = map.get(key);
+		if(v.getNumberList().size() != 1)
+			return null;
+		else
+			return v.getNumberList().get(0);
+	}
+	
+	public List<Double> getNumberList(ParserKeys key)
+	{
+		checkKey(key);
+		return new ArrayList<Double>(map.get(key).getNumberList());
+	}
+	
+	public ConfigData getConfig(ParserKeys key)
+	{
+		checkKey(key);
+		Value v = map.get(key);
+		if(v.getConfigList().size() != 1)
+			return null;
+		else
+			return v.getConfigList().get(0);
+	}
+	
+	public List<ConfigData> getConfigList(ParserKeys key)
+	{
+		checkKey(key);
+		return new ArrayList<ConfigData>(map.get(key).getConfigList());
 	}
 	
 	
@@ -106,7 +169,7 @@ public class ConfigData {
 				throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config file " + URI + 
 					" from line " + startLine + " to " + endLine);
 			else
-				throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config data.")
+				throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config data.");
 	}
 	
 	public enum valueType{
@@ -117,25 +180,19 @@ public class ConfigData {
 		private List<String> strings = new ArrayList<String>();
 		private List<ConfigData> configs = new ArrayList<ConfigData>();
 		
-		public boolean add(ConfigData cd)
+		public void add(ConfigData cd)
 		{
-			if((strings != null && strings.size() > 0)
-					|| configs == null)
-				return false;
-			
-			strings = null;
 			configs.add(cd);
-			return true;
 		}
 		
-		public boolean add(String s)
+		public void add(String s)
 		{
-			if(configs != null && configs.size() > 0
-					|| strings == null)
-				return false;
-			
 			strings.add(s);
-			return true;
+		}
+		
+		public void add(Double d)
+		{
+			this.add("" + d);
 		}
 		
 		public List<String> getStringList()
@@ -146,6 +203,21 @@ public class ConfigData {
 		public List<ConfigData> getConfigList()
 		{
 			return configs;
+		}
+		
+		public List<Double> getNumberList()
+		{
+			List<Double> list = new ArrayList<Double>();
+			for(String s : strings)
+			{
+				try{
+					Double d = Double.valueOf(s);
+					list.add(d);
+				} catch (NumberFormatException e) {
+					
+				}
+			}
+			return list;
 		}
 	}
 	
