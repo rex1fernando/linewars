@@ -530,8 +530,68 @@ public class Lane
 			else
 				i++;
 		}
+		
+		//TODO is this the right spot?
+		fixCollisions();
 	}
 	
+	/**
+	 * Finds and fixes all of the current collisions in this Lane.
+	 */
+	private void fixCollisions()
+	{
+		//First find all the collisions
+		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
+		List<Unit> allUnits = getUnits();
+		for(Unit first : allUnits){//for each unit in the lane
+			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
+			if(first.getState() != MapItemState.Moving) continue;//if this Unit isn't moving, it isn't going to get shoved
+			
+			for(Unit second : allUnits){//for each unit it could be colliding with
+				if(first == second) continue;//units can't collide with themselves
+				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
+					if(first.isCollidingWith(second)){//if the two units are actually colliding
+						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
+						
+						//TODO verify/test these calculations
+						double distanceApart = offsetVector.length();
+						double radSum = first.getRadius() + second.getRadius();
+						double overlap = distanceApart - radSum;
+						offsetVector = offsetVector.scale(overlap / distanceApart);
+						
+						if(second.getState() == MapItemState.Moving){
+							//move first by -offsetvector/2
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.5));
+							collisionVectors.put(first, newPosition);
+						}
+						else{
+							//move first by -offsetvector
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
+							collisionVectors.put(first, newPosition);
+						}
+					}
+				}
+			}
+		}
+		
+		//Then resolve them by shifting stuff around
+		for(Unit toMove : allUnits){
+			if(collisionVectors.get(toMove).length() > 0){
+				toMove.getBody().transform(new Transformation(collisionVectors.get(toMove), 0));				
+			}
+		}
+	}
+	
+	private List<Unit> getUnits() {
+		ArrayList<Unit> ret = new ArrayList<Unit>();
+		for(Wave toCheck : waves){
+			for(Unit toAdd : toCheck.getUnits()){
+				ret.add(toAdd);
+			}
+		}
+		return ret;
+	}
+
 	public Gate getGate(Node n)
 	{
 		return gates.get(n);

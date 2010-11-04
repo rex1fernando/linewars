@@ -111,4 +111,13 @@ public class Position {
 	public String toString(){
 		return "(" + x + ", " + y + ")";
 	}
+
+	/**
+	 * Computes the length of this Position (if it is considered to be a vector/relative position).
+	 * This is equal to its distance from the origin, if the Position is interpreted as an absolute position.
+	 * @return the length of the vector represented by this Position.
+	 */
+	public double length() {
+		return Math.sqrt(x * x + y * y);
+	}
 }

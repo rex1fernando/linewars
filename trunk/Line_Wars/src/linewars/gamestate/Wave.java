@@ -96,51 +96,6 @@ public class Wave {
 		return min;
 	}
 	
-	/**
-	 * Fixes all of the current collisions in this wave.
-	 */
-	private void fixCollisions()
-	{
-		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
-		
-		for(int i = 0; i < units.size(); i++)
-		{
-			Unit currentUnit = units.get(i);
-			if(currentUnit.getState() == MapItemState.Moving)
-			{
-				Position collisionVector;
-				MapItem[] collisions = owner.getCollisions(currentUnit);
-				Position totalVector = new Position(0,0);
-				for(int j = 0; j < collisions.length; j++)
-				{
-					double d = Math.sqrt(currentUnit.getPosition().distanceSquared(collisions[j].getPosition()));
-					double dPrime = currentUnit.getRadius() + collisions[j].getRadius();
-					double deltaD = dPrime - d;
-					if(collisions[j].getState() == MapItemState.Moving)
-					{
-						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
-						collisionVector = collisionVector.normalize().scale(deltaD/2);
-					}else{
-						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
-						collisionVector = collisionVector.normalize().scale(deltaD);
-					}
-					totalVector = totalVector.add(collisionVector);
-				}
-				collisionVectors.put(currentUnit, totalVector);
-			}else{
-				collisionVectors.put(currentUnit, new Position(0, 0));
-			}
-		}
-		
-		for(int i = 0; i < units.size(); i++)
-		{
-			if(units.get(i).getState() == MapItemState.Moving){
-				if(collisionVectors.get(units.get(i)).distanceSquared(new Position(0, 0)) > 0)
-					units.get(i).setPosition(collisionVectors.get(units.get(i)));
-			}
-		}
-	}
-	
 	
 	/**
 	 * Updates all of the units of this wave according to the movement and combat strategies of the units in it.
@@ -235,8 +190,6 @@ public class Wave {
 		for(Unit u : units)
 			u.getMovementStrategy().move();
 		
-//		fixCollisions();
-		
 //		Gate destGate = null;
 //		for(int i = 0; i < owner.getNodes().length; i++)
 //		{
@@ -265,8 +218,6 @@ public class Wave {
 //			units.get(j).getMovementStrategy().move();
 //			units.get(j).update();
 //		}
-//		
-//		fixCollisions();
 	}
 	
 
