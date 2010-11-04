@@ -16,7 +16,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,6 @@ import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
-import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.network.MessageReceiver;
@@ -166,6 +164,9 @@ public class Display extends JFrame implements Runnable
 		public GamePanel()
 		{
 			super(null);
+			
+			// starts the user fully zoomed out
+			zoomLevel = 1;
 
 			mousePosition = new Point2D.Double();
 			lastClickPosition = new Position(0, 0);
@@ -175,13 +176,23 @@ public class Display extends JFrame implements Runnable
 
 			// get the map parser from the gamestate
 			gameStateProvider.lockViewableGameState();
+			
 			ConfigData mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
+			
+			// calculates the visible screen size based off of the zoom level
+			double mapWidth = mapParser.getNumber(ParserKeys.imageWidth);
+			double mapHeight = mapParser.getNumber(ParserKeys.imageHeight);
+			mapSize = new Dimension();
+			mapSize.setSize(mapWidth, mapHeight);
+			
+			Dimension2D visibleSize = new Dimension();
+			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
+			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
+			
 			gameStateProvider.unlockViewableGameState();
 
 			// add the map image to the MapItemDrawer
 			String mapURI = mapParser.getString(ParserKeys.icon);
-//			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
-//			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 //			try
 //			{
 //				ImageDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
@@ -213,7 +224,7 @@ public class Display extends JFrame implements Runnable
 
 			setOpaque(false);
 
-			TerrainLayer terrain = new TerrainLayer(mapURI);
+			TerrainLayer terrain = new TerrainLayer(mapURI, Display.this);
 
 			strategicView = new ArrayList<ILayer>(2);
 			strategicView.add(terrain);
@@ -224,10 +235,6 @@ public class Display extends JFrame implements Runnable
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));
-
-			// starts the user fully zoomed out
-			zoomLevel = 1;
-			viewport = null;
 
 			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
@@ -269,34 +276,16 @@ public class Display extends JFrame implements Runnable
 			// TODO make sure to change this back so it uses strategic view as well!
 			List<ILayer> currentView = tacticalView;// (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
-			// calculates the visible screen size based off of the zoom level
-			if(viewport == null)
-			{
-				mapSize = gamestate.getMapSize();
-				Dimension2D visibleSize = new Dimension();
-				visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
-				viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
-			}
-
-			// double buffer implementation
-			Image buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-			Graphics bufferedG = buffer.getGraphics();
-			bufferedG.setColor(Color.black);
-			bufferedG.fillRect(0, 0, getWidth(), getHeight());
-
 			// draws layers to scale
 			double scale = getWidth() / viewport.getWidth();
 			for(int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(bufferedG, gamestate, viewport, scale);
+				currentView.get(i).draw(g, gamestate, viewport, scale);
 			}
 			
 			//TODO
-			bufferedG.setColor(Color.white);
-			bufferedG.drawString(Double.toString(fps), 300, 300);
-
-			// draws the offscreen image to the graphics object
-			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
+			g.setColor(Color.white);
+			g.drawString(Double.toString(fps), 300, 300);
 
 			// draws the panels if they are shown
 			updatePanels(g, gamestate);
