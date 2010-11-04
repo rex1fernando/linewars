@@ -15,7 +15,7 @@ public class ResourceDisplayPanel extends Panel
 	/**
 	 * The height and width of the panel
 	 */
-	private static final int WIDTH = 75;
+	private static final int WIDTH = 100;
 	private static final int HEIGHT = 25;
 	
 	public ResourceDisplayPanel(GameStateProvider stateManager)
@@ -42,7 +42,7 @@ public class ResourceDisplayPanel extends Panel
 		
 		b.setColor(Color.white);
 //		b.drawString(Integer.toString(3527), 0, 12);
-		b.drawString(Integer.toString((int)player.getStuff()), 0, HEIGHT);
+		b.drawString(Integer.toString((int)player.getStuff()), 0, 12);
 		
 		g.drawImage(buf, 0, 0, WIDTH, HEIGHT, null);
 	}
