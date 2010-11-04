@@ -112,6 +112,16 @@ public class Display extends JFrame implements Runnable
 	{
 		return currentTimeTick;
 	}
+	
+	public int getScreenWidth()
+	{
+		return gamePanel.getWidth();
+	}
+
+	public int getScreenHeight()
+	{
+		return gamePanel.getHeight();
+	}
 
 	public Position toGameCoord(Position screenCoord)
 	{
@@ -150,6 +160,9 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		
+		//TODO
+		private long lastTime;
+
 		public GamePanel()
 		{
 			super(null);
@@ -243,6 +256,11 @@ public class Display extends JFrame implements Runnable
 		@Override
 		public void paint(Graphics g)
 		{
+			//TODO
+			long curTime = System.currentTimeMillis();
+			double fps = 1000.0 / (curTime - lastTime);
+			lastTime = curTime;
+			
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
@@ -270,9 +288,13 @@ public class Display extends JFrame implements Runnable
 			double scale = getWidth() / viewport.getWidth();
 			for(int i = 0; i < currentView.size(); i++)
 			{
-				currentView.get(i).draw(bufferedG, Display.this, gamestate, viewport, scale);
+				currentView.get(i).draw(bufferedG, gamestate, viewport, scale);
 			}
 			
+			//TODO
+			bufferedG.setColor(Color.white);
+			bufferedG.drawString(Double.toString(fps), 300, 300);
+
 			// draws the offscreen image to the graphics object
 			g.drawImage(buffer, 0, 0, getWidth(), getHeight(), Display.this);
 

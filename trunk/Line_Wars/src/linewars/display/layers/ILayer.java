@@ -3,7 +3,6 @@ package linewars.display.layers;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 
-import linewars.display.Display;
 import linewars.gamestate.GameState;
 
 /**
@@ -19,11 +18,10 @@ public interface ILayer
 	 * 
 	 * @param g
 	 *            The graphics object to be drawn to.
-	 * @param display TODO
 	 * @param gamestate
 	 *            The current drawable gamestate of the game.
 	 * @param visibleScreen TODO
 	 * @param scale TODO
 	 */
-	public void draw(Graphics g, Display display, GameState gamestate, Rectangle2D visibleScreen, double scale);
+	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scale);
 }

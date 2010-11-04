@@ -14,7 +14,6 @@ import linewars.configfilehandler.ConfigFileReader;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.display.Animation;
-import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
@@ -38,7 +37,7 @@ public class MapItemLayer implements ILayer
 	}
 	
 	@Override
-	public void draw(Graphics g, Display display, GameState gamestate, Rectangle2D visibleScreen, double scale)
+	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scale)
 	{
 		for (MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
