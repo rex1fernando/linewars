@@ -119,16 +119,16 @@ public class Wave {
 					if(collisions[j].getState() == MapItemState.Moving)
 					{
 						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
-						collisionVector = collisionVector.scale(deltaD/2);
+						collisionVector = collisionVector.normalize().scale(deltaD/2);
 					}else{
 						collisionVector = currentUnit.getPosition().subtract(collisions[j].getPosition());
-						collisionVector = collisionVector.scale(deltaD);
+						collisionVector = collisionVector.normalize().scale(deltaD);
 					}
-					totalVector.add(collisionVector);
+					totalVector = totalVector.add(collisionVector);
 				}
 				collisionVectors.put(currentUnit, totalVector);
 			}else{
-				collisionVectors.put(currentUnit, currentUnit.getPosition());
+				collisionVectors.put(currentUnit, new Position(0, 0));
 			}
 		}
 		

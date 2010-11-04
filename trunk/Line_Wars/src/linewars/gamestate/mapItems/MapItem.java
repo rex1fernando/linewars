@@ -233,7 +233,7 @@ public abstract class MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		
-		return this.getDefinition().getBody().isCollidingWith(m.body);
+		return this.getBody().isCollidingWith(m.body);
 	}
 	
 	/**
