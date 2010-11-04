@@ -50,6 +50,7 @@ public class TimingManager implements Runnable{
 			//TODO process them as needed - game speed change orders in particular!
 			//give orders to manager
 			manager.addOrdersForTick(nextTickID, messagesForTick);
+			lastUpdateTime = System.currentTimeMillis();
 			//update tick id
 			++nextTickID;
 			//compute time to sleep for
