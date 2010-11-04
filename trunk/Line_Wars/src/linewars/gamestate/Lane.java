@@ -235,7 +235,7 @@ public class Lane
 			if(waves.get(i).getUnits()[0].getOwner().getPlayerID() == playerID)
 				waves.get(i).addUnit(u);
 		
-		waves.add(new Wave(this, u));
+		waves.add(new Wave(this, u, n));
 	}
 	
 	/**
@@ -546,7 +546,7 @@ public class Lane
 			}
 		
 		//if there isn't a gate, then make a new wave that contains it
-		waves.add(new Wave(this, g));
+		waves.add(new Wave(this, g, n));
 	}
 	
 	public void addNode(Node n)

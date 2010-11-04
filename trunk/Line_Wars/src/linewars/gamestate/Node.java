@@ -294,7 +294,7 @@ public class Node {
 			generateWaves();
 		
 		//Check whether the node should change owners. 
-		if(gameState.getTime()*1000 - occupationStartTime > TIME_TO_OCCUPY)
+		if(occupationStartTime > 0 && gameState.getTime()*1000 - occupationStartTime > TIME_TO_OCCUPY)
 			setOwner(invader);
 	}
 	

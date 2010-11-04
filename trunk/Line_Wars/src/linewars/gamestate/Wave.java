@@ -33,12 +33,13 @@ public class Wave {
 		return origin;
 	}
 	
-	public Wave(Lane owner, Unit u)
+	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
 		opponent = null;
 		units = new ArrayList<Unit>();
 		units.add(u);
+		this.origin = origin;
 	}
 	
 	public Wave(Lane owner)
@@ -133,7 +134,9 @@ public class Wave {
 		
 		for(int i = 0; i < units.size(); i++)
 		{
-			units.get(i).setPosition(collisionVectors.get(units.get(i)));
+			if(units.get(i).getState() == MapItemState.Moving){
+				units.get(i).setPosition(collisionVectors.get(units.get(i)));
+			}
 		}
 	}
 	
@@ -228,6 +231,8 @@ public class Wave {
 			u.getMovementStrategy().move();
 		
 		fixCollisions();
+		if(!(units.get(0) instanceof Gate))
+			System.out.println(units.get(0).getPosition().getX() + ", " + units.get(0).getPosition().getY());
 		
 //		Gate destGate = null;
 //		for(int i = 0; i < owner.getNodes().length; i++)

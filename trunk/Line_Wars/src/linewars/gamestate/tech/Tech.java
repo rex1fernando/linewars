@@ -130,7 +130,7 @@ public class Tech {
 		Class<? extends Tech> initializer = typeToClass.get(type.toLowerCase());
 		Tech ret = null;
 		try{
-			ret = initializer.getConstructor(ConfigData.class, Player.class).newInstance(URI, owner);
+			ret = initializer.getConstructor(String.class, Player.class).newInstance(URI, owner);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

@@ -21,7 +21,7 @@ public class Immovable implements MovementStrategy {
 
 	@Override
 	public double setTarget(Transformation t) {
-		return 0;
+		return 1;
 	}
 
 	@Override

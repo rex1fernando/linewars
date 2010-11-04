@@ -62,8 +62,8 @@ public class ConfigFileReader {
 	public ConfigData read(boolean requiredValid) throws InvalidConfigFileException{
 		ConfigData cd = readRecurse();
 		if(requiredValid)
-			if (!cd.getDefinedKeys().contains(ParserKeys.validConfigFile)
-					|| !cd.getString(ParserKeys.validConfigFile).equalsIgnoreCase("true"))
+			if (!cd.getDefinedKeys().contains(ParserKeys.valid)
+					|| !cd.getString(ParserKeys.valid).equalsIgnoreCase("true"))
 				throw new InvalidConfigFileException("The Config " + URI
 						+ " does not contain the key valid or it is not set to true.");
 		return cd;
@@ -101,9 +101,9 @@ public class ConfigFileReader {
 			String value = line.nextLine().trim();
 			
 			if(value.equals("{"))
-				config.add(ParserKeys.valueOf(key), this.readRecurse());
+				config.add(ConfigData.getKey(key), this.readRecurse());
 			else
-				config.add(ParserKeys.valueOf(key), value);
+				config.add(ConfigData.getKey(key), value);
 		}
 		
 		config.setEndLine(currentLine);

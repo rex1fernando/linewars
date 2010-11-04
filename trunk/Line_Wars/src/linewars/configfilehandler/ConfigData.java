@@ -15,6 +15,14 @@ import java.util.Set;
  */
 public class ConfigData {
 	
+	static ParserKeys getKey(String s)
+	{
+		for(ParserKeys key : ParserKeys.values())
+			if(key.toString().toLowerCase().equals(s.toLowerCase()))
+				return key;
+		throw new IllegalArgumentException(s + " is not a key you retard.");
+	}
+	
 	private HashMap<String, Value> map = new HashMap<String, Value>();
 	private String URI;
 	private int startLine = -1;
@@ -46,9 +54,7 @@ public class ConfigData {
 		Set<Entry<String, Value>> set = map.entrySet();
 		for(Entry<String, Value> e : set)
 		{
-			for(ParserKeys key : ParserKeys.values())
-				if(key.toString().toLowerCase().equals(e.getKey()))
-					keys.add(key);
+			keys.add(ConfigData.getKey(e.getKey()));
 		}
 		
 		return keys;
@@ -63,9 +69,7 @@ public class ConfigData {
 	 */
 	public List<valueType> getValidTypes(ParserKeys k){
 		checkKey(k);
-		String key = k.toString().toLowerCase();
 		List<valueType> list = new ArrayList<valueType>();
-		Value v = map.get(key);
 		
 		//have to check each one individually, no other way
 		//first check String

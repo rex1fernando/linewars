@@ -46,7 +46,7 @@ public class ConfigFileWriter {
 	 * @throws IOException 
 	 */
 	void write(ConfigData toWrite, boolean isValid) throws IOException{
-		out.write(new String(ParserKeys.validConfigFile + " = ").getBytes());
+		out.write(new String(ParserKeys.valid + " = ").getBytes());
 		if(isValid)
 			out.write(new String("true").getBytes());
 		else

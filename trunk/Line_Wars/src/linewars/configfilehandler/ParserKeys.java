@@ -10,7 +10,7 @@ package linewars.configfilehandler;
  *
  */
 public enum ParserKeys {
-	validConfigFile,
+	valid,
 	ValidStates, name, cost, 
 	buildTime, maxHP, velocity, 
 	abilities, functionType, 
