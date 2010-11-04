@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class ConfigData {
 	
-	private HashMap<ParserKeys, Value> map = new HashMap<ParserKeys, Value>();
+	private HashMap<String, Value> map = new HashMap<String, Value>();
 	private String URI;
 	private int startLine = -1;
 	private int endLine;
@@ -43,9 +43,13 @@ public class ConfigData {
 	 */
 	public List<ParserKeys> getDefinedKeys(){
 		List<ParserKeys> keys = new ArrayList<ParserKeys>();
-		Set<Entry<ParserKeys, Value>> set = map.entrySet();
-		for(Entry<ParserKeys, Value> e : set)
-			keys.add(e.getKey());
+		Set<Entry<String, Value>> set = map.entrySet();
+		for(Entry<String, Value> e : set)
+		{
+			for(ParserKeys key : ParserKeys.values())
+				if(key.toString().toLowerCase().equals(e.getKey()))
+					keys.add(key);
+		}
 		
 		return keys;
 	}
@@ -57,24 +61,25 @@ public class ConfigData {
 	 * @return
 	 * A list of all of the ways in which the values mapped to a given key can be interpreted.
 	 */
-	public List<valueType> getValidTypes(ParserKeys key){
-		checkKey(key);
+	public List<valueType> getValidTypes(ParserKeys k){
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		List<valueType> list = new ArrayList<valueType>();
 		Value v = map.get(key);
 		
 		//have to check each one individually, no other way
 		//first check String
-		if(this.getString(key) != null)
+		if(this.getString(k) != null)
 		{
 			list.add(valueType.String);
 			list.add(valueType.StringList);
 		}
-		if(this.getNumber(key) != null)
+		if(this.getNumber(k) != null)
 		{
 			list.add(valueType.Number);
 			list.add(valueType.NumberList);
 		}
-		if(this.getConfig(key) != null)
+		if(this.getConfig(k) != null)
 		{
 			list.add(valueType.Config);
 			list.add(valueType.ConfigList);
@@ -82,9 +87,10 @@ public class ConfigData {
 		return list;
 	}
 	
-	public String getString(ParserKeys key)
+	public String getString(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v.getStringList().size() != 1)
 			return null;
@@ -92,15 +98,17 @@ public class ConfigData {
 			return v.getStringList().get(0);
 	}
 	
-	public List<String> getStringList(ParserKeys key)
+	public List<String> getStringList(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		return new ArrayList<String>(map.get(key).getStringList());
 	}
 	
-	public Double getNumber(ParserKeys key)
+	public Double getNumber(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v.getNumberList().size() != 1)
 			return null;
@@ -108,15 +116,17 @@ public class ConfigData {
 			return v.getNumberList().get(0);
 	}
 	
-	public List<Double> getNumberList(ParserKeys key)
+	public List<Double> getNumberList(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		return new ArrayList<Double>(map.get(key).getNumberList());
 	}
 	
-	public ConfigData getConfig(ParserKeys key)
+	public ConfigData getConfig(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v.getConfigList().size() != 1)
 			return null;
@@ -124,15 +134,17 @@ public class ConfigData {
 			return v.getConfigList().get(0);
 	}
 	
-	public List<ConfigData> getConfigList(ParserKeys key)
+	public List<ConfigData> getConfigList(ParserKeys k)
 	{
-		checkKey(key);
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		return new ArrayList<ConfigData>(map.get(key).getConfigList());
 	}
 	
 	
 	
-	public void set(ParserKeys key, String newValue){
+	public void set(ParserKeys k, String newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -140,7 +152,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void set(ParserKeys key, String[] newValue){
+	public void set(ParserKeys k, String[] newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -149,7 +162,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void set(ParserKeys key, Double newValue){
+	public void set(ParserKeys k, Double newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -157,7 +171,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void set(ParserKeys key, Double[] newValue){
+	public void set(ParserKeys k, Double[] newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -166,7 +181,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void set(ParserKeys key, ConfigData newValue){
+	public void set(ParserKeys k, ConfigData newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -174,7 +190,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void set(ParserKeys key, ConfigData[] newValue){
+	public void set(ParserKeys k, ConfigData[] newValue){
+		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
 			map.remove(key);
 		Value v = new Value();
@@ -183,7 +200,8 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
-	public void add(ParserKeys key, String toAdd){
+	public void add(ParserKeys k, String toAdd){
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v == null)
 		{
@@ -193,7 +211,8 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
-	public void add(ParserKeys key, Double toAdd){
+	public void add(ParserKeys k, Double toAdd){
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v == null)
 		{
@@ -203,7 +222,8 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
-	public void add(ParserKeys key, ConfigData toAdd){
+	public void add(ParserKeys k, ConfigData toAdd){
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		if(v == null)
 		{
@@ -222,24 +242,27 @@ public class ConfigData {
 	 * @return
 	 * True iff the value was found and removed.
 	 */
-	public boolean remove(ParserKeys key, String toRemove){
-		checkKey(key);
+	public boolean remove(ParserKeys k, String toRemove){
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		boolean ret = v.getStringList().contains(toRemove);
 		v.getStringList().remove(toRemove);
 		return ret;
 	}
 	
-	public boolean remove(ParserKeys key, Double toRemove){
-		checkKey(key);
+	public boolean remove(ParserKeys k, Double toRemove){
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		boolean ret = v.getNumberList().contains(toRemove);
 		v.getNumberList().remove(toRemove);
 		return ret;
 	}
 	
-	public boolean remove(ParserKeys key, ConfigData toRemove){
-		checkKey(key);
+	public boolean remove(ParserKeys k, ConfigData toRemove){
+		checkKey(k);
+		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
 		boolean ret = v.getConfigList().contains(toRemove);
 		v.getConfigList().remove(toRemove);
@@ -253,7 +276,7 @@ public class ConfigData {
 	
 	private void checkKey(ParserKeys key)
 	{
-		if(!map.containsKey(key))
+		if(!map.containsKey(key.toString().toLowerCase()))
 			if(startLine >= 0)
 				throw new NoSuchKeyException("The key \"" + key + "\" is not contained in the config file " + URI + 
 					" from line " + startLine + " to " + endLine);
