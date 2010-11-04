@@ -23,11 +23,11 @@ public class Server implements Runnable
 	private static final int MAX_NUM_LAZY_CHECKS = 10;
 	private static final long POLLING_INTERVAL_MS = 5;
 	
-	String[] clientAddresses;
-	GateKeeper gateKeeper;
+	private String[] clientAddresses;
+	private GateKeeper gateKeeper;
 	
-	int currentTick;
-	Message[][] messagesForTick;
+	private int currentTick;
+	private Message[][] messagesForTick;
 	
 	public Server(String[] clientAddresses, int port) throws SocketException{
 		this.clientAddresses = clientAddresses.clone();

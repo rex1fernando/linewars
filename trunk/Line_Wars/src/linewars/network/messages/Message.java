@@ -47,10 +47,9 @@ public abstract class Message implements Serializable
 	private int playerID;
 	private int timeStep;
 	
-	public Message(int pID, int ts)
+	public Message(int pID)
 	{
 		playerID = pID;
-		timeStep = ts;
 	}
 	
 	public int getPlayerId()

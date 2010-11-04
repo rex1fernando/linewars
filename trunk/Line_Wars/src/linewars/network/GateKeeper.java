@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,15 +41,20 @@ public class GateKeeper
 	private DatagramSocket socket;
 	private int port;
 	
-	private HashMap<Integer, Message[]> messages;
-	private HashMap<Integer, List<MessagePacket>> incompletePackets;
+	// TODO access to the hash maps of messages is NOT thread safe!!!!!!
+	
+	// map from timeStep to a (map from playerAddress to messages)
+	private HashMap<Integer, HashMap<String, Message[]>> messages;
+	
+	// messages used for resend requests
+	private HashMap<Integer, Message[]> resendMessages;
 	
 	private MessageListener msgListener;
 	
 	public GateKeeper(int port) throws SocketException
 	{
-		messages = new HashMap<Integer, Message[]>();
-		incompletePackets = new HashMap<Integer, List<MessagePacket>>();
+		messages = new HashMap<Integer, HashMap<String, Message[]>>();
+		resendMessages = new HashMap<Integer, Message[]>();
 		
 		socket = new DatagramSocket(port);
 		socket.setSoTimeout(SO_TIMEOUT);
@@ -63,16 +69,70 @@ public class GateKeeper
 	{
 		msgListener.start();
 	}
-
-//	public void sendMessage(String address, Message msg) throws IOException
-//	{
-//		MessagePacket[] packets = MessageConstructor.createMessagePackets(msg);
-//		for (MessagePacket p : packets)
-//		{
-//			byte[] packetData = Serializer.serialize(p);
-//			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(address), port));
-//		}
-//	}
+	
+	public Message[] urgentlyPollMessagesForTick(int tickID)
+	{
+		Message[] allMsgs = getAllMessagesFrom(messages.get(tickID));
+		
+		// if some messages are missing ....
+		if (allMsgs == null)
+		{
+			// find the players that we don't have messages from
+			for (String player : messages.get(tickID).keySet())
+			{
+				// if this player has missing messages, request them
+				if (messages.get(tickID).get(player) == null)
+				{
+					// TODO problems here
+					sendMessageResendRequest(tickID, player, false);
+				}
+			}
+		}
+		
+		return allMsgs;
+	}
+	
+	public Message[] pollMessagesForTick(int tickID)
+	{
+		return getAllMessagesFrom(messages.get(tickID));
+	}
+	
+	/**
+	 * Combines all the messages from all players for a time step and returns them.
+	 * 
+	 * @param playerMessages The hash map of messages for a specific time step.
+	 * 
+	 * @return Messages from all players for the specific time step.
+	 */
+	private Message[] getAllMessagesFrom(HashMap<String, Message[]> playerMessages)
+	{
+		// count the number of messages
+		int numMessages = 0;
+		for (String player : playerMessages.keySet())
+		{
+			// if messages are missing from a player ...
+			if (playerMessages.get(player) == null)
+			{
+				return null;
+			}
+			
+			numMessages += playerMessages.get(player).length;
+		}
+		
+		// create a list of messages from all players
+		Message[] toReturn = new Message[numMessages];
+		int curMsg = 0;
+		for (String player : playerMessages.keySet())
+		{	
+			for (Message msg : playerMessages.get(player))
+			{
+				toReturn[curMsg] = msg;
+				++curMsg;
+			}
+		}
+		
+		return toReturn;
+	}
 	
 	/**
 	 * Polls the Gatekeeper for Messages which have arrived from the given address
@@ -91,8 +151,14 @@ public class GateKeeper
 	 */
 	public Message[] urgentlyPollMessagesForTick(int tickID, String address)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Message[] toReturn = pollMessagesForTick(tickID, address);
+		
+		if (toReturn == null)
+		{
+			sendMessageResendRequest(tickID, address, false);
+		}
+		
+		return toReturn;
 	}
 	
 	/**
@@ -107,9 +173,9 @@ public class GateKeeper
 	 * If all Messages associated with the given tickID from the given address have been received, those Messages.
 	 * If some Messages from that set are not yet received, null.
 	 */
-	public Message[] pollMessagesForTick(int tickID, String address){
-		//TODO
-		return null;
+	public Message[] pollMessagesForTick(int tickID, String address)
+	{
+		return messages.get(tickID).get(address);
 	}
 	
 	/**
@@ -119,91 +185,70 @@ public class GateKeeper
 	 * @param targetAddress
 	 * The address to which they are to be sent.
 	 */
-	public void pushMessagesForTick(Message[] msgs, String targetAddress)//TODO int tickID isn't needed since the Client is responsible for setting the tickID of outgoing Messages
+	public void pushMessagesForTick(Message[] msgs, String targetAddress)
 	{
-		// TODO Auto-generated method stub
+		if (msgs == null || msgs.length == 1) return;
+		
+		MessagePacket[] packets = MessageConstructor.createMessagePackets(msgs);
+		for (MessagePacket p : packets)
+		{
+			byte[] packetData = Serializer.serialize(p);
+			try {
+				socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(targetAddress), port));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		resendMessages.put(msgs[0].getTimeStep(), msgs);
 	}
 	
-	/**
-	 * TODO document
-	 */
+	private void sendMessageResendRequest(int tickID, String playerAddress, boolean sendEverything)
+	{
+		ResendRequest request = new ResendRequest(tickID, playerAddress, sendEverything);
+		byte[] packetData = Serializer.serialize(request);
+		try {
+			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(playerAddress), port));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private class MessageListener
 	{
 		private long delay;
 		private boolean isListening;
 		
+		private HashMap<MessageID, List<MessagePacket>> incompletePackets;
+		
 		public MessageListener(long delay)
 		{
 			this.delay = delay;
+			incompletePackets = new HashMap<MessageID, List<MessagePacket>>();
 		}
 		
 		public void start()
 		{
 			while (isListening)
 			{
-				MessagePacket msgPacket = receivePacket();
-				
-				// if the packet was able to be deserialized ...
-				if (msgPacket != null)
+				DatagramPacket packet = receivePacket();
+				if (packet != null)
 				{
-					// if it is the first packet received for the time step ...
-					if (incompletePackets.get(msgPacket.timeStep) == null)
+					if (handleResendRequestPacket(packet) == false)
 					{
-						// if there is only one packet for this message ...
-						if (msgPacket.numPackets == 1)
-						{
-							// create the message
-							try {
-								messages.put(msgPacket.timeStep, MessageConstructor.constructMessage(new MessagePacket[]{msgPacket}));
-							} catch (InvalidMessageException e) {
-								e.printStackTrace();
-							}
-						}
-						// if there are multiple packets, create a new list of packets
-						else
-						{
-							List<MessagePacket> packetList = new LinkedList<MessagePacket>();
-							packetList.add(msgPacket);
-							incompletePackets.put(msgPacket.timeStep, packetList);
-						}
+						handleMessagePacket(packet);
 					}
-					// if it is not the first packet received ...
-					else
-					{
-						// add it to the list of packets for that id
-						List<MessagePacket> packetList = incompletePackets.get(msgPacket.timeStep);
-						packetList.add(msgPacket);
-						
-						// if all packets for a message are found ...
-						if (packetList.size() == msgPacket.numPackets)
-						{
-							// create the message
-							try {
-								messages.put(msgPacket.timeStep, MessageConstructor.constructMessage(packetList.toArray(new MessagePacket[packetList.size()])));
-							} catch (InvalidMessageException e) {
-								e.printStackTrace();
-							}
-							
-							// remove it from the incomplete packet map
-							incompletePackets.remove(msgPacket.timeStep);
-						}
-					}
+				} else
+				{
+					// sleep
+					try { Thread.sleep(delay); }
+					catch (InterruptedException e) { e.printStackTrace(); }
 				}
-				
-				// sleep
-				try { Thread.sleep(delay); }
-				catch (InterruptedException e) { e.printStackTrace(); }
 			}
 		}
 		
-		/**
-		 * If a packet has arrived, it returns the deSerialized MessagePacket. If it
-		 * hasn't arrived, or a MessagePacket is unable to be constructed from the
-		 * packet, this method returns null.
-		 * 
-		 * @return A received MessagePacket or null if no such packet exists.
-		 */
-		private MessagePacket receivePacket()
+		private DatagramPacket receivePacket()
 		{
 			DatagramPacket packet = new DatagramPacket(new byte[MAX_MTU], MAX_MTU);
 			
@@ -214,17 +259,138 @@ public class GateKeeper
 				receivedData = false;
 			}
 			
-			if (receivedData)
-			{
-				// deserializes the packet data
-				try {
-					return (MessagePacket) Serializer.deSerialize(packet.getData());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			return (receivedData) ? packet : null;
+		}
+		
+		private boolean handleResendRequestPacket(DatagramPacket packet)
+		{
+			ResendRequest request = null;
+			// deserializes the packet data
+			try {
+				request = (ResendRequest) Serializer.deSerialize(packet.getData());
+			} catch (Exception e) {
+				// if this is the wrong type of packet, return false
+				return false;
 			}
 			
-			return null;
+			// the messages to be sent to the requester
+			Message[] toSend;
+			
+			// if we should send everything...
+			if (request.player == null)
+			{
+				// count the number of messages
+				int numMessages = 0;
+				for (String player : messages.get(request.timeStep).keySet())
+				{
+					numMessages += messages.get(request.timeStep).get(player).length;
+				}
+				toSend = new Message[numMessages];
+				
+				// create a list of messages from all players
+				int curMsg = 0;
+				for (String player : messages.get(request.timeStep).keySet())
+				{
+					for (Message msg : messages.get(request.timeStep).get(player))
+					{
+						toSend[curMsg] = msg;
+						++curMsg;
+					}
+				}
+			}
+			// if we should only send OUR messages...
+			else
+			{
+				// use the ones stored in the resend hashmap
+				toSend = resendMessages.get(request.timeStep);
+			}
+			
+			// sends the messages back to the requester
+			pushMessagesForTick(toSend, packet.getAddress().getHostAddress());
+			
+			return true;
+			
+		}
+		
+		private void handleMessagePacket(DatagramPacket packet)
+		{
+			MessagePacket msgPacket = null;
+			
+			// deserializes the packet data
+			try {
+				msgPacket = (MessagePacket) Serializer.deSerialize(packet.getData());
+			} catch (Exception e) {
+				// if this is the wrong type of packet, return
+				return;
+			}
+			
+			// if the packet was able to be deserialized ...
+			if (msgPacket != null)
+			{
+				// this is the ID to know which message this packet goes to
+				MessageID msgID = new MessageID(msgPacket.playerID, msgPacket.timeStep);
+				
+				// if it is the first packet received for the time step ...
+				if (incompletePackets.get(msgID) == null)
+				{
+					// if there is only one packet for this message ...
+					if (msgPacket.numPackets == 1)
+					{
+						buildAndStoreMessages(new MessagePacket[]{msgPacket}, packet.getAddress().getHostAddress());
+					}
+					// if there are multiple packets, create a new list of packets
+					else
+					{
+						List<MessagePacket> packetList = new LinkedList<MessagePacket>();
+						packetList.add(msgPacket);
+						incompletePackets.put(msgID, packetList);
+					}
+				}
+				// if it is not the first packet received ...
+				else
+				{
+					// add it to the list of packets for that id
+					List<MessagePacket> packetList = incompletePackets.get(msgID);
+					packetList.add(msgPacket);
+					
+					// if all packets for a message are found ...
+					if (packetList.size() == msgPacket.numPackets)
+					{
+						buildAndStoreMessages(packetList.toArray(new MessagePacket[packetList.size()]), packet.getAddress().getHostAddress());
+						
+						// remove it from the incomplete packet map
+						incompletePackets.remove(msgID);
+					}
+				}
+			}
+		}
+		
+		/**
+		 * Constructs the original message array from the packets given
+		 * and then stores them in the gatekeeper's map of messages.
+		 * 
+		 * @param packets The packets that compose the messages
+		 */
+		private void buildAndStoreMessages(MessagePacket[] packets, String senderAddress)
+		{
+			int timeStep = packets[0].timeStep;
+			Message[] msgs = null;
+			
+			// create the message
+			try {
+				msgs = MessageConstructor.constructMessage(packets);
+			} catch (InvalidMessageException e) {
+				e.printStackTrace();
+			}
+			
+			// if this player is the first one to send all of its messages, create a new
+			// map for this time step
+			if (messages.get(timeStep) == null)
+			{
+				messages.put(timeStep, new HashMap<String, Message[]>());
+			}
+			
+			messages.get(timeStep).put(senderAddress, msgs);
 		}
 	}
 	
@@ -253,9 +419,20 @@ public class GateKeeper
 		}
 	}
 	
-	/**
-	 * TODO document
-	 */
+	private static class ResendRequest implements Serializable
+	{
+		private int timeStep;
+		private String player;
+		private boolean sendEverything;
+		
+		public ResendRequest(int timeStep, String player, boolean sendEverything)
+		{
+			this.timeStep = timeStep;
+			this.player = player;
+			this.sendEverything = sendEverything;
+		}
+	}
+	
 	private static class MessageConstructor
 	{
 		/**
@@ -308,7 +485,7 @@ public class GateKeeper
 		 *             If there was a problem serializing the message object into a
 		 *             byte array.
 		 */
-		public static MessagePacket[] createMessagePackets(Message[] msg) throws IOException
+		public static MessagePacket[] createMessagePackets(Message[] msg)
 		{
 			if (msg == null || msg.length == 0)
 				return new MessagePacket[0];
@@ -338,9 +515,6 @@ public class GateKeeper
 		}
 	}
 	
-	/**
-	 * TODO document
-	 */
 	private static class Serializer
 	{
 		/**
@@ -377,7 +551,7 @@ public class GateKeeper
 				ObjectOutputStream os = new ObjectOutputStream(out);
 				os.writeObject(s);
 				os.close();
-			return out.toByteArray();
+				return out.toByteArray();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
@@ -385,9 +559,33 @@ public class GateKeeper
 		}
 	}
 	
-	/**
-	 * TODO document
-	 */
+	private static class MessageID
+	{
+		private int playerID;
+		private int timeStep;
+		
+		public MessageID(int playerID, int timeStep)
+		{
+			this.playerID = playerID;
+			this.timeStep = timeStep;
+		}
+		
+		@Override
+		public boolean equals(Object o)
+		{
+			if (!(o instanceof MessageID)) return false;
+			
+			MessageID m = (MessageID) o;
+			return (playerID == m.playerID && timeStep == m.timeStep);
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return (playerID * 31) + (timeStep * 31 * 31);
+		}
+	}
+
 	private static class InvalidMessageException extends Exception
 	{
 		private static final long serialVersionUID = -7580077906255482160L;

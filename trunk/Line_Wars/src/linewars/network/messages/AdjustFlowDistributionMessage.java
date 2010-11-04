@@ -12,8 +12,8 @@ public class AdjustFlowDistributionMessage extends Message
 	private int laneID;
 	private double flow;
 	
-	public AdjustFlowDistributionMessage(int pID, int ts, int laneID, double flow) {
-		super(pID, ts);
+	public AdjustFlowDistributionMessage(int pID, int laneID, double flow) {
+		super(pID);
 		
 		this.laneID = laneID;
 		this.flow = flow;

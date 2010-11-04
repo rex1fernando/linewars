@@ -9,8 +9,8 @@ public class BuildMessage extends Message
 	private int nodeID;
 	private int abilityID;
 	
-	public BuildMessage(int pID, int ts, int nodeID, int abilityID) {
-		super(pID, ts);
+	public BuildMessage(int pID, int nodeID, int abilityID) {
+		super(pID);
 		
 		this.nodeID = nodeID;
 		this.abilityID = abilityID;

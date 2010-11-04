@@ -19,7 +19,7 @@ import linewars.network.messages.SupDawgMessage;
  * GameLogic says ‘tick x is starting, give me my messages!’
  * 		- Urgently ask the Gatekeeper for the full set of all messages for tick x from the server.
  * 		- If the messages are all there, give them to GameLogic
- * 		- If they aren’t, throw an exception or return something special, GameLogic will deal with it from there.
+ * 		- If they arent, throw an exception or return something special, GameLogic will deal with it from there.
  * 		- On success
  * 			Pack up all Messages due to be sent to the server and send them with a tick id of x + k, where k is
  * 			some positive integral constant.
@@ -62,10 +62,10 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 	@Override
 	public Message[] getMessagesForTick(int tickID)
 	{
-		Message[] toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
-		
-		if(toReturn == null){
-			return toReturn;
+		Message[] toReturn = null;
+		while (toReturn == null)
+		{
+			toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
 		}
 		
 		//At this point we know we have received the full set of messages from the server
@@ -77,7 +77,7 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 				toSend[i].setTimeStep(currentTick + K);
 			}
 			gateKeeper.pushMessagesForTick(toSend, serverAddress);
-			currentTick++;
+			++currentTick;
 		}
 		
 		return toReturn;

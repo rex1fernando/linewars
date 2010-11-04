@@ -273,11 +273,11 @@ public class CommandCardPanel extends Panel
 			Message message = null;
 			if(ability instanceof ConstructBuildingDefinition)
 			{
-				message = new BuildMessage(node.getOwner().getPlayerID(), display.getTimeTick() + 3, node.getID(), ability.getID());
+				message = new BuildMessage(node.getOwner().getPlayerID(), node.getID(), ability.getID());
 			}
 			else if(ability instanceof ResearchTechDefinition)
 			{
-				message = new UpgradeMessage(node.getOwner().getPlayerID(), display.getTimeTick() + 3, node.getID(), ability.getID());
+				message = new UpgradeMessage(node.getOwner().getPlayerID(), node.getID(), ability.getID());
 			}
 			
 			CommandCardPanel.this.receiver.addMessage(message);
