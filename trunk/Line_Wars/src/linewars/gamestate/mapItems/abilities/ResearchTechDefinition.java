@@ -1,10 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.Function;
-import linewars.gamestate.Tech;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.tech.Tech;
+
 
 /**
  * 
@@ -22,27 +23,20 @@ public class ResearchTechDefinition extends AbilityDefinition {
 	private Tech tech = null;
 	private int numberOfTimesResearched = 0;
 	private Function costFunction = null;
-	private long researchTime;
+
 	
 	public ResearchTechDefinition(Tech t, MapItemDefinition owner, int ID)
 	{
 		super(ID);
 		tech = t;
 		this.owner = owner;
-		costFunction = new Function(tech.getParser().getParser(ParserKeys.costFunction));
-		try {
-			researchTime = (long) tech.getParser().getNumericValue(ParserKeys.researchTime);
-		} catch(Parser.NoSuchKeyException e) {
-			//allow the research time to be unspecified since we haven't discussed it
-			researchTime = 0;
-		}
+		costFunction = tech.getCostFunction();
 	}
 
 	@Override
 	public boolean startsActive() {
 		return false;
 	}
-
 	@Override
 	public Ability createAbility(MapItem m) {
 		if(numberOfTimesResearched + 1 <= tech.maxTimesResearchable())
@@ -50,10 +44,10 @@ public class ResearchTechDefinition extends AbilityDefinition {
 			if(owner.getOwner().getStuff() >= costFunction.f(numberOfTimesResearched + 1))
 			{
 				owner.getOwner().spendStuff(costFunction.f(++numberOfTimesResearched));
-				return new ResearchTech(tech, researchTime, false);
+				return new ResearchTech(tech, false);
 			}
 			else
-				return new ResearchTech(tech, researchTime, true);
+				return new ResearchTech(tech, true);
 		}
 		else
 			return null;
@@ -89,22 +83,22 @@ public class ResearchTechDefinition extends AbilityDefinition {
 
 	@Override
 	public String getIconURI() {
-		return tech.getParser().getStringValue(ParserKeys.icon);
+		return tech.getIconURI();
 	}
 
 	@Override
 	public String getPressedIconURI() {
-		return tech.getParser().getStringValue(ParserKeys.pressedIcon);
+		return tech.getPressedIconURI();
 	}
 
 	@Override
 	public String getRolloverIconURI() {
-		return tech.getParser().getStringValue(ParserKeys.rolloverIcon);
+		return tech.getRolloverIconURI();
 	}
 
 	@Override
 	public String getSelectedIconURI() {
-		return tech.getParser().getStringValue(ParserKeys.selectedIcon);
+		return tech.getSelectedIconURI();
 	}
 
 }

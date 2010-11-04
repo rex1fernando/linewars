@@ -6,10 +6,11 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
-import linewars.gamestate.Tech;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
+import linewars.gamestate.tech.Tech;
+
 
 /**
  * 

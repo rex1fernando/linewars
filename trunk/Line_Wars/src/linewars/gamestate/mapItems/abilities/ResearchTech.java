@@ -1,6 +1,6 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.gamestate.Tech;
+import linewars.gamestate.tech.Tech;
 
 /**
  * 
@@ -15,10 +15,10 @@ public class ResearchTech implements Ability {
 	private long startTime;
 	private boolean researched = false;
 	
-	public ResearchTech(Tech t, long rTime, boolean dud)
+	public ResearchTech(Tech t, boolean dud)
 	{
 		tech = t;
-		researchTime = rTime;
+		researchTime = 0;
 		startTime = (long)(tech.getMapItemDefinition().getGameState().getTime()*1000);
 		//dud is whether or not this is a "dud" research attempt i.e. the player
 		//doesn't have enough stuff so this ability gets added and immediately removed

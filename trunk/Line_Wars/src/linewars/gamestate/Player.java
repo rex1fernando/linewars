@@ -5,6 +5,8 @@ import java.util.Map.Entry;
 
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.mapItems.*;
+import linewars.gamestate.tech.Tech;
+
 
 public class Player {
 
@@ -67,7 +69,7 @@ public class Player {
 		URIs = r.getTechURIs();
 		for(String uri : URIs)
 		{
-			Tech t = new Tech(uri, this);
+			Tech t = Tech.buildFromURI(uri, this);
 			techLevels.put(uri, t);
 		}
 		
@@ -283,7 +285,7 @@ public class Player {
 		Tech td = techLevels.get(URI);
 		if(td == null)
 		{
-			td = new Tech(URI, this);
+			td = Tech.buildFromURI(URI, this);
 			techLevels.put(URI, td);
 		}
 		return td;
