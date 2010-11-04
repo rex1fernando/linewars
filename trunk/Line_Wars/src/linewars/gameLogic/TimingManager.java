@@ -9,7 +9,7 @@ import linewars.network.MessageProvider;
 import linewars.network.messages.Message;
 
 public class TimingManager implements Runnable{
-	public static final int TIME_PER_TICK_MILLIS = 100;
+	public static final int TIME_PER_TICK_MILLIS = 20;
 	public static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 1000.0;
 	
 	private GameStateUpdater manager;
