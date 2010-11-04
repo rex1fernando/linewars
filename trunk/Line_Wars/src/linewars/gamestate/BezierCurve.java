@@ -127,7 +127,7 @@ public class BezierCurve {
 		if (dx < 0 && dy > 0) ret = 360.0d - ret;
 		if (dx > 0 && dy > 0) ret = 360.0d - ret;
 		
-		return ret;
+		return ret * Math.PI / 180;
 	}
 	
 	/**

@@ -20,6 +20,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 public class Unit extends MapItem {
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
+	private CollisionStrategy colStrat;
 	
 	private UnitDefinition definition;
 	
@@ -33,9 +34,11 @@ public class Unit extends MapItem {
 		definition = def;
 		hp = definition.getMaxHP();
 		mStrat = ms;
-//		mStrat.setUnit(this);
+		mStrat.setUnit(this);
 		cStrat = cs;
-//		cStrat.setUnit(this);
+		cStrat.setUnit(this);
+		colStrat = def.getCollisionStrategy().createInstanceOf(this);
+		
 	}
 	
 	/**
@@ -100,7 +103,7 @@ public class Unit extends MapItem {
 
 	@Override
 	public CollisionStrategy getCollisionStrategy() {
-		return definition.getCollisionStrategy();
+		return colStrat;
 	}
 	
 	/**

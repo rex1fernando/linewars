@@ -329,6 +329,7 @@ public class Lane
 			for(Unit u : w.getUnits())
 				units.add(u);
 		
+		//sort units in descending order by radius
 		Collections.sort(units, new Comparator<Unit>() {
 			public int compare(Unit u1, Unit u2){
 				if(u1.getRadius() - u2.getRadius() < 0)
@@ -341,20 +342,26 @@ public class Lane
 		});
 		
 		Gate closestGate = gates.get(n);
+		//start represents if we're going up the lane (0 -> 1) or down (1 -> 0)
 		double start = 0;
 		if (closestGate.getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < closestGate.getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
 			start = 1;
 		
-		double minForward = (start == 0 ? closestGate.getRadius() : start - closestGate.getRadius());
+		//represents the minimum forward position on the curve [0,1] that a unit must be placed (ie the back of the current row) 
+		double minForward = (start == 0 ? closestGate.getRadius()/this.getLength() : start - closestGate.getRadius()/this.getLength());
+		//the place to put the next min forward, is calculated as this line is placed based off the largest radius unit, (ie the next row)
 		double nextMinForward = minForward;
+		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
 		double forwardBound = findForwardBound(n);
-		double startWidth = width;
+		//this represents the position along the lateral part of the lane a unit must be placed below
+		double startWidth = width/2;
 		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
-		while(minForward < forwardBound && !units.isEmpty())
+		//while minForward hasn't reached the forward bound (depending on if we're going up or down the lane) and there are still units to place
+		while(((minForward < forwardBound && start == 0) || (minForward > forwardBound && start == 1)) && !units.isEmpty())
 		{
-			for(int i = 0; i < units.size() && startWidth > -width;) //look for the biggest unit that will fit
+			for(int i = 0; i < units.size() && startWidth > -width/2;) //look for the biggest unit that will fit
 			{
 				Unit u = units.get(i);
 				
@@ -367,31 +374,33 @@ public class Lane
 					u.getOwner().removeUnit(u);
 				}
 				
-				if(startWidth - 2*u.getRadius() > -width) //if there's enough room to fit the unit
+				if(startWidth - 2*u.getRadius() > -width/2) //if there's enough room to fit the unit
 				{
-					double pos = u.getRadius()/this.getLength();
-					pos = minForward + (start == 0 ? pos : -pos);
-					Transformation tpos = this.getPosition(pos);
-					double w = startWidth - u.getRadius();
+					double pos = u.getRadius()/this.getLength(); //get the radius in terms of length along the curve
+					pos = minForward + (start == 0 ? pos : -pos); //now figure out where the exact position along the lane the unit should go
+					Transformation tpos = this.getPosition(pos); //use the position to get the exact transformation of that position
+					if(start == 1) tpos = new Transformation(tpos.getPosition(), Math.PI);
+					double w = startWidth - u.getRadius(); //figure out the lateral translation from the center line of the curve for the unit
 					tpos = new Transformation(
 							new Position(tpos.getPosition().getX() + w*Math.cos(tpos.getRotation()),
 										tpos.getPosition().getY() + w*Math.sin(tpos.getRotation())),
-							tpos.getRotation() - Math.PI);
+							tpos.getRotation() - Math.PI); //now translate the position from the curve itself to w off the curve
 					u.setTransformation(tpos);
-					startWidth -= 2*u.getRadius();
+					startWidth -= 2*u.getRadius(); //update the startWidth so the next placed unit will be moved laterally from this unit
 					
-					units.remove(i);
-					if(start == 0)
-						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward)
-							nextMinForward = 2*u.getRadius()/this.getLength() + minForward;
-					else
-						if(minForward - 2*u.getRadius()/this.getLength() < nextMinForward)
+					units.remove(i); //the unit has been placed, get it out of here
+					if(start == 0) //if we're going up the lane
+						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward) //if this unit has a bigger radius than any other unit
+							nextMinForward = 2*u.getRadius()/this.getLength() + minForward; //that's already been placed in this row
+					else //if we're going down the lane
+						if(minForward - 2*u.getRadius()/this.getLength() < nextMinForward) //same as above
 							nextMinForward = minForward - 2*u.getRadius()/this.getLength();
 				}
 				else //if there's not enough room, check the next biggest unit
 					i++;
 			}
-			minForward = nextMinForward;
+			minForward = nextMinForward; //no more units can fit in this row, go to the next row
+			startWidth = this.getWidth()/2; //restart the lateral placement
 		}
 		
 		for(Wave w : waves)
@@ -399,7 +408,10 @@ public class Lane
 			for(Unit u : deletedUnits)
 				if(w.contains(u))
 					w.remove(u);
+			this.waves.add(w);
 		}
+		
+		pendingWaves.get(n).clear();
 		
 	}
 

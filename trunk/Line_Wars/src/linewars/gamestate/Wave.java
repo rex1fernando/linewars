@@ -157,6 +157,10 @@ public class Wave {
 		if(units.size() <= 0)
 			return;
 		
+
+		if(!(units.get(0) instanceof Gate))
+			System.out.println("Unit position == " + units.get(0).getPosition().getX() + ", " + units.get(0).getPosition().getY());
+		
 		//first get the max radius
 		double maxRad = 0;
 		Position center = this.getCenter();
@@ -230,9 +234,7 @@ public class Wave {
 		for(Unit u : units)
 			u.getMovementStrategy().move();
 		
-		fixCollisions();
-		if(!(units.get(0) instanceof Gate))
-			System.out.println(units.get(0).getPosition().getX() + ", " + units.get(0).getPosition().getY());
+		//fixCollisions();
 		
 //		Gate destGate = null;
 //		for(int i = 0; i < owner.getNodes().length; i++)
