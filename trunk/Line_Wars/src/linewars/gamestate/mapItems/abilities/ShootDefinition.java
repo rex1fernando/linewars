@@ -1,11 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -76,22 +76,22 @@ public class ShootDefinition extends AbilityDefinition {
 
 	@Override
 	public String getIconURI() {
-		return ammo.getParser().getStringValue(ParserKeys.icon);
+		return ammo.getParser().getString(ParserKeys.icon);
 	}
 
 	@Override
 	public String getPressedIconURI() {
-		return ammo.getParser().getStringValue(ParserKeys.pressedIcon);
+		return ammo.getParser().getString(ParserKeys.pressedIcon);
 	}
 
 	@Override
 	public String getRolloverIconURI() {
-		return ammo.getParser().getStringValue(ParserKeys.rolloverIcon);
+		return ammo.getParser().getString(ParserKeys.rolloverIcon);
 	}
 
 	@Override
 	public String getSelectedIconURI() {
-		return ammo.getParser().getStringValue(ParserKeys.selectedIcon);
+		return ammo.getParser().getString(ParserKeys.selectedIcon);
 	}
 
 }

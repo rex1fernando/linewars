@@ -10,7 +10,6 @@ import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
-import linewars.parser.ParserKeys;
 
 public class TerrainLayer implements ILayer
 {

@@ -9,10 +9,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
 
 public abstract class Shape {
 	
@@ -155,12 +155,12 @@ public abstract class Shape {
 	 */
 	public abstract Transformation position();
 
-	public static Shape buildFromParser(Parser parser) {
-		String type = parser.getStringValue(ParserKeys.shapetype);
+	public static Shape buildFromParser(ConfigData parser) {
+		String type = parser.getString(ParserKeys.shapetype);
 		Class<? extends Shape> initializer = typeToClass.get(type.toLowerCase());
 		Shape ret = null;
 		try{
-			ret = initializer.getConstructor(Parser.class).newInstance(parser);
+			ret = initializer.getConstructor(ConfigData.class).newInstance(parser);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

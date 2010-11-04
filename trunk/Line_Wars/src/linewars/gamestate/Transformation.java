@@ -1,6 +1,7 @@
 package linewars.gamestate;
 
-import linewars.parser.*;
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
 
 public class Transformation {
 	
@@ -14,10 +15,10 @@ public class Transformation {
 		rotation = rot;
 	}
 	
-	public Transformation(Parser p)
+	public Transformation(ConfigData configData)
 	{
-		pos = new Position(p.getNumericValue(ParserKeys.x), p.getNumericValue(ParserKeys.y));
-		rotation = p.getNumericValue(ParserKeys.rotation);
+		pos = new Position(configData.getNumber(ParserKeys.x), configData.getNumber(ParserKeys.y));
+		rotation = configData.getNumber(ParserKeys.rotation);
 	}
 	
 	public Position getPosition()

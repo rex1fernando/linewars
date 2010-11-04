@@ -24,6 +24,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
@@ -40,10 +44,6 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.network.MessageReceiver;
-import linewars.parser.ConfigFile;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.ParserKeys;
 
 /**
  * Encapsulates the display information.
@@ -162,11 +162,11 @@ public class Display extends JFrame implements Runnable
 
 			// get the map parser from the gamestate
 			gameStateProvider.lockViewableGameState();
-			Parser mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
+			ConfigData mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
 			gameStateProvider.unlockViewableGameState();
 
 			// add the map image to the MapItemDrawer
-			String mapURI = mapParser.getStringValue(ParserKeys.icon);
+			String mapURI = mapParser.getString(ParserKeys.icon);
 //			int mapWidth = (int)mapParser.getNumericValue(ParserKeys.imageWidth);
 //			int mapHeight = (int)mapParser.getNumericValue(ParserKeys.imageHeight);
 //			try
@@ -178,16 +178,16 @@ public class Display extends JFrame implements Runnable
 //				e.printStackTrace();
 //			}
 
-			Parser leftUIPanel = null;
-			Parser rightUIPanel = null;
-			Parser exitButton = null;
-			Parser exitButtonClicked = null;
+			ConfigData leftUIPanel = null;
+			ConfigData rightUIPanel = null;
+			ConfigData exitButton = null;
+			ConfigData exitButtonClicked = null;
 			try
 			{
-				leftUIPanel = new Parser(new ConfigFile("resources/animations/left_ui_panel.cfg"));
-				rightUIPanel = new Parser(new ConfigFile("resources/animations/right_ui_panel.cfg"));
-				exitButton = new Parser(new ConfigFile("resources/animations/Exit_Button.cfg"));
-				exitButtonClicked = new Parser(new ConfigFile("resources/animations/Exit_Button_Clicked.cfg"));
+				leftUIPanel = new ConfigFileReader("resources/animations/left_ui_panel.cfg").read();
+				rightUIPanel = new ConfigFileReader("resources/animations/right_ui_panel.cfg").read();
+				exitButton = new ConfigFileReader("resources/animations/Exit_Button.cfg").read();
+				exitButtonClicked = new ConfigFileReader("resources/animations/Exit_Button_Clicked.cfg").read();
 			}
 			catch (FileNotFoundException e)
 			{

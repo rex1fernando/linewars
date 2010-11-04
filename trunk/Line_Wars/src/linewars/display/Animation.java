@@ -1,9 +1,10 @@
 package linewars.display;
 
 import java.io.IOException;
+import java.util.List;
 
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
 
 /**
  * Encapsulates animation information.
@@ -16,26 +17,26 @@ public class Animation
 	private String[] imageURIs;
 	private double[] displayTimes;
 
-	public Animation(Parser parser, String unitURI, int width, int height)
+	public Animation(ConfigData parser, String unitURI, int width, int height)
 	{
 		//get the file the animation is in
-		String file =  "/" + parser.getConfigFile().getURI();
+		String file =  "/" + parser.getURI();
 		file = file.substring(0, file.lastIndexOf('/') + 1);
 		
 		//get the animation images
-		String[] uris = parser.getList(ParserKeys.icon);
-		imageURIs = new String[uris.length];
-		for(int i = 0; i < uris.length; ++i)
+		List<String> uris = parser.getStringList(ParserKeys.icon);
+		imageURIs = new String[uris.size()];
+		for(int i = 0; i < uris.size(); ++i)
 		{
-			imageURIs[i] = file + uris[i];
+			imageURIs[i] = file + uris.get(i);
 		}
 
 		//get the display times from the config file
-		String[] times = parser.getList(ParserKeys.displayTime);
-		displayTimes = new double[times.length];
-		for(int i = 0; i < times.length; ++i)
+		List<String> times = parser.getStringList(ParserKeys.displayTime);
+		displayTimes = new double[times.size()];
+		for(int i = 0; i < times.size(); ++i)
 		{
-			displayTimes[i] = new Double(times[i]).doubleValue();
+			displayTimes[i] = new Double(times.get(i)).doubleValue();
 		}
 		
 		//load images

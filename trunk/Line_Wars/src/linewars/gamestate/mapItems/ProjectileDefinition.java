@@ -2,15 +2,15 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.impact.DealDamageOnce;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -29,11 +29,11 @@ public class ProjectileDefinition extends MapItemDefinition {
 			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
 		
-		velocity = super.getParser().getNumericValue(ParserKeys.velocity);
-		Parser is = super.getParser().getParser(ParserKeys.impactStrategy);
-		if(is.getStringValue(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
+		velocity = super.getParser().getNumber(ParserKeys.velocity);
+		ConfigData is = super.getParser().getConfig(ParserKeys.impactStrategy);
+		if(is.getString(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
 		{
-			iStrat = new DealDamageOnce(is.getNumericValue(ParserKeys.damage));
+			iStrat = new DealDamageOnce(is.getNumber(ParserKeys.damage));
 		}
 		else
 			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());

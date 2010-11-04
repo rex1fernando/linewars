@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Queue;
 
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.Building;
@@ -21,9 +24,6 @@ import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.shapes.Circle;
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Lane
 {
@@ -51,14 +51,14 @@ public class Lane
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
 		
-	public Lane(GameState gameState, Parser parser, String name)
+	public Lane(GameState gameState, ConfigData parser)
 	{
+		this.name = parser.getString(ParserKeys.name);
 		//TODO
-		curve = new BezierCurve(new Position(parser.getStringValue(ParserKeys.p0)), new Position(parser.getStringValue(ParserKeys.p1)),
-					new Position(parser.getStringValue(ParserKeys.p2)), new Position(parser.getStringValue(ParserKeys.p3)));
+		curve = new BezierCurve(new Position(parser.getString(ParserKeys.p0)), new Position(parser.getString(ParserKeys.p1)),
+					new Position(parser.getString(ParserKeys.p2)), new Position(parser.getString(ParserKeys.p3)));
 		
-		this.width = parser.getNumericValue(ParserKeys.width);
-		this.name = name;
+		this.width = parser.getNumber(ParserKeys.width);
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
 		this.gates = new HashMap<Node, Gate>();

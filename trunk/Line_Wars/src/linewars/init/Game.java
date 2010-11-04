@@ -4,11 +4,11 @@ import java.io.FileNotFoundException;
 import java.net.SocketException;
 import java.util.ArrayList;
 
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.display.Display;
 import linewars.gameLogic.TimingManager;
 import linewars.network.Client;
 import linewars.network.SinglePlayerNetworkProxy;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 //TODO test
 //TODO document

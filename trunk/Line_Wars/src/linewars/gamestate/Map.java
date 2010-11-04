@@ -5,9 +5,10 @@ import java.awt.Image;
 import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -20,23 +21,23 @@ public class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
 	private Dimension2D dimensions;
-	private Parser parser;
+	private ConfigData parser;
 	
 	
-	public Map(GameState gameState, Parser mapParser)
+	public Map(GameState gameState, ConfigData mapParser)
 	{
-		dimensions = new Dimension((int)mapParser.getNumericValue(ParserKeys.imageWidth), (int)mapParser.getNumericValue(ParserKeys.imageHeight));
+		dimensions = new Dimension((int)(double)mapParser.getNumber(ParserKeys.imageWidth), (int)(double)mapParser.getNumber(ParserKeys.imageHeight));
 		parser = mapParser;
 		
 		lanes = new ArrayList<Lane>();
-		String[] ls = mapParser.getList(ParserKeys.lanes);
-		for(String l : ls)
-			lanes.add(new Lane(gameState, mapParser.getParser(l), l));
+		List<ConfigData> ls = mapParser.getConfigList(ParserKeys.lanes);
+		for(ConfigData l : ls)
+			lanes.add(new Lane(gameState, l));
 		
 		nodes = new ArrayList<Node>();
-		String[] ns = mapParser.getList(ParserKeys.nodes);
-		for(String n : ns)
-			nodes.add(new Node(mapParser.getParser(n), gameState, lanes.toArray(new Lane[0]), nodes.size()));
+		List<ConfigData> ns = mapParser.getConfigList(ParserKeys.nodes);
+		for(ConfigData n : ns)
+			nodes.add(new Node(n, gameState, lanes.toArray(new Lane[0]), nodes.size()));
 	}
 	/**
 	 * This method gets a list of the lanes attached to the Node n
@@ -84,14 +85,14 @@ public class Map {
 	
 	public String getMapURI()
 	{
-		return parser.getConfigFile().getURI();
+		return parser.getURI();
 	}
 	
 	/**
 	 * 
 	 * @return	the parser for the map configuration
 	 */
-	public Parser getParser()
+	public ConfigData getParser()
 	{
 		return parser;
 	}

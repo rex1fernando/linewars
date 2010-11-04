@@ -1,10 +1,10 @@
 package linewars.gamestate.shapes;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.parser.Parser;
-import linewars.parser.Parser.NoSuchKeyException;
-import linewars.parser.ParserKeys;
 
 public class Circle extends Shape {
 	
@@ -22,15 +22,15 @@ public class Circle extends Shape {
 		position = pos;
 	}
 	
-	public Circle(Parser config){
-		radius = config.getNumericValue(ParserKeys.radius);
+	public Circle(ConfigData config){
+		radius = config.getNumber(ParserKeys.radius);
 		double rotation = 0;
 		try{
-			rotation = Math.PI * config.getNumericValue(ParserKeys.rotation);
+			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
 		}catch(NoSuchKeyException e){
 			//just means rotation wasn't set, so it is 0 by default
 		}
-		position = new Transformation(new Position(config.getNumericValue(ParserKeys.x), config.getNumericValue(ParserKeys.y)), rotation);
+		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
 	}
 
 	@Override

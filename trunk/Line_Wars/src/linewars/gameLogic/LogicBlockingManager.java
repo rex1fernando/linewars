@@ -1,14 +1,12 @@
 package linewars.gameLogic;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.network.messages.Message;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 //TODO thread safety
 //TODO document

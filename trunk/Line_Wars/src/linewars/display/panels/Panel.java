@@ -4,11 +4,11 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.display.Animation;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
-import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
 public abstract class Panel extends JPanel
@@ -22,7 +22,7 @@ public abstract class Panel extends JPanel
 	protected Animation[] animations;
 	protected Animation curAnimation;
 	
-	public Panel(GameStateProvider stateManager, int width, int height, Parser ... animations)
+	public Panel(GameStateProvider stateManager, int width, int height, ConfigData ... animations)
 	{
 		super(null);
 		setOpaque(false);

@@ -28,5 +28,5 @@ public enum ParserKeys {
 	shapetype, x, y, lanes, nodes, p0, p1, p2, p3,
 	buildingSpots, shape, commandCenterTransformation,
 	isStartNode, gateURI, pressedIcon, rolloverIcon,
-	selectedIcon
+	selectedIcon,Idle, Dead, Constructing, Active, Moving
 }

@@ -3,13 +3,13 @@ package linewars.gamestate.mapItems.abilities;
 
 import java.io.FileNotFoundException;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.Parser.NoSuchKeyException;
-import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -35,30 +35,31 @@ public abstract class AbilityDefinition {
 	 * @throws NoSuchKeyException 
 	 * @throws FileNotFoundException 
 	 */
-	public static AbilityDefinition createAbilityDefinition(Parser parser, MapItemDefinition m, int ID) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
+	public static AbilityDefinition createAbilityDefinition(ConfigData parser, MapItemDefinition m, int ID) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
 	{
 		AbilityDefinition ad = null;
-		if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))
+		if(parser.getString(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))
 		{
+			double d = parser.getNumber(ParserKeys.buildTime);
 			ad = new ConstructUnitDefinition(m.getOwner().getUnitDefinition(
-					parser.getStringValue(ParserKeys.unitURI)), m,
-					(long) parser.getNumericValue(ParserKeys.buildTime), ID);
+					parser.getString(ParserKeys.unitURI)), m,
+					(long) d, ID);
 		}
-		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("ResearchTech"))
+		else if(parser.getString(ParserKeys.type).equalsIgnoreCase("ResearchTech"))
 		{
-			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getStringValue(ParserKeys.techURI)), m, ID);
+			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getString(ParserKeys.techURI)), m, ID);
 		}
-		else if(parser.getStringValue(ParserKeys.type).equalsIgnoreCase("Shoot"))
+		else if(parser.getString(ParserKeys.type).equalsIgnoreCase("Shoot"))
 		{
 			ad = new ShootDefinition(m.getOwner().getProjectileDefinition(
-					parser.getStringValue(ParserKeys.projectileURI)), m,
-					parser.getNumericValue(ParserKeys.range), ID);
+					parser.getString(ParserKeys.projectileURI)), m,
+					parser.getNumber(ParserKeys.range), ID);
 		}
 		else
 			throw new IllegalArgumentException(
-					parser.getStringValue(ParserKeys.type)
+					parser.getString(ParserKeys.type)
 							+ " does not define a valid ability in "
-							+ parser.getConfigFile().getURI());
+							+ parser.getURI());
 		
 		if(!ad.checkValidity())
 			throw new IllegalArgumentException(m.getName() + " cannot have ability " + ad.getName());

@@ -12,6 +12,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
@@ -26,7 +27,6 @@ import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
 import linewars.network.messages.UpgradeMessage;
-import linewars.parser.Parser;
 
 /**
  * Encapsulates command card GUI information.
@@ -88,7 +88,7 @@ public class CommandCardPanel extends Panel
 	 * @param disp TODO
 	 * @param receiver TODO
 	 */
-	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver, Parser ... anims)
+	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver, ConfigData ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		

@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -9,8 +10,6 @@ import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.shapes.Shape;
-import linewars.parser.Parser;
-
 /**
  * 
  * @author cschenck
@@ -180,7 +179,7 @@ public abstract class MapItem {
 	 * 
 	 * @return	the parser associated with this map item
 	 */
-	public Parser getParser()
+	public ConfigData getParser()
 	{
 		return this.getDefinition().getParser();
 	}
@@ -240,7 +239,7 @@ public abstract class MapItem {
 	 */
 	public String getURI()
 	{
-		return this.getDefinition().getParser().getConfigFile().getURI();
+		return this.getDefinition().getParser().getURI();
 	}
 
 	public double getWidth() {

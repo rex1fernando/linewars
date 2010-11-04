@@ -8,12 +8,12 @@ import java.util.Random;
 
 
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
 
 public class Node {
 	
@@ -37,7 +37,7 @@ public class Node {
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	public Node(Parser parser, GameState gameState, Lane[] lanes, int id)
+	public Node(ConfigData parser, GameState gameState, Lane[] lanes, int id)
 	{
 		ID = id;
 		invader = null;
@@ -50,7 +50,7 @@ public class Node {
 		this.gameState = gameState;
 		
 		attachedLanes = new ArrayList<Lane>();
-		String[] laneNames = parser.getList(ParserKeys.lanes);
+		List<String> laneNames = parser.getStringList(ParserKeys.lanes);
 		for(String name : laneNames)
 			for(Lane l : lanes)
 				if(name.equals(l.getName()))
@@ -59,18 +59,18 @@ public class Node {
 					l.addNode(this);
 				}
 		
-		String[] transformNames = parser.getList(ParserKeys.buildingSpots);
-		buildingSpots = new Transformation[transformNames.length];
-		for(int i = 0; i < transformNames.length; i++)
-			buildingSpots[i] = new Transformation(parser.getParser(transformNames[i]));
+		List<ConfigData> transforms = parser.getConfigList(ParserKeys.buildingSpots);
+		buildingSpots = new Transformation[transforms.size()];
+		for(int i = 0; i < transforms.size(); i++)
+			buildingSpots[i] = new Transformation(transforms.get(i));
 		
 		laneMap = new HashMap<Double, Lane>();
 		
-		shape = Shape.buildFromParser(parser.getParser(ParserKeys.shape));
+		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
 		
-		cCenterTransform = new Transformation(parser.getParser(ParserKeys.commandCenterTransformation));
+		cCenterTransform = new Transformation(parser.getConfig(ParserKeys.commandCenterTransformation));
 		
-		isStartNode = Boolean.parseBoolean(parser.getStringValue(ParserKeys.isStartNode));
+		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
 	
 	public Player getOwner()

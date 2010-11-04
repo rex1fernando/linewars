@@ -5,8 +5,6 @@ import linewars.gamestate.Tech;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
 
 /**
  * 

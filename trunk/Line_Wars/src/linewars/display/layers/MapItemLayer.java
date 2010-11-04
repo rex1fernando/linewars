@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ConfigFileReader;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
@@ -16,10 +21,6 @@ import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
-import linewars.parser.ConfigFile;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.Parser.NoSuchKeyException;
 
 public class MapItemLayer implements ILayer
 {
@@ -65,10 +66,10 @@ public class MapItemLayer implements ILayer
 				{
 					//we have not drawn this state before
 					//get the animation for this state
-					Parser parser = null;
+					ConfigData parser = null;
 					try
 					{
-						parser = new Parser(new ConfigFile(mapItem.getParser().getStringValue(state.toString())));
+						parser = new ConfigFileReader(mapItem.getParser().getString(ParserKeys.valueOf(state.toString()))).read();
 					}
 					catch (FileNotFoundException e)
 					{

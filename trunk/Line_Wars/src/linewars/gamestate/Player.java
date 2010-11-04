@@ -3,8 +3,8 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.mapItems.*;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 public class Player {
 

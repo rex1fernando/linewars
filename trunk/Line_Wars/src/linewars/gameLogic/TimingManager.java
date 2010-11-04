@@ -3,11 +3,10 @@ package linewars.gameLogic;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.network.Client;
 import linewars.network.MessageProvider;
 import linewars.network.messages.Message;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 public class TimingManager implements Runnable{
 	public static final int TIME_PER_TICK_MILLIS = 100;

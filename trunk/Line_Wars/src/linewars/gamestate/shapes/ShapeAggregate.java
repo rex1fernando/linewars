@@ -1,12 +1,13 @@
 package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.parser.Parser;
-import linewars.parser.Parser.NoSuchKeyException;
-import linewars.parser.ParserKeys;
 
 public class ShapeAggregate extends Shape {
 	
@@ -30,14 +31,14 @@ public class ShapeAggregate extends Shape {
 	 * @param p
 	 * The Parser which defines this ShapeAggregate
 	 */
-	public ShapeAggregate(Parser p){
+	public ShapeAggregate(ConfigData p){
 		members = new ArrayList<Shape>();
-		String[] keys = p.getList(ParserKeys.shapes);
-		for(String key : keys){
-			members.add(Shape.buildFromParser(p.getParser(key)));
+		List<ConfigData> list = p.getConfigList(ParserKeys.shapes);
+		for(ConfigData cfg : list){
+			members.add(Shape.buildFromParser(cfg));
 		}
 		try{
-			rotation = p.getNumericValue(ParserKeys.rotation);			
+			rotation = p.getNumber(ParserKeys.rotation);			
 		}catch(NoSuchKeyException e){
 			rotation = 0;//defaults to 0
 		}

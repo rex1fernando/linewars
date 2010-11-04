@@ -2,8 +2,13 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
@@ -14,10 +19,6 @@ import linewars.gamestate.mapItems.strategies.collision.Ground;
 import linewars.gamestate.mapItems.strategies.collision.NoCollision;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
-import linewars.parser.ConfigFile;
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 /**
  * 
@@ -35,7 +36,7 @@ public abstract class MapItemDefinition {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
-	private Parser parser;
+	private ConfigData parser;
 	protected ArrayList<AbilityDefinition> abilities;
 	private Player owner;
 	protected CollisionStrategy cStrat;
@@ -44,35 +45,35 @@ public abstract class MapItemDefinition {
 	
 	public MapItemDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException
 	{
-		parser = new Parser(new ConfigFile(URI));
+		parser = new ConfigFileReader(URI).read();
 		
 		this.gameState = gameState;
 		
 		this.owner = owner;
 		validStates = new ArrayList<MapItemState>();
-		String[] vs = parser.getList(ParserKeys.ValidStates);
+		List<String> vs = parser.getStringList(ParserKeys.ValidStates);
 		for(String s : vs)
 			validStates.add(MapItemState.valueOf(s));
 		
-		name = parser.getStringValue(ParserKeys.name);
+		name = parser.getString(ParserKeys.name);
 		
 		abilities = new ArrayList<AbilityDefinition>();
 		try
 		{
-			vs = parser.getList(ParserKeys.abilities);
-			for(String s : vs)
+			List<ConfigData> abs = parser.getConfigList(ParserKeys.abilities);
+			for(ConfigData s : abs)
 			{
-				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(parser.getParser(s), this, abilities.size());
+				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(s, this, abilities.size());
 				abilities.add(ad);
 			}
 		}
-		catch (Parser.NoSuchKeyException e)
+		catch (ConfigData.NoSuchKeyException e)
 		{}
 		
 		try
 		{
-			Parser strat = parser.getParser(ParserKeys.collisionStrategy);
-			String type = strat.getStringValue(ParserKeys.type);
+			ConfigData strat = parser.getConfig(ParserKeys.collisionStrategy);
+			String type = strat.getString(ParserKeys.type);
 			if(type.equalsIgnoreCase("AllEnemies"))
 				cStrat = new AllEnemies();
 			else if(type.equalsIgnoreCase("CollidesWithAll"))
@@ -82,7 +83,7 @@ public abstract class MapItemDefinition {
 			else if(type.equalsIgnoreCase("NoCollision"))
 				cStrat = new NoCollision();
 		}
-		catch(Parser.NoSuchKeyException e)
+		catch(ConfigData.NoSuchKeyException e)
 		{
 			cStrat = new NoCollision();
 		}
@@ -91,7 +92,7 @@ public abstract class MapItemDefinition {
 		if(!cStrat.isValidMapItem(this))
 			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
 		
-		body = Shape.buildFromParser(parser.getParser(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
+		body = Shape.buildFromParser(parser.getConfig(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
 	}
 	
 	protected MapItemDefinition(GameState gameState)
@@ -131,7 +132,7 @@ public abstract class MapItemDefinition {
 	 * 
 	 * @return	the parser that defines the map items
 	 */
-	public Parser getParser()
+	public ConfigData getParser()
 	{
 		return parser;
 	}

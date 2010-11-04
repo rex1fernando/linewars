@@ -12,7 +12,6 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import linewars.gamestate.Position;
-import linewars.parser.ParserKeys;
 
 /**
  * Encapsulates the drawing of images.

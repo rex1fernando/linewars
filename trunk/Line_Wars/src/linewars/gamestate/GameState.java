@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.gameLogic.TimingManager;
 import linewars.gamestate.mapItems.*;
@@ -15,10 +18,6 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
 import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
 import linewars.network.messages.UpgradeMessage;
-import linewars.parser.ConfigFile;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.Parser.NoSuchKeyException;
 
 public class GameState
 {
@@ -54,7 +53,7 @@ public class GameState
 	 */
 	public GameState(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames) throws FileNotFoundException, InvalidConfigFileException
 	{
-		Parser mapParser = new Parser(new ConfigFile(mapURI));
+		ConfigData mapParser = new ConfigFileReader(mapURI).read();
 		map = new Map(this, mapParser);
 		players = new HashMap<Integer, Player>();
 		this.numPlayers = numPlayers;
@@ -63,7 +62,7 @@ public class GameState
 		races = new ArrayList<Race>();
 		for(int i = 0; i < raceURIs.size(); i++)
 		{
-			Race r = new Race(new Parser(new ConfigFile(raceURIs.get(i))));
+			Race r = new Race(new ConfigFileReader(raceURIs.get(i)).read());
 			if(!races.contains(r))
 				races.add(r);
 			Node[] startNode = { map.getStartNode(i) };

@@ -3,8 +3,8 @@ package linewars.test;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
-import linewars.parser.Parser.InvalidConfigFileException;
 
 public class ConnorTest {
 

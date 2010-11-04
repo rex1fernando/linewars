@@ -1,11 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -71,22 +71,22 @@ public class ConstructUnitDefinition extends AbilityDefinition {
 
 	@Override
 	public String getIconURI() {
-		return unitDefinition.getParser().getStringValue(ParserKeys.icon);
+		return unitDefinition.getParser().getString(ParserKeys.icon);
 	}
 
 	@Override
 	public String getPressedIconURI() {
-		return unitDefinition.getParser().getStringValue(ParserKeys.pressedIcon);
+		return unitDefinition.getParser().getString(ParserKeys.pressedIcon);
 	}
 
 	@Override
 	public String getRolloverIconURI() {
-		return unitDefinition.getParser().getStringValue(ParserKeys.rolloverIcon);
+		return unitDefinition.getParser().getString(ParserKeys.rolloverIcon);
 	}
 
 	@Override
 	public String getSelectedIconURI() {
-		return unitDefinition.getParser().getStringValue(ParserKeys.selectedIcon);
+		return unitDefinition.getParser().getString(ParserKeys.selectedIcon);
 	}
 
 }

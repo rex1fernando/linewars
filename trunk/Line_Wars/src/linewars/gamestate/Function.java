@@ -1,9 +1,11 @@
 package linewars.gamestate;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import linewars.parser.Parser;
-import linewars.parser.ParserKeys;
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
+
 
 //this class simulates a function
 public class Function {
@@ -15,11 +17,11 @@ public class Function {
 	private FunctionClass type;
 	private ArrayList<Double> coefficients = new ArrayList<Double>();
 	
-	public Function(Parser p)
+	public Function(ConfigData p)
 	{
-		type = FunctionClass.valueOf(p.getStringValue(ParserKeys.functionType));
-		String[] coefs = p.getList(ParserKeys.coefficients);
-		for(String c : coefs)
+		type = FunctionClass.valueOf(p.getString(ParserKeys.functionType));
+		List<Double> coefs = p.getNumberList(ParserKeys.coefficients);
+		for(Double c : coefs)
 			coefficients.add(Double.valueOf(c));
 		
 		if(type == FunctionClass.Exponential && coefficients.size() != 3)

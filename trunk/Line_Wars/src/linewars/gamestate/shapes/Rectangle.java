@@ -1,10 +1,10 @@
 package linewars.gamestate.shapes;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.parser.Parser;
-import linewars.parser.Parser.NoSuchKeyException;
-import linewars.parser.ParserKeys;
 
 public class Rectangle extends Shape {
 	
@@ -16,16 +16,16 @@ public class Rectangle extends Shape {
 	private double width, height;
 	private Transformation position;
 	
-	public Rectangle(Parser config){
-		width = config.getNumericValue(ParserKeys.width);
-		height = config.getNumericValue(ParserKeys.height);
+	public Rectangle(ConfigData config){
+		width = config.getNumber(ParserKeys.width);
+		height = config.getNumber(ParserKeys.height);
 		double rotation = 0;
 		try{
-			rotation = Math.PI * config.getNumericValue(ParserKeys.rotation);
+			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
 		}catch(NoSuchKeyException e){
 			//Just means rotation wasn't set, so it defaults to 0
 		}
-		position = new Transformation(new Position(config.getNumericValue(ParserKeys.x), config.getNumericValue(ParserKeys.y)), rotation);
+		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
 	}
 	
 	//TODO document

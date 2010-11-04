@@ -2,6 +2,9 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.combat.ShootClosestTarget;
@@ -11,9 +14,6 @@ import linewars.gamestate.mapItems.strategies.movement.Straight;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.parser.Parser;
-import linewars.parser.Parser.InvalidConfigFileException;
-import linewars.parser.ParserKeys;
 
 /**
  * 
@@ -34,26 +34,26 @@ public class UnitDefinition extends MapItemDefinition {
 	public UnitDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
 		
-		maxHp = super.getParser().getNumericValue(ParserKeys.maxHP);
+		maxHp = super.getParser().getNumber(ParserKeys.maxHP);
 		
-		Parser cs = super.getParser().getParser(ParserKeys.combatStrategy);
-		if(cs.getStringValue(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
+		ConfigData cs = super.getParser().getConfig(ParserKeys.combatStrategy);
+		if(cs.getString(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
 		{
 			combatStrat = new ShootClosestTarget(this);
 		}
-		else if(cs.getStringValue(ParserKeys.type).equalsIgnoreCase("NoCombat"))
+		else if(cs.getString(ParserKeys.type).equalsIgnoreCase("NoCombat"))
 		{
 			combatStrat = new NoCombat();
 		}
 		else
 			throw new IllegalArgumentException("Invalid combat strategy for " + this.getName());
 		
-		Parser ms = super.getParser().getParser(ParserKeys.movementStrategy);
-		if(ms.getStringValue(ParserKeys.type).equalsIgnoreCase("Straight"))
+		ConfigData ms = super.getParser().getConfig(ParserKeys.movementStrategy);
+		if(ms.getString(ParserKeys.type).equalsIgnoreCase("Straight"))
 		{
-			mStrat = new Straight(ms.getNumericValue(ParserKeys.speed));
+			mStrat = new Straight(ms.getNumber(ParserKeys.speed));
 		}
-		else if(ms.getStringValue(ParserKeys.type).equalsIgnoreCase("immovable"))
+		else if(ms.getString(ParserKeys.type).equalsIgnoreCase("immovable"))
 		{
 			mStrat = new Immovable();
 		}

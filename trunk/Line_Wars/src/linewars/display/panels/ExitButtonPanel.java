@@ -12,10 +12,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
-import linewars.parser.Parser;
 
 @SuppressWarnings("serial")
 public class ExitButtonPanel extends Panel
@@ -30,7 +30,7 @@ public class ExitButtonPanel extends Panel
 	private Timer timer;
 	private JButton exitButton;
 	
-	public ExitButtonPanel(JFrame frame, Timer toStop, GameStateProvider stateManager, Parser ... anims)
+	public ExitButtonPanel(JFrame frame, Timer toStop, GameStateProvider stateManager, ConfigData ... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 		
