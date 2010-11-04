@@ -39,6 +39,7 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
+import linewars.gamestate.Map;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
@@ -149,7 +150,7 @@ public class Display extends JFrame implements Runnable
 		 */
 		private double zoomLevel;
 
-		private Point2D mousePosition;
+		private Position mousePosition;
 		private Position lastClickPosition;
 		private Rectangle2D viewport;
 		private Dimension2D mapSize;
@@ -169,7 +170,7 @@ public class Display extends JFrame implements Runnable
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 
-			mousePosition = new Point2D.Double();
+			mousePosition = new Position(0, 0);
 			lastClickPosition = new Position(0, 0);
 
 			// ignores system generated repaints
@@ -178,7 +179,9 @@ public class Display extends JFrame implements Runnable
 			// get the map parser from the gamestate
 			gameStateProvider.lockViewableGameState();
 			
-			ConfigData mapParser = gameStateProvider.getCurrentGameState().getMap().getParser();
+			GameState state = gameStateProvider.getCurrentGameState();
+			ConfigData mapParser = state.getMap().getParser();
+			int numPlayers = state.getNumPlayers();
 			
 			// calculates the visible screen size based off of the zoom level
 			double mapWidth = mapParser.getNumber(ParserKeys.imageWidth);
@@ -229,7 +232,7 @@ public class Display extends JFrame implements Runnable
 
 			strategicView = new ArrayList<ILayer>(2);
 			strategicView.add(terrain);
-			strategicView.add(new GraphLayer());
+			strategicView.add(new GraphLayer(Display.this, numPlayers));
 
 			tacticalView = new ArrayList<ILayer>();
 			tacticalView.add(terrain);
@@ -275,7 +278,7 @@ public class Display extends JFrame implements Runnable
 			currentTimeTick = gamestate.getTimerTick();
 			
 			// TODO make sure to change this back so it uses strategic view as well!
-			List<ILayer> currentView = tacticalView;// (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
+			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			// draws layers to scale
 			double scale = getWidth() / viewport.getWidth();
@@ -396,7 +399,7 @@ public class Display extends JFrame implements Runnable
 			@Override
 			public void mouseMoved(MouseEvent e)
 			{
-				mousePosition = e.getLocationOnScreen();
+				mousePosition = new Position(e.getPoint().getX(),e.getPoint().getY());
 			}
 
 			@Override
@@ -411,12 +414,12 @@ public class Display extends JFrame implements Runnable
 
 				// calculates the ratios of the zoom and position
 				double zoomRatio = newZoom / zoomLevel;
-				double xRatio = viewport.getWidth() / getWidth();
-				double yRatio = viewport.getHeight() / getHeight();
+				double ratio = viewport.getWidth() / getWidth();
 
 				// converts the mouse point to the game space
-				double mouseX = mousePosition.getX() * xRatio;
-				double mouseY = mousePosition.getY() * yRatio;
+				Position mouseP = toGameCoord(mousePosition);
+				double mouseX = mousePosition.getX() * ratio;
+				double mouseY = mousePosition.getY() * ratio;
 
 				// calculates the change in postion of the viewport
 				double viewX = mouseX - mouseX * zoomRatio;

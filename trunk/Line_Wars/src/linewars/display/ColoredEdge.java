@@ -19,8 +19,8 @@ import linewars.gamestate.Wave;
  */
 public class ColoredEdge
 {
-	private static final double SEGMENT_STEP = 0.01;
-	private Lane lane;
+	private static final double SEGMENT_STEP = 0.1;
+	private Display display;
 	private int numPlayers;
 
 	/**
@@ -31,9 +31,9 @@ public class ColoredEdge
 	 * @param numPlayers
 	 *            The number of players in the game.
 	 */
-	public ColoredEdge(Lane l, int numPlayers)
+	public ColoredEdge(Display d, int numPlayers)
 	{
-		lane = l;
+		display = d;
 		this.numPlayers = numPlayers;
 	}
 
@@ -43,7 +43,7 @@ public class ColoredEdge
 	 * @param g
 	 *            The Graphics to draw to.
 	 */
-	public void draw(Graphics g)
+	public void draw(Graphics g, Lane lane, double scale)
 	{
 		Wave[] waves = lane.getWaves();
 
@@ -73,8 +73,15 @@ public class ColoredEdge
 			//draw the edge segment between the previous wave and the current wave
 			for(; pos < wave.getPosition(); pos += SEGMENT_STEP)
 			{
-				drawSegment(g, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP);
+				drawSegment(g, lane, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP, scale);
 			}
+		}
+
+		g.setColor(Color.white);
+		//draw the edge segment between the last wave and the end node
+		for(; pos < 1; pos += SEGMENT_STEP)
+		{
+			drawSegment(g, lane, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP, scale);
 		}
 	}
 
@@ -91,8 +98,8 @@ public class ColoredEdge
 	 *            The percentage along the bezier curve to stop drawing (from
 	 *            0.0 to 1.0).
 	 */
-	private void drawSegment(Graphics g, double before, double start,
-			double end, double after)
+	private void drawSegment(Graphics g, Lane lane, double before, double start,
+			double end, double after, double scale)
 	{
 		// get the start and end positions
 		Position beforePos = lane.getPosition(before).getPosition();
@@ -111,14 +118,17 @@ public class ColoredEdge
 		Position normOrthEnd = segment.orthogonal().add(segAfter.orthogonal()).normalize();
 
 		// generate the points that bound the segment to be drawn
-		int[] x = {(int)(startPos.getX() + normOrthStart.getX() * lane.getWidth() / 2),
-				(int)(startPos.getX() - normOrthStart.getX() * lane.getWidth() / 2),
-				(int)(endPos.getX() - normOrthEnd.getX() * lane.getWidth() / 2),
-				(int)(endPos.getX() + normOrthEnd.getX() * lane.getWidth() / 2)};
-		int[] y = {(int)(startPos.getY() + normOrthStart.getY() * lane.getWidth() / 2),
-				(int)(startPos.getY() - normOrthStart.getY() * lane.getWidth() / 2),
-				(int)(endPos.getY() - normOrthEnd.getY() * lane.getWidth() / 2),
-				(int)(endPos.getY() + normOrthEnd.getY() * lane.getWidth() / 2)};
+		Position p1 = display.toScreenCoord(new Position(startPos.getX() + normOrthStart.getX() * lane.getWidth() / 2,
+														startPos.getY() + normOrthStart.getY() * lane.getWidth() / 2));
+		Position p2 = display.toScreenCoord(new Position(startPos.getX() - normOrthStart.getX() * lane.getWidth() / 2,
+														startPos.getY() - normOrthStart.getY() * lane.getWidth() / 2));
+		Position p3 = display.toScreenCoord(new Position(endPos.getX() - normOrthEnd.getX() * lane.getWidth() / 2,
+														endPos.getY() - normOrthEnd.getY() * lane.getWidth() / 2));
+		Position p4 = display.toScreenCoord(new Position(endPos.getX() + normOrthEnd.getX() * lane.getWidth() / 2,
+														endPos.getY() + normOrthEnd.getY() * lane.getWidth() / 2));
+		
+		int[] x = {(int)p1.getX(), (int)p2.getX(), (int)p3.getX(), (int)p4.getX()};
+		int[] y = {(int)p1.getY(), (int)p2.getY(), (int)p3.getY(), (int)p4.getY()};
 
 		g.fillPolygon(x, y, 4);
 	}

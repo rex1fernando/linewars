@@ -2,9 +2,11 @@ package linewars.display.layers;
 
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 import linewars.display.ColoredEdge;
 import linewars.display.ColoredNode;
+import linewars.display.Display;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
@@ -14,6 +16,15 @@ import linewars.gamestate.mapItems.CommandCenter;
 
 public class GraphLayer implements ILayer
 {
+	private ColoredNode cn;
+	private ColoredEdge ce;
+	
+	public GraphLayer(Display d, int numPlayers)
+	{
+		cn = new ColoredNode(d, numPlayers);
+		ce = new ColoredEdge(d, numPlayers);
+	}
+	
 	@Override
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scale)
 	{
@@ -30,25 +41,23 @@ public class GraphLayer implements ILayer
 //		testNode.draw(g);
 		//end test code
 
-		/*
-		 * List<Node> nodes = gamestate.getNodes();
-		 * for (Node n : nodes)
-		 * {
-		 * 		if (node is visible)
-		 * 		{
-		 * 			drawNode(n, g);
-		 * 		}
-		 * }
-		 * 
-		 * List<Edges> edges = gamestate.getEdges();
-		 * for (Edge e : edges)
-		 * {
-		 * 		if (edge is visible)
-		 * 		{
-		 * 			drawEdge(e, g);
-		 * 		}
-		 * }
-		 */
+		Node[] nodes = gamestate.getMap().getNodes();
+		for (Node n : nodes)
+		{
+//			if (node is visible)
+//			{
+				cn.draw(g, n, scale);
+//			}
+		}
+		
+		Lane[] edges = gamestate.getMap().getLanes();
+		for (Lane e : edges)
+		{
+//			if (edge is visible)
+//			{
+				ce.draw(g, e, scale);
+//			}
+		}
 	}
 	
 	/*
