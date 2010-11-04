@@ -106,4 +106,9 @@ public class Position {
 		//TODO how to implement hash code for positions?
 		return 0;
 	}
+	
+	@Override
+	public String toString(){
+		return "(" + x + ", " + y + ")";
+	}
 }

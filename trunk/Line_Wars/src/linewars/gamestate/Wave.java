@@ -135,7 +135,8 @@ public class Wave {
 		for(int i = 0; i < units.size(); i++)
 		{
 			if(units.get(i).getState() == MapItemState.Moving){
-				units.get(i).setPosition(collisionVectors.get(units.get(i)));
+				if(collisionVectors.get(units.get(i)).distanceSquared(new Position(0, 0)) > 0)
+					units.get(i).setPosition(collisionVectors.get(units.get(i)));
 			}
 		}
 	}
@@ -234,7 +235,7 @@ public class Wave {
 		for(Unit u : units)
 			u.getMovementStrategy().move();
 		
-		//fixCollisions();
+		fixCollisions();
 		
 //		Gate destGate = null;
 //		for(int i = 0; i < owner.getNodes().length; i++)

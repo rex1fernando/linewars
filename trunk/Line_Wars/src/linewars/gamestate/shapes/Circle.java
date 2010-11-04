@@ -72,4 +72,9 @@ public class Circle extends Shape {
 	public boolean positionIsInShape(Position toTest) {
 		return toTest.distanceSquared(position.getPosition()) < radius * radius;
 	}
+	
+	@Override
+	public String toString(){
+		return "Center = " + position + " Radius = " + radius;
+	}
 }

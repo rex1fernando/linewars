@@ -162,8 +162,9 @@ public class Lane
 				m.getPosition().subtract(m.getRadius() / 2, m.getRadius() / 2),
 				m.getRadius(), m.getRadius());
 		for(MapItem mapItem : ms)
-			if(m.isCollidingWith(mapItem))
-				collisions.add(mapItem);
+			if(!(mapItem == m))
+				if(m.isCollidingWith(mapItem))
+					collisions.add(mapItem);
 		return collisions.toArray(new MapItem[0]);
 	}
 	
