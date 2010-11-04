@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import linewars.configfilehandler.ConfigData;
@@ -288,7 +289,7 @@ public class Display extends JFrame implements Runnable
 			g.drawString(Double.toString(fps), 300, 300);
 
 			// draws the panels if they are shown
-			updatePanels(g, gamestate);
+			updatePanels(g, gamestate, scale);
 
 			// paints other things on top
 			super.paint(g);
@@ -299,7 +300,7 @@ public class Display extends JFrame implements Runnable
 			this.repaint();
 		}
 
-		private void updatePanels(Graphics g, GameState gamestate)
+		private void updatePanels(Graphics g, GameState gamestate, double scale)
 		{
 			// checks for selected node
 			Node node = getSelectedNode(gamestate);
@@ -323,8 +324,9 @@ public class Display extends JFrame implements Runnable
 				int recX = (int)(p.getX() - cc.getWidth() / 2);
 				int recY = (int)(p.getY() - cc.getHeight() / 2);
 				Position pos = toScreenCoord(new Position(recX, recY));
-				int recW = (int)(cc.getWidth() / (viewport.getWidth() / getWidth()));
-				int recH = (int)(cc.getHeight() / (viewport.getHeight() / getHeight()));
+				int recW = (int)(cc.getWidth() * scale);
+				int recH = (int)(cc.getHeight() * scale);
+				
 				g.setColor(Color.red);
 				g.drawRect((int)pos.getX(), (int)pos.getY(), recW, recH);
 			}
@@ -355,11 +357,11 @@ public class Display extends JFrame implements Runnable
 				if(cc != null)
 				{
 					Position p = cc.getPosition();
-					if(lastClickPosition.getX() > p.getX() - ccs.get(i).getWidth() / 2
-							&& lastClickPosition.getY() > p.getY() - ccs.get(i).getHeight() / 2)
+					if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2
+							&& lastClickPosition.getY() > p.getY() - cc.getHeight() / 2)
 					{
-						if(lastClickPosition.getX() < p.getX() + ccs.get(i).getWidth() / 2
-								&& lastClickPosition.getY() < p.getY() + ccs.get(i).getHeight() / 2)
+						if(lastClickPosition.getX() < p.getX() + cc.getWidth() / 2
+								&& lastClickPosition.getY() < p.getY() + cc.getHeight() / 2)
 						{
 							return cc.getNode();
 						}
@@ -387,7 +389,7 @@ public class Display extends JFrame implements Runnable
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				Position p = new Position(e.getLocationOnScreen().getX(), e.getLocationOnScreen().getY());
+				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				lastClickPosition = toGameCoord(p);
 			}
 

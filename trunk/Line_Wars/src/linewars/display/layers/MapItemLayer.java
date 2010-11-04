@@ -42,7 +42,9 @@ public class MapItemLayer implements ILayer
 		for (MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
 			Position pos = mapItem.getPosition();
-			Rectangle2D rect = new Rectangle2D.Double(pos.getX(), pos.getY(), mapItem.getWidth(), mapItem.getHeight());
+			double width = mapItem.getWidth();
+			double height = mapItem.getHeight();
+			Rectangle2D rect = new Rectangle2D.Double(pos.getX() - width / 2, pos.getY() - height - 2, width, height);
 			double rotation = mapItem.getRotation();
 			
 			if (visibleScreen.intersects(rect))

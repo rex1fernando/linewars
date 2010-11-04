@@ -57,12 +57,12 @@ public class TerrainLayer implements ILayer
 			
 			int dx1 = 0;
 			int dy1 = 0;
-			int dx2 = (int) (visibleScreen.getWidth() * scale);
-			int dy2 = (int) (visibleScreen.getHeight() * scale);
+			int dx2 = display.getScreenWidth();
+			int dy2 = display.getScreenHeight();
 			int sx1 = (int) visibleScreen.getX();
 			int sy1 = (int) visibleScreen.getY();
-			int sx2 = (int) (visibleScreen.getX() + visibleScreen.getWidth());
-			int sy2 = (int) (visibleScreen.getY() + visibleScreen.getHeight());
+			int sx2 = (int) (visibleScreen.getX() + (display.getScreenWidth() / scale));
+			int sy2 = (int) (visibleScreen.getY() + (display.getScreenHeight() / scale));
 			Color bg = Color.black;
 			
 			Graphics bmg = bufferedMap.getGraphics();
