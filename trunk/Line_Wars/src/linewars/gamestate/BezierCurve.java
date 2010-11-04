@@ -89,6 +89,9 @@ public class BezierCurve {
 	 */
 	public Transformation getPosition(double pos)
 	{
+		if(pos < 0 || pos > 1)
+			throw new IllegalArgumentException("pos is out of range!");
+		
 		double term0 = Math.pow((1 - pos), 3);
 		double term1 = 3 * Math.pow(1 - pos, 2) * pos;
 		double term2 = 3 * (1 - pos) * Math.pow(pos, 2);

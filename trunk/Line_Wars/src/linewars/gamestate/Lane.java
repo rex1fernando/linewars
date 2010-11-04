@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 
 
 import linewars.configfilehandler.ConfigData;
@@ -33,7 +35,7 @@ public class Lane
 	private String name;
 	
 	private BezierCurve curve;
-	private HashMap<Node, ArrayList<Wave>> pendingWaves;
+	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
 	private HashMap<Node, Gate> gates;
 	private ArrayList<Node> nodes;
@@ -63,7 +65,7 @@ public class Lane
 		this.waves = new ArrayList<Wave>();
 		this.gates = new HashMap<Node, Gate>();
 		
-		this.pendingWaves = new HashMap<Node, ArrayList<Wave>>();
+		this.pendingWaves = new HashMap<Node, HashMap<Player, Wave>>();
 		this.gameState = gameState;
 		pathFinder = new PathFinding(gameState);
 		
@@ -99,16 +101,6 @@ public class Lane
 		gates.remove(n);
 	}
 	
-	/**
-	 * Replaces the gate guarding the node n with g.
-	 * @param n The Node the gate to be changed is guarding.
-	 * @param g The new gate to guard n.
-	 */
-	public void replaceGate(Node n, Gate g)
-	{
-		gates.remove(n);
-		gates.put(n, g);
-	}
 	
 	
 
@@ -227,16 +219,13 @@ public class Lane
 	
 	public void addToPending(Node n, Unit u) 
 	{
-		int playerID = u.getOwner().getPlayerID();
 		if(pendingWaves.get(n) == null)
-			pendingWaves.put(n, new ArrayList<Wave>());
+			pendingWaves.put(n, new HashMap<Player, Wave>());
 		
-		ArrayList<Wave> waves = pendingWaves.get(n);
-		for(int i = 0; i < waves.size(); i++)
-			if(waves.get(i).getUnits()[0].getOwner().getPlayerID() == playerID)
-				waves.get(i).addUnit(u);
-		
-		waves.add(new Wave(this, u, n));
+		if(pendingWaves.get(n).get(u.getOwner()) == null)
+			pendingWaves.get(n).put(u.getOwner(), new Wave(this, u, n));
+		else
+			pendingWaves.get(n).get(u.getOwner()).addUnit(u);
 	}
 	
 	/**
@@ -324,7 +313,11 @@ public class Lane
 		if(pendingWaves.isEmpty())
 			return;
 		
-		ArrayList<Wave> waves = pendingWaves.get(n);
+		Set<Entry<Player, Wave>> waveSet = pendingWaves.get(n).entrySet();
+		ArrayList<Wave> waves = new ArrayList<Wave>();
+		for(Entry<Player, Wave> e : waveSet)
+			waves.add(e.getValue());
+		
 		ArrayList<Unit> units = new ArrayList<Unit>();
 		for(Wave w : waves)
 			for(Unit u : w.getUnits())
@@ -351,7 +344,7 @@ public class Lane
 			start = 1;
 		
 		//represents the minimum forward position on the curve [0,1] that a unit must be placed (ie the back of the current row) 
-		double minForward = (start == 0 ? closestGate.getRadius()/this.getLength() : start - closestGate.getRadius()/this.getLength());
+		double minForward = start;
 		//the place to put the next min forward, is calculated as this line is placed based off the largest radius unit, (ie the next row)
 		double nextMinForward = minForward;
 		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
@@ -430,9 +423,9 @@ public class Lane
 			start = 1;
 		
 		if(start == 0)
-			return LANE_SPAWN_DISTANCE;
+			return LANE_SPAWN_DISTANCE + closestGate.getRadius()/this.getLength();
 		else 
-			return 1 - LANE_SPAWN_DISTANCE;
+			return 1 - LANE_SPAWN_DISTANCE + closestGate.getRadius()/this.getLength();
 	}	
 	
 	/**
@@ -530,68 +523,23 @@ public class Lane
 			else
 				i++;
 		}
-		
-		//TODO is this the right spot?
-		fixCollisions();
+		checkWaveConsistency();
 	}
 	
-	/**
-	 * Finds and fixes all of the current collisions in this Lane.
-	 */
-	private void fixCollisions()
+	private void checkWaveConsistency()
 	{
-		//First find all the collisions
-		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
-		List<Unit> allUnits = getUnits();
-		for(Unit first : allUnits){//for each unit in the lane
-			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
-			if(first.getState() != MapItemState.Moving) continue;//if this Unit isn't moving, it isn't going to get shoved
-			
-			for(Unit second : allUnits){//for each unit it could be colliding with
-				if(first == second) continue;//units can't collide with themselves
-				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
-					if(first.isCollidingWith(second)){//if the two units are actually colliding
-						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
-						
-						//TODO verify/test these calculations
-						double distanceApart = offsetVector.length();
-						double radSum = first.getRadius() + second.getRadius();
-						double overlap = distanceApart - radSum;
-						offsetVector = offsetVector.scale(overlap / distanceApart);
-						
-						if(second.getState() == MapItemState.Moving){
-							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.5));
-							collisionVectors.put(first, newPosition);
-						}
-						else{
-							//move first by -offsetvector
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
-							collisionVectors.put(first, newPosition);
-						}
-					}
+		for(Wave w: waves)
+		{
+			for(Wave x : waves)
+				if(x != w)
+				{
+					for(Unit u : w.getUnits())
+						if(x.contains(u))
+							throw new IllegalStateException("There are multiple waves with the same unit!");
 				}
-			}
-		}
-		
-		//Then resolve them by shifting stuff around
-		for(Unit toMove : allUnits){
-			if(collisionVectors.get(toMove).length() > 0){
-				toMove.getBody().transform(new Transformation(collisionVectors.get(toMove), 0));				
-			}
 		}
 	}
 	
-	private List<Unit> getUnits() {
-		ArrayList<Unit> ret = new ArrayList<Unit>();
-		for(Wave toCheck : waves){
-			for(Unit toAdd : toCheck.getUnits()){
-				ret.add(toAdd);
-			}
-		}
-		return ret;
-	}
-
 	public Gate getGate(Node n)
 	{
 		return gates.get(n);
@@ -603,9 +551,10 @@ public class Lane
 		if (n.getPosition().getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < n.getPosition().getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
-			t = this.getPosition(1);
+			t = this.getPosition(1 - LANE_SPAWN_DISTANCE);
 		else
-			t = this.getPosition(0);
+			t = this.getPosition(LANE_SPAWN_DISTANCE);
+		System.out.println(t);
 		Gate g = p.getGateDefinition().createGate(t);
 		Gate oldG = gates.get(n);
 		gates.put(n, g);

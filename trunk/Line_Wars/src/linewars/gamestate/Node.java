@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 
 
@@ -18,6 +19,7 @@ import linewars.gamestate.shapes.*;
 public class Node {
 	
 	private static final long TIME_TO_OCCUPY = 30000;
+	private static final long TIME_TO_SPAWN = 5000;
 	
 	private GameState gameState;
 	private Player owner;
@@ -27,6 +29,7 @@ public class Node {
 	private ArrayList<Building> containedBuildings;
 	private CommandCenter cCenter;
 	private ArrayList<Unit> containedUnits;
+	private long lastSpawnTime;
 	
 	private ArrayList<Lane> attachedLanes;
 	private Transformation[] buildingSpots;
@@ -45,6 +48,7 @@ public class Node {
 		occupationStartTime = -1;
 		this.cCenter = null;
 		containedUnits = new ArrayList<Unit>();
+		lastSpawnTime = (long) (gameState.getTime()*1000);
 		containedBuildings = new ArrayList<Building>();
 		
 		this.gameState = gameState;
@@ -129,42 +133,40 @@ public class Node {
 	 */
 	private void generateWaves()
 	{
-		Random rand = new Random(gameState.getTimerTick());
-		HashMap<Player, double[]> flows = getAllFlow();
-		boolean foundDest;
-		for(int i = 0; i < containedUnits.size();)
+		if(gameState.getTime()*1000 - lastSpawnTime > TIME_TO_SPAWN)
 		{
-			foundDest = false;
-			Lane destination = null;
-			Player owner = containedUnits.get(i).getOwner();
-			double totalFlow = getTotal(flows.get(owner));
-			double[] currentFlowSet = flows.get(owner);
-			double number = rand.nextDouble() * totalFlow;
-			
-			for(int j = 0; j < currentFlowSet.length; j++)
+			Random rand = new Random(gameState.getTimerTick());
+			HashMap<Player, Entry<Double[], Lane[]>> flows = getAllFlow(this);
+			for(int i = 0; i < containedUnits.size();)
 			{
-				if(number <= currentFlowSet[j] && !foundDest)
+				Lane destination = null;
+				Player owner = containedUnits.get(i).getOwner();
+				double totalFlow = getTotal(flows.get(owner).getKey());
+				Double[] currentFlowSet = flows.get(owner).getKey();
+				double number = rand.nextDouble() * totalFlow;
+				
+				for(int j = 0; j < currentFlowSet.length; j++)
 				{
-					destination = laneMap.get(currentFlowSet[j]);
-					if(owner.isStartPoint(destination, this))
+					if(number <= currentFlowSet[j])
 					{
-						foundDest = true;
+						destination = flows.get(owner).getValue()[j];
+						break;
 					}
 				}
+				
+				destination.addToPending(this, containedUnits.get(i));
+				containedUnits.remove(i);
 			}
 			
-			if(foundDest)
-				destination.addToPending(this, containedUnits.get(i));
-			containedUnits.remove(i);
-		}
-		
-		for(int i = 0; i < attachedLanes.size(); i++)
-		{
-			attachedLanes.get(i).addPendingWaves(this);
+			for(int i = 0; i < attachedLanes.size(); i++)
+			{
+				attachedLanes.get(i).addPendingWaves(this);
+			}
+			lastSpawnTime = (long) (gameState.getTime()*1000);
 		}
 	}
 	
-	private double getTotal(double[] flows)
+	private double getTotal(Double[] flows)
 	{
 		double ret = 0;
 		for(int i = 0; i < flows.length; i++)
@@ -174,45 +176,42 @@ public class Node {
 		return ret;
 	}
 	
-	//TODO I don't understand how this method works (Connor)
 	/**
 	 * This method is a helper method for spawnWaves that generates the array of flow values that spawnWaves
-	 * uses to randomly decide what lanes to send each player's units to.
+	 * uses to randomly decide what lanes to send each player's units to. Only considers lanes where n is
+	 * the start node.
+	 * @param n
+	 * the node to get the flows from
 	 */
-	private HashMap<Player, double[]> getAllFlow()
+	private HashMap<Player, Entry<Double[], Lane[]>> getAllFlow(Node n)
 	{
 		
 		List<Player> players = gameState.getPlayers();
-		HashMap<Player, double[]> ret = new HashMap<Player, double[]>();
-		double[] flows;
+		HashMap<Player, Entry<Double[], Lane[]>> ret = new HashMap<Player, Entry<Double[], Lane[]>>();
+		List<Double> flows;
+		List<Lane> lanes;
 		
 		//Iterate through every player.
 		for(int i = 0; i < players.size(); i++)
 		{
 			
 			Lane[] l = gameState.getMap().getLanes();
-			flows = new double[l.length];
+			flows = new ArrayList<Double>();
+			lanes = new ArrayList<Lane>();
 			Player p = players.get(i);
 			double total = 0;
 			
-			/**
-			 * This loop is where the work gets done. It creates an array of unique doubles such that every
-			 * element is the sum of itself and all of the elements before it. This allows the random
-			 * lane chooser to pick a random double between 0 and the total while maintaining an arbitrary
-			 * weight.
-			 */
-			for(int j = 0; j < l.length; j++)
+			for(Lane lane : l)
 			{
-				total = p.getFlowDist(l[j]) + total;
-				flows[j] = total;
-				/**
-				 * This map exists to maintain the mapping from each of the new doubles to the lanes, so the
-				 * random lane chooser knows which values correspond to which lanes.
-				 */
-				laneMap.put(total, l[j]);
+				if(p.isStartPoint(lane, n))
+				{
+					flows.add(p.getFlowDist(lane) + total);
+					lanes.add(lane);
+					total += p.getFlowDist(lane);
+				}
 			}
-			Arrays.sort(flows);
-			ret.put(p, flows);
+			
+			ret.put(players.get(i), new Pair<Double[], Lane[]>(flows.toArray(new Double[0]), lanes.toArray(new Lane[0])));
 		}
 		return ret;
 		
@@ -336,5 +335,34 @@ public class Node {
 	public int getID()
 	{
 		return ID;
+	}
+	
+	private class Pair<K, V> implements Entry<K, V> {
+
+		private K key;
+		private V value;
+		
+		public Pair(K k, V v)
+		{
+			key = k;
+			value = v;
+		}
+		
+		@Override
+		public K getKey() {
+			return key;
+		}
+
+		@Override
+		public V getValue() {
+			return value;
+		}
+
+		@Override
+		public V setValue(V value) {
+			this.value = value;
+			return value;
+		}
+		
 	}
 }
