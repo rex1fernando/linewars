@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import linewars.gamestate.Node;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 

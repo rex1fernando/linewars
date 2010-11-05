@@ -402,7 +402,7 @@ public class Lane
 		}
 		
 		//now center the last row
-		double moveBack = Math.abs(startWidth - -width/2); //this is how much we need to move the units by to center them
+		double moveBack = Math.abs((width - (width/2 - startWidth))/2); //this is how much we need to move the units by to center them
 		for(Unit u : lastRow)
 		{
 			Transformation tpos = u.getTransformation();

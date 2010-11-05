@@ -162,6 +162,8 @@ public class Wave {
 			//go through each unit and see how far it's going to go
 			for(Unit u : units)
 			{
+				//TODO some way of knowing we're at the node
+				//TODO getPosition needs to return the angle in the direction of someone going from 0 -> 1, not the other way
 				Transformation t = owner.getPosition(owner.getClosestPointRatio(u.getPosition()));
 				closestPoints.add(t);
 				double angle = t.getRotation();
@@ -182,7 +184,9 @@ public class Wave {
 				double angle = closestPoints.get(i).getRotation();
 				if(dir < 0)
 					angle -= Math.PI;
-				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle))));
+//				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i)
+//								.getPosition().add(dis * Math.cos(angle),dis * Math.sin(angle))));
+				Transformation t = new Transformation(units.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle)), angle);
 				units.get(i).getMovementStrategy().setTarget(t);
 			}
 		}

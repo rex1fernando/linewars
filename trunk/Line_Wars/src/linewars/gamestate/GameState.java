@@ -30,6 +30,8 @@ public class GameState
 	private int numPlayers;
 	private ArrayList<Race> races;
 	
+	private Player winningPlayer = null;
+	
 	public int getNumPlayers()
 	{
 		return numPlayers;
@@ -188,5 +190,17 @@ public class GameState
 			l.update();
 		
 		timerTick++;
+		
+		//check for win
+		Node n1 = map.getNodes()[0];
+		for(Node n : map.getNodes())
+			if(!n1.getOwner().equals(n.getOwner()))
+				return;
+		winningPlayer = n1.getOwner();
+	}
+	
+	public Player getWinningPlayer()
+	{
+		return null;
 	}
 }

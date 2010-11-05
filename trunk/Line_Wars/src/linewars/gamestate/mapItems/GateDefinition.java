@@ -6,6 +6,8 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 
@@ -37,6 +39,12 @@ public class GateDefinition extends UnitDefinition {
 	public Gate createGate(Transformation t)
 	{
 		return new Gate(t, this, new Immovable(), new NoCombat());
+	}
+	
+	@Override
+	public CollisionStrategy getCollisionStrategy()
+	{
+		return new AllEnemies();
 	}
 
 }

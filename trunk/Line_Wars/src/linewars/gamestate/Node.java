@@ -154,7 +154,8 @@ public class Node {
 					}
 				}
 				
-				destination.addToPending(this, containedUnits.get(i));
+				if(destination != null) //if there is no output from this node, just delete the units
+					destination.addToPending(this, containedUnits.get(i));
 				containedUnits.remove(i);
 			}
 			

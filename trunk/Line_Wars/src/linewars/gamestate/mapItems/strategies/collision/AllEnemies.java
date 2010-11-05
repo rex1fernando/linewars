@@ -34,7 +34,7 @@ public class AllEnemies implements CollisionStrategy {
 	@Override
 	public boolean canCollideWith(MapItem m) {
 		if((m.getCollisionStrategy() instanceof AllEnemies) || (m.getCollisionStrategy() instanceof Ground))
-			return m.getOwner().equals(mapItem.getOwner());
+			return !m.getOwner().equals(mapItem.getOwner());
 		else
 			return m.getCollisionStrategy().canCollideWith(mapItem);
 	}
