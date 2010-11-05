@@ -195,7 +195,7 @@ public class BezierCurve {
 		return new Position(posX, posY);
 	}
 	
-	//TODO implement this method
+
 	/**
 	 * first finds the closest point in the curve to p, then returns that
 	 * position's ratio along the curve (ie [0,1])
@@ -205,6 +205,21 @@ public class BezierCurve {
 	 */
 	public double getClosestPointRatio(Position p) 
 	{
-		return 0.5;
+		double minVal = Double.POSITIVE_INFINITY;
+		double ret = Double.POSITIVE_INFINITY;
+		Position comp;
+
+		for(double d = 0; d <=1; d += STEP_SIZE)
+		{
+			comp = getPosition(d).getPosition();
+			double value = p.distanceSquared(comp);
+			if(value < minVal)
+			{
+				minVal = value;
+				ret = d;
+			}
+		}
+		
+		return ret;
 	}
 }
