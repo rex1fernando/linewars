@@ -530,15 +530,18 @@ public class Lane
 	private void findAndResolveCollisions(){
 		//First find all the collisions
 		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
+		//HashMap<Unit, Integer> numCollisions = new HashMap<Unit, Integer>();
 		List<Unit> allUnits = getUnits();
 		for(Unit first : allUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
-			if(first.getState() != MapItemState.Moving) continue;//if this Unit isn't moving, it isn't going to get shoved
+			//numCollisions.put(first, 0);
 			
 			for(Unit second : allUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
 				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
+						//numCollisions.put(first, numCollisions.get(first) + 1);
+						if(first.getState() != MapItemState.Moving) continue;//if the unit isn't moving, it can't get shoved
 						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
 						
 						//Calculate how far they should be shifted
@@ -547,7 +550,7 @@ public class Lane
 						double overlap = radSum - distanceApart;
 						double scalingFactor = overlap / distanceApart;
 						//scalingFactor = 1 - ((1 - scalingFactor) * (1 - scalingFactor));
-						offsetVector = offsetVector.scale(Math.min(1, scalingFactor));
+						offsetVector = offsetVector.scale(scalingFactor);
 						
 						if(second.getState() == MapItemState.Moving){
 							//move first by -offsetvector/2
@@ -563,6 +566,22 @@ public class Lane
 				}
 			}
 		}
+		/*
+		HashMap<Unit, Position> oneDepthRecursionVectors = new HashMap<Unit, Position>();
+		
+		for(Unit first : allUnits){
+			oneDepthRecursionVectors.put(first, new Position(0, 0));
+			for(Unit second : allUnits){
+				if(first == second) continue;//units can't collide with themselves
+				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
+					if(first.isCollidingWith(second)){//if the two units are actually colliding
+						//add the second unit's collision vector to the first unit's oneDepthRecursionVector
+						Position toPut = oneDepthRecursionVectors.get(first).add(collisionVectors.get(second));
+						oneDepthRecursionVectors.put(first, toPut);
+					}
+				}
+			}
+		}*/
 		
 
 		//Then resolve them by shifting stuff around
