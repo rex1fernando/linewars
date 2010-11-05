@@ -5,8 +5,7 @@ import java.util.HashMap;
 
 import linewars.network.messages.Message;
 
-public class SinglePlayerNetworkProxy implements MessageProvider,
-		MessageReceiver {
+public class SinglePlayerNetworkProxy implements MessageHandler {
 	
 	private int currentTick;
 	private HashMap<Integer, ArrayList<Message>> messageBank;
@@ -33,6 +32,11 @@ public class SinglePlayerNetworkProxy implements MessageProvider,
 		
 		
 		return messageBank.get(tickID).toArray(new Message[0]);
+	}
+
+	@Override
+	public void run() {
+		//do nothing
 	}
 
 }

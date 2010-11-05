@@ -26,7 +26,7 @@ import linewars.network.messages.SupDawgMessage;
  * 
  * @author Titus Klinge
  */
-public class Client implements MessageProvider, MessageReceiver, Runnable
+public class Client implements MessageHandler
 {
 	private static final int K = 6;
 	

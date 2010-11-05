@@ -8,6 +8,7 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.display.Display;
 import linewars.gameLogic.TimingManager;
 import linewars.network.Client;
+import linewars.network.MessageHandler;
 import linewars.network.Server;
 import linewars.network.SinglePlayerNetworkProxy;
 
@@ -18,8 +19,7 @@ public class Game {
 	private static final int SOCKET_PORT = 9001;
 	
 	private Display display;
-	private Client networking;
-	//private SinglePlayerNetworkProxy networking;
+	private MessageHandler networking;
 	private TimingManager logic;
 	private Server server;
 	
@@ -65,29 +65,39 @@ public class Game {
 	}
 	
 	public void initialize(){
+		//single player init
+		if(numPlayers == 1){
+			networking = new SinglePlayerNetworkProxy();
+		}
+		//multiplayer init
+		else if(numPlayers > 1){
+			
+			//if this player is the server
+			if(serverAddress.equals("127.0.0.1")){
+				try {
+					server = new Server(null, numPlayers);
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			try
+			{
+				networking = new Client(serverAddress, SOCKET_PORT);
+			}
+			catch (SocketException e)
+			{
+				// if this happens.... well crap...
+				e.printStackTrace();
+			}
+		}
+		
+		//init for every # of players
 		try {
 			logic = new TimingManager(mapDefinitionURI, numPlayers, raceDefinitionURIs, playerNames);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (InvalidConfigFileException e) {
-			e.printStackTrace();
-		}
-		if(serverAddress.equals("127.0.0.1")){
-			try {
-				server = new Server(null, numPlayers);
-			} catch (SocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		//networking = new SinglePlayerNetworkProxy();
-		try
-		{
-			networking = new Client(serverAddress, SOCKET_PORT);
-		}
-		catch (SocketException e)
-		{
-			// if this happens.... well crap...
 			e.printStackTrace();
 		}
 		display = new Display(logic.getGameStateManager(), networking);
