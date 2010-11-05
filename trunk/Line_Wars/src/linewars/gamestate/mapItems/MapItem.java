@@ -121,7 +121,7 @@ public abstract class MapItem {
 	 */
 	public void setPosition(Position p)
 	{
-		body = body.transform(new Transformation(p, body.position().getRotation()));
+		body = body.transform(new Transformation(body.position().getPosition().subtract(p), body.position().getRotation()));
 	}
 	
 	/**

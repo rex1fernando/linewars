@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
-
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
@@ -524,8 +524,60 @@ public class Lane
 				i++;
 		}
 		checkWaveConsistency();
+		findAndResolveCollisions();
 	}
 	
+	private void findAndResolveCollisions(){
+		//First find all the collisions
+		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
+		List<Unit> allUnits = getUnits();
+		for(Unit first : allUnits){//for each unit in the lane
+			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
+			if(first.getState() != MapItemState.Moving) continue;//if this Unit isn't moving, it isn't going to get shoved
+			
+			for(Unit second : allUnits){//for each unit it could be colliding with
+				if(first == second) continue;//units can't collide with themselves
+				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
+					if(first.isCollidingWith(second)){//if the two units are actually colliding
+						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
+						
+						//Calculate how far they should be shifted
+						double distanceApart = offsetVector.length();
+						double radSum = first.getRadius() + second.getRadius();
+						double overlap = radSum - distanceApart;
+						double scalingFactor = overlap / distanceApart;
+						//scalingFactor = 1 - ((1 - scalingFactor) * (1 - scalingFactor));
+						offsetVector = offsetVector.scale(Math.min(1, scalingFactor));
+						
+						if(second.getState() == MapItemState.Moving){
+							//move first by -offsetvector/2
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.5));
+							collisionVectors.put(first, newPosition);
+						}
+						else{
+							//move first by -offsetvector
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
+							collisionVectors.put(first, newPosition);
+						}
+					}
+				}
+			}
+		}
+		
+
+		//Then resolve them by shifting stuff around
+		for(Unit toMove : allUnits){
+			Position offset = collisionVectors.get(toMove);
+			if(offset.length() > 0){
+				Random rand = new Random(gameState.getTimerTick());
+				double xNoise = rand.nextDouble();
+				double yNoise = rand.nextDouble();
+				offset = offset.add(new Position(xNoise, yNoise));
+				toMove.setPosition(toMove.getPosition().add(offset));				
+			}
+		}
+	}
+
 	private void checkWaveConsistency()
 	{
 		for(Wave w: waves)
@@ -536,7 +588,7 @@ public class Lane
 					for(Unit u : w.getUnits())
 						if(x.contains(u))
 							throw new IllegalStateException("There are multiple waves with the same unit!");
-				}
+			}
 		}
 	}
 	
@@ -569,6 +621,16 @@ public class Lane
 		
 		//if there isn't a gate, then make a new wave that contains it
 		waves.add(new Wave(this, g, n));
+	}
+	
+	public List<Unit> getUnits(){
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		for(Wave w : waves){
+			for(Unit toAdd : w.getUnits()){
+				units.add(toAdd);
+			}
+		}
+		return units;
 	}
 	
 	public void addNode(Node n)

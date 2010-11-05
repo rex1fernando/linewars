@@ -19,7 +19,7 @@ import linewars.gamestate.Wave;
  */
 public class ColoredEdge
 {
-	private static final double SEGMENT_STEP = 0.1;
+	private static final double SEGMENT_STEP = 0.05;
 	private Display display;
 	private int numPlayers;
 
@@ -49,7 +49,7 @@ public class ColoredEdge
 
 		Color curColor;
 		int curIndex;
-		double pos = 0.0;
+		double pos = SEGMENT_STEP;
 		
 		// get the playerID and Color for the first wave
 		int prevIndex = waves[0].getUnits()[0].getOwner().getPlayerID();
@@ -79,7 +79,7 @@ public class ColoredEdge
 
 		g.setColor(Color.white);
 		//draw the edge segment between the last wave and the end node
-		for(; pos < 1; pos += SEGMENT_STEP)
+		for(; pos + 2 * SEGMENT_STEP < 1; pos += SEGMENT_STEP)
 		{
 			drawSegment(g, lane, pos - SEGMENT_STEP, pos, pos + SEGMENT_STEP, pos + 2 * SEGMENT_STEP, scale);
 		}
