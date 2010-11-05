@@ -55,15 +55,17 @@ public class Display extends JFrame implements Runnable
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
 	
-	private int currentTimeTick;
-
 	private GameStateProvider gameStateProvider;
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
+	
+	private int playerIndex;
 
-	public Display(GameStateProvider provider, MessageReceiver receiver)
+	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer)
 	{
 		super("Line Wars");
+		
+		playerIndex = curPlayer;
 		
 		messageReceiver = receiver;
 		gameStateProvider = provider;
@@ -80,11 +82,6 @@ public class Display extends JFrame implements Runnable
 		// shows the display
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-	}
-	
-	public int getTimeTick()
-	{
-		return currentTimeTick;
 	}
 	
 	public int getScreenWidth()
@@ -134,7 +131,6 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		
-		//TODO
 		private long lastTime;
 
 		public GamePanel()
@@ -202,14 +198,11 @@ public class Display extends JFrame implements Runnable
 
 			setOpaque(false);
 
-			TerrainLayer terrain = new TerrainLayer(mapURI, Display.this);
-
 			strategicView = new ArrayList<ILayer>(2);
-			strategicView.add(terrain);
 			strategicView.add(new GraphLayer(Display.this, numPlayers));
 
 			tacticalView = new ArrayList<ILayer>();
-			tacticalView.add(terrain);
+			tacticalView.add(new TerrainLayer(mapURI, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
@@ -241,7 +234,6 @@ public class Display extends JFrame implements Runnable
 		@Override
 		public void paint(Graphics g)
 		{
-			//TODO
 			long curTime = System.currentTimeMillis();
 			double fps = 1000.0 / (curTime - lastTime);
 			lastTime = curTime;
@@ -252,9 +244,6 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
-			currentTimeTick = gamestate.getTimerTick();
-			
-			// TODO make sure to change this back so it uses strategic view as well!
 			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			// draws layers to scale
@@ -358,6 +347,8 @@ public class Display extends JFrame implements Runnable
 				g.setColor(Color.red);
 				g.drawRect((int)pos.getX(), (int)pos.getY(), recW, recH);
 			}
+			
+			requestFocusInWindow();
 		}
 
 		@Override
@@ -383,15 +374,19 @@ public class Display extends JFrame implements Runnable
 				CommandCenter cc = ccs.get(i);
 				if(cc != null)
 				{
-					Position p = cc.getPosition();
-					if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2
-							&& lastClickPosition.getY() > p.getY() - cc.getHeight() / 2)
-					{
-						if(lastClickPosition.getX() < p.getX() + cc.getWidth() / 2
-								&& lastClickPosition.getY() < p.getY() + cc.getHeight() / 2)
+					//TODO limits the player to only selecting their nodes
+//					if(cc.getOwner().getPlayerID() == playerIndex)
+//					{
+						Position p = cc.getPosition();
+						if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2
+								&& lastClickPosition.getY() > p.getY() - cc.getHeight() / 2)
 						{
-							return cc.getNode();
-						}
+							if(lastClickPosition.getX() < p.getX() + cc.getWidth() / 2
+									&& lastClickPosition.getY() < p.getY() + cc.getHeight() / 2)
+							{
+								return cc.getNode();
+							}
+//						}
 					}
 				}
 			}

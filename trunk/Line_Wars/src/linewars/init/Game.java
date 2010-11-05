@@ -100,7 +100,9 @@ public class Game {
 		} catch (InvalidConfigFileException e) {
 			e.printStackTrace();
 		}
-		display = new Display(logic.getGameStateManager(), networking);
+		
+		//TODO pass in the actual current player to the display
+		display = new Display(logic.getGameStateManager(), networking, 0);
 		logic.setClientReference(networking);
 	}
 	
