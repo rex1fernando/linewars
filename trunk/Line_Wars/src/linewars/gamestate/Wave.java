@@ -185,7 +185,7 @@ public class Wave {
 				if(dir < 0)
 					angle -= Math.PI;
 //				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i)
-//								.getPosition().add(dis * Math.cos(angle),dis * Math.sin(angle))));
+//								.getPosition().add(dis * Math.cos(angle),dis * Math.sin(angle))));                                                                                                                                                                                                                                                                                                                                                                                                           
 				Transformation t = new Transformation(units.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle)), angle);
 				units.get(i).getMovementStrategy().setTarget(t);
 			}

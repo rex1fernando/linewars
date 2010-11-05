@@ -201,6 +201,6 @@ public class GameState
 	
 	public Player getWinningPlayer()
 	{
-		return null;
+		return winningPlayer;
 	}
 }
