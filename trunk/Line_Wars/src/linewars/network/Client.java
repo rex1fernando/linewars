@@ -41,7 +41,7 @@ public class Client implements MessageProvider, MessageReceiver, Runnable
 	public Client(String serverAddress, int port) throws SocketException
 	{
 		this.serverAddress = serverAddress;
-		gateKeeper = new GateKeeper(port);
+		gateKeeper = new GateKeeper(port, port + 1);
 		
 		currentTick = 1;
 		outgoingMessages = new LinkedList<Message>();

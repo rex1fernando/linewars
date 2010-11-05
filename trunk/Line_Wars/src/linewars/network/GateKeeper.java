@@ -51,7 +51,7 @@ public class GateKeeper
 	
 	private MessageListener msgListener;
 	
-	public GateKeeper(int port) throws SocketException
+	public GateKeeper(int port, int sendToPort) throws SocketException
 	{
 		messages = new HashMap<Integer, HashMap<String, Message[]>>();
 		resendMessages = new HashMap<Integer, Message[]>();
@@ -60,6 +60,7 @@ public class GateKeeper
 		socket.setSoTimeout(SO_TIMEOUT);
 		
 		msgListener = new MessageListener(SLEEP_TIME);
+		this.port = sendToPort;
 	}
 	
 	/**
