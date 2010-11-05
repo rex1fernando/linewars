@@ -203,5 +203,12 @@ public class ColoredEdge
 		int[] y = {(int)p1.getY(), (int)p2.getY(), (int)p3.getY(), (int)p4.getY()};
 
 		g.fillPolygon(x, y, 4);
+
+		//TODO test code
+		Color c = g.getColor();
+		g.setColor(Color.black);
+		g.drawPolygon(x, y, 4);
+		g.setColor(c);
+		//end test code
 	}
 }
