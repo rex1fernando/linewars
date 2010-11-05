@@ -57,8 +57,8 @@ public class Lane
 	{
 		this.name = parser.getString(ParserKeys.name);
 		//TODO
-		curve = new BezierCurve(new Position(parser.getString(ParserKeys.p0)), new Position(parser.getString(ParserKeys.p1)),
-					new Position(parser.getString(ParserKeys.p2)), new Position(parser.getString(ParserKeys.p3)));
+		//curve = new BezierCurve(new Position(parser.getString(ParserKeys.p0)), new Position(parser.getString(ParserKeys.p1)),new Position(parser.getString(ParserKeys.p2)), new Position(parser.getString(ParserKeys.p3)));
+		curve = BezierCurve.buildCurve(parser);
 		
 		this.width = parser.getNumber(ParserKeys.width);
 		this.nodes = new ArrayList<Node>();

@@ -2,6 +2,9 @@ package linewars.gamestate;
 
 import java.util.Scanner;
 
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
+
 public class Position {
 	
 	private double x;
@@ -24,6 +27,11 @@ public class Position {
 		y = s.nextDouble();
 	}
 	
+	public Position(ConfigData toParse) {
+		x = toParse.getNumber(ParserKeys.x);
+		y = toParse.getNumber(ParserKeys.y);
+	}
+
 	public double getX()
 	{
 		return x;

@@ -1,5 +1,11 @@
 package linewars.gamestate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ParserKeys;
+
 public class BezierCurve {
 	/*
  	 * These points represent the 4 control
@@ -14,7 +20,42 @@ public class BezierCurve {
 	
 	private double length;
 	//TODO Test what the right stepsize is to balance time vs accuracy.
-	static final double STEP_SIZE = 0.001;
+	private static final double STEP_SIZE = 0.001;
+	
+	public static BezierCurve buildCurve(ConfigData configuration){
+		List<ConfigData> positions = configuration.getConfigList(ParserKeys.controlPoint);
+		ArrayList<Position> parsedPositions = new ArrayList<Position>();
+		for(ConfigData toParse : positions){
+			parsedPositions.add(new Position(toParse));
+		}
+		return buildCurve(parsedPositions);
+	}
+	
+	public static BezierCurve buildCurve(List<Position> orderedControlPoints){
+		if(orderedControlPoints.size() == 2){
+			return buildCurve(orderedControlPoints.get(0), orderedControlPoints.get(1));
+		}else if(orderedControlPoints.size() == 3){
+			return buildCurve(orderedControlPoints.get(0), orderedControlPoints.get(1), orderedControlPoints.get(2));
+		}else if(orderedControlPoints.size() == 4){
+			return new BezierCurve(orderedControlPoints.get(0), orderedControlPoints.get(1), orderedControlPoints.get(2), orderedControlPoints.get(3));
+		}
+		throw new IllegalArgumentException("2 - 4 control points expected; " + orderedControlPoints.size() + " found.");
+	}
+	
+	public static BezierCurve buildCurve(Position p0, Position p1){
+		Position newP1 = p0.scale(.5).add(p1.scale(.5));
+		return buildCurve(p0, newP1, p1);
+	}
+	
+	public static BezierCurve buildCurve(Position p0, Position p1, Position p2){
+		Position newP1 = p0.scale(1.0 / 3).add(p1.scale(1 - (1.0 / 3)));
+		Position newP2 = p1.scale(2.0 / 3).add(p2.scale(1 - (2.0 / 3)));
+		return new BezierCurve(p0, newP1, newP2, p2);
+	}
+	
+	public static BezierCurve buildCurve(Position p0, Position p1, Position p2, Position p3){
+		return new BezierCurve(p0, p1, p2, p3);
+	}
 	
 	public BezierCurve(Position p0, Position p1, Position p2, Position p3)
 	{
