@@ -161,8 +161,8 @@ public class BezierCurve {
 	{
 		double ret;
 		
-		double dy = (quad.getY() - cube.getY());
-		double dx = (quad.getX() - cube.getX());
+		double dy = (cube.getY() - quad.getY());
+		double dx = (cube.getX() - quad.getX());
 
 		ret = Math.atan2(dy, dx) * (180 / Math.PI);
 
