@@ -51,7 +51,7 @@ public class ExitButtonPanel extends Panel
 				    JOptionPane.QUESTION_MESSAGE,
 				    null,
 				    options,
-				    options[1]);
+				    options[0]);
 				
 				if (n == JOptionPane.YES_OPTION)
 				{

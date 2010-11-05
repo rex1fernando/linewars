@@ -1,6 +1,7 @@
 package linewars.display.layers;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import linewars.configfilehandler.ConfigFileReader;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.display.Animation;
+import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
@@ -25,12 +27,16 @@ public class MapItemLayer implements ILayer
 {
 	public enum MapItemType {UNIT, PROJECTILE, BUILDING}
 	
+	private Display display;
+	
 	private MapItemType mapItemType;
 	
 	private Map<String, Map<MapItemState, Animation>> unitToStateMap;
 	
-	public MapItemLayer(MapItemType type)
+	public MapItemLayer(MapItemType type, Display d)
 	{
+		display = d;
+		
 		mapItemType = type;
 		
 		unitToStateMap = new HashMap<String, Map<MapItemState, Animation>>();
@@ -42,10 +48,10 @@ public class MapItemLayer implements ILayer
 		for (MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
 			Position pos = mapItem.getPosition();
+			double rotation = mapItem.getRotation();
 			double width = mapItem.getWidth();
 			double height = mapItem.getHeight();
 			Rectangle2D rect = new Rectangle2D.Double(pos.getX() - width / 2, pos.getY() - height / 2, width, height);
-			double rotation = mapItem.getRotation();
 			
 			if (visibleScreen.intersects(rect))
 			{
@@ -91,11 +97,17 @@ public class MapItemLayer implements ILayer
 				}
 				
 				//get the items coordinates based on the visible screen
-//				pos = display.toScreenCoord(pos);
-				pos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
+				Position upperLeftPos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2), pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
+				pos = display.toScreenCoord(pos);
+
+				//rotate the image
+				((Graphics2D)g).rotate(rotation, pos.getX(), pos.getY());
 				
 				//draw the animation
-				ImageDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), pos, rotation, scale);
+				ImageDrawer.getInstance().draw(g, anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(), upperLeftPos, rotation, scale);
+				
+				//set the graphics to not be rotated anymore
+				((Graphics2D)g).rotate(-rotation, pos.getX(), pos.getY());
 			}
 		}
 	}

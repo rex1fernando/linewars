@@ -210,9 +210,9 @@ public class Display extends JFrame implements Runnable
 
 			tacticalView = new ArrayList<ILayer>();
 			tacticalView.add(terrain);
-			tacticalView.add(new MapItemLayer(MapItemType.BUILDING));
-			tacticalView.add(new MapItemLayer(MapItemType.UNIT));
-			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE));
+			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
 
 			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
