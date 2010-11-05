@@ -34,7 +34,7 @@ public class Game {
 	/**
 	 * 
 	 * @param args
-	 * mapDefinitionURI numPlayers serverAddress raceURI0...raceURIn playerName0...playerNamen
+	 * mapDefinitionURI numPlayers serverAddress raceURI0...raceURIn playerName0...playerNamen playerAddress0...playerAddressn
 	 */
 	public static void main(String[] args){
 		ArrayList<String> raceURIs = new ArrayList<String>();
@@ -44,7 +44,7 @@ public class Game {
 		for(int i = 0; i < numPlayers; i++){
 			raceURIs.add(args[3 + i]);
 			players.add(args[3 + numPlayers + i]);
-			if(args[2].equals("127.0.0.1")){
+			if(args[2].equals("127.0.0.1") && numPlayers > 1){
 				playerAddresses.add(args[3 + 2 * numPlayers + i]);
 			}
 		}
