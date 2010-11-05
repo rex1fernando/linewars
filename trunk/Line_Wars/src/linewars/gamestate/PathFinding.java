@@ -32,7 +32,7 @@ public class PathFinding {
 	private Position upperLeft;
 	private double width;
 	private double height;
-	private HashMap<Position, Node> nodeMap;
+	private HashMap<Position, Node> nodeMap = new HashMap<Position, Node>();
 	private GameState gameState;
 	
 	public PathFinding(GameState gameState)
@@ -42,6 +42,12 @@ public class PathFinding {
 	
 	public Queue<Position> findPath(Unit unit, Position target, double radius, MapItem[] obstacles, Position upperLeft, double width, double height)
 	{
+		Queue<Position> queue = new LinkedList<Position>();
+		queue.add(target);
+		boolean fuckthis = true;
+		if(fuckthis)
+			return queue;
+		
 		if(currentTick != gameState.getTimerTick())
 		{
 			currentTick = gameState.getTimerTick();
@@ -49,6 +55,11 @@ public class PathFinding {
 		}
 		
 		nodeMap = hashOfMaps.get(unit.getURI());
+		if(nodeMap == null)
+		{
+			nodeMap = new HashMap<Position, PathFinding.Node>();
+			hashOfMaps.put(unit.getURI(), nodeMap);
+		}
 		
 		currentVisitedID = Math.random();
 		this.target = target;

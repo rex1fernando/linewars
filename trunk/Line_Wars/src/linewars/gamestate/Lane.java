@@ -310,7 +310,7 @@ public class Lane
 	
 	public void addPendingWaves(Node n)
 	{
-		if(pendingWaves.isEmpty())
+		if(pendingWaves.isEmpty() || pendingWaves.get(n) == null)
 			return;
 		
 		Set<Entry<Player, Wave>> waveSet = pendingWaves.get(n).entrySet();
@@ -321,7 +321,10 @@ public class Lane
 		ArrayList<Unit> units = new ArrayList<Unit>();
 		for(Wave w : waves)
 			for(Unit u : w.getUnits())
+			{
 				units.add(u);
+				u.setWave(w); //set the unit's wave
+			}
 		
 		//sort units in descending order by radius
 		Collections.sort(units, new Comparator<Unit>() {
@@ -698,5 +701,10 @@ public class Lane
 	public double getClosestPointRatio(Position p) 
 	{
 		return curve.getClosestPointRatio(p);
+	}
+	
+	public GameState getGameState()
+	{
+		return gameState;
 	}
 }

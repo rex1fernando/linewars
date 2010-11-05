@@ -28,6 +28,10 @@ public class ShootClosestTarget implements CombatStrategy {
 	private double averageMove = 0;
 	private Position lastPosition = null;
 	private int numMoves = 0;
+	
+	private long lastShootTime = 0;
+	private long shootCoolDown;
+	
 	//this variable specifies the last time the algorithm asked for a path
 	private long pathLockout = -1;
 	
@@ -38,8 +42,9 @@ public class ShootClosestTarget implements CombatStrategy {
 	 * 
 	 * @param ud	the UnitDefinition that owns the unit that owns this strategy.
 	 */
-	public ShootClosestTarget(UnitDefinition ud) 
+	public ShootClosestTarget(UnitDefinition ud, long shootCoolDown) 
 	{
+		this.shootCoolDown = shootCoolDown;
 		AbilityDefinition[] ads = ud.getAbilityDefinitions();
 		for(int i = 0; i < ads.length && shootDefinition == null; i++)
 			if(ads[i] instanceof ShootDefinition)
@@ -61,6 +66,7 @@ public class ShootClosestTarget implements CombatStrategy {
 		ShootClosestTarget sct = new ShootClosestTarget();
 		sct.unit = unit;
 		sct.shootDefinition = shootDefinition;
+		sct.shootCoolDown = this.shootCoolDown;
 		return sct;
 	}
 
@@ -87,8 +93,11 @@ public class ShootClosestTarget implements CombatStrategy {
 		}
 		
 		//if the target is in range, turn to face it
-		if(dis <= shootDefinition.getRange())
+		if(Math.sqrt(dis) <= shootDefinition.getRange())
 		{
+			long currentTime = (long) (unit.getWave().getLane().getGameState().getTime()*1000);
+			if(currentTime - lastShootTime < shootCoolDown)
+				return;
 			//now calculate the angle the unit needs to face to shoot the target
 			Position p = closest.getPosition().subtract(unit.getPosition());
 			double angle = Math.asin(p.getY()/p.getY());
@@ -96,7 +105,10 @@ public class ShootClosestTarget implements CombatStrategy {
 			//(used cosine and sine so that it doesn't matter the exact value of the rotation)
 			if(Math.abs(Math.cos(angle) - Math.cos(unit.getRotation())) + 
 					Math.abs(Math.sin(angle) - Math.sin(unit.getRotation())) < 0.01)
+			{
 				unit.addActiveAbility(shootDefinition.createAbility(unit));
+				lastShootTime = currentTime;
+			}
 			else //face that way
 			{
 				unit.getMovementStrategy().setTarget(new Transformation(unit.getPosition(), angle));
@@ -104,21 +116,9 @@ public class ShootClosestTarget implements CombatStrategy {
 		}
 		else //move in range
 		{
-			// how far did we move last time?
-			averageMove = (numMoves * averageMove + Math.sqrt(unit
-					.getPosition().distanceSquared(lastPosition)))
-					/ (numMoves + 1);
-			numMoves++;
-			
-			//if we've made it to this point in the path
-			if(path.peek().equals(unit.getPosition()))
-			{
-				numMoves = 0;
-				averageMove = Double.MAX_VALUE;
-				path.poll();
-				if(path.isEmpty()) //if the path is empty get a new one
-					updatePath(closest.getPosition());
-			}
+			//if we dont have a path, get one
+			if(path == null)
+				updatePath(closest.getPosition());
 			
 			//if we haven't been moving, get a new path
 			if(averageMove < 0.01)
@@ -129,6 +129,25 @@ public class ShootClosestTarget implements CombatStrategy {
 			
 			if(path.isEmpty()) //can't do anything if there's no path at this point
 				return;
+			
+			// how far did we move last time?
+			if(lastPosition != null)
+			{
+				averageMove = (numMoves * averageMove + Math.sqrt(unit
+						.getPosition().distanceSquared(lastPosition)))
+						/ (numMoves + 1);
+				numMoves++;
+			}
+			
+			//if we've made it to this point in the path
+			if(path.peek().equals(unit.getPosition()))
+			{
+				numMoves = 0;
+				averageMove = Double.MAX_VALUE;
+				path.poll();
+				if(path.isEmpty()) //if the path is empty get a new one
+					updatePath(closest.getPosition());
+			}
 			
 			//calculate the angle from here to the next position
 			Position diff = path.peek().subtract(unit.getPosition());

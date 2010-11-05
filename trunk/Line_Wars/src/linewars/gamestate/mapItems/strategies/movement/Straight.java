@@ -58,10 +58,11 @@ public class Straight implements MovementStrategy {
 	@Override
 	public void move() {
 
-		unit.setTransformation(target);
+		if(target != null)
+			unit.setTransformation(target);
 		if(unit.getState() != MapItemState.Moving)
 			unit.setState(MapItemState.Moving);		
-		
+		target = null;
 	}
 
 }

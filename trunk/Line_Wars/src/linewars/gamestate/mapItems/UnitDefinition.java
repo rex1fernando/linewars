@@ -39,7 +39,9 @@ public class UnitDefinition extends MapItemDefinition {
 		ConfigData cs = super.getParser().getConfig(ParserKeys.combatStrategy);
 		if(cs.getString(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
 		{
-			combatStrat = new ShootClosestTarget(this);
+			Double d = cs.getNumber(ParserKeys.shootCoolDown);
+			double dd = d;
+			combatStrat = new ShootClosestTarget(this, ((long)dd));
 		}
 		else if(cs.getString(ParserKeys.type).equalsIgnoreCase("NoCombat"))
 		{

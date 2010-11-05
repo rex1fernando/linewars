@@ -41,10 +41,10 @@ public class DealDamageOnce implements ImpactStrategy {
 
 	@Override
 	public void handleImpact(MapItem m) {
-		if(!hit)
+		if(!hit)	
 		{
 			hit = true;
-			projectile.setState(MapItemState.Dead);
+//			projectile.setState(MapItemState.Dead);
 			projectile.setPosition(m.getPosition());
 			if(m instanceof Unit)
 			{
