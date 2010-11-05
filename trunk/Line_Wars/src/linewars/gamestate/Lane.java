@@ -352,9 +352,13 @@ public class Lane
 		//this represents the position along the lateral part of the lane a unit must be placed below
 		double startWidth = width/2;
 		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
+		//the last row will need to be centered, so remember it
+		ArrayList<Unit> lastRow = new ArrayList<Unit>();
 		//while minForward hasn't reached the forward bound (depending on if we're going up or down the lane) and there are still units to place
 		while(((minForward < forwardBound && start == 0) || (minForward > forwardBound && start == 1)) && !units.isEmpty())
 		{
+			lastRow.clear();
+			startWidth = this.getWidth()/2; //restart the lateral placement
 			for(int i = 0; i < units.size() && startWidth > -width/2;) //look for the biggest unit that will fit
 			{
 				Unit u = units.get(i);
@@ -373,16 +377,17 @@ public class Lane
 					double pos = u.getRadius()/this.getLength(); //get the radius in terms of length along the curve
 					pos = minForward + (start == 0 ? pos : -pos); //now figure out where the exact position along the lane the unit should go
 					Transformation tpos = this.getPosition(pos); //use the position to get the exact transformation of that position
-					if(start == 1) tpos = new Transformation(tpos.getPosition(), Math.PI);
+					if(start == 1) tpos = new Transformation(tpos.getPosition(), tpos.getRotation() - Math.PI);
 					double w = startWidth - u.getRadius(); //figure out the lateral translation from the center line of the curve for the unit
 					tpos = new Transformation(
-							new Position(tpos.getPosition().getX() + w*Math.cos(tpos.getRotation()),
-										tpos.getPosition().getY() + w*Math.sin(tpos.getRotation())),
-							tpos.getRotation() - Math.PI); //now translate the position from the curve itself to w off the curve
+							new Position(tpos.getPosition().getX() + w*Math.sin(tpos.getRotation()),
+										tpos.getPosition().getY() + w*Math.cos(tpos.getRotation())),
+							tpos.getRotation()); //now translate the position from the curve itself to w off the curve
 					u.setTransformation(tpos);
 					startWidth -= 2*u.getRadius(); //update the startWidth so the next placed unit will be moved laterally from this unit
 					
 					units.remove(i); //the unit has been placed, get it out of here
+					lastRow.add(u);
 					if(start == 0) //if we're going up the lane
 						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward) //if this unit has a bigger radius than any other unit
 							nextMinForward = 2*u.getRadius()/this.getLength() + minForward; //that's already been placed in this row
@@ -394,7 +399,18 @@ public class Lane
 					i++;
 			}
 			minForward = nextMinForward; //no more units can fit in this row, go to the next row
-			startWidth = this.getWidth()/2; //restart the lateral placement
+		}
+		
+		//now center the last row
+		double moveBack = Math.abs(startWidth - -width/2); //this is how much we need to move the units by to center them
+		for(Unit u : lastRow)
+		{
+			Transformation tpos = u.getTransformation();
+			tpos = new Transformation(
+					new Position(tpos.getPosition().getX() - moveBack*Math.sin(tpos.getRotation()),
+								tpos.getPosition().getY() - moveBack*Math.cos(tpos.getRotation())),
+					tpos.getRotation());
+			u.setTransformation(tpos);
 		}
 		
 		for(Wave w : waves)
@@ -618,6 +634,7 @@ public class Lane
 	
 	public void addGate(Node n, Player p)
 	{
+		///*
 		Transformation t = null;
 		if (n.getPosition().getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < n.getPosition().getPosition()
@@ -640,6 +657,15 @@ public class Lane
 		
 		//if there isn't a gate, then make a new wave that contains it
 		waves.add(new Wave(this, g, n));
+		//*/
+		/*
+		for(double i = 0; i <= 1; i += 0.1)
+		{
+			Transformation t = new Transformation(this.getPosition(i).getPosition().add(0, i*200), this.getPosition(i).getRotation());
+			Gate g = p.getGateDefinition().createGate(t);
+			this.waves.add(new Wave(this, g, n));
+		}
+		*/
 	}
 	
 	public List<Unit> getUnits(){
