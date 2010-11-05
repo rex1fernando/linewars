@@ -3,26 +3,19 @@ package linewars.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileReader;
@@ -39,7 +32,6 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
-import linewars.gamestate.Map;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
@@ -55,11 +47,6 @@ import linewars.network.MessageReceiver;
 public class Display extends JFrame implements Runnable
 {
 	/**
-	 * The number of milliseconds in-between draw events.
-	 */
-	private static final int DRAW_DELAY = 10;
-
-	/**
 	 * The threshold when zooming out where the view switches from tactical view
 	 * to strategic view and vice versa.
 	 */
@@ -73,29 +60,18 @@ public class Display extends JFrame implements Runnable
 	private GameStateProvider gameStateProvider;
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
-	private Timer updateLoop;
 
 	public Display(GameStateProvider provider, MessageReceiver receiver)
 	{
 		super("Line Wars");
 		
 		messageReceiver = receiver;
-
-		// spawns the paint driver for the display
-		updateLoop = new Timer(DRAW_DELAY, new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				gamePanel.repaint();
-			}
-		});
-		
 		gameStateProvider = provider;
 		gamePanel = new GamePanel();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(gamePanel);
 		setSize(new Dimension(800, 600));
-		// setUndecorated(true);
+		setUndecorated(true);
 	}
 
 	@Override
@@ -104,8 +80,6 @@ public class Display extends JFrame implements Runnable
 		// shows the display
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-		//updateLoop.start();
 	}
 	
 	public int getTimeTick()
@@ -246,7 +220,7 @@ public class Display extends JFrame implements Runnable
 			add(nodeStatusPanel);
 			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider);
 			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(Display.this, updateLoop, gameStateProvider, exitButton, exitButtonClicked);
+			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
 
 			addComponentListener(new ResizeListener());
@@ -272,6 +246,9 @@ public class Display extends JFrame implements Runnable
 			double fps = 1000.0 / (curTime - lastTime);
 			lastTime = curTime;
 			
+			double scale = getWidth() / viewport.getWidth();
+			updateViewPortPan(fps, scale);
+			
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
@@ -281,7 +258,6 @@ public class Display extends JFrame implements Runnable
 			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			// draws layers to scale
-			double scale = getWidth() / viewport.getWidth();
 			for(int i = 0; i < currentView.size(); i++)
 			{
 				currentView.get(i).draw(g, gamestate, viewport, scale);
@@ -301,6 +277,55 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 			
 			this.repaint();
+		}
+		
+		private void updateViewPortPan(double fps, double scale)
+		{
+			double moveX = 0.0;
+			double moveY = 0.0;
+			
+			if(mousePosition.getX() < 25)
+			{
+				moveX = (-1000 / fps) / scale;
+			}
+			else if(mousePosition.getX() > getWidth() - 25)
+			{
+				moveX = (1000 / fps) / scale;
+			}
+			
+			if(mousePosition.getY() < 25)
+			{
+				moveY = (-1000 / fps) / scale;
+			}
+			else if(mousePosition.getY() > getHeight() - 25)
+			{
+				moveY = (1000 / fps) / scale;
+			}
+			
+			updateViewPort(moveX, moveY, viewport.getWidth(), viewport.getHeight());
+		}
+
+		private void updateViewPort(double viewX, double viewY, double newW, double newH)
+		{
+			// calculates the new x for the viewport
+			double newX = viewport.getX() + viewX;
+			if(newX < 0)
+				newX = 0;
+			if(newX > mapSize.getWidth() - newW)
+				newX = mapSize.getWidth() - newW;
+			if(newW > mapSize.getWidth())
+				newX = (mapSize.getWidth() - newW) / 2;
+		
+			// calculates the new y for the viewport
+			double newY = viewport.getY() + viewY;
+			if(newY < 0)
+				newY = 0;
+			if(newY > mapSize.getHeight() - newH)
+				newY = mapSize.getHeight() - newH;
+			if(newH > mapSize.getHeight())
+				newY = (mapSize.getHeight() - newH) / 2;
+		
+			viewport.setRect(newX, newY, newW, newH);
 		}
 
 		private void updatePanels(Graphics g, GameState gamestate, double scale)
@@ -416,7 +441,6 @@ public class Display extends JFrame implements Runnable
 				double ratio = viewport.getWidth() / getWidth();
 
 				// converts the mouse point to the game space
-				Position mouseP = toGameCoord(mousePosition);
 				double mouseX = mousePosition.getX() * ratio;
 				double mouseY = mousePosition.getY() * ratio;
 
@@ -428,25 +452,7 @@ public class Display extends JFrame implements Runnable
 				double newW = viewport.getWidth() * zoomRatio;
 				double newH = viewport.getHeight() * zoomRatio;
 
-				// calculates the new x for the viewport
-				double newX = viewport.getX() + viewX;
-				if(newX < 0)
-					newX = 0;
-				if(newX > mapSize.getWidth() - newW)
-					newX = mapSize.getWidth() - newW;
-				if(newW > mapSize.getWidth())
-					newX = (mapSize.getWidth() - newW) / 2;
-
-				// calculates the new y for the viewport
-				double newY = viewport.getY() + viewY;
-				if(newY < 0)
-					newY = 0;
-				if(newY > mapSize.getHeight() - newH)
-					newY = mapSize.getHeight() - newH;
-				if(newH > mapSize.getHeight())
-					newY = (mapSize.getHeight() - newH) / 2;
-
-				viewport.setRect(newX, newY, newW, newH);
+				updateViewPort(viewX, viewY, newW, newH);
 				zoomLevel = newZoom;
 			}
 		}

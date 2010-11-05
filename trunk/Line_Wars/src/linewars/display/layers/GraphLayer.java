@@ -32,33 +32,25 @@ public class GraphLayer implements ILayer
 		Lane[] edges = gamestate.getMap().getLanes();
 		for (Lane e : edges)
 		{
-//			if (edge is visible)
-//			{
-				ce.draw(g, e, scale);
-//			}
+			/*
+			 * TODO find a GOOD way to determine if a lane is visible
+			 * this could possibly be done in the ColoredEdge drawSegment() method
+			 */
+			ce.draw(g, e, scale);
 		}
 		
 		//draw the nodes last to cover up the part of the lane that was drawn in the nodes space
 		Node[] nodes = gamestate.getMap().getNodes();
 		for (Node n : nodes)
 		{
-//			if (node is visible)
-//			{
+			Position pos = n.getPosition().getPosition();
+			double radius = n.getBoundingCircle().getRadius();
+			Rectangle2D rect = new Rectangle2D.Double(pos.getX() - radius, pos.getY() - radius, 2 * radius, 2 * radius);
+			
+			if (visibleScreen.intersects(rect))
+			{
 				cn.draw(g, n, scale);
-//			}
+			}
 		}
 	}
-	
-	/*
-	 * private void drawNode(Node n, Graphics g)
-	 * {
-	 * 	...
-	 * }
-	 * 
-	 * private void drawEdge(Edge n, Graphics g)
-	 * {
-	 * 	...
-	 * }
-	 */
-
 }

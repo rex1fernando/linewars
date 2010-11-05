@@ -2,7 +2,6 @@ package linewars.display;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;

@@ -44,7 +44,7 @@ public class MapItemLayer implements ILayer
 			Position pos = mapItem.getPosition();
 			double width = mapItem.getWidth();
 			double height = mapItem.getHeight();
-			Rectangle2D rect = new Rectangle2D.Double(pos.getX() - width / 2, pos.getY() - height - 2, width, height);
+			Rectangle2D rect = new Rectangle2D.Double(pos.getX() - width / 2, pos.getY() - height / 2, width, height);
 			double rotation = mapItem.getRotation();
 			
 			if (visibleScreen.intersects(rect))
