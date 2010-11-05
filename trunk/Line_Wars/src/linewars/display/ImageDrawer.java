@@ -130,7 +130,7 @@ public class ImageDrawer
 	 */
 	public static Color getPlayerColor(int playerIndex, int numPlayers)
 	{
-		double mask = Math.log(0xFFFFFF) / Math.log(numPlayers + 1);
-		return new Color((int)Math.pow(mask, playerIndex + 1) - 1);
+		double mask = Math.log(0xFFFFFF) / Math.log(numPlayers + 2);
+		return new Color((int)Math.pow(playerIndex + 2, mask));
 	}
 }

@@ -278,7 +278,7 @@ public class Display extends JFrame implements Runnable
 			currentTimeTick = gamestate.getTimerTick();
 			
 			// TODO make sure to change this back so it uses strategic view as well!
-			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? tacticalView : tacticalView;
+			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			// draws layers to scale
 			double scale = getWidth() / viewport.getWidth();
@@ -355,7 +355,6 @@ public class Display extends JFrame implements Runnable
 			List<CommandCenter> ccs = gs.getCommandCenters();
 			for(int i = 0; i < ccs.size(); i++)
 			{
-				// TODO remove this comment
 				CommandCenter cc = ccs.get(i);
 				if(cc != null)
 				{
