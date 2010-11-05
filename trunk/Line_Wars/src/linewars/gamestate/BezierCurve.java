@@ -205,21 +205,43 @@ public class BezierCurve {
 	 */
 	public double getClosestPointRatio(Position p) 
 	{
+		return getClosestPointRatioRec(p, 0.0, 1.0, 0.1, 4);
+	}
+	
+	/**
+	 * Recursive helper method for getClosestPointRatio.
+	 * @param p The position in question.
+	 * @param leftBound The leftmost percent of the curve to be considered for this execution.
+	 * @param rightBound The rightmost percent of the curve to be considered for this execution.
+	 * @param stepSize The percentage of the curve between the bounds to advance each iteration.
+	 * @param numRecursions The number of recursions to execute before termination.
+	 * @return
+	 */
+	private double getClosestPointRatioRec(Position p, double leftBound, double rightBound, double stepSize, int numRecursions)
+	{
 		double minVal = Double.POSITIVE_INFINITY;
 		double ret = Double.POSITIVE_INFINITY;
 		Position comp;
-
-		for(double d = 0; d <=1; d += STEP_SIZE)
+		int slice = 0;
+		int i = 0;
+		for(double d = leftBound; d < (rightBound - .00005); d += stepSize)
 		{
 			comp = getPosition(d).getPosition();
 			double value = p.distanceSquared(comp);
 			if(value < minVal)
 			{
 				minVal = value;
+				slice = i;
 				ret = d;
 			}
+			i++;
 		}
 		
-		return ret;
+		if(numRecursions == 0)
+		{
+			return ret + slice*stepSize;
+		}
+		leftBound = leftBound + slice*stepSize;
+		return getClosestPointRatioRec(p, leftBound, leftBound + stepSize, stepSize / 10, numRecursions - 1);
 	}
 }
