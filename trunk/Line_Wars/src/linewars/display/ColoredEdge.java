@@ -2,6 +2,7 @@ package linewars.display;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
@@ -19,7 +20,7 @@ import linewars.gamestate.Wave;
  */
 public class ColoredEdge
 {
-	private static final double SEGMENT_STEP = 0.05;
+	private static final double SEGMENT_STEP = 0.01;
 	private Display display;
 	private int numPlayers;
 
@@ -47,6 +48,8 @@ public class ColoredEdge
 	{
 		Node[] nodes = lane.getNodes();
 		Wave[] waves = lane.getWaves();
+		
+		sortWaves(waves);
 		
 		Position laneStart = lane.getPosition(0).getPosition();		
 		Position laneEnd = lane.getPosition(1.0).getPosition();				
@@ -116,7 +119,7 @@ public class ColoredEdge
 		if(nodeOwner != null)
 		{
 			curIndex = nodeOwner.getPlayerID();
-			if(curIndex != prevIndex)
+			if(curIndex == prevIndex)
 			{
 				curColor = ImageDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
 				g.setColor(curColor);
@@ -203,12 +206,34 @@ public class ColoredEdge
 		int[] y = {(int)p1.getY(), (int)p2.getY(), (int)p3.getY(), (int)p4.getY()};
 
 		g.fillPolygon(x, y, 4);
-
-		//TODO test code
-		Color c = g.getColor();
-		g.setColor(Color.black);
-		g.drawPolygon(x, y, 4);
-		g.setColor(c);
-		//end test code
+	}
+	
+	private void sortWaves(Wave[] waves)
+	{
+		ArrayList<Wave>[] bins = new ArrayList[10];
+		for(int c = 1; c < 1 / SEGMENT_STEP; c *= 10)
+		{
+			for(int i = 0; i < 10; ++i)
+			{
+				bins[i] = new ArrayList<Wave>();
+			}
+			
+			//put the waves into bins according to their positions
+			for(int i = 0; i < waves.length; ++i)
+			{
+				int index = (int)(waves[i].getPosition() / (SEGMENT_STEP * c)) % (c * 10);
+				bins[index].add(waves[i]);
+			}
+			
+			//put the waves back into the array
+			int i = 0;
+			for(int j = 0; j < 10; ++j)
+			{
+				for(int k = 0; k < bins[j].size(); ++k)
+				{
+					waves[i++] = bins[j].get(k);
+				}
+			}
+		}
 	}
 }
