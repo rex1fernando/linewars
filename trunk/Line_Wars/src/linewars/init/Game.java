@@ -67,7 +67,24 @@ public class Game {
 	public void initialize(){
 		//single player init
 		if(numPlayers == 1){
-			networking = new SinglePlayerNetworkProxy();
+			if(playerAddresses.size() == 0){
+				networking = new SinglePlayerNetworkProxy();
+			}else{//if the player gave a client address, use the actual networking instead of the proxy
+				try {
+					server = new Server(playerAddresses.toArray(new String[0]), numPlayers);
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
+				try
+				{
+					networking = new Client(serverAddress, SOCKET_PORT);
+				}
+				catch (SocketException e)
+				{
+					// if this happens.... well crap...
+					e.printStackTrace();
+				}
+			}
 		}
 		//multiplayer init
 		else if(numPlayers > 1){

@@ -176,6 +176,7 @@ public class GateKeeper
 	 */
 	public Message[] pollMessagesForTick(int tickID, String address)
 	{
+		if(messages.get(tickID) == null) return null;
 		return messages.get(tickID).get(address);
 	}
 	
@@ -188,7 +189,7 @@ public class GateKeeper
 	 */
 	public void pushMessagesForTick(Message[] msgs, String targetAddress)
 	{
-		if (msgs == null || msgs.length == 1) return;
+		if (msgs == null || msgs.length == 0) return;
 		
 		MessagePacket[] packets = MessageConstructor.createMessagePackets(msgs);
 		for (MessagePacket p : packets)

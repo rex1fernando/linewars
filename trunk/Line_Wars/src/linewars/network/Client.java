@@ -63,6 +63,9 @@ public class Client implements MessageHandler
 	public Message[] getMessagesForTick(int tickID)
 	{
 		Message[] toReturn = null;
+		if(tickID <= K + 1){
+			toReturn = new Message[0];
+		}
 		while (toReturn == null)
 		{
 			toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
@@ -73,6 +76,13 @@ public class Client implements MessageHandler
 		synchronized(tickLock)
 		{
 			Message[] toSend = outgoingMessages.toArray(new Message[outgoingMessages.size()]);
+			if(toSend.length == 0){
+				toSend = new Message[1];
+				toSend[0] = new SupDawgMessage(0);
+			}else{
+				int breakpoint = 0;
+				breakpoint++;
+			}
 			for(int i = 0; i < toSend.length; i++){
 				toSend[i].setTimeStep(currentTick + K);
 			}
