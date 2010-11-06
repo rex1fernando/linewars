@@ -380,7 +380,7 @@ public class Display extends JFrame implements Runnable
 				CommandCenter cc = ccs.get(i);
 				if(cc != null)
 				{
-					if(cc.getOwner().getPlayerID() == playerIndex)
+					if(cc.getOwner().getPlayerID() == playerIndex || OPPONENTS_NODES_SELECTABLE)
 					{
 						Position p = cc.getPosition();
 						if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2

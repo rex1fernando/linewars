@@ -100,7 +100,7 @@ public class ShootClosestTarget implements CombatStrategy {
 				return;
 			//now calculate the angle the unit needs to face to shoot the target
 			Position p = closest.getPosition().subtract(unit.getPosition());
-			double angle = Math.asin(p.getY()/p.getY());
+			double angle = Math.atan2(p.getY(), p.getX());
 			//if we're already facing the correct angle (or close enough) then FIRE!!!!!!
 			//(used cosine and sine so that it doesn't matter the exact value of the rotation)
 			if(Math.abs(Math.cos(angle) - Math.cos(unit.getRotation())) + 

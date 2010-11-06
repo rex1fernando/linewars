@@ -40,6 +40,7 @@ public interface CollisionStrategy {
 	 * 
 	 * NoCollision
 	 * CollidesWithAll
+	 * AllEnemyUnits
 	 * AllEnemies
 	 * Ground
 	 * 

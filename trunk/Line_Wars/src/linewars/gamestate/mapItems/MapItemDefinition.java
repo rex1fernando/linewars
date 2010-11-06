@@ -13,6 +13,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemyUnits;
 import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.collision.Ground;
@@ -82,6 +83,8 @@ public abstract class MapItemDefinition {
 				cStrat = new Ground();
 			else if(type.equalsIgnoreCase("NoCollision"))
 				cStrat = new NoCollision();
+			else if(type.equalsIgnoreCase("AllEnemyUnits"))
+				cStrat = new AllEnemyUnits();
 		}
 		catch(ConfigData.NoSuchKeyException e)
 		{

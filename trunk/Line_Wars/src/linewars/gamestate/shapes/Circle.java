@@ -13,8 +13,8 @@ public class Circle extends Shape {
 	}
 	
 	//TODO document
-	private Transformation position;
-	private double radius;
+	private final Transformation position;
+	private final double radius;
 	
 	//TODO document
 	public Circle(Transformation pos, double radius){

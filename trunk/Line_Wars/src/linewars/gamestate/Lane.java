@@ -77,12 +77,12 @@ public class Lane
 			{
 				Transformation t = this.getPosition(i);
 				Transformation t1 = new Transformation(t.getPosition().subtract(
-						dis*Math.cos(t.getRotation()), 
-						dis*Math.sin(t.getRotation())), 0);
+						dis*Math.sin(t.getRotation()), 
+						dis*Math.cos(t.getRotation())), 0);
 				borders.add(lbd.createLaneBorder(t1));
 				Transformation t2 = new Transformation(t.getPosition().add(
-						dis*Math.cos(t.getRotation()), 
-						dis*Math.sin(t.getRotation())), 0);
+						dis*Math.sin(t.getRotation()), 
+						dis*Math.cos(t.getRotation())), 0);
 				borders.add(lbd.createLaneBorder(t2));
 			}
 		} catch (FileNotFoundException e) {
@@ -548,14 +548,14 @@ public class Lane
 	
 	private void findAndResolveCollisions(){
 		//First find all the collisions
-		HashMap<Unit, Position> collisionVectors = new HashMap<Unit, Position>();
+		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
 		//HashMap<Unit, Integer> numCollisions = new HashMap<Unit, Integer>();
-		List<Unit> allUnits = getUnits();
-		for(Unit first : allUnits){//for each unit in the lane
+		List<MapItem> allUnits = getCollidableMapItems();
+		for(MapItem first : allUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
 			//numCollisions.put(first, 0);
 			
-			for(Unit second : allUnits){//for each unit it could be colliding with
+			for(MapItem second : allUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
 				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
@@ -604,10 +604,10 @@ public class Lane
 		
 
 		//Then resolve them by shifting stuff around
-		for(Unit toMove : allUnits){
+		for(MapItem toMove : allUnits){
 			Position offset = collisionVectors.get(toMove);
 			if(offset.length() > 0){
-				Random rand = new Random(gameState.getTimerTick());
+				Random rand = new Random(gameState.getTimerTick()); 
 				double xNoise = rand.nextDouble();
 				double yNoise = rand.nextDouble();
 				offset = offset.add(new Position(xNoise, yNoise));
@@ -671,12 +671,15 @@ public class Lane
 		*/
 	}
 	
-	public List<Unit> getUnits(){
-		ArrayList<Unit> units = new ArrayList<Unit>();
+	public List<MapItem> getCollidableMapItems(){
+		ArrayList<MapItem> units = new ArrayList<MapItem>();
 		for(Wave w : waves){
-			for(Unit toAdd : w.getUnits()){
+			for(MapItem toAdd : w.getUnits()){
 				units.add(toAdd);
 			}
+		}
+		for(MapItem border : borders){
+			units.add(border);
 		}
 		return units;
 	}

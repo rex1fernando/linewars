@@ -41,7 +41,7 @@ public class Projectile extends MapItem {
 	{
 		double v = definition.getVelocity();
 		double r = this.getRotation();
-		Position change = this.getPosition().add(v*Math.sin(r), v*Math.cos(r));
+		Position change = new Position(v*Math.cos(r), v*Math.sin(r));
 		
 		tempBody = this.getBody().stretch(new Transformation(change, this.getRotation()));
 		
@@ -78,7 +78,9 @@ public class Projectile extends MapItem {
 		}
 		
 		//move the projectile before calling the impact strategy so that the impact strategy may move the projectile
-		this.setPosition(this.getPosition().add(change));
+		Position thisOne = this.getPosition();
+		thisOne = thisOne.add(change);
+		this.setPosition(thisOne);
 		//there's no need to call the collision strategy, it was taken into account when calculating collision
 		for(int i = 0; i < collisions.length && !this.getState().equals(MapItemState.Dead); i++)
 			iStrat.handleImpact(collisions[i]);
@@ -115,6 +117,18 @@ public class Projectile extends MapItem {
 			else
 				return tempBody.isCollidingWith(m.getBody());
 		}
+	}
+	
+	@Override
+	public void setRotation(double rot)
+	{
+		super.setRotation(rot);
+	}
+	
+	@Override
+	public void setTransformation(Transformation t)
+	{
+		super.setTransformation(t);
 	}
 
 }

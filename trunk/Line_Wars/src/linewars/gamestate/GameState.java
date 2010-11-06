@@ -161,8 +161,6 @@ public class GameState
 				projectiles.add(p);
 		}
 		
-		if(projectiles.size() > 0)
-			System.out.println(projectiles.size());
 		return projectiles;
 	}
 	
