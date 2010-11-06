@@ -34,13 +34,20 @@ public strictfp class Transformation {
 	@Override
 	public boolean equals(Object o)
 	{
+		if(o == null) return false;
+		if(!(o instanceof Transformation)) return false;
+		Transformation other = (Transformation) o;
+		if(other.rotation != rotation) return false;
+		if(!other.pos.equals(pos)) return false;
+		return true;
+		/*
 		if(o instanceof Transformation)
 		{
 			return pos.equals(((Transformation)o)) && 
 				Double.compare(rotation, ((Transformation)o).rotation) == 0;
 		}
 		else
-			return false;
+			return false;*/
 	}
 	
 	@Override

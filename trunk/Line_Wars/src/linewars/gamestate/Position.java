@@ -72,14 +72,21 @@ public strictfp class Position {
 		return Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2);
 	}
 	
+	//very strict, to detect desync
 	@Override
 	public boolean equals(Object o)
 	{
+		if(o == null) return false;
+		if(!(o instanceof Position)) return false;
+		Position other = (Position) o;
+		if(other.x != x || other.y != y) return false;
+		return true;
+		/*
 		if(o instanceof Position)
 			return Double.compare(x, ((Position)o).x) == 0 &&
 				Double.compare(y, ((Position)o).y) == 0;
 		else
-			return false;
+			return false;*/
 	}
 	
 	public Position normalize()

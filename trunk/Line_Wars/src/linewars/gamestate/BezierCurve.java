@@ -164,14 +164,15 @@ public strictfp class BezierCurve {
 		double dy = (cube.getY() - quad.getY());
 		double dx = (cube.getX() - quad.getX());
 
-		ret = Math.atan2(dy, dx) * (180 / Math.PI);
+		ret = Math.atan2(dy, dx);
 
+		/*atan2 handles these calculations! then we don't have to deal with the edge cases where dx or dy == 0
 		if (dx < 0 && dy < 0) ret *= -1;
 		if (dx > 0 && dy < 0) ret *= -1;
-		if (dx < 0 && dy > 0) ret = 360.0d - ret;
-		if (dx > 0 && dy > 0) ret = 360.0d - ret;
-		
-		return ret * Math.PI / 180;
+		if (dx < 0 && dy > 0) ret = Math.PI * 2 - ret;
+		if (dx > 0 && dy > 0) ret = Math.PI * 2 - ret;
+		*/
+		return ret;
 	}
 	
 	/**

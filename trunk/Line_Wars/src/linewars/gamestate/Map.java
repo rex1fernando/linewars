@@ -128,4 +128,13 @@ public strictfp class Map {
 					current++;
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Map)) return false;
+		Map other = (Map) o;
+		if(!other.lanes.equals(lanes)) return false;
+		return true;
+	}
 }

@@ -123,4 +123,14 @@ public strictfp class Unit extends MapItem {
 		currentWave = w;
 	}
 
+	//This should be very strict; true iff the two objects are bit-identical
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Unit)) return false;
+		Unit other = (Unit) o;
+		if(!other.getBody().equals(getBody())) return false;
+		//TODO test other things in here
+		return true;
+	}
 }

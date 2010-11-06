@@ -58,6 +58,13 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 			Message[] currentOrders = orders.get(i);
 			
 			freeState.update(currentOrders);
+			
+			if(freeState.getTimerTick() == viewableState.getTimerTick()){
+				if(!freeState.equals(viewableState)){
+					System.out.println("Desync detected at tick " + freeState.getTimerTick());
+					freeState.equals(viewableState);
+				}
+			}
 		}
 		fullyUpdated = true;
 	}

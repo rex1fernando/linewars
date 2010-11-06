@@ -573,7 +573,7 @@ public strictfp class Lane
 						
 						if(second.getState() == MapItemState.Moving){
 							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.5));
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.75));
 							collisionVectors.put(first, newPosition);
 						}
 						else{
@@ -709,5 +709,17 @@ public strictfp class Lane
 	public GameState getGameState()
 	{
 		return gameState;
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Lane)) return false;
+		Lane other = (Lane) o;
+		if(width != other.width) return false;
+		if(!(waves.equals(other.waves))) return false;
+		if(!projectiles.equals(other.projectiles)) return false;
+		//TODO test more here?
+		return true;
 	}
 }

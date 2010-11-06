@@ -77,4 +77,15 @@ public strictfp class Circle extends Shape {
 	public String toString(){
 		return "Center = " + position + " Radius = " + radius;
 	}
+	
+	//Yes, I'm checking doubles for equality.  That's on purpose.
+	@Override
+	public boolean equals(Object other){
+		if(other == null) return false;
+		if(!(other instanceof Circle)) return false;
+		Circle otherCircle = (Circle) other;
+		if(!otherCircle.position.equals(position)) return false;
+		if(!(otherCircle.radius == radius)) return false;
+		return true;
+	}
 }

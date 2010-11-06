@@ -203,4 +203,15 @@ public strictfp class GameState
 	{
 		return winningPlayer;
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof GameState)) return false;
+		GameState other = (GameState) o;
+		if(other.timerTick != timerTick) return false;
+		if(other.numPlayers != numPlayers) return false;
+		if(!other.map.equals(map)) return false;
+		return true;
+	}
 }

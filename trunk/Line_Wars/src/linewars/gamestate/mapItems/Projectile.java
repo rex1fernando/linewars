@@ -131,4 +131,13 @@ public strictfp class Projectile extends MapItem {
 		super.setTransformation(t);
 	}
 
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Projectile)) return false;
+		Projectile other = (Projectile) o;
+		if(!other.getBody().equals(getBody())) return false;
+		//TODO test other things in here
+		return true;
+	}
 }

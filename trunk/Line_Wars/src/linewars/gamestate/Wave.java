@@ -281,4 +281,12 @@ public strictfp class Wave {
 		}
 		return average;
 	}
+	
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Wave)) return false;
+		Wave other = (Wave) o;
+		if(!other.units.equals(units)) return false;
+		return true;
+	}
 }

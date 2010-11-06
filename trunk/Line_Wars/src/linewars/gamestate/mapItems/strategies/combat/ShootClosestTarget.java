@@ -162,15 +162,7 @@ public strictfp class ShootClosestTarget implements CombatStrategy {
 	
 	private void updatePath(Position target)
 	{
-		//NOTE: System.currentTimeMillis() is used here because the lockout time
-		//for getting an updated path shouldn't be dependant on the game speed
-		if(System.currentTimeMillis() - pathLockout >= MINIMUM_PATH_WAIT_TIME)
-		{
-			pathLockout = System.currentTimeMillis();
 			path = unit.getWave().getLane().findPath(unit, target, shootDefinition.getRange());
-		}
-		else
-			path.clear();
 	}
 
 }

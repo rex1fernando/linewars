@@ -121,4 +121,16 @@ public strictfp class Rectangle extends Shape {
 		
 		return numCrossings % 2 == 1;
 	}
+	
+	//Very strict; these Rectangles will only be considered equal if they are bit-identical.
+	@Override
+	public boolean equals(Object other){
+		if(other == null) return false;
+		if(!(other instanceof Rectangle)) return false;
+		Rectangle otherRect = (Rectangle) other;
+		if(width != otherRect.width) return false;
+		if(height != otherRect.height) return false;
+		if(!position.equals(otherRect.position)) return false;
+		return true;
+	}
 }
