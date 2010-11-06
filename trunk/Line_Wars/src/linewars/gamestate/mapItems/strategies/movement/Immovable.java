@@ -9,7 +9,7 @@ import linewars.gamestate.mapItems.Unit;
  *
  * This class defines a movement strategy that doesn't move.
  */
-public class Immovable implements MovementStrategy {
+public strictfp class Immovable implements MovementStrategy {
 
 	@Override
 	public void setUnit(Unit u) {}

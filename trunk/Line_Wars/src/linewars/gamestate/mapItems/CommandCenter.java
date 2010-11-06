@@ -12,7 +12,7 @@ import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
  * This class represents the command center, or the central
  * building in a node. It is a type of building.
  */
-public class CommandCenter extends Building {
+public strictfp class CommandCenter extends Building {
 
 	public CommandCenter(Transformation t, CommandCenterDefinition def, Node n) {
 		super(t, def, n);

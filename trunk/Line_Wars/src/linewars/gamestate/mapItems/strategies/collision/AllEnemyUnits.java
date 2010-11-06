@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.MapItemDefinition;
 
-public class AllEnemyUnits implements CollisionStrategy {
+public strictfp class AllEnemyUnits implements CollisionStrategy {
 	
 	private MapItem mapItem = null;
 

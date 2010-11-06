@@ -11,7 +11,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
  *
  * This class represents the ability that constructs units.
  */
-public class ConstructUnit implements Ability {
+public strictfp class ConstructUnit implements Ability {
 	
 	private UnitDefinition unitDefinition;
 	private Building building;

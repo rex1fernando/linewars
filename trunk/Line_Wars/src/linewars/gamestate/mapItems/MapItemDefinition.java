@@ -33,7 +33,7 @@ import linewars.gamestate.shapes.ShapeAggregate;
  * they are allowed to use, who owns them, and what collision strategy
  * they use.
  */
-public abstract class MapItemDefinition {
+public strictfp abstract class MapItemDefinition {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;

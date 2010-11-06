@@ -15,7 +15,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * Knows which unit it creates and starts active. Must be given
  * what UnitDefinition to create from and the build time of that unit.
  */
-public class ConstructUnitDefinition extends AbilityDefinition {
+public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 	
 	private UnitDefinition unitDefinition = null;
 	private long buildtime;

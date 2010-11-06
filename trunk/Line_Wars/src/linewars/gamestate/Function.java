@@ -8,7 +8,7 @@ import linewars.configfilehandler.ParserKeys;
 
 
 //this class simulates a function
-public class Function {
+public strictfp class Function {
 	
 	private enum FunctionClass {
 		Polynomial, Exponential

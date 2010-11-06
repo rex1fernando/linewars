@@ -9,7 +9,7 @@ import linewars.gamestate.mapItems.Unit;
  *This interface represents a combat strategy for a unit. It decides,
  *when in combat, how a unit should move and use its abilities.
  */
-public interface CombatStrategy {
+public strictfp interface CombatStrategy {
 	
 	/**
 	 * Sets the unit this combat strategy is associated with.

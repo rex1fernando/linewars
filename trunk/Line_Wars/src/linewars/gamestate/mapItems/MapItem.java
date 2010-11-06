@@ -20,7 +20,7 @@ import linewars.gamestate.shapes.Shape;
  * in that state, and it knows what abilities are currently active
  * on itself.
  */
-public abstract class MapItem {
+public strictfp abstract class MapItem {
 	
 	//the position of this map item in map coordinates
 	//and the rotation of this map item where 0 radians is facing directly right

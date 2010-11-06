@@ -12,7 +12,7 @@ import linewars.gamestate.mapItems.MapItemState;
  *
  * This class represents the ability that constructs a building.
  */
-public class ConstructBuilding implements Ability {
+public strictfp class ConstructBuilding implements Ability {
 
 	private BuildingDefinition buildingDefinition = null;
 	private long startTime;

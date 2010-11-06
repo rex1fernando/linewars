@@ -27,7 +27,7 @@ import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.shapes.Circle;
 
-public class Lane
+public strictfp class Lane
 {
 	private static final double LANE_SPAWN_DISTANCE = 0.1;
 	static final double LANE_BORDER_RESOLUTION = 0.05;

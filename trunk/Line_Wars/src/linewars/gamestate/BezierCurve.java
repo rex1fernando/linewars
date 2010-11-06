@@ -6,7 +6,7 @@ import java.util.List;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
-public class BezierCurve {
+public strictfp class BezierCurve {
 	/*
  	 * These points represent the 4 control
 	 * points in a bezier curve, with p0 and p3 being the end points.

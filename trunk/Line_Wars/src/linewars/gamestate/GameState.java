@@ -19,7 +19,7 @@ import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
 import linewars.network.messages.UpgradeMessage;
 
-public class GameState
+public strictfp class GameState
 {
 	
 	private static final double STARTING_STUFF = 10000;

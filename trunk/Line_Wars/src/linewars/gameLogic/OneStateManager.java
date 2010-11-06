@@ -39,7 +39,7 @@ import linewars.network.messages.Message;
  * @author Knexer
  *
  */
-public class OneStateManager implements GameStateProvider, GameStateUpdater {
+public strictfp class OneStateManager implements GameStateProvider, GameStateUpdater {
 	
 	private GameState singleState;
 	

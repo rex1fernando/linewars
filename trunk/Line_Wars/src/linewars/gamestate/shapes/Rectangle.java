@@ -6,7 +6,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
-public class Rectangle extends Shape {
+public strictfp class Rectangle extends Shape {
 	
 	static {
 		Shape.addClassForInitialization("rectangle", Rectangle.class);

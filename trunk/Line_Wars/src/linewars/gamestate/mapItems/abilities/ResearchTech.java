@@ -8,7 +8,7 @@ import linewars.gamestate.tech.Tech;
  *
  * This class represents the ability that researches a tech.
  */
-public class ResearchTech implements Ability {
+public strictfp class ResearchTech implements Ability {
 
 	private Tech tech;
 	private long researchTime;

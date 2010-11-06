@@ -7,7 +7,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
 //TODO implement Race
-public class Race {
+public strictfp class Race {
 	
 	private String name;
 	private List<String> unitURIs;

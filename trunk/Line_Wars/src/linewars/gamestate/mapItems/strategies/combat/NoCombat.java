@@ -9,7 +9,7 @@ import linewars.gamestate.mapItems.Unit;
  * This class defines a combat strategy that does not
  * engage in combat. It does nothing.
  */
-public class NoCombat implements CombatStrategy {
+public strictfp class NoCombat implements CombatStrategy {
 
 	@Override
 	public void setUnit(Unit u) 

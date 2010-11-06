@@ -16,7 +16,7 @@ import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
 
-public class Node {
+public strictfp class Node {
 	
 	private static final long TIME_TO_OCCUPY = 30000;
 	private static final long TIME_TO_SPAWN = 5000;

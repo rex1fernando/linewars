@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.Unit;
  * impacts the first thing it hits, deals damage, and 
  * then stops.
  */
-public class DealDamageOnce implements ImpactStrategy {
+public strictfp class DealDamageOnce implements ImpactStrategy {
 	
 	private boolean hit = false;
 	private double damage;

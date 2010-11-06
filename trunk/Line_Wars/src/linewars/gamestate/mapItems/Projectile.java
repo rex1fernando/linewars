@@ -15,7 +15,7 @@ import linewars.gamestate.shapes.Shape;
  * This class represents a projectile. It knows how the projectile collides
  * with map items and what it should do upon impact. It is a map item.
  */
-public class Projectile extends MapItem {
+public strictfp class Projectile extends MapItem {
 
 	private ProjectileDefinition definition;
 	private CollisionStrategy cStrat;

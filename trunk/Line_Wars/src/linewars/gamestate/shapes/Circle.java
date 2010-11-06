@@ -6,7 +6,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
-public class Circle extends Shape {
+public strictfp class Circle extends Shape {
 	
 	static {
 		Shape.addClassForInitialization("circle", Circle.class);

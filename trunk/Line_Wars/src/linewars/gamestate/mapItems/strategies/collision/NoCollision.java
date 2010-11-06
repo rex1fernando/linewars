@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *	This class defines a collision strategy for map items
  *	that can't collide with anything.
  */
-public class NoCollision implements CollisionStrategy {
+public strictfp class NoCollision implements CollisionStrategy {
 	
 	public NoCollision() {}
 

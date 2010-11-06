@@ -21,7 +21,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * method which takes in a parser and MapItemDefinition and creates an
  * ability definition.
  */
-public abstract class AbilityDefinition {
+public strictfp abstract class AbilityDefinition {
 	
 	/**
 	 * Takes in a parser and uses it to parse the type of ability and its

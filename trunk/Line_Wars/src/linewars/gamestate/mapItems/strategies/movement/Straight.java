@@ -13,7 +13,7 @@ import linewars.gamestate.mapItems.Unit;
  * a straight line to the target and stops the first time it
  * hits anything. Requires a movement speed.
  */
-public class Straight implements MovementStrategy {
+public strictfp class Straight implements MovementStrategy {
 	
 	
 	private Unit unit = null;

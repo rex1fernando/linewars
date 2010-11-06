@@ -5,7 +5,7 @@ import java.util.Scanner;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
-public class Position {
+public strictfp class Position {
 	
 	private double x;
 	private double y;

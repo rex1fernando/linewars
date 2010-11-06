@@ -3,7 +3,7 @@ package linewars.gamestate.mapItems.strategies.collision;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 
-public class CollidesWithAll implements CollisionStrategy {
+public strictfp class CollidesWithAll implements CollisionStrategy {
 
 	private MapItem mapItem = null;
 	

@@ -2,7 +2,7 @@ package linewars.gamestate.shapes;
 
 import linewars.gamestate.Position;
 
-public class RectangleCircleStrategy extends ShapeCollisionStrategy {
+public strictfp class RectangleCircleStrategy extends ShapeCollisionStrategy {
 
 	static{
 		ShapeCollisionStrategy.addStrategy(new RectangleCircleStrategy(), Rectangle.class, Circle.class);

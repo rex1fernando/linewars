@@ -17,7 +17,7 @@ import linewars.gamestate.mapItems.strategies.movement.Immovable;
  *
  * This class defines gates that sit at the end of lanes.
  */
-public class GateDefinition extends UnitDefinition {
+public strictfp class GateDefinition extends UnitDefinition {
 
 	public GateDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {

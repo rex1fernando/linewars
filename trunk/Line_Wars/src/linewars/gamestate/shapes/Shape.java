@@ -14,7 +14,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
-public abstract class Shape {
+public strictfp abstract class Shape {
 	
 	private static HashMap<String, Class<? extends Shape>> typeToClass;
 	

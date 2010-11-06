@@ -1,6 +1,6 @@
 package linewars.gamestate.shapes;
 
-public class AggregateAnythingStrategy extends ShapeCollisionStrategy {
+public strictfp class AggregateAnythingStrategy extends ShapeCollisionStrategy {
 	
 	static {
 		ShapeCollisionStrategy.addStrategy(new AggregateAnythingStrategy(), ShapeAggregate.class, ShapeAggregate.class);

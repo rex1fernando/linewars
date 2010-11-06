@@ -22,7 +22,7 @@ import linewars.gamestate.tech.Tech;
  * for creating/researching them that the command center gets
  * as part of its list of abilities.
  */
-public class CommandCenterDefinition extends BuildingDefinition {
+public strictfp class CommandCenterDefinition extends BuildingDefinition {
 
 	public CommandCenterDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {

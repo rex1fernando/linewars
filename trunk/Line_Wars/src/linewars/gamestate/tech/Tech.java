@@ -20,7 +20,7 @@ import linewars.configfilehandler.*;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 
-public class Tech {
+public strictfp class Tech {
 	
 	private static HashMap<String, Class<? extends Tech>> typeToClass;
 	

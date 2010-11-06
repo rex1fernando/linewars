@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  * This class represents the definition for an ability that constructs
  * a building. Knows what buiding it contructs.
  */
-public class ConstructBuildingDefinition extends AbilityDefinition {
+public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 	
 	private BuildingDefinition buildingDefinition = null;
 	

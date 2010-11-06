@@ -11,7 +11,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
  * This class represents a building. It is a type of map item.
  * It knows what nodes it is in.
  */
-public class Building extends MapItem {
+public strictfp class Building extends MapItem {
 	
 	private BuildingDefinition definition;
 	private Node node;

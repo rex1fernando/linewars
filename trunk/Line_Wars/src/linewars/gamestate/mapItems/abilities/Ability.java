@@ -7,7 +7,7 @@ package linewars.gamestate.mapItems.abilities;
  * This class represents an ability that is currently active
  * on its mapItem.
  */
-public interface Ability {
+public strictfp interface Ability {
 	
 	/**
 	 * This method tells the ability to update itself for one tick of the

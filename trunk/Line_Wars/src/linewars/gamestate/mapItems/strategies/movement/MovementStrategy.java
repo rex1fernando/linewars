@@ -11,7 +11,7 @@ import linewars.gamestate.mapItems.Unit;
  * the map. Before it can be told to move, the target
  * must be set and whether or not to ignore collision.
  */
-public interface MovementStrategy {
+public strictfp interface MovementStrategy {
 	
 	/**
 	 * Sets the unit associated with this movement strategy

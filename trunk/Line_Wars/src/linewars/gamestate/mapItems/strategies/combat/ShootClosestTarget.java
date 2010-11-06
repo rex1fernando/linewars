@@ -18,7 +18,7 @@ import linewars.gamestate.mapItems.abilities.ShootDefinition;
  * unit, moves within range of it, and shoots. Any unit using
  * this strategy must have the ability shoot.
  */
-public class ShootClosestTarget implements CombatStrategy {
+public strictfp class ShootClosestTarget implements CombatStrategy {
 	
 	private static final long MINIMUM_PATH_WAIT_TIME = 100;
 	

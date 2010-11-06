@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *This interface specifies how a mapItem can collide with other
  *mapItems. Each mapItem must have one.
  */
-public interface CollisionStrategy {
+public strictfp interface CollisionStrategy {
 	
 	/**
 	 * Checks to make sure that the given collision strategy is

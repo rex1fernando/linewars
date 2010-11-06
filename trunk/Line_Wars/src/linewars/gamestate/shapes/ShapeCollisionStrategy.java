@@ -2,7 +2,7 @@ package linewars.gamestate.shapes;
 
 import java.util.HashMap;
 
-public abstract class ShapeCollisionStrategy {
+public strictfp abstract class ShapeCollisionStrategy {
 	
 	private static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;
 	

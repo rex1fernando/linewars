@@ -9,7 +9,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
-public class ShapeAggregate extends Shape {
+public strictfp class ShapeAggregate extends Shape {
 	
 	static {
 		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);

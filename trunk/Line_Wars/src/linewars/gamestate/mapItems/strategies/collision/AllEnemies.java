@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *This class is a type of CollisionStrategy. It defines a strategy that collides with
  *only enemies.
  */
-public class AllEnemies implements CollisionStrategy {
+public strictfp class AllEnemies implements CollisionStrategy {
 	
 	private MapItem mapItem = null;
 	

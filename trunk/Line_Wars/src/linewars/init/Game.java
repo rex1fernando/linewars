@@ -14,7 +14,7 @@ import linewars.network.SinglePlayerNetworkProxy;
 
 //TODO test
 //TODO document
-public class Game {
+public strictfp class Game {
 	
 	private static final int SOCKET_PORT = 9001;
 	

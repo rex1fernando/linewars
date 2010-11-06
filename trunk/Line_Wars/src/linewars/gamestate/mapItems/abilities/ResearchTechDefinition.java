@@ -18,7 +18,7 @@ import linewars.gamestate.tech.Tech;
  * that do nothing) if the tech can't be researched any more or if the
  * player doesn't have enough stuff to pay for it.
  */
-public class ResearchTechDefinition extends AbilityDefinition {
+public strictfp class ResearchTechDefinition extends AbilityDefinition {
 	
 	private Tech tech = null;
 	private int numberOfTimesResearched = 0;

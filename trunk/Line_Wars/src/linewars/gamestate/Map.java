@@ -17,7 +17,7 @@ import linewars.configfilehandler.ParserKeys;
  *This class represents the map. It contains information about all of the nodes
  *and lanes of the map and which lanes and which nodes are attached to which lanes.
  */
-public class Map {
+public strictfp class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
 	private Dimension2D dimensions;

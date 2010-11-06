@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.MapItem;
  * This interface specifies how a projectile handles impacting
  * mapItems.
  */
-public interface ImpactStrategy {
+public strictfp interface ImpactStrategy {
 	
 	/**
 	 * Creates a new instance of the same type of ImpactStrategy

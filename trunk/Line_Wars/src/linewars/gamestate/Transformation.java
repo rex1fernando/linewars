@@ -3,7 +3,7 @@ package linewars.gamestate;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
-public class Transformation {
+public strictfp class Transformation {
 	
 	private Position pos;
 	//in radians

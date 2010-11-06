@@ -17,7 +17,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
  * a combatStrategy for the unit. It also knows how many health
  * points it has and what wave it is currently in.
  */
-public class Unit extends MapItem {
+public strictfp class Unit extends MapItem {
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
 	private CollisionStrategy colStrat;

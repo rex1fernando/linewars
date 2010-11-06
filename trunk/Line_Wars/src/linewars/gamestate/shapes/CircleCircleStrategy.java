@@ -1,6 +1,6 @@
 package linewars.gamestate.shapes;
 
-public class CircleCircleStrategy extends ShapeCollisionStrategy {
+public strictfp class CircleCircleStrategy extends ShapeCollisionStrategy {
 
 	static {
 		ShapeCollisionStrategy.addStrategy(new CircleCircleStrategy(), Circle.class, Circle.class);

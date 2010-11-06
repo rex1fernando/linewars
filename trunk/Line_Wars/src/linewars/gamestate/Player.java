@@ -8,7 +8,7 @@ import linewars.gamestate.mapItems.*;
 import linewars.gamestate.tech.Tech;
 
 
-public class Player {
+public strictfp class Player {
 
 	private GameState gameState;
 	private int playerID;

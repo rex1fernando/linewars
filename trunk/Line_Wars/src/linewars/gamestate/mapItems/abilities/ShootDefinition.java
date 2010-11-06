@@ -15,7 +15,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * It knows what projectile definition to use and the maximum
  * range away this ability can be used.
  */
-public class ShootDefinition extends AbilityDefinition {
+public strictfp class ShootDefinition extends AbilityDefinition {
 	
 	private ProjectileDefinition ammo = null;
 	private double range;
