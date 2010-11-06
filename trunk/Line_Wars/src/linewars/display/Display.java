@@ -46,11 +46,13 @@ import linewars.network.MessageReceiver;
 @SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
+	private static boolean OPPONENTS_NODES_SELECTABLE = true;
+	
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
 	 * to strategic view and vice versa.
 	 */
-	private static final double ZOOM_THRESHOLD = 0.80;
+	private static final double ZOOM_THRESHOLD = 1.0;
 
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
@@ -73,7 +75,7 @@ public class Display extends JFrame implements Runnable
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(gamePanel);
 		setSize(new Dimension(800, 600));
-		setUndecorated(true);
+		//setUndecorated(true);
 	}
 
 	@Override
@@ -209,7 +211,7 @@ public class Display extends JFrame implements Runnable
 
 			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(gameStateProvider, leftUIPanel);
+			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
 			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider);
 			add(resourceDisplayPanel);
@@ -244,8 +246,12 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
-			List<ILayer> currentView = (zoomLevel >= ZOOM_THRESHOLD) ? strategicView : tacticalView;
+			List<ILayer> currentView = (zoomLevel > ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
+			//fill the background black
+			g.setColor(Color.black);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			
 			// draws layers to scale
 			for(int i = 0; i < currentView.size(); i++)
 			{
@@ -374,9 +380,8 @@ public class Display extends JFrame implements Runnable
 				CommandCenter cc = ccs.get(i);
 				if(cc != null)
 				{
-					//TODO limits the player to only selecting their nodes
-//					if(cc.getOwner().getPlayerID() == playerIndex)
-//					{
+					if(cc.getOwner().getPlayerID() == playerIndex)
+					{
 						Position p = cc.getPosition();
 						if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2
 								&& lastClickPosition.getY() > p.getY() - cc.getHeight() / 2)
@@ -386,7 +391,7 @@ public class Display extends JFrame implements Runnable
 							{
 								return cc.getNode();
 							}
-//						}
+						}
 					}
 				}
 			}

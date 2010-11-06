@@ -1,5 +1,6 @@
 package linewars.display.panels;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
@@ -18,6 +19,11 @@ public abstract class Panel extends JPanel
 	private int panelWidth;
 	private int panelHeight;
 	
+	/**
+	 * The factor that the image is scaled to in order to fill the panel
+	 */
+	protected double scaleFactor;
+	
 	protected GameStateProvider stateManager;
 	protected Animation[] animations;
 	protected Animation curAnimation;
@@ -29,6 +35,8 @@ public abstract class Panel extends JPanel
 		
 		panelWidth = width;
 		panelHeight = height;
+		
+		scaleFactor = 1.0;
 		
 		setSize(panelWidth, panelHeight);
 		
@@ -69,11 +77,9 @@ public abstract class Panel extends JPanel
 	@Override
 	public void paint(Graphics g)
 	{
-//		g.setColor(Color.black);
-//		g.fillRect(0, 0, getWidth(), getHeight());
 		if(curAnimation != null)
 		{
-			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, 1);
+			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0), new Position(0,0), 0.0, scaleFactor);
 		}
 		super.paint(g);
 	}

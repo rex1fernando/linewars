@@ -1,6 +1,8 @@
 package linewars.display.panels;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -38,15 +40,15 @@ import linewars.network.messages.UpgradeMessage;
 public class CommandCardPanel extends Panel
 {
 	/**
-	 * The height and width of the panel
+	 * The ratio of the width of this panel to the with of the main display
 	 */
-	private static final int WIDTH = 500;
-	private static final int HEIGHT = 400;
+	private static final double ASPECT_RATIO = 0.2;
 	
 	/**
-	 * The factor that the image is scaled to in order to fill the panel
+	 * The default height and width of the panel
 	 */
-	private static final double scaleFactor = 1.0;
+	private static final int DEFAULT_WIDTH = 500;
+	private static final int DEFAULT_HEIGHT = 400;
 	
 	/**
 	 * The number of buttons on the command card
@@ -85,12 +87,14 @@ public class CommandCardPanel extends Panel
 	
 	/**
 	 * Creates a new CommandCardPanel object.
-	 * @param disp TODO
+	 * @param width TODO
+	 * @param height TODO
 	 * @param receiver TODO
+	 * @param disp TODO
 	 */
 	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver, ConfigData ... anims)
 	{
-		super(stateManager, WIDTH, HEIGHT, anims);
+		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 		
 		this.display = display;
 		this.receiver = receiver;
@@ -111,16 +115,16 @@ public class CommandCardPanel extends Panel
 			buttons[i].setVisible(false);
 			buttonPanel.add(buttons[i]);
 			
-			buttonIcons[i] = new ButtonIcon();
+			buttonIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setIcon(buttonIcons[i]);
 			
-			pressedIcons[i] = new ButtonIcon();
+			pressedIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setPressedIcon(pressedIcons[i]);
 
-			rolloverIcons[i] = new ButtonIcon();
+			rolloverIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setRolloverIcon(rolloverIcons[i]);
 			
-			selectedIcons[i] = new ButtonIcon();
+			selectedIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setSelectedIcon( selectedIcons[i]);
 
 			clickEvents[i] = new ClickHandler();
@@ -136,6 +140,9 @@ public class CommandCardPanel extends Panel
 	{
 		super.updateLocation();
 		
+		scaleFactor = (display.getScreenWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
+		
+		setSize((int)(DEFAULT_WIDTH * scaleFactor), (int)(DEFAULT_HEIGHT * scaleFactor));
 		setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
 		
 		// resizes the inner panel
@@ -159,10 +166,12 @@ public class CommandCardPanel extends Panel
 			String selectedURI = ad[i].getSelectedIconURI();
 			try
 			{
-				ImageDrawer.getInstance().addImage(iconURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				ImageDrawer.getInstance().addImage(pressedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				ImageDrawer.getInstance().addImage(rolloverURI, "", buttons[i].getWidth(), buttons[i].getHeight());
-				ImageDrawer.getInstance().addImage(selectedURI, "", buttons[i].getWidth(), buttons[i].getHeight());
+				int width = buttons[i].getWidth();
+				int height = buttons[i].getHeight();
+				ImageDrawer.getInstance().addImage(iconURI, "" + width + height, width, height);
+				ImageDrawer.getInstance().addImage(pressedURI, "" + width + height, width, height);
+				ImageDrawer.getInstance().addImage(rolloverURI, "" + width + height, width, height);
+				ImageDrawer.getInstance().addImage(selectedURI, "" + width + height, width, height);
 			}
 			catch (IOException e)
 			{
@@ -221,16 +230,17 @@ public class CommandCardPanel extends Panel
 				getRolloverIcon().paintIcon(this, g, 0, 0);
 			else
 				getIcon().paintIcon(this, g, 0, 0);
-
 		}
 	}
 	
 	private class ButtonIcon implements Icon
 	{
+		private JButton button;
 		private String uri;
 		
-		public ButtonIcon()
+		public ButtonIcon(JButton b)
 		{
+			button = b;
 			uri = "";
 		}
 		
@@ -254,7 +264,7 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			ImageDrawer.getInstance().draw(g, uri, new Position(x, y), 0.0, 1);
+			ImageDrawer.getInstance().draw(g, uri + button.getWidth() + button.getHeight(), new Position(x, y), 0.0, 1);
 		}
 	}
 	
