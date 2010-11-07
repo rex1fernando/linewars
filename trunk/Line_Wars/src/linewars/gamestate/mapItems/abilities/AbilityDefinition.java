@@ -10,6 +10,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.upgradable;
 
 /**
  * 
@@ -21,7 +22,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * method which takes in a parser and MapItemDefinition and creates an
  * ability definition.
  */
-public strictfp abstract class AbilityDefinition {
+public strictfp abstract class AbilityDefinition implements upgradable{
 	
 	/**
 	 * Takes in a parser and uses it to parse the type of ability and its

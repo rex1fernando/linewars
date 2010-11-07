@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.CommandCenter;
@@ -86,6 +87,18 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 	@Override
 	public String getSelectedIconURI() {
 		return buildingDefinition.getParser().getString(ParserKeys.selectedIcon);
+	}
+
+	@Override
+	public ConfigData getParser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void forceReloadConfigData() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -151,6 +151,7 @@ public strictfp class Tech {
 	private String pressedIconURI;
 	private String rolloverIconURI;
 	private String selectedIconURI;
+
 	
 	public Tech(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
 	{

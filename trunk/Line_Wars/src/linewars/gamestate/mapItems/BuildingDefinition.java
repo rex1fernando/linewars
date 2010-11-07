@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
@@ -17,7 +18,7 @@ import linewars.gamestate.Transformation;
  * It knows how much a building costs and how long it takes to
  * build it.
  */
-public strictfp class BuildingDefinition extends MapItemDefinition {
+public strictfp class BuildingDefinition extends MapItemDefinition implements upgradable{
 	
 	private double cost;
 	private double buildTime;
@@ -75,6 +76,12 @@ public strictfp class BuildingDefinition extends MapItemDefinition {
 	public void setBuildTime(double buildTime)
 	{
 		this.buildTime = buildTime;
+	}
+
+	@Override
+	public void forceReloadConfigData() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
@@ -92,6 +93,18 @@ public strictfp class ShootDefinition extends AbilityDefinition {
 	@Override
 	public String getSelectedIconURI() {
 		return ammo.getParser().getString(ParserKeys.selectedIcon);
+	}
+
+	@Override
+	public ConfigData getParser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void forceReloadConfigData() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

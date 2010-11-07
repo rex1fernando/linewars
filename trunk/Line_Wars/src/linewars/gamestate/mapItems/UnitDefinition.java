@@ -24,7 +24,7 @@ import linewars.gamestate.Transformation;
  * creates, what type of combat strategy to use, and what type
  * of movement strategy to use.
  */
-public strictfp class UnitDefinition extends MapItemDefinition {
+public strictfp class UnitDefinition extends MapItemDefinition implements upgradable{
 	
 	private double maxHp;
 	
@@ -92,6 +92,12 @@ public strictfp class UnitDefinition extends MapItemDefinition {
 	public void setMaxHP(double maxHp)
 	{
 		this.maxHp = maxHp;
+	}
+
+	@Override
+	public void forceReloadConfigData() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

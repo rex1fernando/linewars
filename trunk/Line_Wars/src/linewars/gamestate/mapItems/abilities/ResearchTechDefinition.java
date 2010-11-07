@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems.abilities;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.gamestate.Function;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
@@ -99,6 +100,18 @@ public strictfp class ResearchTechDefinition extends AbilityDefinition {
 	@Override
 	public String getSelectedIconURI() {
 		return tech.getSelectedIconURI();
+	}
+
+	@Override
+	public ConfigData getParser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void forceReloadConfigData() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
