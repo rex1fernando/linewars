@@ -87,9 +87,6 @@ public strictfp class Lane
 			}
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
-		
-		nodes = new ArrayList<Node>();
-		
 	}
 
 	/**
