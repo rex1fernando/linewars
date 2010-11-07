@@ -7,6 +7,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
@@ -36,26 +37,23 @@ public strictfp abstract class AbilityDefinition implements upgradable{
 	 * @throws NoSuchKeyException 
 	 * @throws FileNotFoundException 
 	 */
-	public static AbilityDefinition createAbilityDefinition(ConfigData parser, MapItemDefinition m, int ID) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
+	public static AbilityDefinition createAbilityDefinition(ConfigData parser, Player m, int ID) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
 	{
 		AbilityDefinition ad = null;
 		if(parser.getString(ParserKeys.type).equalsIgnoreCase("ConstructUnit"))
 		{
-			double d = parser.getNumber(ParserKeys.buildTime);
-			ad = new ConstructUnitDefinition(m.getOwner().getUnitDefinition(
-					parser.getString(ParserKeys.unitURI)), m,
-					(long) d, ID);
+			ad = new ConstructUnitDefinition(parser, m, ID);
 		}
 		else if(parser.getString(ParserKeys.type).equalsIgnoreCase("ResearchTech"))
 		{
-			ad = new ResearchTechDefinition(m.getOwner().getTech(parser.getString(ParserKeys.techURI)), m, ID);
+			ad = new ResearchTechDefinition(parser, m, ID);
 		}
 		else if(parser.getString(ParserKeys.type).equalsIgnoreCase("Shoot"))
 		{
-			ad = new ShootDefinition(m.getOwner().getProjectileDefinition(
-					parser.getString(ParserKeys.projectileURI)), m,
-					parser.getNumber(ParserKeys.range), ID);
+			ad = new ShootDefinition(parser, m, ID);
 		}
+		else if(parser.getString(ParserKeys.type).equalsIgnoreCase("GenerateStuff"))
+			ad = new GenerateStuffDefinition(ID, parser, m.getGameState());
 		else
 			throw new IllegalArgumentException(
 					parser.getString(ParserKeys.type)
@@ -63,11 +61,11 @@ public strictfp abstract class AbilityDefinition implements upgradable{
 							+ parser.getURI());
 		
 		if(!ad.checkValidity())
-			throw new IllegalArgumentException(m.getName() + " cannot have ability " + ad.getName());
+			throw new IllegalArgumentException(ad.getName() + " is invalid");
 		return ad;
 	}
 	
-	protected MapItemDefinition owner = null;
+	protected Player owner;
 	private int ID;
 	
 	public AbilityDefinition(int id)

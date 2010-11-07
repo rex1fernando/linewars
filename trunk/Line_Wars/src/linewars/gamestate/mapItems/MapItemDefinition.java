@@ -61,10 +61,10 @@ public strictfp abstract class MapItemDefinition {
 		abilities = new ArrayList<AbilityDefinition>();
 		try
 		{
-			List<ConfigData> abs = parser.getConfigList(ParserKeys.abilities);
-			for(ConfigData s : abs)
+			List<String> abs = parser.getStringList(ParserKeys.abilities);
+			for(String s : abs)
 			{
-				AbilityDefinition ad = AbilityDefinition.createAbilityDefinition(s, this, abilities.size());
+				AbilityDefinition ad = owner.getAbilityDefinition(s);
 				abilities.add(ad);
 			}
 		}

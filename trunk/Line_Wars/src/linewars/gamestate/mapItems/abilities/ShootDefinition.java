@@ -1,7 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
+import java.io.FileNotFoundException;
+
 import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.ProjectileDefinition;
@@ -20,18 +24,19 @@ public strictfp class ShootDefinition extends AbilityDefinition {
 	
 	private ProjectileDefinition ammo = null;
 	private double range;
+	private ConfigData parser;
 	
-	public ShootDefinition(ProjectileDefinition pd, MapItemDefinition owner, double range, int ID)
+	public ShootDefinition(ConfigData cd, Player owner, int ID)
 	{
 		super(ID);
-		ammo = pd;
 		this.owner = owner;
-		this.range = range;
+		parser = cd;
+		this.forceReloadConfigData();
 	}
 
 	@Override
 	public boolean checkValidity() {
-		return (ammo != null) && (owner instanceof UnitDefinition);
+		return (ammo != null);
 	}
 
 	@Override
@@ -97,14 +102,19 @@ public strictfp class ShootDefinition extends AbilityDefinition {
 
 	@Override
 	public ConfigData getParser() {
-		// TODO Auto-generated method stub
-		return null;
+		return parser;
 	}
 
 	@Override
 	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
-		
+		try {
+			ammo = owner.getProjectileDefinition(parser.getString(ParserKeys.projectileURI));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}
+		range = parser.getNumber(ParserKeys.range);
 	}
 
 }

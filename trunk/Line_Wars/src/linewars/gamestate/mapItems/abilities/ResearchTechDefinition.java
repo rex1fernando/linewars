@@ -1,7 +1,12 @@
 package linewars.gamestate.mapItems.abilities;
 
+import java.io.FileNotFoundException;
+
 import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Function;
+import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
@@ -24,13 +29,24 @@ public strictfp class ResearchTechDefinition extends AbilityDefinition {
 	private Tech tech = null;
 	private int numberOfTimesResearched = 0;
 	private Function costFunction = null;
+	private ConfigData parser;
 
-	
-	public ResearchTechDefinition(Tech t, MapItemDefinition owner, int ID)
+	//This is a hack constructor
+	public ResearchTechDefinition(Tech t, Player owner, int ID)
 	{
 		super(ID);
-		tech = t;
 		this.owner = owner;
+		tech = t;
+		parser = new ConfigData();
+		costFunction = tech.getCostFunction();
+	}
+	
+	public ResearchTechDefinition(ConfigData cd, Player owner, int ID)
+	{
+		super(ID);
+		this.owner = owner;
+		parser = cd;
+		this.forceReloadConfigData();
 		costFunction = tech.getCostFunction();
 	}
 
@@ -42,9 +58,9 @@ public strictfp class ResearchTechDefinition extends AbilityDefinition {
 	public Ability createAbility(MapItem m) {
 		if(numberOfTimesResearched + 1 <= tech.maxTimesResearchable())
 		{
-			if(owner.getOwner().getStuff() >= costFunction.f(numberOfTimesResearched + 1))
+			if(owner.getStuff() >= costFunction.f(numberOfTimesResearched + 1))
 			{
-				owner.getOwner().spendStuff(costFunction.f(++numberOfTimesResearched));
+				owner.spendStuff(costFunction.f(++numberOfTimesResearched));
 				return new ResearchTech(tech, false);
 			}
 			else
@@ -79,7 +95,7 @@ public strictfp class ResearchTechDefinition extends AbilityDefinition {
 
 	@Override
 	public boolean checkValidity() {
-		return (this.owner instanceof BuildingDefinition);
+		return true;
 	}
 
 	@Override
@@ -104,14 +120,18 @@ public strictfp class ResearchTechDefinition extends AbilityDefinition {
 
 	@Override
 	public ConfigData getParser() {
-		// TODO Auto-generated method stub
-		return null;
+		return parser;
 	}
 
 	@Override
 	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
-		
+		try {
+			tech = owner.getTech(parser.getString(ParserKeys.techURI));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}		
 	}
 
 }

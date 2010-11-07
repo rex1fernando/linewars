@@ -1,7 +1,11 @@
 package linewars.gamestate.mapItems.abilities;
 
+import java.io.FileNotFoundException;
+
 import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.CommandCenterDefinition;
@@ -18,12 +22,14 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 	
 	private BuildingDefinition buildingDefinition = null;
+	private ConfigData parser;
 	
-	public ConstructBuildingDefinition(BuildingDefinition bd, MapItemDefinition owner, int ID)
+	public ConstructBuildingDefinition(ConfigData cd, Player owner, int ID)
 	{
 		super(ID);
-		buildingDefinition = bd;
+		parser = cd;
 		this.owner = owner;
+		this.forceReloadConfigData();
 	}
 
 	@Override
@@ -66,7 +72,7 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 
 	@Override
 	public boolean checkValidity() {
-		return (buildingDefinition != null) && (owner instanceof CommandCenterDefinition);
+		return (buildingDefinition != null);
 	}
 
 	@Override
@@ -91,14 +97,18 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 
 	@Override
 	public ConfigData getParser() {
-		// TODO Auto-generated method stub
-		return null;
+		return parser;
 	}
 
 	@Override
 	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
-		
+		try {
+			buildingDefinition = owner.getBuildingDefinition(parser.getString(ParserKeys.buildingURI));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}		
 	}
 
 }

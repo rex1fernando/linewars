@@ -2,7 +2,9 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
@@ -30,11 +32,17 @@ public strictfp class CommandCenterDefinition extends BuildingDefinition {
 		
 		BuildingDefinition[] bds = owner.getBuildingDefintions();
 		for(BuildingDefinition b : bds)
-			abilities.add(new ConstructBuildingDefinition(b, this, abilities.size()));
+		{
+			ConfigData cd = new ConfigData();
+			cd.set(ParserKeys.buildingURI, b.getParser().getURI());
+			abilities.add(new ConstructBuildingDefinition(cd, this.getOwner(), abilities.size()));
+		}
 		
 		Tech[] techs = owner.getTech();
 		for(Tech t : techs)
-			abilities.add(new ResearchTechDefinition(t, this, abilities.size()));
+		{
+			abilities.add(new ResearchTechDefinition(t, this.getOwner(), abilities.size()));
+		}
 	}
 	
 	/**

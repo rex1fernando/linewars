@@ -3,8 +3,11 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ConfigFileReader;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.mapItems.*;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.tech.Tech;
 
 
@@ -22,6 +25,7 @@ public strictfp class Player {
 	private HashMap<String, BuildingDefinition> buildingDefs;
 	private HashMap<String, UnitDefinition> unitDefs;
 	private HashMap<String, ProjectileDefinition> projDefs;
+	private HashMap<String, AbilityDefinition> abilityDefs = new HashMap<String, AbilityDefinition>();
 	private HashMap<String, Tech> techLevels;
 	private CommandCenterDefinition ccd;
 	private GateDefinition gateDefinition;
@@ -333,6 +337,17 @@ public strictfp class Player {
 		return bd;
 	}
 	
+	public AbilityDefinition getAbilityDefinition(String URI) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
+	{
+		AbilityDefinition ad = abilityDefs.get(URI);
+		if(ad == null)
+		{
+			AbilityDefinition.createAbilityDefinition(new ConfigFileReader(URI).read(), this, abilityDefs.size());
+			abilityDefs.put(URI, ad);
+		}
+		return ad;
+	}
+	
 	/**
 	 * Gets the MapItemDefinition associated with the URI. Attempts to
 	 * load it if it needs to, returns null if unsuccessfull.
@@ -410,5 +425,10 @@ public strictfp class Player {
 	public void removeProjectile(Projectile u)
 	{
 		ownedProjectiles.remove(u);
+	}
+	
+	public GameState getGameState()
+	{
+		return gameState;
 	}
 }
