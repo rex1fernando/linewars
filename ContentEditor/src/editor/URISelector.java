@@ -64,6 +64,7 @@ public class URISelector extends JPanel
 			if ((s != null) && (s.length() > 0))
 			{
 			    textField.setText(s);
+			    options.uriSelected(s);
 			}
 		}
 	}
@@ -71,5 +72,6 @@ public class URISelector extends JPanel
 	public static interface SelectorOptions
 	{
 		public String[] getOptions();
+		public void uriSelected(String uri);
 	}
 }
