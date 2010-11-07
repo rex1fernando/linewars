@@ -20,24 +20,14 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
  * knows the velocity of the projectile and a template for its impact
  * strategy.
  */
-public strictfp class ProjectileDefinition extends MapItemDefinition implements Upgradable{
+public strictfp class ProjectileDefinition extends MapItemDefinition {
 	
 	private double velocity;
 	private ImpactStrategy iStrat;
 
 	public ProjectileDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);
-		
-		velocity = super.getParser().getNumber(ParserKeys.velocity);
-		ConfigData is = super.getParser().getConfig(ParserKeys.impactStrategy);
-		if(is.getString(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
-		{
-			iStrat = new DealDamageOnce(is.getNumber(ParserKeys.damage));
-		}
-		else
-			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());
-		
+		super(URI, owner, gameState);		
 	}
 	
 	/**
@@ -70,9 +60,15 @@ public strictfp class ProjectileDefinition extends MapItemDefinition implements 
 	}
 
 	@Override
-	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
-		
+	protected void forceSubclassReloadConfigData() {
+		velocity = super.getParser().getNumber(ParserKeys.velocity);
+		ConfigData is = super.getParser().getConfig(ParserKeys.impactStrategy);
+		if(is.getString(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
+		{
+			iStrat = new DealDamageOnce(is.getNumber(ParserKeys.damage));
+		}
+		else
+			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());		
 	}
 
 }

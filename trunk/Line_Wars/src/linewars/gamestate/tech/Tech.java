@@ -1,13 +1,14 @@
 package linewars.gamestate.tech;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import linewars.gamestate.Function;
 import linewars.gamestate.Player;
-import linewars.gamestate.mapItems.upgradable;
 import linewars.configfilehandler.*;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 
 public strictfp class Tech {
 	
@@ -93,11 +94,13 @@ public strictfp class Tech {
 	
 	/**
 	 * researches the tech
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
 	 */
-	public void research()
+	public void research() throws FileNotFoundException, InvalidConfigFileException
 	{
 		for(Entry<String, HashMap<ParserKeys, Modifier>> URI : modificationChain.entrySet()){
-			upgradable toModify = owner.getUpgradable(URI.getKey());
+			Upgradable toModify = owner.getUpgradable(URI.getKey());
 			for(Entry<ParserKeys, Modifier> modification : URI.getValue().entrySet()){
 				modification.getValue().modify(toModify.getParser(), modification.getKey(), currentResearch);
 				toModify.forceReloadConfigData();

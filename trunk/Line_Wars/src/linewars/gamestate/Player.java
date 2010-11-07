@@ -11,6 +11,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.*;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.tech.Tech;
+import linewars.gamestate.tech.Upgradable;
 
 
 public strictfp class Player {
@@ -460,8 +461,8 @@ public strictfp class Player {
 	 * @param key
 	 * @return
 	 */
-	public upgradable getUpgradable(String key) {
-		upgradable ret = null;
+	public Upgradable getUpgradable(String key) {
+		Upgradable ret = null;
 		
 		try{
 			ret = getProjectileDefinition(key);

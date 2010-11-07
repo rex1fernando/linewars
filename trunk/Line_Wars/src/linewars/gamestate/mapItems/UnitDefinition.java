@@ -24,7 +24,7 @@ import linewars.gamestate.Transformation;
  * creates, what type of combat strategy to use, and what type
  * of movement strategy to use.
  */
-public strictfp class UnitDefinition extends MapItemDefinition implements Upgradable{
+public strictfp class UnitDefinition extends MapItemDefinition {
 	
 	private double maxHp;
 	
@@ -33,34 +33,6 @@ public strictfp class UnitDefinition extends MapItemDefinition implements Upgrad
 
 	public UnitDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
-		
-		maxHp = super.getParser().getNumber(ParserKeys.maxHP);
-		
-		ConfigData cs = super.getParser().getConfig(ParserKeys.combatStrategy);
-		if(cs.getString(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
-		{
-			Double d = cs.getNumber(ParserKeys.shootCoolDown);
-			double dd = d;
-			combatStrat = new ShootClosestTarget(this, ((long)dd));
-		}
-		else if(cs.getString(ParserKeys.type).equalsIgnoreCase("NoCombat"))
-		{
-			combatStrat = new NoCombat();
-		}
-		else
-			throw new IllegalArgumentException("Invalid combat strategy for " + this.getName());
-		
-		ConfigData ms = super.getParser().getConfig(ParserKeys.movementStrategy);
-		if(ms.getString(ParserKeys.type).equalsIgnoreCase("Straight"))
-		{
-			mStrat = new Straight(ms.getNumber(ParserKeys.speed));
-		}
-		else if(ms.getString(ParserKeys.type).equalsIgnoreCase("immovable"))
-		{
-			mStrat = new Immovable();
-		}
-		else
-			throw new IllegalArgumentException("Invalid movement strategy for " + this.getName());
 	}
 
 	/**
@@ -95,9 +67,34 @@ public strictfp class UnitDefinition extends MapItemDefinition implements Upgrad
 	}
 
 	@Override
-	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
+	protected void forceSubclassReloadConfigData() {
+		maxHp = super.getParser().getNumber(ParserKeys.maxHP);
 		
+		ConfigData cs = super.getParser().getConfig(ParserKeys.combatStrategy);
+		if(cs.getString(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
+		{
+			Double d = cs.getNumber(ParserKeys.shootCoolDown);
+			double dd = d;
+			combatStrat = new ShootClosestTarget(this, ((long)dd));
+		}
+		else if(cs.getString(ParserKeys.type).equalsIgnoreCase("NoCombat"))
+		{
+			combatStrat = new NoCombat();
+		}
+		else
+			throw new IllegalArgumentException("Invalid combat strategy for " + this.getName());
+		
+		ConfigData ms = super.getParser().getConfig(ParserKeys.movementStrategy);
+		if(ms.getString(ParserKeys.type).equalsIgnoreCase("Straight"))
+		{
+			mStrat = new Straight(ms.getNumber(ParserKeys.speed));
+		}
+		else if(ms.getString(ParserKeys.type).equalsIgnoreCase("immovable"))
+		{
+			mStrat = new Immovable();
+		}
+		else
+			throw new IllegalArgumentException("Invalid movement strategy for " + this.getName());		
 	}
 
 }

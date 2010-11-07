@@ -1,5 +1,8 @@
 package linewars.gamestate.mapItems.abilities;
 
+import java.io.FileNotFoundException;
+
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.tech.Tech;
 
 /**
@@ -26,7 +29,13 @@ public strictfp class ResearchTech implements Ability {
 		if(!researched)
 		{
 			researched = true;
-			tech.research();
+			try {
+				tech.research();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (InvalidConfigFileException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

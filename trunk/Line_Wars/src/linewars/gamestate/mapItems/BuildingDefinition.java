@@ -18,7 +18,7 @@ import linewars.gamestate.Transformation;
  * It knows how much a building costs and how long it takes to
  * build it.
  */
-public strictfp class BuildingDefinition extends MapItemDefinition implements Upgradable{
+public strictfp class BuildingDefinition extends MapItemDefinition {
 	
 	private double cost;
 	private double buildTime;
@@ -26,8 +26,6 @@ public strictfp class BuildingDefinition extends MapItemDefinition implements Up
 	public BuildingDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
-		cost = super.getParser().getNumber(ParserKeys.cost);
-		buildTime = super.getParser().getNumber(ParserKeys.buildTime);
 	}
 
 	/**
@@ -79,9 +77,9 @@ public strictfp class BuildingDefinition extends MapItemDefinition implements Up
 	}
 
 	@Override
-	public void forceReloadConfigData() {
-		// TODO Auto-generated method stub
-		
+	protected void forceSubclassReloadConfigData() {
+		cost = super.getParser().getNumber(ParserKeys.cost);
+		buildTime = super.getParser().getNumber(ParserKeys.buildTime);		
 	}
 
 }

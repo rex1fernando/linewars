@@ -19,7 +19,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.collision.Ground;
 import linewars.gamestate.mapItems.strategies.collision.NoCollision;
 import linewars.gamestate.shapes.Shape;
-import linewars.gamestate.shapes.ShapeAggregate;
+import linewars.gamestate.tech.Upgradable;
 
 /**
  * 
@@ -33,7 +33,7 @@ import linewars.gamestate.shapes.ShapeAggregate;
  * they are allowed to use, who owns them, and what collision strategy
  * they use.
  */
-public strictfp abstract class MapItemDefinition {
+public strictfp abstract class MapItemDefinition implements Upgradable{
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
@@ -51,51 +51,7 @@ public strictfp abstract class MapItemDefinition {
 		this.gameState = gameState;
 		
 		this.owner = owner;
-		validStates = new ArrayList<MapItemState>();
-		List<String> vs = parser.getStringList(ParserKeys.ValidStates);
-		for(String s : vs)
-			validStates.add(MapItemState.valueOf(s));
-		
-		name = parser.getString(ParserKeys.name);
-		
-		abilities = new ArrayList<AbilityDefinition>();
-		try
-		{
-			List<String> abs = parser.getStringList(ParserKeys.abilities);
-			for(String s : abs)
-			{
-				AbilityDefinition ad = owner.getAbilityDefinition(s);
-				abilities.add(ad);
-			}
-		}
-		catch (ConfigData.NoSuchKeyException e)
-		{}
-		
-		try
-		{
-			ConfigData strat = parser.getConfig(ParserKeys.collisionStrategy);
-			String type = strat.getString(ParserKeys.type);
-			if(type.equalsIgnoreCase("AllEnemies"))
-				cStrat = new AllEnemies();
-			else if(type.equalsIgnoreCase("CollidesWithAll"))
-				cStrat = new CollidesWithAll();
-			else if(type.equalsIgnoreCase("Ground"))
-				cStrat = new Ground();
-			else if(type.equalsIgnoreCase("NoCollision"))
-				cStrat = new NoCollision();
-			else if(type.equalsIgnoreCase("AllEnemyUnits"))
-				cStrat = new AllEnemyUnits();
-		}
-		catch(ConfigData.NoSuchKeyException e)
-		{
-			cStrat = new NoCollision();
-		}
-		
-		//check to make sure this is a valid strat for this definition
-		if(!cStrat.isValidMapItem(this))
-			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
-		
-		body = Shape.buildFromParser(parser.getConfig(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
+		this.forceReloadConfigData();
 	}
 	
 	protected MapItemDefinition(GameState gameState)
@@ -191,5 +147,57 @@ public strictfp abstract class MapItemDefinition {
 	{
 		return gameState;
 	}
+	
+	public void forceReloadConfigData() throws FileNotFoundException, InvalidConfigFileException
+	{
+		validStates = new ArrayList<MapItemState>();
+		List<String> vs = parser.getStringList(ParserKeys.ValidStates);
+		for(String s : vs)
+			validStates.add(MapItemState.valueOf(s));
+		
+		name = parser.getString(ParserKeys.name);
+		
+		abilities = new ArrayList<AbilityDefinition>();
+		try
+		{
+			List<String> abs = parser.getStringList(ParserKeys.abilities);
+			for(String s : abs)
+			{
+				AbilityDefinition ad = owner.getAbilityDefinition(s);
+				abilities.add(ad);
+			}
+		}
+		catch (ConfigData.NoSuchKeyException e)
+		{}
+		
+		try
+		{
+			ConfigData strat = parser.getConfig(ParserKeys.collisionStrategy);
+			String type = strat.getString(ParserKeys.type);
+			if(type.equalsIgnoreCase("AllEnemies"))
+				cStrat = new AllEnemies();
+			else if(type.equalsIgnoreCase("CollidesWithAll"))
+				cStrat = new CollidesWithAll();
+			else if(type.equalsIgnoreCase("Ground"))
+				cStrat = new Ground();
+			else if(type.equalsIgnoreCase("NoCollision"))
+				cStrat = new NoCollision();
+			else if(type.equalsIgnoreCase("AllEnemyUnits"))
+				cStrat = new AllEnemyUnits();
+		}
+		catch(ConfigData.NoSuchKeyException e)
+		{
+			cStrat = new NoCollision();
+		}
+		
+		//check to make sure this is a valid strat for this definition
+		if(!cStrat.isValidMapItem(this))
+			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
+		
+		body = Shape.buildFromParser(parser.getConfig(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
+		this.forceSubclassReloadConfigData();
+	}
+	
+	protected abstract void forceSubclassReloadConfigData();
 	
 }

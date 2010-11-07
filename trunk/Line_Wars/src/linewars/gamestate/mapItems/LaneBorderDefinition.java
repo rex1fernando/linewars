@@ -23,4 +23,9 @@ public strictfp class LaneBorderDefinition extends MapItemDefinition {
 		return new LaneBorder(t, this);
 	}
 
+	@Override
+	protected void forceSubclassReloadConfigData() {
+				
+	}
+
 }

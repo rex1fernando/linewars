@@ -11,7 +11,7 @@ import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.mapItems.Upgradable;
+import linewars.gamestate.tech.Upgradable;
 
 /**
  * 
