@@ -36,4 +36,9 @@ public class BigFrameworkGuy
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public String[] getAnimationURIs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -11,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.event.ListSelectionListener;
 
 public class ListURISelector extends URISelector
 {
@@ -34,6 +35,11 @@ public class ListURISelector extends URISelector
 		list = new JList();
 		list.setPreferredSize(new Dimension(100, 100));
 		add(list);
+	}
+	
+	public void addListSelectionListener(ListSelectionListener lsl)
+	{
+		list.addListSelectionListener(lsl);
 	}
 	
 	public String[] getSelectedURIs()
