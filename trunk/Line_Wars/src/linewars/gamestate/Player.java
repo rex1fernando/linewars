@@ -3,9 +3,11 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ConfigFileReader;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.*;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.tech.Tech;
@@ -73,7 +75,7 @@ public strictfp class Player {
 		URIs = r.getTechURIs();
 		for(String uri : URIs)
 		{
-			Tech t = Tech.buildFromURI(uri, this);
+			Tech t = new Tech(new ConfigFileReader(uri).read(), this);
 			techLevels.put(uri, t);
 		}
 		
@@ -156,6 +158,16 @@ public strictfp class Player {
 		while(it.hasNext())
 			ret.add(it.next().getValue());
 		return ret.toArray(new BuildingDefinition[0]);
+	}
+	
+	public AbilityDefinition[] getAbilityDefinitions()
+	{
+		Set<Entry<String, AbilityDefinition>> set = abilityDefs.entrySet();
+		Iterator<Entry<String, AbilityDefinition>> it = set.iterator();
+		ArrayList<AbilityDefinition> ret = new ArrayList<AbilityDefinition>();
+		while(it.hasNext())
+			ret.add(it.next().getValue());
+		return ret.toArray(new AbilityDefinition[0]);
 	}
 	
 	public Tech[] getTech()
@@ -289,7 +301,7 @@ public strictfp class Player {
 		Tech td = techLevels.get(URI);
 		if(td == null)
 		{
-			td = Tech.buildFromURI(URI, this);
+			td = new Tech(new ConfigFileReader(URI).read(), this);
 			techLevels.put(URI, td);
 		}
 		return td;
@@ -337,16 +349,27 @@ public strictfp class Player {
 		return bd;
 	}
 	
+	/**
+	 * This method takes in a URI and returns the associated AbilityDefinition. If
+	 * that AbilityDefinition is not yet loaded, it loads it and then returns it.
+	 * Throws an exception if the definition can't be loaded
+	 * 
+	 * @param URI	the URI of the ability definition
+	 * @return		the ability definition
+	 * @throws InvalidConfigFileException 
+	 * @throws FileNotFoundException 
+	 */
 	public AbilityDefinition getAbilityDefinition(String URI) throws FileNotFoundException, NoSuchKeyException, InvalidConfigFileException
 	{
 		AbilityDefinition ad = abilityDefs.get(URI);
 		if(ad == null)
 		{
-			AbilityDefinition.createAbilityDefinition(new ConfigFileReader(URI).read(), this, abilityDefs.size());
+			ad = AbilityDefinition.createAbilityDefinition(new ConfigFileReader(URI).read(), this, abilityDefs.size());
 			abilityDefs.put(URI, ad);
 		}
 		return ad;
 	}
+	
 	
 	/**
 	 * Gets the MapItemDefinition associated with the URI. Attempts to
@@ -430,5 +453,40 @@ public strictfp class Player {
 	public GameState getGameState()
 	{
 		return gameState;
+	}
+
+	/**
+	 * This was all Taylor
+	 * @param key
+	 * @return
+	 */
+	public upgradable getUpgradable(String key) {
+		upgradable ret = null;
+		
+		try{
+			ret = getProjectileDefinition(key);
+		}catch(Exception e){
+			try{
+				ret = getBuildingDefinition(key);
+			}catch(Exception f){
+				try{
+					ret = getAbilityDefinition(key);
+				}catch(Exception g){
+					try{
+						ret = getMapItemDefinition(key);
+					}catch(Exception h){
+						if(getCommandCenterDefinition().getParser().getString(ParserKeys.commandCenterURI).equalsIgnoreCase(key)){
+							ret = getCommandCenterDefinition();
+						}else if(getGateDefinition().getParser().getString(ParserKeys.gateURI).equalsIgnoreCase(key)){
+							ret = getGateDefinition();
+						}
+					}
+				}
+			}
+		}
+		if(ret == null){
+			throw new IllegalArgumentException("The file " + key + " could not be found for upgrading.");
+		}
+		return ret;
 	}
 }

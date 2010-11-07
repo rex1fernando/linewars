@@ -11,7 +11,7 @@ import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.mapItems.upgradable;
+import linewars.gamestate.mapItems.Upgradable;
 
 /**
  * 
@@ -23,14 +23,14 @@ import linewars.gamestate.mapItems.upgradable;
  * method which takes in a parser and MapItemDefinition and creates an
  * ability definition.
  */
-public strictfp abstract class AbilityDefinition implements upgradable{
+public strictfp abstract class AbilityDefinition implements Upgradable{
 	
 	/**
 	 * Takes in a parser and uses it to parse the type of ability and its
 	 * parameters and then associates that ability definition with the given
 	 * MapItemDefinition.
 	 * 
-	 * @param parser	the parser containing the relavent information for the ability definition
+	 * @param parser	the parser containing the relevant information for the ability definition
 	 * @param m			the MapItemDefinition that owns this ability definition.
 	 * @return			the created ability definition
 	 * @throws InvalidConfigFileException 

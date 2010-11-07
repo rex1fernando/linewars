@@ -20,7 +20,7 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
  * knows the velocity of the projectile and a template for its impact
  * strategy.
  */
-public strictfp class ProjectileDefinition extends MapItemDefinition implements upgradable{
+public strictfp class ProjectileDefinition extends MapItemDefinition implements Upgradable{
 	
 	private double velocity;
 	private ImpactStrategy iStrat;

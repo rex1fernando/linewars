@@ -1,189 +1,72 @@
 package linewars.gamestate.tech;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map.Entry;
 
 import linewars.gamestate.Function;
 import linewars.gamestate.Player;
-import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.MapItemDefinition;
-import linewars.gamestate.mapItems.ProjectileDefinition;
-import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.upgradable;
 import linewars.configfilehandler.*;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 
 public strictfp class Tech {
 	
-	private static HashMap<String, Class<? extends Tech>> typeToClass;
+	private Player owner;
 	
-	static{
-		try {
-			List<Class> classes = getClasses(Tech.class.getPackage().getName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Tech.addClassForInitialization("deprecatedbaseclass", Tech.class);
-	}
-	
-	/**
-     * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
-     *
-     * @param packageName The base package
-     * @return The classes
-     * @throws ClassNotFoundException
-     * @throws IOException
-     */
-    @SuppressWarnings("unchecked")
-	private static List<Class> getClasses(String packageName)
-            throws ClassNotFoundException, IOException 
-    {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        assert classLoader != null;
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<File>();
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            String fileName = resource.getFile();
-            String fileNameDecoded = URLDecoder.decode(fileName, "UTF-8");
-            dirs.add(new File(fileNameDecoded));
-        }
-        ArrayList<Class> classes = new ArrayList<Class>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
-        }
-        return classes;
-    }
-    
-    /**
-     * Recursive method used to find all classes in a given directory and subdirs.
-     *
-     * @param directory   The base directory
-     * @param packageName The package name for classes found inside the base directory
-     * @return The classes
-     * @throws ClassNotFoundException
-     */
-    @SuppressWarnings("unchecked")
-	private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException 
-	{
-        List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists()) {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files) {
-        	String fileName = file.getName();
-            if (file.isDirectory()) {
-                assert !fileName.contains(".");
-            	classes.addAll(findClasses(file, packageName + "." + fileName));
-            } else if (fileName.endsWith(".class") && !fileName.contains("$")) {
-            	Class _class;
-				try {
-					_class = Class.forName(packageName + '.' + fileName.substring(0, fileName.length() - 6));
-				} catch (ExceptionInInitializerError e) {
-					// happen, for example, in classes, which depend on 
-					// Spring to inject some beans, and which fail, 
-					// if dependency is not fulfilled
-					_class = Class.forName(packageName + '.' + fileName.substring(0, fileName.length() - 6),
-							false, Thread.currentThread().getContextClassLoader());
-				}
-				classes.add(_class);
-            }
-        }
-        return classes;
-    }
-    
-    /**
-     * 
-     * Adds the given Class object to a HashMap so it can be looked up by the factory method.
-     * 
-     * When creating a new Tech, call this method with the value of the 'techtype' ParserKey you are using for your Tech.
-     * 
-     * @argument type
-     * A String that identifies the type of the Tech you being added
-     * @argument entry
-     * The Class of the Tech being added
-     */
-	protected static void addClassForInitialization(String type, Class<? extends Tech> entry){
-		if(typeToClass == null){
-			typeToClass = new HashMap<String, Class<? extends Tech>>();
-		}
-		
-		//TODO any checks here?
-		//to lower case to reduce incidence of errors in the config file
-		typeToClass.put(type.toLowerCase(), entry);
-	}
-	
-	public static Tech buildFromURI(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException {
-		ConfigData config = new ConfigFileReader(URI).read();
-		String type = config.getString(ParserKeys.techtype);
-		Class<? extends Tech> initializer = typeToClass.get(type.toLowerCase());
-		Tech ret = null;
-		try{
-			ret = initializer.getConstructor(String.class, Player.class).newInstance(URI, owner);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		if(ret == null){
-			throw new IllegalArgumentException("A Tech could not be constructed from the given Parser " + URI.toString());//TODO add owner to this debug print
-		}
-		return ret;
-	}
-	
-	private MapItemDefinition definition;
-	private ParserKeys field;
-	private Function f;
 	private int currentResearch = 0;
-	private Tech[] prereqs;
 	private int maxTimesResearchable;
+	private Function costFunction;
+	
 	private String name;
+	private String tooltip;
 	private String iconURI;
 	private String pressedIconURI;
 	private String rolloverIconURI;
 	private String selectedIconURI;
 
+	private HashMap<String, HashMap<ParserKeys, Modifier>> modificationChain;
 	
-	public Tech(String URI, Player owner) throws FileNotFoundException, InvalidConfigFileException
-	{
-		ConfigData config = new ConfigFileReader(URI).read();
-		iconURI = config.getString(ParserKeys.icon);
-		pressedIconURI = config.getString(ParserKeys.pressedIcon);
-		rolloverIconURI = config.getString(ParserKeys.rolloverIcon);
-		selectedIconURI = config.getString(ParserKeys.selectedIcon);
-		definition = owner.getMapItemDefinition(config.getString(ParserKeys.mapItemURI));
-		field = ParserKeys.valueOf(config.getString(ParserKeys.field));
-		f = new Function(config.getConfig(ParserKeys.valueFunction));
-		try
-		{
-		String[] list = config.getStringList(ParserKeys.preReqs).toArray(new String[0]);
-		prereqs = new Tech[list.length];
-		for(int i = 0; i < list.length; i++)
-			prereqs[i] = owner.getTech(list[i]);
-		}
-		catch (NoSuchKeyException e)
-		{
-			prereqs = new Tech[0];
-		}
+	public Tech(ConfigData configuration, Player owner)
+	{	
+		this.owner = owner;
 		
 		try
 		{
-			maxTimesResearchable = config.getNumber(ParserKeys.maxTimesResearchable).intValue();
+			maxTimesResearchable = configuration.getNumber(ParserKeys.maxTimesResearchable).intValue();
 		}
 		catch(NoSuchKeyException e)
 		{
 			maxTimesResearchable = Integer.MAX_VALUE;
 		}
-		name = config.getString(ParserKeys.name);
+		
+		costFunction = new Function(configuration.getConfig(ParserKeys.costFunction));
+		
+		name = configuration.getString(ParserKeys.name);
+		tooltip = configuration.getString(ParserKeys.tooltip);
+		iconURI = configuration.getString(ParserKeys.icon);
+		pressedIconURI = configuration.getString(ParserKeys.pressedIcon);
+		rolloverIconURI = configuration.getString(ParserKeys.rolloverIcon);
+		selectedIconURI = configuration.getString(ParserKeys.selectedIcon);
+		
+		modificationChain = new HashMap<String, HashMap<ParserKeys, Modifier>>();
+		for(ConfigData modifiedURI : configuration.getConfigList(ParserKeys.modifiedURI)){
+			HashMap<ParserKeys, Modifier> toPopulate = new HashMap<ParserKeys, Modifier>();
+			modificationChain.put(modifiedURI.getString(ParserKeys.URI), toPopulate);
+			for(ConfigData modifiedKey : modifiedURI.getConfigList(ParserKeys.modifiedKey)){
+				String key = modifiedKey.getString(ParserKeys.key);
+				ParserKeys realKey = null;
+				for(ParserKeys k : ParserKeys.values())
+					if(k.toString().equalsIgnoreCase(key))
+					{
+						realKey = k;
+						break;
+					}
+				if(realKey == null)
+					ParserKeys.valueOf(key);
+				Modifier toPut = new NumericModifier(modifiedKey.getConfig(ParserKeys.modifier));
+				toPopulate.put(realKey, toPut);
+			}
+		}
 	}
 	
 	/**
@@ -194,10 +77,6 @@ public strictfp class Tech {
 	 */
 	public boolean researchable()
 	{
-		for(Tech t : prereqs)
-			if(t.currentResearch <= 0)
-				return false;
-		
 		return true;
 	}
 	
@@ -217,14 +96,14 @@ public strictfp class Tech {
 	 */
 	public void research()
 	{
-		if(field == ParserKeys.cost)
-			((BuildingDefinition)definition).setCost(f.f(++currentResearch));
-		else if(field == ParserKeys.buildTime)
-			((BuildingDefinition)definition).setBuildTime(f.f(++currentResearch));
-		else if(field == ParserKeys.maxHP)
-			((UnitDefinition)definition).setMaxHP(f.f(++currentResearch));
-		else if(field == ParserKeys.velocity)
-			((ProjectileDefinition)definition).setVelocity(f.f(++currentResearch));
+		for(Entry<String, HashMap<ParserKeys, Modifier>> URI : modificationChain.entrySet()){
+			upgradable toModify = owner.getUpgradable(URI.getKey());
+			for(Entry<ParserKeys, Modifier> modification : URI.getValue().entrySet()){
+				modification.getValue().modify(toModify.getParser(), modification.getKey(), currentResearch);
+				toModify.forceReloadConfigData();
+			}
+		}
+		currentResearch++;
 	}
 	
 	/**
@@ -244,12 +123,12 @@ public strictfp class Tech {
 	 */
 	public String getDescription()
 	{
-		return "Modifies " + field.toString() + " in " + definition.getName() + " by " + f.f((double)(currentResearch + 1));
+		return tooltip;
 	}
 	
 	public Function getCostFunction()
 	{
-		return f;
+		return costFunction;
 	}
 		
 	public String getIconURI()
@@ -270,11 +149,6 @@ public strictfp class Tech {
 	public String getSelectedIconURI()
 	{
 		return selectedIconURI;
-	}
-	
-	public MapItemDefinition getMapItemDefinition()
-	{
-		return definition;
 	}
 
 }

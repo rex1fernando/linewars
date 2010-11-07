@@ -18,7 +18,7 @@ import linewars.gamestate.Transformation;
  * It knows how much a building costs and how long it takes to
  * build it.
  */
-public strictfp class BuildingDefinition extends MapItemDefinition implements upgradable{
+public strictfp class BuildingDefinition extends MapItemDefinition implements Upgradable{
 	
 	private double cost;
 	private double buildTime;
