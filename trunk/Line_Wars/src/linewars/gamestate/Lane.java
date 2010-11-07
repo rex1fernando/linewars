@@ -72,7 +72,7 @@ public strictfp class Lane
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
 		try {
 			LaneBorderDefinition lbd = new LaneBorderDefinition(gameState, size);
-			double dis = this.getWidth() + size;
+			double dis = this.getWidth()/2 + size;
 			for(double i = 0; i < 1; i += LANE_BORDER_RESOLUTION)
 			{
 				Transformation t = this.getPosition(i);
