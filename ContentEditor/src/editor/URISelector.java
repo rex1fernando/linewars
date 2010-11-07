@@ -6,25 +6,39 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class URISelector extends JPanel
-{	
-	private static final long serialVersionUID = 4210934277569886576L;
-	private static final int WIDTH = 160;
-	private static final int SPACING = 5;
+{
+	public static void main(String[] args)
+	{
+		JFrame f = new JFrame();
+		URISelector uri = new URISelector("Yes", null);
+		f.setContentPane(uri);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.pack();
+		f.setVisible(true);
+		
+		uri.getSelectedURI();
+	}
 	
-	private JButton button;
-	private JLabel label;
-	private JTextField textField;
+	private static final long serialVersionUID = 4210934277569886576L;
+	
+	private static final int WIDTH = 160;
+	protected static final int SPACING = 5;
+	
+	protected JButton button;
+	protected JLabel label;
+	protected JTextField textField;
 	private SelectorOptions options;
 	
 	public URISelector(String label, SelectorOptions options)
 	{
-		this.options = options;
+		setOptions(options);
 		
 		button = new JButton("Select");
 		button.addActionListener(new ButtonClickEvent());
@@ -40,9 +54,19 @@ public class URISelector extends JPanel
 		add(button);
 	}
 	
+	protected void setOptions(SelectorOptions options)
+	{
+		this.options = options;
+	}
+	
 	public String getSelectedURI()
 	{
 		return textField.getText();
+	}
+	
+	public void setSelectedURI(String uri)
+	{
+		textField.setText(uri);
 	}
 	
 	private class ButtonClickEvent implements ActionListener
