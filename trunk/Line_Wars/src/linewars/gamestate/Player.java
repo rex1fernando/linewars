@@ -61,23 +61,20 @@ public strictfp class Player {
 		List<String> URIs = r.getBuildingURIs();
 		for(String uri : URIs)
 		{
-			BuildingDefinition bd = new BuildingDefinition(uri, this, gameState);
-			buildingDefs.put(uri, bd);
+			this.getBuildingDefinition(uri);
 		}
 		
 		URIs = r.getUnitURIs();
 		for(String uri : URIs)
 		{
-			UnitDefinition ud = new UnitDefinition(uri, this, gameState);
-			unitDefs.put(uri, ud);
+			this.getUnitDefinition(uri);
 		}
 		
 		techLevels = new HashMap<String, Tech>();
 		URIs = r.getTechURIs();
 		for(String uri : URIs)
 		{
-			Tech t = new Tech(new ConfigFileReader(uri).read(), this);
-			techLevels.put(uri, t);
+			this.getTech(uri);
 		}
 		
 		ccd = new CommandCenterDefinition(r.getCommandCenterURI(), this, gameState);

@@ -570,7 +570,7 @@ public strictfp class Lane
 						
 						if(second.getState() == MapItemState.Moving){
 							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-.75));
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-2));
 							collisionVectors.put(first, newPosition);
 						}
 						else{
