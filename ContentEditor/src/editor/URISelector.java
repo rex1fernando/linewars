@@ -68,7 +68,7 @@ public class URISelector extends JPanel
 		}
 	}
 	
-	public interface SelectorOptions
+	public static interface SelectorOptions
 	{
 		public String[] getOptions();
 	}
