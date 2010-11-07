@@ -24,7 +24,7 @@ public class ConfigFileWriter {
 	 * The filepath to the file to be created.
 	 * @throws FileNotFoundException 
 	 */
-	ConfigFileWriter(String path) throws FileNotFoundException{
+	public ConfigFileWriter(String path) throws FileNotFoundException{
 		out = new FileOutputStream(path);
 	}
 	
@@ -33,7 +33,7 @@ public class ConfigFileWriter {
 	 * @param in
 	 * The stream to which to write data.
 	 */
-	ConfigFileWriter(OutputStream in){
+	public ConfigFileWriter(OutputStream in){
 		out = in;
 	}
 	
@@ -45,7 +45,7 @@ public class ConfigFileWriter {
 	 * specifies whether this is a valid config data or not
 	 * @throws IOException 
 	 */
-	void write(ConfigData toWrite, boolean isValid) throws IOException{
+	public void write(ConfigData toWrite, boolean isValid) throws IOException{
 		out.write(new String(ParserKeys.valid + " = ").getBytes());
 		if(isValid)
 			out.write(new String("true").getBytes());

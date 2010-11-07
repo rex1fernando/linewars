@@ -2,6 +2,7 @@ package editor.mapitems;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import linewars.configfilehandler.ConfigData;
+import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItemState;
 import editor.BigFrameworkGuy;
@@ -168,7 +170,9 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource().equals(bodyButton))
 		{
-			new BodyEditor(this);
+			BodyEditor be = new BodyEditor(this);
+			if(bodyConfig != null)
+				be.setData(bodyConfig);
 		}
 	}
 	
@@ -248,7 +252,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 	private static class MapItemEditorTester extends BigFrameworkGuy {
 		@Override
 		public String[] getAnimationURIs() {
-			return new String[]{"a0", "a1", "a2"};
+			return new String[]{"resources/animations/commandCenterIdle.cfg", "a1", "a2"};
 		}
 		@Override
 		public String[] getAbilityURIs() {
