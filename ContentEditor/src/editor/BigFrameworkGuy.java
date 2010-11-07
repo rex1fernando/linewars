@@ -31,4 +31,9 @@ public class BigFrameworkGuy
 		// TODO implement
 		return null;
 	}
+
+	public String[] getProjectileURIs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -29,5 +29,6 @@ public enum ParserKeys {
 	buildingSpots, shape, commandCenterTransformation,
 	isStartNode, gateURI, pressedIcon, rolloverIcon,
 	selectedIcon,Idle, Dead, Constructing, Active, Moving,
-	techtype, controlPoint, shootCoolDown, animationURI, raceURI
+	techtype, controlPoint, shootCoolDown, animationURI,
+	raceURI, abilityURI, stuffIncome
 }
