@@ -46,6 +46,7 @@ public class URISelector extends JPanel
 		
 		textField = new JTextField();
 		textField.setPreferredSize(new Dimension(WIDTH, 20));
+		textField.setEditable(false);
 		
 		add(this.label);
 		add(Box.createHorizontalStrut(SPACING));
