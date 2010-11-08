@@ -20,13 +20,12 @@ public class RaceEditor implements ConfigurationEditor
 		JFrame f = new JFrame();
 		f.setContentPane(new RaceEditor(null).getPanel());
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.pack();
+		f.setSize(new Dimension(800,600));
 		f.setVisible(true);
 	}
 	
 	private BigFrameworkGuy superEditor;
 	private RacePanel racePanel;
-	private ConfigData configData;
 
 	public RaceEditor(BigFrameworkGuy bfg)
 	{
@@ -54,21 +53,19 @@ public class RaceEditor implements ConfigurationEditor
 	@Override
 	public void reset()
 	{
-		configData = new ConfigData();
-		updatePanel(configData);
+		updatePanel(new ConfigData());
 	}
 
 	@Override
 	public ConfigData getData()
 	{
-		return configData;
+		return createConfigData(racePanel);
 	}
 
 	@Override
 	public boolean isValid()
 	{
-		configData = createConfigData(racePanel);
-		return isValid(configData);
+		return isValid(createConfigData(racePanel));
 	}
 
 	@Override
@@ -79,19 +76,53 @@ public class RaceEditor implements ConfigurationEditor
 	
 	private boolean isValid(ConfigData cd)
 	{
-		// TODO implement
-		return false;
+		try
+		{
+			if (cd.getString(ParserKeys.gateURI) == null
+					|| cd.getString(ParserKeys.name) == null
+					|| cd.getString(ParserKeys.commandCenterURI) == null
+					|| cd.getStringList(ParserKeys.unitURI).size() == 0
+					|| cd.getStringList(ParserKeys.techURI).size() == 0
+					|| cd.getStringList(ParserKeys.buildingURI).size() == 0)
+			{
+				return false;
+			}
+		} catch (Exception e)
+		{
+			return false;
+		}
+		
+		return true;
 	}
 	
 	private void updatePanel(ConfigData cd)
 	{
-		// TODO implement
+		racePanel.nameBox.name.setText(
+				(cd.getDefinedKeys().contains(ParserKeys.name)? cd.getString(ParserKeys.name) : ""));
+		racePanel.commandCenter.setSelectedURI(
+				(cd.getDefinedKeys().contains(ParserKeys.commandCenterURI)? cd.getString(ParserKeys.commandCenterURI) : ""));
+		racePanel.gate.setSelectedURI(
+				(cd.getDefinedKeys().contains(ParserKeys.gateURI)? cd.getString(ParserKeys.gateURI) : ""));
+		racePanel.unit.setSelectedURIs(
+				(cd.getDefinedKeys().contains(ParserKeys.unitURI)? cd.getStringList(ParserKeys.unitURI).toArray(new String[0]) : new String[0]));
+		racePanel.building.setSelectedURIs(
+				(cd.getDefinedKeys().contains(ParserKeys.buildingURI)? cd.getStringList(ParserKeys.buildingURI).toArray(new String[0]) : new String[0]));
+		racePanel.tech.setSelectedURIs(
+				(cd.getDefinedKeys().contains(ParserKeys.techURI)? cd.getStringList(ParserKeys.techURI).toArray(new String[0]) : new String[0]));
 	}
 	
 	private ConfigData createConfigData(RacePanel rp)
 	{
-		// TODO implement
-		return null;
+		ConfigData data = new ConfigData();
+		
+		data.set(ParserKeys.name, racePanel.nameBox.name.getText());
+		data.set(ParserKeys.commandCenterURI, racePanel.commandCenter.getSelectedURI());
+		data.set(ParserKeys.gateURI, racePanel.gate.getSelectedURI());
+		data.set(ParserKeys.buildingURI, racePanel.building.getSelectedURIs());
+		data.set(ParserKeys.techURI, racePanel.tech.getSelectedURIs());
+		data.set(ParserKeys.unitURI, racePanel.unit.getSelectedURIs());
+		
+		return data;
 	}
 
 	@Override
@@ -102,15 +133,18 @@ public class RaceEditor implements ConfigurationEditor
 
 	private class RacePanel extends JPanel
 	{
+		private static final long serialVersionUID = -4411534509382555738L;
+
 		private static final int SPACING = 3;
 		
 		private NameBox nameBox;
 		
 		private URISelector commandCenter;
-		private URISelector unit;
-		private URISelector building;
-		private URISelector tech;
 		private URISelector gate;
+		
+		private ListURISelector unit;
+		private ListURISelector building;
+		private ListURISelector tech;
 		
 		public RacePanel()
 		{
@@ -130,39 +164,41 @@ public class RaceEditor implements ConfigurationEditor
 			});
 			initURISelector(commandCenter);
 			
-			unit = new URISelector("Unit", new SelectorOptions() {
-				public String[] getOptions() { return superEditor.getUnitURIs(); }
-				public void uriSelected(String uri) {}
-			});
-			initURISelector(unit);
-			
-			building = new URISelector("Building", new SelectorOptions() {
-				public String[] getOptions() { return superEditor.getCommandCenterURIs(); }
-				public void uriSelected(String uri) {}
-			});
-			initURISelector(building);
-			
-			tech = new URISelector("Tech", new SelectorOptions() {
-				public String[] getOptions() { return superEditor.getTechURIs(); }
-				public void uriSelected(String uri) {}
-			});
-			initURISelector(tech);
-			
 			gate = new URISelector("Gate", new SelectorOptions() {
 				public String[] getOptions() { return superEditor.getGateURIs(); }
 				public void uriSelected(String uri) {}
 			});
 			initURISelector(gate);
+			
+			unit = new ListURISelector("Unit", new SelectorOptions() {
+				public String[] getOptions() { return superEditor.getUnitURIs(); }
+				public void uriSelected(String uri) {}
+			});
+			initURISelector(unit);
+			
+			building = new ListURISelector("Building", new SelectorOptions() {
+				public String[] getOptions() { return superEditor.getCommandCenterURIs(); }
+				public void uriSelected(String uri) {}
+			});
+			initURISelector(building);
+			
+			tech = new ListURISelector("Tech", new SelectorOptions() {
+				public String[] getOptions() { return superEditor.getTechURIs(); }
+				public void uriSelected(String uri) {}
+			});
+			initURISelector(tech);
 		}
 		
 		private void initURISelector(JPanel p)
 		{
 			add(p);
+			add(Box.createVerticalStrut(SPACING));
 		}
 	}
 	
 	private class NameBox extends JPanel
 	{
+		private static final long serialVersionUID = -6205161701141390950L;
 		private JTextField name;
 		
 		public NameBox()

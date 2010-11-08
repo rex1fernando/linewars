@@ -11,10 +11,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionListener;
 
 public class ListURISelector extends URISelector
-{
+{	
 	private static final long serialVersionUID = 5603153875399911022L;
 	private JList list;
 	private Set<String> selections;
@@ -33,8 +34,18 @@ public class ListURISelector extends URISelector
 		initTopPanel();
 		
 		list = new JList();
-		list.setPreferredSize(new Dimension(100, 100));
-		add(list);
+		Dimension size = new Dimension(400, 75);
+		list.setPreferredSize(size);
+		list.setMinimumSize(size);
+		
+		JScrollPane scroll = new JScrollPane(list);
+		scroll.setPreferredSize(size);
+		scroll.setMaximumSize(size);
+		scroll.setMinimumSize(size);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		add(scroll);
 	}
 	
 	public void addListSelectionListener(ListSelectionListener lsl)

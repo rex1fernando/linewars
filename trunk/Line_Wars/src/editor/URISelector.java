@@ -6,13 +6,14 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class URISelector extends JPanel
-{
+{	
 	private static final long serialVersionUID = 4210934277569886576L;
 	
 	private static final int WIDTH = 160;
