@@ -19,12 +19,12 @@ import linewars.gamestate.mapItems.MapItemState;
 import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 import editor.ListURISelector;
+import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 import editor.mapitems.StrategySelector.StrategySelectorCallback;
 
-public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSelectionListener, 
-												ActionListener {
+public class MapItemEditor extends JPanel implements ConfigurationEditor, ActionListener {
 	
 	//variable for the name
 	private JTextField name;
@@ -62,7 +62,6 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		
 		//set up the states panel
 		validStates = new ListURISelector("Valid States", new MapItemStateSelector());
-		validStates.addListSelectionListener(this);
 		animations = new URISelector("Animation", new AnimationSelector());
 		JPanel statesPanel = new JPanel();
 		statesPanel.add(validStates);
@@ -301,6 +300,9 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 
 	@Override
 	public boolean isValid() {
+		if(name == null)
+			return false;
+		
 		//if the type is specified, then use the parser from that
 		if(mapItemTypeInfo != null)
 			if(!mapItemTypeInfo.isValid())
@@ -351,18 +353,6 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 	}
 	
 	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		String[] highlighted = validStates.getHighlightedURIs();
-		MapItemState key = null;
-		if(highlighted.length > 0)
-			key = MapItemState.valueOf(highlighted[0]);
-		if(highlighted.length != 1 || animationMap.get(key) == null)
-			animations.setSelectedURI("");
-		else
-			animations.setSelectedURI(animationMap.get(key));
-	}
-	
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource().equals(bodyButton))
 		{
@@ -374,7 +364,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		}
 	}
 	
-	private class MapItemStateSelector implements SelectorOptions {
+	private class MapItemStateSelector implements ListSelectorOptions {
 
 		@Override
 		public String[] getOptions() {
@@ -388,6 +378,21 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		public void uriSelected(String uri) {
 			getPanel().validate();	
 			getPanel().updateUI();
+		}
+
+		@Override
+		public void uriRemoved(String uri) {
+		}
+
+		@Override
+		public void uriHighlightChange(String[] uris) {
+			MapItemState key = null;
+			if(uris.length > 0)
+				key = MapItemState.valueOf(uris[0]);
+			if(uris.length != 1 || animationMap.get(key) == null)
+				animations.setSelectedURI("");
+			else
+				animations.setSelectedURI(animationMap.get(key));
 		}
 		
 	}
@@ -410,7 +415,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		
 	}
 	
-	private class AbilitySelector implements SelectorOptions {
+	private class AbilitySelector implements ListSelectorOptions {
 
 		@Override
 		public String[] getOptions() {
@@ -421,6 +426,14 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		public void uriSelected(String uri) {
 			getPanel().validate();
 			getPanel().updateUI();
+		}
+
+		@Override
+		public void uriRemoved(String uri) {
+		}
+
+		@Override
+		public void uriHighlightChange(String[] uris) {
 		}
 		
 	}
@@ -464,25 +477,6 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 			MapItemEditor.this.updateUI();
 		}
 		
-	}
-	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.add(new MapItemEditor(new MapItemEditorTester()));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
-	private static class MapItemEditorTester extends BigFrameworkGuy {
-		@Override
-		public String[] getAnimationURIs() {
-			return new String[]{"resources/animations/commandCenterIdle.cfg", "a1", "a2"};
-		}
-		@Override
-		public String[] getAbilityURIs() {
-			return new String[]{"ability1", "ability2", "ability3"};
-		}
 	}
 
 }

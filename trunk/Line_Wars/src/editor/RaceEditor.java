@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
+import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 
 public class RaceEditor implements ConfigurationEditor
@@ -170,21 +171,27 @@ public class RaceEditor implements ConfigurationEditor
 			});
 			initURISelector(gate);
 			
-			unit = new ListURISelector("Unit", new SelectorOptions() {
+			unit = new ListURISelector("Unit", new ListSelectorOptions() {
 				public String[] getOptions() { return superEditor.getUnitURIs(); }
 				public void uriSelected(String uri) {}
+				public void uriRemoved(String uri) {}
+				public void uriHighlightChange(String[] uris) {}
 			});
 			initURISelector(unit);
 			
-			building = new ListURISelector("Building", new SelectorOptions() {
+			building = new ListURISelector("Building", new ListSelectorOptions() {
 				public String[] getOptions() { return superEditor.getCommandCenterURIs(); }
 				public void uriSelected(String uri) {}
+				public void uriRemoved(String uri) {}
+				public void uriHighlightChange(String[] uris) {}
 			});
 			initURISelector(building);
 			
-			tech = new ListURISelector("Tech", new SelectorOptions() {
+			tech = new ListURISelector("Tech", new ListSelectorOptions() {
 				public String[] getOptions() { return superEditor.getTechURIs(); }
 				public void uriSelected(String uri) {}
+				public void uriRemoved(String uri) {}
+				public void uriHighlightChange(String[] uris) {}
 			});
 			initURISelector(tech);
 		}
