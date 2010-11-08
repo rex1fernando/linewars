@@ -106,7 +106,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		for(JRadioButton button : createables)
 		{
 			group.add(button);
-			button.addActionListener(radioButtonListener);
+			button.addItemListener(radioButtonListener);
 			createItems.add(button);
 		}
 		
@@ -206,13 +206,29 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		}
 	}
 	
-	private class RadioButtonListener implements ActionListener
+	private class RadioButtonListener implements ItemListener
 	{
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void itemStateChanged(ItemEvent e)
 		{
-			// TODO Auto-generated method stub
+			Object source = e.getItemSelectable();
 			
+			if(source == createNode)
+			{
+				map.setCreateNode(e.getStateChange() == ItemEvent.SELECTED);
+			}
+			else if(source == createLane)
+			{
+				map.setCreateLane(e.getStateChange() == ItemEvent.SELECTED);
+			}
+			else if(source == createBuilding)
+			{
+				map.setCreateBuilding(e.getStateChange() == ItemEvent.SELECTED);
+			}
+			else if(source == createCommandCenter)
+			{
+				map.setCreateCommandCenter(e.getStateChange() == ItemEvent.SELECTED);
+			}
 		}
 	}
 }

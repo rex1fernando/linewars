@@ -72,7 +72,7 @@ public class ColoredEdge
 		}
 		
 		//initialize the draw positions
-		Position beforePos = nodes[0].getPosition().getPosition();
+		Position beforePos = nodes[0].getTransformation().getPosition();
 		Position startPos = laneStart;
 		Position endPos = lane.getPosition(SEGMENT_STEP).getPosition();
 		Position afterPos = lane.getPosition(2 * SEGMENT_STEP).getPosition();
@@ -154,7 +154,7 @@ public class ColoredEdge
 		beforePos = startPos;
 		startPos = endPos;
 		endPos = afterPos;
-		afterPos = nodes[1].getPosition().getPosition();
+		afterPos = nodes[1].getTransformation().getPosition();
 
 		//draw the second to last segment
 		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, scale);

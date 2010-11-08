@@ -3,6 +3,7 @@ package editor.mapEditor;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 
 /**
@@ -33,8 +34,8 @@ public class ColoredNode
 	{
 		g.setColor(Color.red);
 
-		double radius = node.getRadius();
-		Position centerPos = node.getPosition().getPosition();
+		double radius = node.getBoundingCircle().getRadius();
+		Position centerPos = node.getTransformation().getPosition();
 		Position gamePos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
 		Position screenPos = panel.toScreenCoord(gamePos);
 

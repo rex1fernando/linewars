@@ -46,7 +46,7 @@ public class ColoredNode
 		}
 
 		double radius = node.getBoundingCircle().getRadius();
-		Position centerPos = node.getPosition().getPosition();
+		Position centerPos = node.getTransformation().getPosition();
 		Position gamePos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
 		Position screenPos = display.toScreenCoord(gamePos);
 

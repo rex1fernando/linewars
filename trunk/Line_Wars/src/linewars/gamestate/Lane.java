@@ -31,6 +31,7 @@ public strictfp class Lane
 {
 	private static final double LANE_SPAWN_DISTANCE = 0.1;
 	static final double LANE_BORDER_RESOLUTION = 0.05;
+	private static int NEXT_UID = 1;
 	
 	private String name;
 	
@@ -53,6 +54,21 @@ public strictfp class Lane
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
 		
+	public Lane(ConfigData parser)
+	{
+		curve = BezierCurve.buildCurve(parser);
+		
+		this.width = parser.getNumber(ParserKeys.width);
+		this.nodes = new ArrayList<Node>();
+		this.name = parser.getString(ParserKeys.name);
+		
+		int id = new Integer(name.substring(4)).intValue();
+		if(id >= NEXT_UID)
+		{
+			NEXT_UID = id + 1;
+		}
+	}
+	
 	public Lane(GameState gameState, ConfigData parser)
 	{
 		this.name = parser.getString(ParserKeys.name);
@@ -193,6 +209,11 @@ public strictfp class Lane
 	public ArrayList<Node> getNodesList()
 	{
 		return nodes;
+	}
+	
+	public BezierCurve getCurve()
+	{
+		return curve;
 	}
 
 	/**
@@ -636,8 +657,8 @@ public strictfp class Lane
 	{
 		///*
 		Transformation t = null;
-		if (n.getPosition().getPosition().distanceSquared(
-				this.getPosition(1).getPosition()) < n.getPosition().getPosition()
+		if (n.getTransformation().getPosition().distanceSquared(
+				this.getPosition(1).getPosition()) < n.getTransformation().getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
 			t = this.getPosition(1 - LANE_SPAWN_DISTANCE);
 		else

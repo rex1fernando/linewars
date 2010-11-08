@@ -147,8 +147,8 @@ public strictfp class Wave {
 		{
 			//figure out which direction we're going
 			int dir = 1;
-			if (origin.getPosition().getPosition().distanceSquared(
-					owner.getPosition(1).getPosition()) < origin.getPosition().getPosition()
+			if (origin.getTransformation().getPosition().distanceSquared(
+					owner.getPosition(1).getPosition()) < origin.getTransformation().getPosition()
 					.distanceSquared(owner.getPosition(0).getPosition()))
 				dir = -1;
 			

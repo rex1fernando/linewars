@@ -84,7 +84,7 @@ public strictfp class Rectangle extends Shape {
 	public Position[] getVertexPositions(){
 		Position[] ret = new Position[4];
 		Position halfWidth = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width).scale(.5);
-		Position halfHeight = new Position(Math.cos(position.getRotation()) * height, Math.sin(position.getRotation()) * height).scale(.5);
+		Position halfHeight = new Position(Math.sin(position.getRotation()) * height, Math.cos(position.getRotation()) * height).scale(.5);
 		ret[0] = position.getPosition().add(halfHeight).add(halfWidth);
 		ret[1] = position.getPosition().add(halfHeight).subtract(halfWidth);
 		ret[2] = position.getPosition().subtract(halfHeight).subtract(halfWidth);
@@ -113,8 +113,9 @@ public strictfp class Rectangle extends Shape {
 		Position[] vertices = getVertexPositions();
 		
 		for(int i = 0, j = vertices.length - 1; i < vertices.length; j = i, i++){
-			if(vertices[i].getY() < toTest.getY() && vertices[j].getY() >= toTest.getY()
-				|| vertices[j].getY() < toTest.getY() && vertices[i].getY() >= toTest.getY()){
+			if(vertices[i].getX() <= toTest.getX() && vertices[j].getX() <= toTest.getX()
+				&& ((vertices[i].getY() < toTest.getY() && vertices[j].getY() >= toTest.getY())
+				|| (vertices[j].getY() < toTest.getY() && vertices[i].getY() >= toTest.getY()))){
 					numCrossings++;
 				}
 		}

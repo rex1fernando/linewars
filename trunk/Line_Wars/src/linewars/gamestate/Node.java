@@ -32,13 +32,50 @@ public strictfp class Node {
 	private long lastSpawnTime;
 	
 	private ArrayList<Lane> attachedLanes;
-	private Transformation[] buildingSpots;
+	private BuildingSpot[] buildingSpots;
 	private Shape shape;
 	private boolean isStartNode;
-	private Transformation cCenterTransform;
+	private BuildingSpot cCenterTransform;
 	private int ID;
 	
 	private HashMap<Double, Lane> laneMap;
+	
+	public Node(Position p)
+	{
+		attachedLanes = new ArrayList<Lane>();
+		buildingSpots = new BuildingSpot[0];
+		shape = new Circle(new Transformation(p, 0), 0);
+		cCenterTransform = null;
+		isStartNode = false;
+	}
+	
+	public Node(ConfigData parser, Lane[] lanes)
+	{
+		attachedLanes = new ArrayList<Lane>();
+		List<String> laneNames = parser.getStringList(ParserKeys.lanes);
+		for(String name : laneNames)
+		{
+			for(Lane l : lanes)
+			{
+				if(name.equals(l.getName()))
+				{
+					attachedLanes.add(l);
+					l.addNode(this);
+				}
+			}
+		}
+		
+		List<ConfigData> transforms = parser.getConfigList(ParserKeys.buildingSpots);
+		buildingSpots = new BuildingSpot[transforms.size()];
+		for(int i = 0; i < transforms.size(); i++)
+			buildingSpots[i] = new BuildingSpot(transforms.get(i));
+
+		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
+
+		cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
+		
+		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
+	}
 	
 	public Node(ConfigData parser, GameState gameState, Lane[] lanes, int id)
 	{
@@ -64,15 +101,15 @@ public strictfp class Node {
 				}
 		
 		List<ConfigData> transforms = parser.getConfigList(ParserKeys.buildingSpots);
-		buildingSpots = new Transformation[transforms.size()];
+		buildingSpots = new BuildingSpot[transforms.size()];
 		for(int i = 0; i < transforms.size(); i++)
-			buildingSpots[i] = new Transformation(transforms.get(i));
+			buildingSpots[i] = new BuildingSpot(transforms.get(i));
 		
 		laneMap = new HashMap<Double, Lane>();
 		
 		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
 		
-		cCenterTransform = new Transformation(parser.getConfig(ParserKeys.commandCenterTransformation));
+		cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
 		
 		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
@@ -232,7 +269,7 @@ public strictfp class Node {
 		{
 			return null;
 		}
-		return buildingSpots[containedBuildings.size()];
+		return buildingSpots[containedBuildings.size()].getTrans();
 	}
 	
 	/**
@@ -267,11 +304,21 @@ public strictfp class Node {
 		containedUnits.add(u);
 	}
 	
+	public BuildingSpot[] getBuildingSpots()
+	{
+		return buildingSpots;
+	}
+	
+	public BuildingSpot getCommandCenterSpot()
+	{
+		return cCenterTransform;
+	}
+
 	/**
 	 * Gets the position of the shape that makes up this Node, defined as the center of the Node.
 	 * @return a Transformation representing the center of this Node.
 	 */
-	public Transformation getPosition()
+	public Transformation getTransformation()
 	{
 		return shape.position();
 	}
@@ -305,7 +352,7 @@ public strictfp class Node {
 	public void setOwner(Player p)
 	{
 		owner = p;
-		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform, this);
+		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform.getTrans(), this);
 		containedBuildings.clear();
 		for(Lane l : attachedLanes)
 		{
@@ -318,6 +365,11 @@ public strictfp class Node {
 	public Shape getShape()
 	{
 		return shape;
+	}
+	
+	public void setShape(Shape s)
+	{
+		shape = s;
 	}
 	
 	public boolean isStartNode()
