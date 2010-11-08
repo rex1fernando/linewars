@@ -18,8 +18,10 @@ import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
+import editor.mapitems.StrategySelector.StrategySelectorCallback;
 
-public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSelectionListener, ActionListener {
+public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSelectionListener, 
+												ActionListener {
 	
 	//variable for the name
 	private JTextField name;
