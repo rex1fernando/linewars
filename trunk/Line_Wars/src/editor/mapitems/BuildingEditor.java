@@ -62,9 +62,13 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 				cost.setText(d.toString());
 			else if(!force)
 				throw new IllegalArgumentException("Cost not defined");
+			else
+				cost.setText("");
 		} catch(NoSuchKeyException e) {
 			if(!force)
 				throw new IllegalArgumentException("Cost not defined");
+			else
+				cost.setText("");
 		}
 		
 		try {
@@ -73,9 +77,13 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 				buildTime.setText(d.toString());
 			else if(!force)
 				throw new IllegalArgumentException("Build time not defined");
+			else
+				buildTime.setText("");
 		} catch(NoSuchKeyException e) {
 			if(!force)
 				throw new IllegalArgumentException("Build Time not defined");
+			else
+				buildTime.setText("");
 		}
 	}
 
@@ -87,26 +95,45 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public ConfigData getData() {
+		ConfigData cd = new ConfigData();
+		
 		Scanner s = new Scanner(cost.getText());
-		return null; //TODO
+		if(s.hasNextDouble())
+			cd.set(ParserKeys.cost, s.nextDouble());
+		else
+			cd.set(ParserKeys.cost, -1.0);
+		
+		s = new Scanner(buildTime.getText());
+		if(s.hasNextDouble())
+			cd.set(ParserKeys.buildTime, s.nextDouble());
+		
+		return cd;
 	}
 
 	@Override
 	public ParserKeys getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return ParserKeys.buildingURI;
 	}
 
 	@Override
 	public JPanel getPanel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		if(cost == null)
+			return false;
+		
+		Scanner s = new Scanner(cost.getText());
+		if(!s.hasNextDouble())
+			return false;
+		
+		s = new Scanner(buildTime.getText());
+		if(!s.hasNextDouble())
+			return false;
+		
+		return true;
 	}
 
 }
