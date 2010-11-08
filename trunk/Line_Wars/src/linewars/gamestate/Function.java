@@ -42,5 +42,20 @@ public strictfp class Function {
 		else
 			return 0;
 	}
+	
+	/**
+	 * 
+	 * @return	A ConfigData object containing the representation of this Function.
+	 */
+	public ConfigData toConfigData()
+	{
+		ConfigData ret = new ConfigData();
+		ret.add(ParserKeys.functionType, type.toString());
+		for(Double d : coefficients){
+			ret.add(ParserKeys.coefficients, d);
+		}
+		
+		return ret;
+	}
 
 }

@@ -262,7 +262,7 @@ public strictfp class Lane
 //		double forwardBound = findForwardBound(n);
 //		
 //		//If the lane is backed up to the node, just destroy all of the pending units.
-//		if(forwardBound == 0)//TODO checking if a double is equal to 0 here instead of within rounding errors; is this intended?
+//		if(forwardBound == 0)
 //		{
 //			pendingWaves.get(n).clear();
 //		}

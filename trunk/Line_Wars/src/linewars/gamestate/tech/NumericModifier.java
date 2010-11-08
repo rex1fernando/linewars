@@ -20,5 +20,12 @@ public class NumericModifier implements Modifier {
 	public void modify(ConfigData cd, ParserKeys p, double d) {
 		cd.set(p, f.f(d));
 	}
+	
+	public ConfigData toConfigData(){
+		ConfigData ret = new ConfigData();
+		ret.add(ParserKeys.modifiertype, "numeric");
+		ret.add(ParserKeys.valueFunction, f.toConfigData());
+		return ret;
+	}
 
 }

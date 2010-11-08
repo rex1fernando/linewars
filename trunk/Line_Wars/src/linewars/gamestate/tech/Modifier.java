@@ -5,6 +5,7 @@ import linewars.configfilehandler.ParserKeys;
 
 public interface Modifier {
 	public void modify(ConfigData cd, ParserKeys p, double d);
+	public ConfigData toConfigData();
 }
 
 
