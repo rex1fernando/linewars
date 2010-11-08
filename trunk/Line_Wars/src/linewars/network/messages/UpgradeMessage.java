@@ -19,6 +19,16 @@ public class UpgradeMessage extends Message
 		this.nodeID = nodeID;
 		this.abilityID = abilityID;
 	}
+	
+	public int getNodeID()
+	{
+		return nodeID;
+	}
+	
+	public int getAbilityID()
+	{
+		return abilityID;
+	}
 
 	@Override
 	public void apply(GameState gameState) {
