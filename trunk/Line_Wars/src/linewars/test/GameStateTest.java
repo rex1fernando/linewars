@@ -49,4 +49,10 @@ public class GameStateTest {
 	{
 		assertEquals(2, game.getNumPlayers());
 	}
+	
+	@Test
+	public void testTime()
+	{
+		//assertEquals(2, game.getTime());
+	}
 }
