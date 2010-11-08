@@ -42,6 +42,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 		
 		//set up the hp panel
 		maxHP = new JTextField();
+		maxHP.setColumns(20);
 		JPanel hpPanel = new JPanel();
 		hpPanel.add(new JLabel("Max HP:"));
 		hpPanel.add(maxHP);
@@ -110,6 +111,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 					throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
 			}
 			combatConfig = d;
+			combatStatus.setText("Set");
 		} catch(NoSuchKeyException e) {
 			if(force)
 				combatConfig = null;
@@ -127,6 +129,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 					throw new IllegalArgumentException(ParserKeys.movementStrategy.toString() + " is not defined");
 			}
 			movConfig = d;
+			movStatus.setText("Set");
 		} catch(NoSuchKeyException e) {
 			if(force)
 				movConfig = null;
@@ -134,7 +137,8 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 				throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
 		}
 		
-		
+		this.validate();
+		this.updateUI();
 	}
 
 	@Override
@@ -152,6 +156,8 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
 			cd.set(ParserKeys.maxHP, s.nextDouble());
+		else
+			cd.set(ParserKeys.maxHP, -1.0);
 		if(combatConfig != null)
 			cd.set(ParserKeys.combatStrategy, combatConfig);
 		if(movConfig != null)
@@ -211,8 +217,16 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 
 	@Override
 	public void setConfigForStrategy(StrategySelector caller, ConfigData cd) {
-		// TODO Auto-generated method stub
-		
+		if(caller.getTitle().equalsIgnoreCase("Combat"))
+		{
+			combatConfig = cd;
+			combatStatus.setText("Set");
+		}
+		else if(caller.getTitle().equalsIgnoreCase("Movement"))
+		{
+			movConfig = cd;
+			movStatus.setText("Set");
+		}
 	}
 
 }

@@ -127,7 +127,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 			frame.dispose();
 		else if(arg0.getSource().equals(done))
 		{
-			if(!this.isValid())
+			if(!this.isValidData())
 			{
 				JOptionPane.showMessageDialog(frame,
 					    "The data is invalid.",
@@ -142,12 +142,17 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		}
 	}
 	
-	public boolean isValid()
+	public boolean isValidData()
 	{
+		if(type == null)
+			return false;
+		
 		if(type.getSelectedURI().equals(""))
 			return false;
 		for(Entry<ParserKeys, StrategySelectorFieldType> e : fieldMap.get(type.getSelectedURI()).entrySet())
 		{
+			if(fields == null || fields.get(e.getKey()) == null)
+				return false;
 			if(e.getValue().equals(StrategySelectorFieldType.numeric))
 			{
 				Scanner s = new Scanner(fields.get(e.getKey()).getText());
@@ -195,7 +200,6 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		
 		//set up the button panel
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(done);
 		buttonPanel.add(cancel);
 		this.add(buttonPanel);
 		
@@ -208,7 +212,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	public ConfigData getData() {
 		ConfigData cd = new ConfigData();
 		
-		if(!isValid())
+		if(!isValidData())
 			return cd;
 		
 		cd.set(ParserKeys.type, type.getSelectedURI());

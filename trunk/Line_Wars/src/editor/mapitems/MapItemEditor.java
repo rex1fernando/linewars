@@ -40,6 +40,10 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 	private JLabel bodyStatus;
 	private ConfigData bodyConfig;
 	
+	//variables related to the specific type
+	private URISelector mapItemType;
+	private ConfigurationEditor mapItemTypeInfo;
+	
 	private BigFrameworkGuy bfg;
 	
 	public MapItemEditor(BigFrameworkGuy guy)
@@ -76,12 +80,16 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		bodyPanel.add(bodyButton);
 		bodyPanel.add(bodyStatus);
 		
+		//set up the map item type selector
+		mapItemType = new URISelector("Type", new MapItemTypeSelector());
+		
 		//set up the main panel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(namePanel);
 		this.add(statesPanel);
 		this.add(abilitiesColStratPanel);
 		this.add(bodyPanel);
+		this.add(mapItemType);
 		
 		this.reset();
 	}
@@ -140,17 +148,17 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 	}
 
 	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public ParserKeys getType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	public boolean isValid() {
+		//TODO
+		return false;
+	}
+	
 	@Override
 	public JPanel getPanel() {
 		return this;
@@ -239,6 +247,26 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, ListSe
 		@Override
 		public void uriSelected(String uri) {
 						
+		}
+		
+	}
+	
+	private class MapItemTypeSelector implements SelectorOptions {
+
+		@Override
+		public String[] getOptions() {
+			return new String[]{"Unit"};
+		}
+
+		@Override
+		public void uriSelected(String uri) {
+			if(uri.equalsIgnoreCase("Unit"))
+				mapItemTypeInfo = new UnitEditorPanel();
+			
+			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
+			MapItemEditor.this.add(mapItemTypeInfo.getPanel());
+			MapItemEditor.this.validate();
+			MapItemEditor.this.updateUI();
 		}
 		
 	}
