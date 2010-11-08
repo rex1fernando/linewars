@@ -75,7 +75,7 @@ public class Display extends JFrame implements Runnable
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(gamePanel);
 		setSize(new Dimension(800, 600));
-		//setUndecorated(true);
+		setUndecorated(true);
 	}
 
 	@Override

@@ -3,10 +3,13 @@ package editor.mapEditor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -29,6 +32,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JCheckBox selectBuildings;
 	private JCheckBox selectCommandCenters;
 
+	private JRadioButton createLane;
 	private JRadioButton createNode;
 	private JRadioButton createBuilding;
 	private JRadioButton createCommandCenter;
@@ -61,23 +65,15 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		items.add(selectBuildings);
 		items.add(selectCommandCenters);
 		
-		//set check boxes to selected by default
-		selectNodes.setSelected(true);
-		selectLanes.setSelected(true);
-		selectBuildings.setSelected(true);
-		selectCommandCenters.setSelected(true);
-		
-		//set the item listener for the check boxes
+		//the item listener for the check boxes
 		ItemListener checkBoxListener = new CheckBoxListener();
-		selectNodes.addItemListener(checkBoxListener);
-		selectLanes.addItemListener(checkBoxListener);
-		selectBuildings.addItemListener(checkBoxListener);
-		selectCommandCenters.addItemListener(checkBoxListener);
-		
+
 		//add check boxes to JPanel
 		JPanel selectedItems = new JPanel(new GridLayout(items.size(), 1));
 		for(JCheckBox box : items)
 		{
+			box.setSelected(true);
+			box.addItemListener(checkBoxListener);
 			selectedItems.add(box);
 		}
 		
@@ -88,19 +84,29 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		add(selectedItems);
 		
 		//create radio buttons
+		createLane = new JRadioButton("Lane");
 		createNode = new JRadioButton("Node");
 		createBuilding = new JRadioButton("Building");
 		createCommandCenter = new JRadioButton("Command Center");
 		
 		ArrayList<JRadioButton> createables = new ArrayList<JRadioButton>();
+		createables.add(createLane);
 		createables.add(createNode);
 		createables.add(createBuilding);
 		createables.add(createCommandCenter);
+		
+	    //the group for the radio buttons
+	    ButtonGroup group = new ButtonGroup();
+	    
+	    //the action listener for the radio buttons
+	    RadioButtonListener radioButtonListener = new RadioButtonListener();
 		
 		//add radio buttons to JPanel
 		JPanel createItems = new JPanel(new GridLayout(1, createables.size()));
 		for(JRadioButton button : createables)
 		{
+			group.add(button);
+			button.addActionListener(radioButtonListener);
 			createItems.add(button);
 		}
 		
@@ -197,6 +203,16 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			{
 				map.setCommandCentersVisible(e.getStateChange() == ItemEvent.SELECTED);
 			}
+		}
+	}
+	
+	private class RadioButtonListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

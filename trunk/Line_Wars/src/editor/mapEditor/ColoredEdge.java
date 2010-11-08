@@ -45,7 +45,7 @@ public class ColoredEdge
 		Position laneStart = lane.getPosition(0).getPosition();		
 		Position laneEnd = lane.getPosition(1.0).getPosition();				
 
-		g.setColor(Color.blue);
+		g.setColor(Color.red);
 		
 		//initialize the draw positions
 		Position beforePos = nodes[0].getPosition().getPosition();

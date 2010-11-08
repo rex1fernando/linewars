@@ -13,8 +13,8 @@ import linewars.gamestate.Transformation;
 public strictfp class Node
 {
 	private ArrayList<Lane> attachedLanes;
-	private Transformation[] buildingSpots;
-	private Transformation cCenterTransform;
+	private BuildingSpot[] buildingSpots;
+	private BuildingSpot cCenterTransform;
 	private Transformation position;
 	private double radius;
 	private int ID;
@@ -40,9 +40,9 @@ public strictfp class Node
 		}
 		
 		List<ConfigData> transforms = parser.getConfigList(ParserKeys.buildingSpots);
-		buildingSpots = new Transformation[transforms.size()];
+		buildingSpots = new BuildingSpot[transforms.size()];
 		for(int i = 0; i < transforms.size(); i++)
-			buildingSpots[i] = new Transformation(transforms.get(i));
+			buildingSpots[i] = new BuildingSpot(transforms.get(i));
 
 		ConfigData shape = parser.getConfig(ParserKeys.shape);
 		radius = shape.getNumber(ParserKeys.radius);
@@ -50,7 +50,7 @@ public strictfp class Node
 
 		laneMap = new HashMap<Double, Lane>();
 		
-		cCenterTransform = new Transformation(parser.getConfig(ParserKeys.commandCenterTransformation));
+		cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
 		
 		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
@@ -58,6 +58,16 @@ public strictfp class Node
 	public Lane[] getAttachedLanes()
 	{
 		return (Lane[])attachedLanes.toArray();
+	}
+	
+	public BuildingSpot[] getBuildingSpots()
+	{
+		return buildingSpots;
+	}
+	
+	public BuildingSpot getCommandCenter()
+	{
+		return cCenterTransform;
 	}
 	
 	/**

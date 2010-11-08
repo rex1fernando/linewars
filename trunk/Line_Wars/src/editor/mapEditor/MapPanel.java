@@ -38,14 +38,22 @@ public class MapPanel extends JPanel
 	private TerrainLayer terrain;
 	private ColoredEdge laneDrawer;
 	private ColoredNode nodeDrawer;
+	private BuildingDrawer buildingDrawer;
 	
 	private ArrayList<Lane> lanes;
 	private ArrayList<Node> nodes;
+	private ArrayList<BuildingSpot> buildingSpots;
+	private ArrayList<BuildingSpot> commandCenters;
 	
 	private boolean lanesVisible;
 	private boolean nodesVisible;
 	private boolean buildingsVisible;
 	private boolean ccsVisible;
+	
+	private boolean createLane;
+	private boolean createNode;
+	private boolean createBuilding;
+	private boolean createCC;
 
 	public MapPanel(int width, int height)
 	{
@@ -58,17 +66,26 @@ public class MapPanel extends JPanel
 		lastClickPosition = new Position(0, 0);
 		mapSize = new Dimension(0, 0);
 		viewport = new Rectangle2D.Double(0, 0, 0, 0);
+		
 		terrain = new TerrainLayer(this);
 		laneDrawer = new ColoredEdge(this);
 		nodeDrawer = new ColoredNode(this);
+		buildingDrawer = new BuildingDrawer(this);
 		
 		lanes = new ArrayList<Lane>();
 		nodes = new ArrayList<Node>();
+		buildingSpots = new ArrayList<BuildingSpot>();
+		commandCenters = new ArrayList<BuildingSpot>();
 		
 		lanesVisible = true;
 		nodesVisible = true;
 		buildingsVisible = true;
 		ccsVisible = true;
+		
+		createLane = false;
+		createNode = false;
+		createBuilding = false;
+		createCC = false;
 
 		// ignores system generated repaints
 		setIgnoreRepaint(true);
@@ -95,9 +112,20 @@ public class MapPanel extends JPanel
 			lanes.add(new Lane(l));
 		
 		nodes = new ArrayList<Node>();
+		buildingSpots = new ArrayList<BuildingSpot>();
+		commandCenters = new ArrayList<BuildingSpot>();
 		List<ConfigData> ns = data.getConfigList(ParserKeys.nodes);
 		for(ConfigData n : ns)
-			nodes.add(new Node(n, lanes.toArray(new Lane[0]), nodes.size()));
+		{
+			Node newNode = new Node(n, lanes.toArray(new Lane[0]), nodes.size());
+			nodes.add(newNode);
+			
+			commandCenters.add(newNode.getCommandCenter());
+			for(BuildingSpot s : newNode.getBuildingSpots())
+			{
+				buildingSpots.add(s);
+			}
+		}
 	}
 	
 	public void setNodesVisible(boolean b)
@@ -118,6 +146,26 @@ public class MapPanel extends JPanel
 	public void setCommandCentersVisible(boolean b)
 	{
 		ccsVisible = b;
+	}
+	
+	public void setCreateLane(boolean b)
+	{
+		createLane = b;
+	}
+	
+	public void setCreateNode(boolean b)
+	{
+		createNode = b;
+	}
+	
+	public void setCreateBuilding(boolean b)
+	{
+		createBuilding = b;
+	}
+	
+	public void setCreateCommandCenter(boolean b)
+	{
+		createCC = b;
 	}
 	
 	public void setMapImage(String mapURI)
@@ -178,6 +226,24 @@ public class MapPanel extends JPanel
 			for(Node n : nodes)
 			{
 				nodeDrawer.draw(g, n, scale);
+			}
+		}
+		
+		//draw the building spots
+		if(buildingsVisible)
+		{
+			for(BuildingSpot b : buildingSpots)
+			{
+				buildingDrawer.draw(g, b, scale);
+			}
+		}
+		
+		//draw the command centers
+		if(ccsVisible)
+		{
+			for(BuildingSpot b : commandCenters)
+			{
+				buildingDrawer.draw(g, b, scale, true);
 			}
 		}
 		
