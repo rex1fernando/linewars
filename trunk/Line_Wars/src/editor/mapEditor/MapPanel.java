@@ -246,7 +246,7 @@ public class MapPanel extends JPanel
 		{
 			for(Node n : nodes)
 			{
-				nodeDrawer.draw(g, n, scale);
+				nodeDrawer.draw(g, n, toGameCoord(mousePosition), scale);
 			}
 		}
 		
@@ -255,7 +255,7 @@ public class MapPanel extends JPanel
 		{
 			for(BuildingSpot b : buildingSpots)
 			{
-				buildingDrawer.draw(g, b, scale);
+				buildingDrawer.draw(g, b, toGameCoord(mousePosition), scale);
 			}
 		}
 		
@@ -264,7 +264,7 @@ public class MapPanel extends JPanel
 		{
 			for(BuildingSpot b : commandCenters)
 			{
-				buildingDrawer.draw(g, b, scale, true);
+				buildingDrawer.draw(g, b, toGameCoord(mousePosition), scale, true);
 			}
 		}
 		
@@ -406,14 +406,20 @@ public class MapPanel extends JPanel
 			
 			movingSpot.setRect(r);
 		}
-		else if(rotating)
-		{
-			Position axis = new Position(1, 0);
-			Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
-			//TODO find the rotation
-		}
 		else
 		{
+			if(rotating)
+			{
+				Position mouse = toGameCoord(mousePosition);
+				Position rectPos = r.position().getPosition();
+				
+				Position rotatedVector = mouse.subtract(rectPos);
+				double newRotation = Math.atan2(rotatedVector.getY(), rotatedVector.getX());
+				double currentRotation = r.position().getRotation();
+				r = (Rectangle)r.transform(new Transformation(new Position(0, 0), newRotation - currentRotation - Math.PI / 4));
+				movingSpot.setRect(r);
+			}
+			
 			double width = r.getWidth();
 			double height = r.getHeight();
 			if(resizeW)
@@ -439,11 +445,12 @@ public class MapPanel extends JPanel
 
 	private void selectNode(Position p)
 	{
+		double scale = getWidth() / viewport.getWidth();
 		for(Node n : nodes)
 		{
 			Circle c = n.getBoundingCircle();
-			Circle dragNode = new Circle(c.position(), c.getRadius() - 25);
-			Circle resizeNode = new Circle(c.position(), c.getRadius() + 25);
+			Circle dragNode = new Circle(c.position(), c.getRadius() - 2.5 / scale);
+			Circle resizeNode = new Circle(c.position(), c.getRadius() + 2.5 / scale);
 			
 			if(dragNode.positionIsInShape(p))
 			{
@@ -481,6 +488,7 @@ public class MapPanel extends JPanel
 			
 			resizeW = true;
 			resizeH = true;
+			rotating = true;
 		}
 	}
 	
@@ -495,21 +503,22 @@ public class MapPanel extends JPanel
 			
 			resizeW = true;
 			resizeH = true;
+			rotating = true;
 		}
 	}
 
 	private void selectBuildingSpot(Position p, ArrayList<BuildingSpot> spots)
 	{
+		double scale = getWidth() / viewport.getWidth();
 		for(BuildingSpot b : spots)
 		{
 			Rectangle r = b.getRect();
-			Rectangle dragSpot = new Rectangle(r.position(), r.getWidth() - 25, r.getHeight() - 25);
-			Rectangle resizeWidth = new Rectangle(r.position(), r.getWidth() + 25, r.getHeight());
-			Rectangle resizeHeight = new Rectangle(r.position(), r.getWidth(), r.getHeight() + 25);
+			Rectangle dragSpot = new Rectangle(r.position(), r.getWidth() - 2.5 / scale, r.getHeight() - 2.5 / scale);
+			Rectangle resizeWidth = new Rectangle(r.position(), r.getWidth() + 2.5 / scale, r.getHeight());
+			Rectangle resizeHeight = new Rectangle(r.position(), r.getWidth(), r.getHeight() + 2.5 / scale);
 			
-			Position rectPos = r.position().getPosition();
-			Position circlePos = new Position(rectPos.getX() + r.getWidth() / 2, rectPos.getY());
-			Circle rotate = new Circle(new Transformation(circlePos, 0), 25);
+			Position circlePos = r.getVertexPositions()[0];
+			Circle rotate = new Circle(new Transformation(circlePos, 0), 5 / scale);
 			
 			if(rotate.positionIsInShape(p))
 			{
