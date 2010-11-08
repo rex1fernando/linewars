@@ -2,6 +2,8 @@ package editor.mapitems;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -11,8 +13,10 @@ import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 
 import editor.ConfigurationEditor;
+import editor.mapitems.StrategySelector.StrategySelectorCallback;
+import editor.mapitems.StrategySelector.StrategySelectorFieldType;
 
-public class UnitEditorPanel extends JPanel implements ConfigurationEditor, ActionListener {
+public class UnitEditorPanel extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
 
 	//variable for storing the max hp
 	private JTextField maxHP;
@@ -69,14 +73,12 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 
 	@Override
 	public void setData(ConfigData cd) {
-		// TODO Auto-generated method stub
-
+		setData(cd, false);
 	}
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		// TODO Auto-generated method stub
-
+		setData(cd, true);
 	}
 	
 	private void setData(ConfigData cd, boolean force)
@@ -96,6 +98,40 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 				maxHP.setText("");
 			else
 				throw new IllegalArgumentException(ParserKeys.maxHP.toString() + " is not defined");
+		}
+		
+		try {
+			ConfigData d = cd.getConfig(ParserKeys.combatStrategy);
+			if(d == null)
+			{
+				if(force)
+					combatConfig = null;
+				else
+					throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
+			}
+			combatConfig = d;
+		} catch(NoSuchKeyException e) {
+			if(force)
+				combatConfig = null;
+			else
+				throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
+		}
+		
+		try {
+			ConfigData d = cd.getConfig(ParserKeys.movementStrategy);
+			if(d == null)
+			{
+				if(force)
+					movConfig = null;
+				else
+					throw new IllegalArgumentException(ParserKeys.movementStrategy.toString() + " is not defined");
+			}
+			movConfig = d;
+		} catch(NoSuchKeyException e) {
+			if(force)
+				movConfig = null;
+			else
+				throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
 		}
 		
 		
@@ -135,6 +171,46 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(e.getSource().equals(combatButton))
+		{
+			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap = 
+				new HashMap<String, Map<ParserKeys,StrategySelectorFieldType>>();
+			Map<ParserKeys, StrategySelectorFieldType> field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
+			
+			//make the shoot closest target combat
+			field.put(ParserKeys.shootCoolDown, StrategySelectorFieldType.numeric);
+			fieldMap.put("ShootClosestTarget", field);
+			
+			//make the no combat strat
+			field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
+			fieldMap.put("NoCombat", field);
+			
+			StrategySelector ss = new StrategySelector(this, "Combat", fieldMap);
+			if(combatConfig != null)
+				ss.setData(combatConfig);
+		}
+		if(e.getSource().equals(movButton))
+		{
+			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap = 
+				new HashMap<String, Map<ParserKeys,StrategySelectorFieldType>>();
+			Map<ParserKeys, StrategySelectorFieldType> field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
+			
+			//make the straight mov strat
+			field.put(ParserKeys.speed, StrategySelectorFieldType.numeric);
+			fieldMap.put("Straight", field);
+			
+			//make the immovable mov strat
+			field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
+			fieldMap.put("Immovable", field);
+			
+			StrategySelector ss = new StrategySelector(this, "Movement", fieldMap);
+			if(movConfig != null)
+				ss.setData(movConfig);
+		}
+	}
+
+	@Override
+	public void setConfigForStrategy(StrategySelector caller, ConfigData cd) {
 		// TODO Auto-generated method stub
 		
 	}
