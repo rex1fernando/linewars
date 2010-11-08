@@ -3,7 +3,9 @@ package editor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -11,18 +13,27 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionListener;
 
-public class ListURISelector extends URISelector
+public class ListURISelector extends URISelector implements ListSelectionListener
 {	
+	public static interface ListSelectorOptions extends SelectorOptions
+	{
+		public String[] getOptions();
+		public void uriSelected(String uri);
+		public void uriRemoved(String uri);
+		public void uriHighlightChange(String[] uris);
+	}
+	
 	private static final long serialVersionUID = 5603153875399911022L;
 	private JList list;
 	private Set<String> selections;
 	private JButton remove;
 	private ListOptions options;
 	
-	public ListURISelector(String label, SelectorOptions options)
+	public ListURISelector(String label, ListSelectorOptions options)
 	{
 		super(label, null);
 		this.options = new ListOptions(options);
@@ -37,6 +48,7 @@ public class ListURISelector extends URISelector
 		Dimension size = new Dimension(400, 75);
 		list.setPreferredSize(size);
 		list.setMinimumSize(size);
+		list.addListSelectionListener(this);
 		
 		JScrollPane scroll = new JScrollPane(list);
 		scroll.setPreferredSize(size);
@@ -46,11 +58,6 @@ public class ListURISelector extends URISelector
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		add(scroll);
-	}
-	
-	public void addListSelectionListener(ListSelectionListener lsl)
-	{
-		list.addListSelectionListener(lsl);
 	}
 	
 	public String[] getHighlightedURIs()
@@ -103,17 +110,18 @@ public class ListURISelector extends URISelector
 			for (Object o : list.getSelectedValues())
 			{
 				selections.remove(o);
+				options.uriRemoved((String) o);
 			}
 			
 			list.setListData(selections.toArray());
 		}
 	}
 	
-	private class ListOptions implements SelectorOptions
+	private class ListOptions implements ListSelectorOptions
 	{
-		private SelectorOptions options;
+		private ListSelectorOptions options;
 		
-		public ListOptions(SelectorOptions options)
+		public ListOptions(ListSelectorOptions options)
 		{
 			this.options = options;
 		}
@@ -139,6 +147,16 @@ public class ListURISelector extends URISelector
 			selections.add(uri);
 			list.setListData(selections.toArray());
 		}
+
+		@Override
+		public void uriRemoved(String uri) {
+			options.uriRemoved(uri);		
+		}
+
+		@Override
+		public void uriHighlightChange(String[] uris) {
+			options.uriHighlightChange(uris);
+		}
 	}
 	
 	private class AddWrapper implements ActionListener
@@ -158,5 +176,16 @@ public class ListURISelector extends URISelector
 				listener.actionPerformed(e);
 			}
 		}
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		List<String> selection = new ArrayList<String>();
+		for (Object o : list.getSelectedValues())
+		{
+			selection.add((String) o);
+		}
+		options.uriHighlightChange(selection.toArray(new String[0]));
+		
 	}
 }
