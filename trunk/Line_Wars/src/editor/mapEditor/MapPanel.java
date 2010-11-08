@@ -43,9 +43,9 @@ public class MapPanel extends JPanel
 	private Rectangle2D viewport;
 	private Dimension2D mapSize;
 	
-	private TerrainLayer terrain;
-	private ColoredEdge laneDrawer;
-	private ColoredNode nodeDrawer;
+	private MapDrawer mapDrawer;
+	private LaneDrawer laneDrawer;
+	private NodeDrawer nodeDrawer;
 	private BuildingDrawer buildingDrawer;
 	
 	private ArrayList<Lane> lanes;
@@ -56,6 +56,7 @@ public class MapPanel extends JPanel
 	private boolean moving;
 	private boolean resizeW;
 	private boolean resizeH;
+	private boolean rotating;
 	private BezierCurve movingCurve;
 	private Node movingNode;
 	private BuildingSpot movingSpot;
@@ -82,9 +83,9 @@ public class MapPanel extends JPanel
 		mapSize = new Dimension(0, 0);
 		viewport = new Rectangle2D.Double(0, 0, 0, 0);
 		
-		terrain = new TerrainLayer(this);
-		laneDrawer = new ColoredEdge(this);
-		nodeDrawer = new ColoredNode(this);
+		mapDrawer = new MapDrawer(this);
+		laneDrawer = new LaneDrawer(this);
+		nodeDrawer = new NodeDrawer(this);
 		buildingDrawer = new BuildingDrawer(this);
 		
 		lanes = new ArrayList<Lane>();
@@ -95,6 +96,7 @@ public class MapPanel extends JPanel
 		moving = false;
 		resizeW = false;
 		resizeH = false;
+		rotating = false;
 		
 		lanesVisible = true;
 		nodesVisible = true;
@@ -189,7 +191,7 @@ public class MapPanel extends JPanel
 	
 	public void setMapImage(String mapURI)
 	{
-		terrain.setMap(mapURI);
+		mapDrawer.setMap(mapURI);
 	}
 	
 	public void setMapSize(double width, double height)
@@ -228,7 +230,7 @@ public class MapPanel extends JPanel
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		//draw the map
-		terrain.draw(g, viewport, scale);
+		mapDrawer.draw(g, viewport, scale);
 		
 		//draw the lanes
 		if(lanesVisible)
@@ -404,6 +406,12 @@ public class MapPanel extends JPanel
 			
 			movingSpot.setRect(r);
 		}
+		else if(rotating)
+		{
+			Position axis = new Position(1, 0);
+			Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
+			//TODO find the rotation
+		}
 		else
 		{
 			double width = r.getWidth();
@@ -414,7 +422,7 @@ public class MapPanel extends JPanel
 				Position axis = new Position(Math.cos(rotation), Math.sin(rotation));
 				Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
 				
-				width = ray.length() * axis.dot(ray.normalize()) * 2;
+				width = ray.length() * Math.abs(axis.dot(ray.normalize())) * 2;
 			}
 			if(resizeH)
 			{
@@ -422,7 +430,7 @@ public class MapPanel extends JPanel
 				Position axis = new Position(Math.sin(rotation), Math.cos(rotation));
 				Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
 				
-				height = ray.length() * axis.dot(ray.normalize()) * 2;
+				height = ray.length() * Math.abs(axis.dot(ray.normalize())) * 2;
 			}
 			
 			movingSpot.setDim((int)width, (int)height);
@@ -456,6 +464,9 @@ public class MapPanel extends JPanel
 		{
 			movingNode = new Node(p);
 			nodes.add(movingNode);
+			
+			resizeW = true;
+			resizeH = true;
 		}
 	}
 
@@ -463,10 +474,13 @@ public class MapPanel extends JPanel
 	{
 		selectBuildingSpot(p, buildingSpots);
 		
-		if(!moving && !resizeW && !resizeH)
+		if(!moving && !resizeW && !resizeH && !rotating)
 		{
-			movingSpot = new BuildingSpot();
+			movingSpot = new BuildingSpot(p);
 			buildingSpots.add(movingSpot);
+			
+			resizeW = true;
+			resizeH = true;
 		}
 	}
 	
@@ -474,10 +488,13 @@ public class MapPanel extends JPanel
 	{
 		selectBuildingSpot(p, commandCenters);
 		
-		if(!moving && !resizeW && !resizeH)
+		if(!moving && !resizeW && !resizeH && !rotating)
 		{
-			movingSpot = new BuildingSpot();
+			movingSpot = new BuildingSpot(p);
 			commandCenters.add(movingSpot);
+			
+			resizeW = true;
+			resizeH = true;
 		}
 	}
 
@@ -490,7 +507,17 @@ public class MapPanel extends JPanel
 			Rectangle resizeWidth = new Rectangle(r.position(), r.getWidth() + 25, r.getHeight());
 			Rectangle resizeHeight = new Rectangle(r.position(), r.getWidth(), r.getHeight() + 25);
 			
-			if(dragSpot.positionIsInShape(p))
+			Position rectPos = r.position().getPosition();
+			Position circlePos = new Position(rectPos.getX() + r.getWidth() / 2, rectPos.getY());
+			Circle rotate = new Circle(new Transformation(circlePos, 0), 25);
+			
+			if(rotate.positionIsInShape(p))
+			{
+				movingSpot = b;
+				rotating = true;
+				break;
+			}
+			else if(dragSpot.positionIsInShape(p))
 			{
 				movingSpot = b;
 				moving = true;
@@ -564,6 +591,7 @@ public class MapPanel extends JPanel
 			moving = false;
 			resizeW = false;
 			resizeH = false;
+			rotating = false;
 			movingNode = null;
 			movingSpot = null;
 			movingCurve = null;

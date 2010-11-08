@@ -13,7 +13,7 @@ import linewars.gamestate.Position;
  * @author Ryan Tew
  * 
  */
-public class ColoredNode
+public class NodeDrawer
 {
 	private MapPanel panel;
 
@@ -25,14 +25,17 @@ public class ColoredNode
 	 * @param numPlayers
 	 *            The number of players in the game.
 	 */
-	public ColoredNode(MapPanel panel)
+	public NodeDrawer(MapPanel panel)
 	{
 		this.panel = panel;
 	}
 
 	public void draw(Graphics g, Node node, double scale)
 	{
-		g.setColor(Color.red);
+		if(node.isStartNode())
+			g.setColor(Color.green);
+		else
+			g.setColor(Color.red);
 
 		double radius = node.getBoundingCircle().getRadius();
 		Position centerPos = node.getTransformation().getPosition();

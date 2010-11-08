@@ -12,7 +12,7 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-public class TerrainLayer
+public class MapDrawer
 {
 	private Image map;
 	private Image bufferedMap;
@@ -21,7 +21,7 @@ public class TerrainLayer
 	private boolean bufferedChanged;
 	private MapPanel panel;
 	
-	public TerrainLayer(MapPanel panel)
+	public MapDrawer(MapPanel panel)
 	{
 		this.panel = panel;
 	}

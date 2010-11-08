@@ -49,6 +49,8 @@ public class BuildingDrawer
 
 		((Graphics2D)g).rotate(rotation, x, y);
 		g.fillRect((int)pos.getX(), (int)pos.getY(), (int)(w * scale), (int)(h * scale));
+		g.setColor(Color.pink);
+		g.fillOval((int)(x + ((w / 2) - 25) * scale), (int)(y - 25 * scale), (int)(50 * scale), (int)(50 * scale));
 		((Graphics2D)g).rotate(-rotation, x, y);
 	}
 }

@@ -16,7 +16,7 @@ import linewars.gamestate.Transformation;
  * @author Ryan Tew
  * 
  */
-public class ColoredEdge
+public class LaneDrawer
 {
 	private static final double SEGMENT_STEP = 0.01;
 	private MapPanel panel;
@@ -29,7 +29,7 @@ public class ColoredEdge
 	 * @param numPlayers
 	 *            The number of players in the game.
 	 */
-	public ColoredEdge(MapPanel panel)
+	public LaneDrawer(MapPanel panel)
 	{
 		this.panel = panel;
 	}
