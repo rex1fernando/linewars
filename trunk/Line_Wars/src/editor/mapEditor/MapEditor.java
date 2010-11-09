@@ -1,30 +1,33 @@
 package editor.mapEditor;
 
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-
-import editor.ConfigurationEditor;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
+import editor.ConfigurationEditor;
 
 public class MapEditor extends JPanel implements ConfigurationEditor
 {
 	private MapPanel map;
+	
+	private JFrame frame;
 	
 	private JCheckBox selectNodes;
 	private JCheckBox selectLanes;
@@ -36,10 +39,12 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JRadioButton createBuilding;
 	private JRadioButton createCommandCenter;
 
-	public MapEditor()
+	public MapEditor(JFrame frame)
 	{
 		super(null);
 		setPreferredSize(new Dimension(768, 512));
+		
+		this.frame = frame;
 
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -228,6 +233,39 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			{
 				map.setCreateCommandCenter(e.getStateChange() == ItemEvent.SELECTED);
 			}
+		}
+	}
+	
+	private class SetMapListener implements MouseListener
+	{
+		@Override
+		public void mouseClicked(MouseEvent e)
+		{
+			FileDialog dialog = new FileDialog(frame, "map");
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e)
+		{
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e)
+		{
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			// TODO Auto-generated method stub
 		}
 	}
 }

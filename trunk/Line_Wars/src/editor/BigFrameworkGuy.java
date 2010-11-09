@@ -36,6 +36,8 @@ public class BigFrameworkGuy
 		
 		editors = new ArrayList<ConfigurationEditor>();
 		
+		frame = new JFrame();
+		
 		//add each editor
 		
 		String imagesFolder = new File(this.getAnimationURIs()[0]).getParentFile().getAbsolutePath();
@@ -53,7 +55,7 @@ public class BigFrameworkGuy
 			else if(e.equals("Animation"))
 				ce = toStart;
 			else if(e.equals("Map"))
-				ce = new MapEditor();
+				ce = new MapEditor(frame);
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
 			this.editors.add(ce);
@@ -65,7 +67,6 @@ public class BigFrameworkGuy
 		}
 		
 		//set up the frame
-		frame = new JFrame();
 		frame.add(tabPanel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setMinimumSize(prefferedSize);

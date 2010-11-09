@@ -27,7 +27,7 @@ public class MapFrame extends JFrame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Add the ubiquitous "Hello World" label.
-        MapEditor editor = new MapEditor(768, 512);
+        MapEditor editor = new MapEditor(frame);
         frame.setContentPane(editor);
         frame.setSize(new Dimension(768, 512));
         
