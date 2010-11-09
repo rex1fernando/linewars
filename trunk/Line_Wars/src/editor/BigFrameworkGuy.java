@@ -267,6 +267,14 @@ public class BigFrameworkGuy
 				masterList.add(key, uri);
 			else
 				incomplete.add(key, uri);
+			
+			try {
+				new ConfigFileWriter(MASTER_LIST_URI).write(masterList, true);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}

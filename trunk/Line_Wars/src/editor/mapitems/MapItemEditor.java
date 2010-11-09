@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -310,8 +311,10 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		
 		//if the type is specified, then use the parser from that
 		if(mapItemTypeInfo != null)
+		{
 			if(!mapItemTypeInfo.isValid())
 				return false;
+		}
 		else
 			return false;
 		
@@ -478,6 +481,24 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 				mapItemTypeInfo = new ProjectileEditor();
 			else if(uri.equalsIgnoreCase("Gate"))
 				mapItemTypeInfo = new GateEditor();
+			
+			//make sure the dead state is on the list
+			if(uri.equalsIgnoreCase("Unit") ||
+					uri.equalsIgnoreCase("Projectile") || 
+					uri.equalsIgnoreCase("Gate"))
+			{
+				String[] states = validStates.getSelectedURIs();
+				boolean found = false;
+				for(String s : states)
+					if(s.equals("Dead"))
+						found = true;
+				if(!found)
+				{
+					states = Arrays.copyOf(states, states.length + 1);
+					states[states.length - 1] = "Dead";
+					validStates.setSelectedURIs(states);
+				}
+			}
 			
 			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
 			MapItemEditor.this.add(mapItemTypeInfo.getPanel());

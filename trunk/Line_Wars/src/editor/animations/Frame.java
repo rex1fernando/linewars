@@ -37,6 +37,7 @@ public class Frame extends JPanel implements ItemListener{
 		file = new JLabel(new File(filePath).getName());
 		this.add(file);
 		time = new JTextField("          200");
+		time.setColumns(20);
 		this.add(time);
 		checkBox = new JCheckBox();
 		checkBox.setSelected(false);
@@ -52,7 +53,7 @@ public class Frame extends JPanel implements ItemListener{
 	
 	public int getTime() {
 		try {
-			return new Scanner(time.getText()).nextInt();
+			return (int) new Scanner(time.getText()).nextDouble();
 		} catch(Exception e) {
 			return 200;
 		}
