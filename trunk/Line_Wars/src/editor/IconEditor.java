@@ -133,7 +133,6 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		public void setURI(String u) {
 			if(icon != null)
 				this.remove(icon);
-			System.out.println("attempting to load " + u);
 			ImageIcon i = new ImageIcon(u);
 			i = new ImageIcon(i.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
 			this.uri = u;

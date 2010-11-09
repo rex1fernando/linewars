@@ -1,5 +1,6 @@
 package editor.mapitems;
 
+import java.awt.Dimension;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 
 import editor.ConfigurationEditor;
+import editor.IconEditor;
 
 public class BuildingEditor extends JPanel implements ConfigurationEditor {
 
@@ -22,6 +24,9 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	
 	//variable for holding the build time
 	private JTextField buildTime;
+	
+	//variables for the icons
+	private ConfigurationEditor icons;
 	
 	public BuildingEditor()
 	{	
@@ -38,10 +43,19 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		JPanel buildTimePanel = new JPanel();
 		buildTimePanel.add(new JLabel("Build Time (ms):"));
 		buildTimePanel.add(buildTime);
+		
+		icons = new IconEditor();
+		
+		JPanel innerPanel = new JPanel();
 
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.add(costPanel);
-		this.add(buildTimePanel);
+		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+		innerPanel.add(costPanel);
+		innerPanel.add(buildTimePanel);
+		innerPanel.add(icons.getPanel());
+		
+		JScrollPane scroller = new JScrollPane(innerPanel);
+		scroller.setPreferredSize(new Dimension(600, 200));
+		this.add(scroller);
 	}
 
 	@Override
