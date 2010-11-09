@@ -256,7 +256,12 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 	
 	private void updateCurrentlyHighlighted(String onlyHighlightedURI){
-		keySelector.setData(modifiedURIs.get(onlyHighlightedURI));//TODO make sure the implementation of this saves the old version, or drastic measures must be taken!
+		keySelector.setData(modifiedURIs.get(onlyHighlightedURI));
+		if(onlyHighlightedURI == null){
+			keySelector.getPanel().setVisible(false);
+		}else{
+			keySelector.getPanel().setVisible(true);
+		}
 	}
 
 	private void addToSelected(String uri) {

@@ -1,16 +1,14 @@
 package editor.tech;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Function;
-import linewars.gamestate.tech.Modifier;
 import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 
@@ -21,25 +19,32 @@ public class TechEditor implements ConfigurationEditor {
 	
 	private NTCFEditor ntcf;
 	private TechURISelector modifiedURIs;
+	private TechKeySelector keySelector;
 	
 	public TechEditor(BigFrameworkGuy framework){
 		//init main components
 		ntcf = new NTCFEditor();
-		modifiedURIs = new TechURISelector(framework, new TechKeySelector());
+		keySelector = new TechKeySelector(framework);
+		modifiedURIs = new TechURISelector(framework, keySelector);
 		
 		//set up layout
 		topLevel = new JPanel();
-		topLevel.setLayout(new BorderLayout());
+		topLevel.setLayout(new BoxLayout(topLevel, BoxLayout.Y_AXIS));
 		bottomLevel = new JPanel();
 		bottomLevel.setLayout(new GridLayout(1, 2));
 		
 		//populate topLevel
-		topLevel.add(ntcf.getPanel(), BorderLayout.PAGE_START);
-		topLevel.add(bottomLevel, BorderLayout.CENTER);
+		topLevel.add(ntcf.getPanel());
+		topLevel.add(new JSeparator(JSeparator.HORIZONTAL));
+		topLevel.add(bottomLevel);
 		
 		//populate bottomLevel
 		bottomLevel.add(modifiedURIs.getPanel());
-		//TODO add a dummy panel here? do we need to?
+		bottomLevel.add(keySelector.getPanel());
+		
+		keySelector.getPanel().setVisible(false);
+		
+		topLevel.setPreferredSize(new Dimension(800, 650));
 		
 		//TODO does this have to be called here?
 		reset();
