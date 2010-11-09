@@ -94,7 +94,7 @@ public class ConfigFileReader {
 			if(key.equals("}"))
 				break;
 			
-			if(!line.hasNext() || !line.next().equals("=") || !line.hasNext())
+			if(!line.hasNext() || !line.next().equals("="))
 				throw new InvalidConfigFileException(URI + "ERROR LINE " + (this.currentLine) + 
 						": is not a valid config file.");
 			
