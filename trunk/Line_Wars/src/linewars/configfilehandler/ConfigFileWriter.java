@@ -55,16 +55,16 @@ public class ConfigFileWriter {
 			out.write(new String("false").getBytes());
 		out.write(new String("\n\n").getBytes());
 		out.flush();
-		writeRecurse(toWrite);
+		writeRecurse(toWrite, "");
 	}
 	
-	private void writeRecurse(ConfigData toWrite) throws IOException {
+	private void writeRecurse(ConfigData toWrite, String prefix) throws IOException {
 		List<ParserKeys> keys = toWrite.getDefinedKeys();
 		for(ParserKeys key : keys)
 		{
 			for(String value : toWrite.getStringList(key))
 			{
-				out.write(new String(key + " = " + value + "\n\n").getBytes());
+				out.write(new String(prefix + key + " = " + value + "\n").getBytes());
 				out.flush();
 			}
 			
@@ -72,8 +72,8 @@ public class ConfigFileWriter {
 			{
 				out.write(new String(key + " = {\n").getBytes());
 				out.flush();
-				writeRecurse(value);
-				out.write(new String("}\n\n").getBytes());
+				writeRecurse(value, prefix + "\t");
+				out.write(new String("}\n").getBytes());
 				out.flush();
 			}
 		}

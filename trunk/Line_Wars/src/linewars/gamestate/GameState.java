@@ -113,6 +113,8 @@ public strictfp class GameState
 			return getProjectiles();
 		case BUILDING:
 			return getBuildings();
+		case LANEBORDER:
+			return getLaneBorders();
 		default:
 			return new ArrayList<MapItem>(0);
 		}
@@ -162,6 +164,14 @@ public strictfp class GameState
 		}
 		
 		return projectiles;
+	}
+	
+	public List<LaneBorder> getLaneBorders()
+	{
+		List<LaneBorder> borders = new ArrayList<LaneBorder>();
+		for(Lane l : map.getLanes())
+			borders.addAll(l.getLaneBorders());
+		return borders;
 	}
 	
 	public List<CommandCenter> getCommandCenters()

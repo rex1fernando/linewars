@@ -25,7 +25,7 @@ import linewars.gamestate.mapItems.MapItemState;
 
 public class MapItemLayer implements ILayer
 {
-	public enum MapItemType {UNIT, PROJECTILE, BUILDING}
+	public enum MapItemType {UNIT, PROJECTILE, BUILDING, LANEBORDER}
 	
 	private Display display;
 	

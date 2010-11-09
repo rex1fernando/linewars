@@ -53,7 +53,6 @@ public strictfp class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
-//	private Wave debugWave = null;
 	
 	public Lane(Node n1, Node n2)
 	{
@@ -736,14 +735,6 @@ public strictfp class Lane
 	
 	public void addGate(Node n, Player p)
 	{
-//		if(debugWave == null)
-//		{
-//			//TODO for debugging
-//			debugWave = new Wave(this);
-//			for(LaneBorder lb : borders)
-//				debugWave.addUnit(p.getGateDefinition().createGate(lb.getTransformation()));
-//			waves.add(debugWave);
-//		}
 		
 		///*
 		Transformation t = null;
@@ -829,5 +820,9 @@ public strictfp class Lane
 		if(!projectiles.equals(other.projectiles)) return false;
 		//TODO test more here?
 		return true;
+	}
+	
+	public List<LaneBorder> getLaneBorders() {
+		return borders;
 	}
 }

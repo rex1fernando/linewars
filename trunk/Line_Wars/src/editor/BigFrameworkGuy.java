@@ -290,7 +290,7 @@ public class BigFrameworkGuy
 		{
 			String s = (String) JOptionPane
 					.showInputDialog(frame, "Name:", "Name Dialog",
-							JOptionPane.PLAIN_MESSAGE, null, null, "ham");
+							JOptionPane.PLAIN_MESSAGE, null, null, "");
 			if(s == null || s.length() <= 0)
 				return;
 			
