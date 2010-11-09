@@ -46,6 +46,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	private JButton setBackground;
 	private JButton clearBackground;
 	private JButton setSpeedRange;
+	private JButton removeSelected;
 	private JPanel scrollPanel;
 	private JScrollPane scrollPane;
 	private JPanel leftPanel;
@@ -89,6 +90,9 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		resetSpeed = new JButton("Reset Background Speed");
 		resetSpeed.addActionListener(this);
 		
+		removeSelected = new JButton("Remove Selected");
+		removeSelected.addActionListener(this);
+		
 		JPanel buttonLeftPanel = new JPanel();
 		buttonLeftPanel.setLayout(new BoxLayout(buttonLeftPanel, BoxLayout.Y_AXIS));
 		
@@ -98,6 +102,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		buttonLeftPanel.add(clearBackground);
 		buttonLeftPanel.add(setSpeedRange);
 		buttonLeftPanel.add(resetSpeed);
+		buttonLeftPanel.add(removeSelected);
 		buttonPanel.add(buttonLeftPanel);
 		buttonPanel.add(ap);
 		buttonPanel.add(speedSlider);
@@ -148,6 +153,9 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			g.setColor(Color.black);
 			g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+			
+			if(current > list.size())
+				current = 0;
 			
 			//draw the background if there is one
 			if(background != null)
@@ -299,6 +307,19 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 			speedSlider.setMaximum(i);
 			speedSlider.setMinimum(-i);
 		}
+		else if(arg0.getSource().equals(removeSelected))
+		{
+			for(int i = 0; i < list.size();)
+			{
+				if(list.get(i).getChecked())
+				{
+					scrollPanel.remove(list.get(i));
+					list.remove(i);
+				}
+				else
+					i++;
+			}
+		}
 		
 		mainPanel.validate();
 		mainPanel.updateUI();
@@ -338,7 +359,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         	Frame f;
 			try {
 				f = new Frame(new File(new File(animationFolder), names.get(i)).getAbsolutePath());
-			} catch (IOException e) {
+			} catch (Exception e) {
 				if(force)
 					continue;
 				else
@@ -366,11 +387,14 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		for(Frame f : list)
 		{
 			File to = new File(dir, new File(f.getFrame().toString()).getName());
-			try {
-				FileCopy.copy(f.getFrame().toString(), to.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
-				continue;
+			if(!to.exists())
+			{
+				try {
+					FileCopy.copy(f.getFrame().toString(), to.getAbsolutePath());
+				} catch (IOException e) {
+					e.printStackTrace();
+					continue;
+				}
 			}
 			
 			cd.add(ParserKeys.icon, new File(f.getFrame().toString()).getName());

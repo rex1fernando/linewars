@@ -64,5 +64,10 @@ public strictfp class CommandCenterDefinition extends BuildingDefinition {
 	public Building createBuilding(Transformation t, Node n) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void forceSubclassReloadConfigData() {
+		
+	}
 
 }

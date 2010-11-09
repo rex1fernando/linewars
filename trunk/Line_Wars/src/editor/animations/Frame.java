@@ -36,8 +36,8 @@ public class Frame extends JPanel implements ItemListener{
 		this.add(new JLabel(icon));
 		file = new JLabel(new File(filePath).getName());
 		this.add(file);
-		time = new JTextField("          200");
-		time.setColumns(20);
+		time = new JTextField("200");
+		time.setColumns(10);
 		this.add(time);
 		checkBox = new JCheckBox();
 		checkBox.setSelected(false);
