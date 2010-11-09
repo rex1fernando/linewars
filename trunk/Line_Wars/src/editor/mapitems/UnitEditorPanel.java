@@ -229,4 +229,19 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 		}
 	}
 
+	@Override
+	public boolean isValidConfig() {
+		Scanner s = new Scanner(maxHP.getText());
+		if(!s.hasNextDouble())
+			return false;
+		
+		if(combatConfig == null)
+			return false;
+		
+		if(movConfig == null)
+			return false;
+		
+		return true;
+	}
+
 }

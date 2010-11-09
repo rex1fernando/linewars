@@ -263,7 +263,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		//this is necessary since for some reason this method is called before the constructor
 		if(shapeType == null)
 			return false;

@@ -245,7 +245,7 @@ public class BigFrameworkGuy
 		public void save(ConfigurationEditor ce, String uri)
 		{
 			ConfigData cd = ce.getData();
-			boolean valid = ce.isValid();
+			boolean valid = ce.isValidConfig();
 			ParserKeys key = ce.getType();
 			
 			//if the uri is already in the list, get rid of it

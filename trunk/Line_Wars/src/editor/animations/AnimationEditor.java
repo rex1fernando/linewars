@@ -405,7 +405,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		ConfigData cd = this.getData();
 		return isValid(cd);
 	}

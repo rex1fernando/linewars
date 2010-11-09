@@ -172,4 +172,12 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		
 	}
 
+	@Override
+	public boolean isValidConfig() {
+		for(ParserKeys key : icons)
+			if(panels.get(key).getURI().equals(""))
+				return false;
+		return true;
+	}
+
 }

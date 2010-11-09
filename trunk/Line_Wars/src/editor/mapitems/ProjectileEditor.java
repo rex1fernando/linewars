@@ -174,4 +174,17 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 		this.updateUI();
 	}
 
+
+	@Override
+	public boolean isValidConfig() {
+		Scanner s = new Scanner(velocity.getText());
+		if(!s.hasNextDouble())
+			return false;
+		
+		if(impactData == null)
+			return false;
+		
+		return true;
+	}
+
 }

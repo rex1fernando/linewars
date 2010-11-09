@@ -287,4 +287,10 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			JOptionPane.showMessageDialog(frame, "File loaded successfuly!", "success", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
+
+	@Override
+	public boolean isValidConfig() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

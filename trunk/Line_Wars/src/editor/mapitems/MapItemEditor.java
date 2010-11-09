@@ -305,14 +305,14 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		if(name == null)
 			return false;
 		
 		//if the type is specified, then use the parser from that
 		if(mapItemTypeInfo != null)
 		{
-			if(!mapItemTypeInfo.isValid())
+			if(!mapItemTypeInfo.isValidConfig())
 				return false;
 		}
 		else

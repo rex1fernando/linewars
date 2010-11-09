@@ -7,6 +7,7 @@ import linewars.configfilehandler.ParserKeys;
 
 import editor.ConfigurationEditor;
 
+//TODO allow editing gate's hp
 public class GateEditor extends JPanel implements ConfigurationEditor {
 
 	/**
@@ -44,6 +45,11 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 	@Override
 	public JPanel getPanel() {
 		return this;
+	}
+	
+	@Override
+	public boolean isValidConfig() {
+		return true;
 	}
 
 }

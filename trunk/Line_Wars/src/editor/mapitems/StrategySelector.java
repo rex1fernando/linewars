@@ -127,7 +127,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 			frame.dispose();
 		else if(arg0.getSource().equals(done))
 		{
-			if(!this.isValidData())
+			if(!this.isValidConfig())
 			{
 				JOptionPane.showMessageDialog(frame,
 					    "The data is invalid.",
@@ -142,7 +142,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		}
 	}
 	
-	public boolean isValidData()
+	public boolean isValidConfig()
 	{
 		if(type == null)
 			return false;
@@ -212,7 +212,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	public ConfigData getData() {
 		ConfigData cd = new ConfigData();
 		
-		if(!isValidData())
+		if(!isValidConfig())
 			return cd;
 		
 		cd.set(ParserKeys.type, type.getSelectedURI());

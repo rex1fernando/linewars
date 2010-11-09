@@ -40,7 +40,7 @@ public interface ConfigurationEditor {
 	 * @return	true if the data in the editor is valid for the configData being specified,
 	 * false otherwise
 	 */
-	public boolean isValid();
+	public boolean isValidConfig();
 	
 	/**
 	 * 

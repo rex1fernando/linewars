@@ -70,6 +70,11 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	
 	private void setData(ConfigData cd, boolean force)
 	{
+		if(force)
+			icons.forceSetData(cd);
+		else
+			icons.setData(cd);
+		
 		try {
 			Double d = cd.getNumber(ParserKeys.cost);
 			if(d != null)
@@ -105,11 +110,12 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	public void reset() {
 		cost.setText("");
 		buildTime.setText("");
+		icons.reset();
 	}
 
 	@Override
 	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
+		ConfigData cd = icons.getData();
 		
 		Scanner s = new Scanner(cost.getText());
 		if(s.hasNextDouble())
@@ -135,8 +141,11 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		if(cost == null)
+			return false;
+		
+		if(!icons.isValidConfig())
 			return false;
 		
 		Scanner s = new Scanner(cost.getText());

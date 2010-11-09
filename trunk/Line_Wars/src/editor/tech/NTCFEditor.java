@@ -106,7 +106,7 @@ public class NTCFEditor implements ConfigurationEditor, ActionListener, FocusLis
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		return isValid(NTCFData);
 	}
 	

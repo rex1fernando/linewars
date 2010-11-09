@@ -181,7 +181,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		if(selectedAbility < 0)
 			return false;
 		if(uriSelector != null && (uriSelector.getSelectedURI() == null || uriSelector.getSelectedURI().equals("")))

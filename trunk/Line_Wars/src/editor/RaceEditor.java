@@ -64,7 +64,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public boolean isValid()
+	public boolean isValidConfig()
 	{
 		return isValid(createConfigData(racePanel));
 	}
