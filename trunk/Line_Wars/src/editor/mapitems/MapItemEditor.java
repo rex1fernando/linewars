@@ -195,8 +195,13 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		if(mapItemTypeInfo != null)
 			this.remove(mapItemTypeInfo.getPanel());
 		//now we need to figure out what type of map item this is
-		//first check to see if its a unit, only units have maxHP defined
-		if(cd.getDefinedKeys().contains(ParserKeys.maxHP)) //we're a unit!
+		//first check to see if its a gate, only gates have coefficients :) hi taylor!
+		if(cd.getDefinedKeys().contains(ParserKeys.coefficients))
+		{
+			mapItemTypeInfo = new GateEditor();
+			mapItemType.setSelectedURI("Gate");
+		}
+		else if(cd.getDefinedKeys().contains(ParserKeys.maxHP)) //we're a unit!
 		{
 			mapItemTypeInfo = new UnitEditorPanel();
 			mapItemType.setSelectedURI("Unit");
@@ -210,11 +215,6 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		{
 			mapItemTypeInfo = new ProjectileEditor();
 			mapItemType.setSelectedURI("Projectile");
-		}
-		else if(cd.getDefinedKeys().contains(ParserKeys.coefficients))
-		{
-			mapItemTypeInfo = new GateEditor();
-			mapItemType.setSelectedURI("Gate");
 		}
 		else if(force)
 		{
