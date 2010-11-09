@@ -114,6 +114,27 @@ public strictfp class Node {
 		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
 	
+	public ConfigData getData()
+	{
+		ConfigData data = new ConfigData();
+		
+		for(Lane l : attachedLanes)
+		{
+			data.set(ParserKeys.lanes, l.getName());
+		}
+		
+		for(BuildingSpot s : buildingSpots)
+		{
+			data.set(ParserKeys.buildingSpots, s.getData());
+		}
+		
+		data.set(ParserKeys.commandCenterTransformation, cCenterTransform.getData());
+		data.set(ParserKeys.shape, shape.getData());
+		data.set(ParserKeys.isStartNode, Boolean.toString(isStartNode));
+		
+		return data;
+	}
+	
 	public Player getOwner()
 	{
 		return owner;
@@ -143,6 +164,11 @@ public strictfp class Node {
 		}
 		
 		return ret.toArray(new Building[0]);
+	}
+	
+	public void addAttachedLane(Lane l)
+	{
+		attachedLanes.add(l);
 	}
 	
 	public Lane[] getAttachedLanes()

@@ -23,8 +23,6 @@ import linewars.configfilehandler.ParserKeys;
 
 public class MapEditor extends JPanel implements ConfigurationEditor
 {
-	private ConfigData data;
-	
 	private MapPanel map;
 	
 	private JCheckBox selectNodes;
@@ -156,14 +154,13 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	public void reset()
 	{
 		//TODO reset the MapPanel
-		data = new ConfigData();
 	}
 
 	@Override
 	public ConfigData getData()
 	{
 		//TODO get the data from the MapPanel
-		return data;
+		return map.getData();
 	}
 
 	@Override

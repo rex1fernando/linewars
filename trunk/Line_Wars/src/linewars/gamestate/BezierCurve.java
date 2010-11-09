@@ -87,6 +87,26 @@ public strictfp class BezierCurve {
 		return p3;
 	}
 	
+	public void setP0(Position p)
+	{
+		p0 = p;
+	}
+	
+	public void setP1(Position p)
+	{
+		p1 = p;
+	}
+	
+	public void setP2(Position p)
+	{
+		p2 = p;
+	}
+	
+	public void setP3(Position p)
+	{
+		p3 = p;
+	}
+	
 	public double getLength()
 	{
 		return length;

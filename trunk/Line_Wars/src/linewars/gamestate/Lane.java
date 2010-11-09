@@ -53,6 +53,28 @@ public strictfp class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
+	public Lane(Node n1, Node n2)
+	{
+		width = 100;
+		name = "lane" + NEXT_UID++;
+		nodes = new ArrayList<Node>();
+		nodes.add(n1);
+		nodes.add(n2);
+		
+		Position n1Pos = n1.getTransformation().getPosition();
+		Position n2Pos = n2.getTransformation().getPosition();
+		
+		//calculate p0
+		Position pointingVec = n2Pos.subtract(n1Pos).normalize();
+		Position p0 = pointingVec.scale(n1.getBoundingCircle().getRadius()).add(n1Pos);
+		
+		//calculate p3
+		pointingVec = pointingVec.scale(-1);
+		Position p3 = pointingVec.scale(n2.getBoundingCircle().getRadius()).add(n2Pos);
+		
+		//set the curve
+		curve = BezierCurve.buildCurve(p0, p3);
+	}
 		
 	public Lane(ConfigData parser)
 	{
@@ -103,6 +125,36 @@ public strictfp class Lane
 			}
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
+	}
+	
+	public ConfigData getData()
+	{
+		ConfigData data = new ConfigData();
+		
+		ConfigData p0 = new ConfigData();
+		p0.add(ParserKeys.x, curve.getP0().getX());
+		p0.add(ParserKeys.y, curve.getP0().getY());
+		data.add(ParserKeys.controlPoint, p0);
+		
+		ConfigData p1 = new ConfigData();
+		p1.add(ParserKeys.x, curve.getP1().getX());
+		p1.add(ParserKeys.y, curve.getP1().getY());
+		data.add(ParserKeys.controlPoint, p1);
+		
+		ConfigData p2 = new ConfigData();
+		p2.add(ParserKeys.x, curve.getP2().getX());
+		p2.add(ParserKeys.y, curve.getP2().getY());
+		data.add(ParserKeys.controlPoint, p2);
+		
+		ConfigData p3 = new ConfigData();
+		p3.add(ParserKeys.x, curve.getP3().getX());
+		p3.add(ParserKeys.y, curve.getP3().getY());
+		data.add(ParserKeys.controlPoint, p3);
+		
+		data.add(ParserKeys.width, width);
+		data.add(ParserKeys.name, name);
+		
+		return data;
 	}
 
 	/**

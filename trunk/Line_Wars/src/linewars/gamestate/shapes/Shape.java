@@ -171,6 +171,12 @@ public strictfp abstract class Shape {
 	}
 	
 	/**
+	 * Returns a ConfigData object that contains all the information needed to reconstruct this shape.
+	 * @return
+	 */
+	public abstract ConfigData getData();
+	
+	/**
 	 * Returns a Circle which bounds the Shape, such that anything which intersects the Shape also
 	 * intersects the Circle and any point which is contained in the Shape is also
 	 * contained in the Circle.

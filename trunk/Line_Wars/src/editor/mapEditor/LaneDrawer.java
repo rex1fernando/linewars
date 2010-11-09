@@ -1,12 +1,16 @@
 package editor.mapEditor;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
+import linewars.gamestate.BezierCurve;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.Circle;
 
 /**
  * This class handles drawing a Lane between two Nodes. It will draw the Lane in
@@ -40,14 +44,14 @@ public class LaneDrawer
 	 * @param g
 	 *            The Graphics to draw to.
 	 */
-	public void draw(Graphics g, Lane lane, double scale)
+	public void draw(Graphics g, Lane lane, Position mouse, double scale)
 	{
 		Node[] nodes = lane.getNodes();
 
 		Position laneStart = lane.getPosition(0).getPosition();		
 		Position laneEnd = lane.getPosition(1.0).getPosition();				
 
-		g.setColor(Color.red);
+		g.setColor(new Color(255, 0, 0, 80));
 		
 		//initialize the draw positions
 		Position beforePos = nodes[0].getTransformation().getPosition();
@@ -87,6 +91,38 @@ public class LaneDrawer
 		
 		//draw the last segment it needs to end at the node
 		drawSegment(g, lane, endPos, laneEnd, afterPos, afterPos, scale);
+		
+		//get the control points
+		BezierCurve curve = lane.getCurve();
+		Position gameP1 = curve.getP1();
+		Position gameP2 = curve.getP2();
+		Position screenP0 = panel.toScreenCoord(curve.getP0());
+		Position screenP1 = panel.toScreenCoord(gameP1);
+		Position screenP2 = panel.toScreenCoord(gameP2);
+		Position screenP3 = panel.toScreenCoord(curve.getP3());
+		Circle circP1 = new Circle(new Transformation(gameP1, 0), 5 / scale);
+		Circle circP2 = new Circle(new Transformation(gameP2, 0), 5 / scale);
+		
+		//draw lines connecting p0 to p1 and p2 to p3
+		g.setColor(Color.orange);
+		((Graphics2D)g).setStroke(new BasicStroke(5));
+		g.drawLine((int)screenP0.getX(), (int)screenP0.getY(), (int)screenP1.getX(), (int)screenP1.getY());
+		g.drawLine((int)screenP2.getX(), (int)screenP2.getY(), (int)screenP3.getX(), (int)screenP3.getY());
+		
+		//set the color for the control points
+		g.setColor(Color.pink);
+		
+		//draw control point 1
+		if(circP1.positionIsInShape(mouse))
+			g.fillOval((int)screenP1.getX() - 10, (int)screenP1.getY() - 10, 20, 20);
+		else
+			g.fillOval((int)screenP1.getX() - 5, (int)screenP1.getY() - 5, 10, 10);
+
+		//draw control point 2
+		if(circP2.positionIsInShape(mouse))
+			g.fillOval((int)screenP2.getX() - 10, (int)screenP2.getY() - 10, 20, 20);
+		else
+			g.fillOval((int)screenP2.getX() - 5, (int)screenP2.getY() - 5, 10, 10);
 	}
 
 	/**

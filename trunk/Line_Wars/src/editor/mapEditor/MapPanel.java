@@ -37,6 +37,11 @@ public class MapPanel extends JPanel
 	private double zoomLevel;
 	
 	private double lastDrawTime;
+	
+	private boolean isValid;
+	private String mapURI;
+	private double mapWidth;
+	private double mapHeight;
 
 	private Position mousePosition;
 	private Position lastClickPosition;
@@ -54,12 +59,17 @@ public class MapPanel extends JPanel
 	private ArrayList<BuildingSpot> commandCenters;
 	
 	private boolean moving;
+	private boolean moveP1;
+	private boolean moveP2;
 	private boolean resizeW;
 	private boolean resizeH;
 	private boolean rotating;
-	private BezierCurve movingCurve;
+	
+	private Lane movingLane;
 	private Node movingNode;
 	private BuildingSpot movingSpot;
+	
+	private Node selectedNode;
 	
 	private boolean lanesVisible;
 	private boolean nodesVisible;
@@ -83,6 +93,10 @@ public class MapPanel extends JPanel
 		mapSize = new Dimension(0, 0);
 		viewport = new Rectangle2D.Double(0, 0, 0, 0);
 		
+		mapURI = null;
+		mapWidth = 0;
+		mapHeight = 0;
+		
 		mapDrawer = new MapDrawer(this);
 		laneDrawer = new LaneDrawer(this);
 		nodeDrawer = new NodeDrawer(this);
@@ -94,9 +108,17 @@ public class MapPanel extends JPanel
 		commandCenters = new ArrayList<BuildingSpot>();
 		
 		moving = false;
+		moveP1 = false;
+		moveP2 = false;
 		resizeW = false;
 		resizeH = false;
 		rotating = false;
+		
+		movingLane = null;
+		movingNode = null;
+		movingSpot = null;
+		
+		selectedNode = null;
 		
 		lanesVisible = true;
 		nodesVisible = true;
@@ -149,6 +171,28 @@ public class MapPanel extends JPanel
 		}
 	}
 	
+	public ConfigData getData()
+	{
+		ConfigData data = new ConfigData();
+		
+		data.set(ParserKeys.valid, Boolean.toString(isValid));
+		data.set(ParserKeys.icon, mapURI);
+		data.set(ParserKeys.imageWidth, mapWidth);
+		data.set(ParserKeys.imageHeight, mapHeight);
+		
+		for(Lane l : lanes)
+		{
+			data.add(ParserKeys.lanes, l.getData());
+		}
+		
+		for(Node n : nodes)
+		{
+			data.add(ParserKeys.nodes, n.getData());
+		}
+		
+		return data;
+	}
+	
 	public void setNodesVisible(boolean b)
 	{
 		nodesVisible = b;
@@ -191,11 +235,14 @@ public class MapPanel extends JPanel
 	
 	public void setMapImage(String mapURI)
 	{
+		this.mapURI = mapURI;
 		mapDrawer.setMap(mapURI);
 	}
 	
 	public void setMapSize(double width, double height)
 	{
+		mapWidth = width;
+		mapHeight = height;
 		mapSize.setSize(width, height);
 		viewport.setRect(0, 0, width, height);
 	}
@@ -237,7 +284,7 @@ public class MapPanel extends JPanel
 		{
 			for(Lane l : lanes)
 			{
-				laneDrawer.draw(g, l, scale);
+				laneDrawer.draw(g, l, toGameCoord(mousePosition), scale);
 			}
 		}	
 		
@@ -368,9 +415,38 @@ public class MapPanel extends JPanel
 		{
 			moveSpot(change);
 		}
-		else if(movingCurve != null)
+		else if(movingLane != null)
 		{
+			moveLane(change);
+		}
+	}
+	
+	private void moveLane(Position change)
+	{
+		BezierCurve curve = movingLane.getCurve();
+		if(moveP1)
+		{
+			Position newP1 = curve.getP1().add(change);
 			
+			Node node = movingLane.getNodes()[0];
+			Position nodePos = node.getTransformation().getPosition();
+			Position pointingVec = newP1.subtract(nodePos).normalize();
+			Position newP0 = pointingVec.scale(node.getBoundingCircle().getRadius()).add(nodePos);
+			
+			curve.setP0(newP0);
+			curve.setP1(newP1);
+		}
+		else if(moveP2)
+		{
+			Position newP2 = curve.getP2().add(change);
+			
+			Node node = movingLane.getNodes()[1];
+			Position nodePos = node.getTransformation().getPosition();
+			Position pointingVec = newP2.subtract(nodePos).normalize();
+			Position newP3 = pointingVec.scale(node.getBoundingCircle().getRadius()).add(nodePos);
+			
+			curve.setP2(newP2);
+			curve.setP3(newP3);
 		}
 	}
 
@@ -440,6 +516,45 @@ public class MapPanel extends JPanel
 			}
 			
 			movingSpot.setDim((int)width, (int)height);
+		}
+	}
+	
+	private void selectLane(Position p)
+	{
+		double scale = getWidth() / viewport.getWidth();
+		for(Lane l : lanes)
+		{
+			BezierCurve curve = l.getCurve();
+			Position p1 = curve.getP1();
+			Position p2 = curve.getP2();
+			Circle c1 = new Circle(new Transformation(p1, 0), 5 / scale);
+			Circle c2 = new Circle(new Transformation(p2, 0), 5 / scale);
+			
+			if(c1.positionIsInShape(p))
+			{
+				movingLane = l;
+				moveP1 = true;
+				break;
+			}
+			else if(c2.positionIsInShape(p))
+			{
+				movingLane = l;
+				moveP2 = true;
+				break;
+			}
+		}
+		
+		if(!moveP1 && !moveP2)
+		{
+			for(Node n : nodes)
+			{
+				Circle c = n.getBoundingCircle();
+				if(c.positionIsInShape(p))
+				{
+					selectedNode = n;
+					break;
+				}
+			}
 		}
 	}
 
@@ -550,6 +665,28 @@ public class MapPanel extends JPanel
 			}
 		}
 	}
+	
+	private void createLane(Position p)
+	{
+		Node otherNode = null;
+		for(Node n : nodes)
+		{
+			Circle c = n.getBoundingCircle();
+			if(c.positionIsInShape(p))
+			{
+				otherNode = n;
+				break;
+			}
+		}
+		
+		if(otherNode != null)
+		{
+			Lane l = new Lane(selectedNode, otherNode);
+			lanes.add(l);
+			selectedNode.addAttachedLane(l);
+			otherNode.addAttachedLane(l);
+		}
+	}
 
 	@Override
 	public void update(Graphics g)
@@ -566,6 +703,7 @@ public class MapPanel extends JPanel
 			
 			if(createLane)
 			{
+				selectLane(p);
 			}
 			else if(createNode)
 			{
@@ -596,14 +734,22 @@ public class MapPanel extends JPanel
 		{
 			Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 			lastClickPosition = toGameCoord(p);
+			
+			if(selectedNode != null)
+				createLane(toGameCoord(p));
 
 			moving = false;
+			moveP1 = false;
+			moveP2 = false;
 			resizeW = false;
 			resizeH = false;
 			rotating = false;
+			
 			movingNode = null;
 			movingSpot = null;
-			movingCurve = null;
+			movingLane = null;
+			
+			selectedNode = null;
 		}
 
 		@Override
