@@ -103,4 +103,10 @@ public strictfp class ShapeAggregate extends Shape {
 		}
 		return false;
 	}
+
+	@Override
+	public ConfigData getData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

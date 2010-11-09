@@ -134,4 +134,10 @@ public strictfp class Rectangle extends Shape {
 		if(!position.equals(otherRect.position)) return false;
 		return true;
 	}
+
+	@Override
+	public ConfigData getData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -88,4 +88,10 @@ public strictfp class Circle extends Shape {
 		if(!(otherCircle.radius == radius)) return false;
 		return true;
 	}
+
+	@Override
+	public ConfigData getData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
