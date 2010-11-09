@@ -12,14 +12,6 @@ import java.io.IOException;
  *
  */
 public class FileCopy {
-  public static void main(String[] args) {
-    try {
-      copy("fromFile.txt", "toFile.txt");
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-    }
-  }
-
   public static void copy(String fromFileName, String toFileName)
       throws IOException {
     File fromFile = new File(fromFileName);

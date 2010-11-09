@@ -1,7 +1,6 @@
 package editor.mapEditor;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
@@ -11,6 +10,9 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+
+import linewars.display.ImageDrawer;
 
 public class MapDrawer
 {
@@ -28,16 +30,16 @@ public class MapDrawer
 	
 	public void setMap(String mapURI)
 	{
-		String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
+		//String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
 
 		try
 		{
-			map = ImageIO.read(new URL(absURI));
+			map = ImageDrawer.getInstance().loadImage(mapURI);
+			//map = ImageIO.read(new URL(absURI));
 		}
 		catch (IOException e)
 		{
-			//TODO spawn a popup notificatoin
-			//throw new IOException("Unable to load " + mapURI + " from the game resources.");
+			JOptionPane.showMessageDialog(null, "Unable to load " + mapURI + " from the game resources!", "ERROR", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}

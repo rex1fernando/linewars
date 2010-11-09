@@ -1,20 +1,24 @@
 package editor.mapEditor;
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -22,6 +26,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import editor.ConfigurationEditor;
+import editor.animations.FileCopy;
 
 public class MapEditor extends JPanel implements ConfigurationEditor
 {
@@ -129,6 +134,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.gridheight = GridBagConstraints.REMAINDER;
 		JButton setMap = new JButton("Set Map");
+		setMap.addActionListener(new SetMapListener());
 		layout.setConstraints(setMap, c);
 		add(setMap);
 	}
@@ -236,36 +242,49 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		}
 	}
 	
-	private class SetMapListener implements MouseListener
+	private class SetMapListener implements ActionListener
 	{
 		@Override
-		public void mouseClicked(MouseEvent e)
+		public void actionPerformed(ActionEvent e)
 		{
-			FileDialog dialog = new FileDialog(frame, "map");
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e)
-		{
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e)
-		{
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e)
-		{
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e)
-		{
-			// TODO Auto-generated method stub
+			String mapURI = null;
+			File mapFile = null;
+			boolean fileSelected = false;
+			while(!fileSelected)
+			{
+				FileDialog dialog = new FileDialog(frame, "map");
+				dialog.setVisible(true);
+				
+				String directory = dialog.getDirectory();
+				mapURI = dialog.getFile();
+				
+				if(mapURI == null)
+					return;
+				
+				mapFile = new File(directory + mapURI);
+				if(!mapFile.exists())
+					JOptionPane.showMessageDialog(null, "File could not be loaded!", "ERROR", JOptionPane.ERROR_MESSAGE);
+				else
+					fileSelected = true;
+			}
+			
+			String relativePath = "resources" + File.separator + "maps" + File.separator + mapURI;
+			String moveTo = System.getProperty("user.dir") + File.separator + relativePath;
+			if(!mapFile.getAbsoluteFile().equals(moveTo))
+			{
+				try
+				{
+					FileCopy.copy(mapFile.getAbsolutePath(), moveTo);
+				}
+				catch (IOException ex)
+				{
+					JOptionPane.showMessageDialog(frame, "File could not be copied!", "ERROR", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+			
+			map.setMapImage("/resources/maps/" + mapURI);
+			JOptionPane.showMessageDialog(frame, "File loaded successfuly!", "success", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 }
