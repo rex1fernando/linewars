@@ -1,5 +1,6 @@
 package editor.mapEditor;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -35,9 +36,10 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JRadioButton createBuilding;
 	private JRadioButton createCommandCenter;
 
-	public MapEditor(int width, int height)
+	public MapEditor()
 	{
 		super(null);
+		setPreferredSize(new Dimension(768, 512));
 
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -47,7 +49,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE;
 		c.gridheight = GridBagConstraints.RELATIVE;
-		map = new MapPanel(width, height);
+		map = new MapPanel(768, 512);
 		layout.setConstraints(map, c);
 		add(map);
 		

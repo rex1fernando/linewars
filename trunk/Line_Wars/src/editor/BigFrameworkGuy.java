@@ -10,6 +10,7 @@ import javax.swing.*;
 
 import editor.abilities.AbilityEditor;
 import editor.animations.AnimationEditor;
+import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
 
 
@@ -41,7 +42,7 @@ public class BigFrameworkGuy
 		AnimationEditor toStart = new AnimationEditor(imagesFolder); 
 		
 		Dimension prefferedSize = new Dimension(0, 0);
-		String[] editors = {"Map Item", "Ability", "Animation"};
+		String[] editors = {"Map Item", "Ability", "Animation", "Map"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -51,6 +52,8 @@ public class BigFrameworkGuy
 				ce = new AbilityEditor(this);
 			else if(e.equals("Animation"))
 				ce = toStart;
+			else if(e.equals("Map"))
+				ce = new MapEditor();
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
 			this.editors.add(ce);
