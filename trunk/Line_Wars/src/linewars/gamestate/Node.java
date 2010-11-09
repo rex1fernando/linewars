@@ -13,6 +13,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
 
@@ -408,7 +409,7 @@ public strictfp class Node {
 		invader = p;
 		occupationStartTime = (long) (gameState.getTime()*1000);
 		for(Lane l : attachedLanes)
-			l.removeGate(this);
+			l.getGate(this).setState(MapItemState.Dead);
 	}
 	
 	public int getID()

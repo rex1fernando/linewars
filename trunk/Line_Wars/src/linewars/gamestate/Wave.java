@@ -170,10 +170,14 @@ public strictfp class Wave {
 					Node target = owner.getNodes()[0];
 					if(target.equals(origin))
 						target = owner.getNodes()[1];
-					if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
-						target.setInvader(u.getOwner());
-					target.addUnit(u);
-					units.remove(i);
+					//don't allow invasion of the node if the gate is still up
+					if(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead))
+					{
+						if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
+							target.setInvader(u.getOwner());
+						target.addUnit(u);
+						units.remove(i);
+					}
 					continue;
 				}
 				else

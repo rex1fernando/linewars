@@ -53,6 +53,8 @@ public strictfp class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
 	
+//	private Wave debugWave = null;
+	
 	public Lane(Node n1, Node n2)
 	{
 		width = 100;
@@ -111,7 +113,7 @@ public strictfp class Lane
 		try {
 			LaneBorderDefinition lbd = new LaneBorderDefinition(gameState, size);
 			double dis = this.getWidth()/2 + size;
-			for(double i = 0; i < 1; i += LANE_BORDER_RESOLUTION)
+			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
 			{
 				Transformation t = this.getPosition(i);
 				Transformation t1 = new Transformation(t.getPosition().subtract(
@@ -123,8 +125,35 @@ public strictfp class Lane
 						dis*Math.cos(t.getRotation())), 0);
 				borders.add(lbd.createLaneBorder(t2));
 			}
+			
+			//now we need to add lane borders at the end of the lanes
+			Transformation t0 = this.getPosition(0);
+			//move t0 back by size
+			t0 = new Transformation(t0.getPosition().subtract(
+					size*Math.cos(t0.getRotation()), 
+					size*Math.sin(t0.getRotation())), t0.getRotation());
+//			now do the same for the other end of the lane
+			Transformation t1 = this.getPosition(1);
+			t1 = new Transformation(t1.getPosition().add(
+					size*Math.cos(t1.getRotation()), 
+					size*Math.sin(t1.getRotation())), t1.getRotation());
+			
+			for(double i = this.getWidth()/2 + size; i >= -(this.getWidth()/2 + size); i -= size)
+			{
+				Transformation t0Prime = new Transformation(t0.getPosition().add(
+						i*Math.sin(t0.getRotation()), 
+						i*Math.cos(t0.getRotation())), t0.getRotation());
+				borders.add(lbd.createLaneBorder(t0Prime));
+				Transformation t1Prime = new Transformation(t1.getPosition().add(
+						i*Math.sin(t1.getRotation()), 
+						i*Math.cos(t1.getRotation())), t1.getRotation());
+				borders.add(lbd.createLaneBorder(t1Prime));
+			}
+			
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
+		
+		
 	}
 	
 	public ConfigData getData()
@@ -707,6 +736,15 @@ public strictfp class Lane
 	
 	public void addGate(Node n, Player p)
 	{
+//		if(debugWave == null)
+//		{
+//			//TODO for debugging
+//			debugWave = new Wave(this);
+//			for(LaneBorder lb : borders)
+//				debugWave.addUnit(p.getGateDefinition().createGate(lb.getTransformation()));
+//			waves.add(debugWave);
+//		}
+		
 		///*
 		Transformation t = null;
 		if (n.getTransformation().getPosition().distanceSquared(

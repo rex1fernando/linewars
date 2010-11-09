@@ -91,7 +91,11 @@ public strictfp class Circle extends Shape {
 
 	@Override
 	public ConfigData getData() {
-		// TODO Auto-generated method stub
-		return null;
+		ConfigData cd = new ConfigData();
+		cd.set(ParserKeys.radius, radius);
+		cd.set(ParserKeys.rotation, position.getRotation());
+		cd.set(ParserKeys.x, position.getPosition().getX());
+		cd.set(ParserKeys.y, position.getPosition().getY());
+		return cd;
 	}
 }
