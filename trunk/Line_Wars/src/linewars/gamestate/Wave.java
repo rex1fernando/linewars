@@ -160,11 +160,26 @@ public strictfp class Wave {
 			ArrayList<Transformation> closestPoints = new ArrayList<Transformation>();
 			
 			//go through each unit and see how far it's going to go
-			for(Unit u : units)
+			for(int i = 0; i < units.size();)
 			{
-				//TODO some way of knowing we're at the node
-				//TODO getPosition needs to return the angle in the direction of someone going from 0 -> 1, not the other way
-				Transformation t = owner.getPosition(owner.getClosestPointRatio(u.getPosition()));
+				Unit u = units.get(i);
+				double pos = owner.getClosestPointRatio(u.getPosition());
+				//check to see if we've made it to the node we're going for
+				if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01))
+				{
+					Node target = owner.getNodes()[0];
+					if(target.equals(origin))
+						target = owner.getNodes()[1];
+					if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
+						target.setInvader(u.getOwner());
+					target.addUnit(u);
+					units.remove(i);
+					continue;
+				}
+				else
+					i++;
+				
+				Transformation t = owner.getPosition(pos);
 				closestPoints.add(t);
 				double angle = t.getRotation();
 				if(dir < 0)
@@ -203,7 +218,7 @@ public strictfp class Wave {
 //		}
 //		double lowestMove = 1;
 //		if(destGate == null){
-//			return;//TODO haxed together a NPE fix here, prob still a logical error here
+//			return;// haxed together a NPE fix here, prob still a logical error here
 //		}
 //		Position gatePos = destGate.getPosition();
 //		if(opponent == null)
