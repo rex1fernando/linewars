@@ -35,7 +35,7 @@ import linewars.configfilehandler.ParserKeys;
 
 
 
-public class Window implements ActionListener, ConfigurationEditor, Runnable {
+public class AnimationEditor implements ActionListener, ConfigurationEditor, Runnable {
 
 	
 	private JPanel mainPanel; 
@@ -47,6 +47,8 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
 	private JButton clearBackground;
 	private JButton setSpeedRange;
 	private JPanel scrollPanel;
+	private JScrollPane scrollPane;
+	private JPanel leftPanel;
 	private JSlider speedSlider;
 	
 	private Sprite background = null;
@@ -56,13 +58,13 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
 	
 	private String animationFolder;
 	
-	public Window(String folderToPutImages)
+	public AnimationEditor(String folderToPutImages)
 	{
 		this.animationFolder = folderToPutImages;
 		
 		//set up the Canvas
 		canvas = new Canvas();
-		canvas.setSize(800, 600);
+		canvas.setSize(500, 500);
 		mainPanel = new JPanel();
 		
 		
@@ -100,15 +102,16 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
 		buttonPanel.add(ap);
 		buttonPanel.add(speedSlider);
 		
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(buttonPanel, BorderLayout.NORTH);
+		leftPanel = new JPanel();
+		leftPanel.setLayout(new BorderLayout());
+		leftPanel.add(buttonPanel, BorderLayout.NORTH);
 		scrollPanel = new JPanel();
-		JScrollPane scrollPane = new JScrollPane(scrollPanel);
-		panel.add(scrollPane, BorderLayout.CENTER);
+		scrollPane = new JScrollPane(scrollPanel);
+		scrollPane.setPreferredSize(new Dimension(300, 300));
+		leftPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		JSplitPane pane = new JSplitPane();
-		pane.setLeftComponent(panel);
+		pane.setLeftComponent(leftPanel);
 		pane.setRightComponent(canvas);
 		pane.setDividerLocation(500);
 		
@@ -123,8 +126,6 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
         	background = new Sprite(s.nextLine());
         }
         catch(Exception e) {}
-        
-        new Thread(this).start();
 	}
 	
 	public void run() 
@@ -229,6 +230,9 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
 	            
 	            this.newList = newList;
 	            
+	            scrollPane.validate();
+	            scrollPane.updateUI();
+	            
 	            
 	            try {
 					FileWriter fWriter = new FileWriter("lastDirectory.txt");
@@ -295,6 +299,9 @@ public class Window implements ActionListener, ConfigurationEditor, Runnable {
 			speedSlider.setMaximum(i);
 			speedSlider.setMinimum(-i);
 		}
+		
+		mainPanel.validate();
+		mainPanel.updateUI();
 	}
 	
 	public ArrayList<Frame> getFrames()

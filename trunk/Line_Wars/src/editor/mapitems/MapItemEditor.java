@@ -210,6 +210,11 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 			mapItemTypeInfo = new ProjectileEditor();
 			mapItemType.setSelectedURI("Projectile");
 		}
+		else if(cd.getDefinedKeys().contains(ParserKeys.coefficients))
+		{
+			mapItemTypeInfo = new GateEditor();
+			mapItemType.setSelectedURI("Gate");
+		}
 		else if(force)
 		{
 			mapItemTypeInfo = null;
@@ -324,7 +329,8 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		
 		//units and projectiles need dead
 		if((mapItemType.getSelectedURI().equalsIgnoreCase("Unit") 
-				|| mapItemType.getSelectedURI().equalsIgnoreCase("Projectile"))
+				|| mapItemType.getSelectedURI().equalsIgnoreCase("Projectile")
+				|| mapItemType.getSelectedURI().equalsIgnoreCase("Gate"))
 				&& !vs.contains("Dead"))
 				return false;
 		
@@ -456,7 +462,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 
 		@Override
 		public String[] getOptions() {
-			return new String[]{"Unit", "Building", "Projectile"};
+			return new String[]{"Unit", "Building", "Projectile", "Gate"};
 		}
 
 		@Override
@@ -470,6 +476,8 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 				mapItemTypeInfo = new BuildingEditor();
 			else if(uri.equalsIgnoreCase("Projectile"))
 				mapItemTypeInfo = new ProjectileEditor();
+			else if(uri.equalsIgnoreCase("Gate"))
+				mapItemTypeInfo = new GateEditor();
 			
 			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
 			MapItemEditor.this.add(mapItemTypeInfo.getPanel());

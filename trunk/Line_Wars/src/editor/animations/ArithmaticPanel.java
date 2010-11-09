@@ -20,9 +20,9 @@ public class ArithmaticPanel extends JPanel implements ActionListener {
 	private JButton selectAll;
 	private JButton deselectAll;
 	
-	private Window window;
+	private AnimationEditor window;
 	
-	public ArithmaticPanel(Window w)
+	public ArithmaticPanel(AnimationEditor w)
 	{
 		window = w;
 		

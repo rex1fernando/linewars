@@ -291,29 +291,5 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 		@Override
 		public void uriSelected(String uri) {}
 	}
-	
-	public static void main(String[] args) {
-		AbilityEditor ad = new AbilityEditor(new AbilityEditorTester());
-		JFrame frame = new JFrame("test frame");
-		frame.setContentPane(ad.getPanel());
-		frame.pack();
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-	
-	private static class AbilityEditorTester extends BigFrameworkGuy {
-		@Override
-		public String[] getUnitURIs() {
-			return new String[]{"u0", "u1", "u2"};
-		}
-		@Override
-		public String[] getTechURIs() {
-			return new String[]{"t0", "t1", "t2"};
-		}
-		@Override
-		public String[] getProjectileURIs() {
-			return new String[]{"p0", "p1", "p2"};
-		}
-	}
 
 }
