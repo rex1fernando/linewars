@@ -15,8 +15,6 @@ import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 
 public class TechEditor implements ConfigurationEditor {
-
-	private BigFrameworkGuy framework;
 	
 	private JPanel topLevel;
 	private JPanel bottomLevel;
@@ -24,10 +22,10 @@ public class TechEditor implements ConfigurationEditor {
 	private NTCFEditor ntcf;
 	private TechURISelector modifiedURIs;
 	
-	public TechEditor(){
+	public TechEditor(BigFrameworkGuy framework){
 		//init main components
 		ntcf = new NTCFEditor();
-		modifiedURIs = new TechURISelector();
+		modifiedURIs = new TechURISelector(framework, new TechKeySelector());
 		
 		//set up layout
 		topLevel = new JPanel();
