@@ -138,6 +138,7 @@ public strictfp class Rectangle extends Shape {
 	@Override
 	public ConfigData getData() {
 		ConfigData cd = new ConfigData();
+		cd.set(ParserKeys.shapetype, "rectangle");
 		cd.set(ParserKeys.width, width);
 		cd.set(ParserKeys.height, height);
 		cd.set(ParserKeys.rotation, position.getRotation());

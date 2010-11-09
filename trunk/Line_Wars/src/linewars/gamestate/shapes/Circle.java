@@ -92,6 +92,7 @@ public strictfp class Circle extends Shape {
 	@Override
 	public ConfigData getData() {
 		ConfigData cd = new ConfigData();
+		cd.set(ParserKeys.shapetype, "circle");
 		cd.set(ParserKeys.radius, radius);
 		cd.set(ParserKeys.rotation, position.getRotation());
 		cd.set(ParserKeys.x, position.getPosition().getX());
