@@ -12,6 +12,7 @@ import editor.abilities.AbilityEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
+import editor.tech.TechEditor;
 
 
 import linewars.configfilehandler.ConfigData;
@@ -44,7 +45,7 @@ public class BigFrameworkGuy
 		AnimationEditor toStart = new AnimationEditor(imagesFolder); 
 		
 		Dimension prefferedSize = new Dimension(0, 0);
-		String[] editors = {"Map Item", "Ability", "Animation", "Map"};
+		String[] editors = {"Map Item", "Ability", "Animation", "Map", "Tech"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -56,6 +57,8 @@ public class BigFrameworkGuy
 				ce = toStart;
 			else if(e.equals("Map"))
 				ce = new MapEditor(frame);
+			else if(e.equals("Tech"))
+				ce = new TechEditor(this);
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
 			this.editors.add(ce);
