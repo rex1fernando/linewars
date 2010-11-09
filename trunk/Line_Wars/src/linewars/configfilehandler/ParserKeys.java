@@ -32,5 +32,13 @@ public enum ParserKeys {
 	techtype, controlPoint, shootCoolDown, stuffIncome, 
 	modifiertype, tooltip, modifiedURI, URI, 
 	modifiedKey, key, modifier, raceURI, abilityURI,
-	animationURI, scale, mapURI, incomplete
+	animationURI, scale, mapURI, incomplete;
+	
+	public static ParserKeys getKey(String s) {
+		for(ParserKeys key : ParserKeys.values())
+			if(key.toString().equalsIgnoreCase(s))
+				return key;
+		
+		throw new IllegalArgumentException(s + " is not a key");
+	}
 }
