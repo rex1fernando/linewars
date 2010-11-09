@@ -18,6 +18,8 @@ import editor.URISelector.SelectorOptions;
 
 public class AbilityEditor extends JPanel implements ConfigurationEditor, SelectorOptions {
 
+	private URISelector abilityType;
+	
 	private JPanel subPanel;
 	private URISelector uriSelector;
 	private JTextField numberBox;
@@ -34,7 +36,8 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	public AbilityEditor(BigFrameworkGuy guy) {
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(800, 600));
-		this.add(new URISelector("Ability Type", this), BorderLayout.NORTH);
+		abilityType = new URISelector("Ability Type", this); 
+		this.add(abilityType, BorderLayout.NORTH);
 		subPanel = new JPanel();
 		this.add(subPanel, BorderLayout.CENTER);
 		bfg = guy;
@@ -61,6 +64,8 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 			else
 				throw new IllegalArgumentException("This config data object does not specify a type");
 		}
+		
+		abilityType.setSelectedURI(type);
 		
 		if(type.equals("ConstructUnit"))
 			selectedAbility = 0;
@@ -119,6 +124,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 
 	@Override
 	public void reset() {
+		abilityType.setSelectedURI("");
 		subPanel.removeAll();
 		uriSelector = null;
 		numberBox = null;

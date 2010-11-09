@@ -32,5 +32,5 @@ public enum ParserKeys {
 	techtype, controlPoint, shootCoolDown, stuffIncome, 
 	modifiertype, tooltip, modifiedURI, URI, 
 	modifiedKey, key, modifier, raceURI, abilityURI,
-	animationURI, scale, mapURI
+	animationURI, scale, mapURI, incomplete
 }
