@@ -34,6 +34,9 @@ public strictfp class Player {
 	private GateDefinition gateDefinition;
 	private String name;
 	
+	//TODO debug variable
+	public Node startNode;
+	
 	public Player(GameState gameState, Node[] startingNodes, Race r, String name, int ID) throws FileNotFoundException, InvalidConfigFileException{
 		stuffAmount = gameState.getStartingStuffAmount();
 		this.gameState = gameState;
@@ -48,6 +51,7 @@ public strictfp class Player {
 		for(int i = 0; i < startingNodes.length; i++)
 		{
 			ownedNodes.add(startingNodes[i]);
+			startNode = startingNodes[i]; //TODO debug
 		}
 		
 		flowDist = new HashMap<Lane, Double>();

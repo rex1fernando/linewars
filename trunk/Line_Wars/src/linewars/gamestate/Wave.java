@@ -84,11 +84,13 @@ public strictfp class Wave {
 	 * Gets the position of the wave within the lane.
 	 * @return a double that represents the percentage of the lane that is between the wave and p0 in the lane.
 	 */
-	public double getPosition()
+	public double getPositionToP0()
 	{
 		double min = 1;
 		for(Unit u : units)
 		{
+			if(u instanceof Gate)
+				continue;
 			double d = owner.getClosestPointRatio(u.getPosition()) - u.getRadius()/owner.getLength();
 			if(d < min)
 				min = d;
@@ -98,6 +100,28 @@ public strictfp class Wave {
 		if(min > 1)
 			min = 1;
 		return min;
+	}
+	
+	/**
+	 * Gets the position of the wave within the lane.
+	 * @return a double that represents the percentage of the lane that is between the wave and p3 in the lane.
+	 */
+	public double getPositionToP3()
+	{
+		double max = 0;
+		for(Unit u : units)
+		{
+			if(u instanceof Gate)
+				continue;
+			double d = owner.getClosestPointRatio(u.getPosition()) + u.getRadius()/owner.getLength();
+			if(d > max)
+				max = d;
+		}
+		if(max < 0)
+			max = 0;
+		if(max > 1)
+			max = 1;
+		return 1 - max;
 	}
 	
 	
@@ -172,15 +196,25 @@ public strictfp class Wave {
 				//check to see if we've made it to the node we're going for
 				//also, don't allow entering the node if the gate is still up
 				if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01) && 
-						(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead)))
+						(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead) 
+								|| u.getOwner().equals(owner.getGate(target).getOwner())))
 				{
 					if(target.equals(origin))
 						target = owner.getNodes()[1];
 					
-					if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
+					if((target.getOwner() == null || !target.getOwner().equals(u.getOwner())) 
+							&& (target.getInvader() == null || !target.getInvader().equals(u.getOwner())))
 						target.setInvader(u.getOwner());
 					target.addUnit(u);
 					units.remove(i);
+					continue;
+				}
+				//if we're close enough but the gate isn't down
+				else if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01))
+				{
+					Transformation t = owner.getPosition(pos);
+					closestPoints.put(u, t);
+					i++;
 					continue;
 				}
 				else

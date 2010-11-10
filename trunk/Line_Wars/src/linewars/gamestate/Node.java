@@ -122,6 +122,8 @@ public strictfp class Node {
 		
 		this.gameState = gameState;
 		
+		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
+		
 		attachedLanes = new ArrayList<Lane>();
 		List<String> laneNames = parser.getStringList(ParserKeys.lanes);
 		for(String name : laneNames)
@@ -143,8 +145,6 @@ public strictfp class Node {
 			buildingSpots.add(new BuildingSpot(transforms.get(i)));
 		
 		laneMap = new HashMap<Double, Lane>();
-		
-		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
 		
 		cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
 		
@@ -240,14 +240,17 @@ public strictfp class Node {
 	{
 		if(gameState.getTime()*1000 - lastSpawnTime > TIME_TO_SPAWN)
 		{
+			
 			Random rand = new Random(gameState.getTimerTick());
 			HashMap<Player, Entry<Double[], Lane[]>> flows = getAllFlow(this);
 			for(int i = 0; i < containedUnits.size();)
 			{
 				Lane destination = null;
 				Player owner = containedUnits.get(i).getOwner();
-				double totalFlow = getTotal(flows.get(owner).getKey());
 				Double[] currentFlowSet = flows.get(owner).getKey();
+				double totalFlow = 0;
+				if(currentFlowSet.length > 0)
+					totalFlow = currentFlowSet[currentFlowSet.length - 1];
 				double number = rand.nextDouble() * totalFlow;
 				
 				for(int j = 0; j < currentFlowSet.length; j++)
@@ -264,10 +267,6 @@ public strictfp class Node {
 				containedUnits.remove(i);
 			}
 			
-			for(int i = 0; i < attachedLanes.size(); i++)
-			{
-				attachedLanes.get(i).addPendingWaves(this);
-			}
 			lastSpawnTime = (long) (gameState.getTime()*1000);
 		}
 	}
@@ -425,8 +424,7 @@ public strictfp class Node {
 			if(cCenter != null)
 				cCenter.update();
 		}
-		if(cCenter != null)
-			generateWaves();
+		generateWaves();
 		
 		//Check whether the node should change owners. 
 		if(occupationStartTime > 0 && gameState.getTime()*1000 - occupationStartTime > TIME_TO_OCCUPY)
@@ -448,6 +446,12 @@ public strictfp class Node {
 		}
 		invader = null;
 		occupationStartTime = -1;
+		
+		//now check to see if this node is an start point for any flows
+		boolean isStart = false;
+		for(Lane l : attachedLanes)
+			if(p.isStartPoint(l, this))
+				isStart = true;
 	}
 	
 	public Shape getShape()
@@ -479,6 +483,18 @@ public strictfp class Node {
 			if(toKill != null){
 				toKill.setState(MapItemState.Dead);
 			}
+		}
+		
+		//if this node isn't a start point, then lets try to make it one
+		for(Lane l : attachedLanes)
+		{
+			//get the node at the other end of the lane
+			Node other = l.getNodes()[0];
+			if(other.equals(this))
+				other = l.getNodes()[1];
+			//if that node is not owned by this player, its okay to flip the start
+			if(other.owner == null || !other.owner.equals(p))
+				p.setStartPoint(l, this);
 		}
 	}
 	
@@ -520,5 +536,20 @@ public strictfp class Node {
 			return value;
 		}
 		
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Node)
+			return this.getID() == ((Node)o).getID();
+		else
+			return false;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return this.getID();
 	}
 }

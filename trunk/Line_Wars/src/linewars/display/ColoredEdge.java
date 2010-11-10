@@ -103,7 +103,7 @@ public class ColoredEdge
 			g.setColor(curColor);
 			
 			//draw the edge segment between the previous wave and the current wave
-			for(; pos < wave.getPosition(); pos += SEGMENT_STEP)
+			for(; pos < wave.getPositionToP0(); pos += SEGMENT_STEP)
 			{
 				//increment the positions
 				beforePos = startPos;
@@ -216,7 +216,7 @@ public class ColoredEdge
 			//put the waves into bins according to their positions
 			for(int i = 0; i < waves.length; ++i)
 			{
-				int index = (int)(waves[i].getPosition() / (SEGMENT_STEP * c)) % (c * 10);
+				int index = (int)(waves[i].getPositionToP0() / (SEGMENT_STEP * c)) % (c * 10);
 				bins[index].add(waves[i]);
 			}
 			

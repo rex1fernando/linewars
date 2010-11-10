@@ -30,7 +30,7 @@ import linewars.gamestate.shapes.Circle;
 
 public strictfp class Lane
 {
-	private static final double LANE_SPAWN_DISTANCE = 0.1;
+	private static final double LANE_GATE_DISTANCE = 0.1;
 	static final double LANE_BORDER_RESOLUTION = 0.05;
 	private static int NEXT_UID = 1;
 	
@@ -56,6 +56,8 @@ public strictfp class Lane
 	
 	private LaneBorderDefinition lbd;
 	
+	//TODO debug
+	private static double MAX_LENGTH = 0;
 	
 	public Lane(Node n1, Node n2)
 	{
@@ -119,43 +121,6 @@ public strictfp class Lane
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
 		try {
 			lbd = new LaneBorderDefinition(gameState, size);
-//			double dis = this.getWidth()/2 + size;
-//			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
-//			{
-//				Transformation t = this.getPosition(i);
-//				Transformation t1 = new Transformation(t.getPosition().subtract(
-//						dis*Math.sin(t.getRotation()), 
-//						dis*Math.cos(t.getRotation())), 0);
-//				borders.add(lbd.createLaneBorder(t1));
-//				Transformation t2 = new Transformation(t.getPosition().add(
-//						dis*Math.sin(t.getRotation()), 
-//						dis*Math.cos(t.getRotation())), 0);
-//				borders.add(lbd.createLaneBorder(t2));
-//			}
-//			
-//			//now we need to add lane borders at the end of the lanes
-//			Transformation t0 = this.getPosition(0);
-//			//move t0 back by size
-//			t0 = new Transformation(t0.getPosition().subtract(
-//					size*Math.cos(t0.getRotation()), 
-//					size*Math.sin(t0.getRotation())), t0.getRotation());
-////			now do the same for the other end of the lane
-//			Transformation t1 = this.getPosition(1);
-//			t1 = new Transformation(t1.getPosition().add(
-//					size*Math.cos(t1.getRotation()), 
-//					size*Math.sin(t1.getRotation())), t1.getRotation());
-//			
-//			for(double i = this.getWidth()/2 + size; i >= -(this.getWidth()/2 + size); i -= size)
-//			{
-//				Transformation t0Prime = new Transformation(t0.getPosition().add(
-//						i*Math.sin(t0.getRotation()), 
-//						i*Math.cos(t0.getRotation())), t0.getRotation());
-//				borders.add(lbd.createLaneBorder(t0Prime));
-//				Transformation t1Prime = new Transformation(t1.getPosition().add(
-//						i*Math.sin(t1.getRotation()), 
-//						i*Math.cos(t1.getRotation())), t1.getRotation());
-//				borders.add(lbd.createLaneBorder(t1Prime));
-//			}
 			
 			
 			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
@@ -191,7 +156,9 @@ public strictfp class Lane
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
 		
-		
+		//TODO debug
+		if(this.getLength() > Lane.MAX_LENGTH)
+			Lane.MAX_LENGTH = this.getLength();
 	}
 	
 	private void addBorders(Position before, Position start, Position end, Position after, double radius, boolean startLine, boolean endLine)
@@ -417,85 +384,13 @@ public strictfp class Lane
 	 * @param n The node the units/waves are coming from.
 	 * TODO this is actually a fairly tricky problem, since we have no particular constraints on the size of anything (except nonnegativity ofc).  Seems fun. - Taylor
 	 */
-//	public void addPendingWaves(Node n)
-//	{
-//		if(pendingWaves.isEmpty())
-//		{
-//			return;
-//		}
-//		int numBuckets = pendingWaves.get(n).size();
-//		double bucketWidth = width/numBuckets;
-//		double forwardBound = findForwardBound(n);
-//		
-//		//If the lane is backed up to the node, just destroy all of the pending units.
-//		if(forwardBound == 0)
-//		{
-//			pendingWaves.get(n).clear();
-//		}
-//		
-//		//For every bucket (A.K.A. every player with units coming from this node)
-//		for(int i = 0; i < numBuckets; i++)
-//		{
-//			double currentCloseBound = 0;
-//			double pendingCloseBound = 0;
-//			double yTopBound = (bucketWidth * i);
-//			double yBottomBound = yTopBound + bucketWidth;
-//			double yCurrentBound = yTopBound;
-//			
-//			//For every unit going into the current bucket
-//			for(int j = 0; j < pendingWaves.get(n).get(i).getUnits().length; j++)
-//			{
-//				Unit currentUnit = pendingWaves.get(n).get(i).getUnits()[j];
-//				boolean placed = false;
-//				
-//				//Make sure the unit can fit in the current player's bucket.
-//				if(currentUnit.getHeight() >= bucketWidth)
-//				{
-//					placed = true;
-//				}
-//				
-//				while(!placed)
-//				{
-//					//Make sure the unit can fit width-wise
-//					if(currentCloseBound + currentUnit.getWidth() <= forwardBound)
-//					{
-//						//If the unit can fit height-wise in the current "column" put it in. Otherwise advance to the next "column".
-//						if(yCurrentBound + currentUnit.getHeight() <= yBottomBound)
-//						{
-//							currentUnit.setPosition(new Position(currentCloseBound, yCurrentBound));
-//							waves.add(new Wave(this, currentUnit));
-//							
-//							//If this unit's width will push the pending bound farther, advance the pendingCloseBound.
-//							if(pendingCloseBound < currentCloseBound + currentUnit.getWidth())
-//							{
-//								pendingCloseBound = currentCloseBound + currentUnit.getWidth();
-//							}
-//							yCurrentBound = yCurrentBound + currentUnit.getHeight();
-//							placed = true;
-//						}else{
-//							currentCloseBound = pendingCloseBound;
-//							yCurrentBound = yTopBound;
-//						}
-//					}else{
-//						placed = true;
-//					}
-//				}
-//				placed = false;
-//			}
-//		}
-//		
-//		//Destroy any units that got skipped because they couldn't be fit.
-//		pendingWaves.get(n).clear();
-//		for(int i = 0; i < gameState.getNumPlayers(); i++){
-//			pendingWaves.get(n).add(new Wave(this));
-//		}
-//		
-//	}	
-	
 	public void addPendingWaves(Node n)
 	{
 		if(pendingWaves.isEmpty() || pendingWaves.get(n) == null)
 			return;
+		
+		if(this.getLength() < Lane.MAX_LENGTH)
+			System.out.print("");
 		
 		Set<Entry<Player, Wave>> waveSet = pendingWaves.get(n).entrySet();
 		ArrayList<Wave> waves = new ArrayList<Wave>();
@@ -522,16 +417,16 @@ public strictfp class Lane
 			}
 		});
 		
-		Gate closestGate = gates.get(n);
+		Gate closestGate = this.getGate(n);
 		//start represents if we're going up the lane (0 -> 1) or down (1 -> 0)
-		double start = 0;
+		boolean forward = true;
 		if (closestGate.getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < closestGate.getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
-			start = 1;
+			forward = false;
 		
 		//represents the minimum forward position on the curve [0,1] that a unit must be placed (ie the back of the current row) 
-		double minForward = start;
+		double minForward = (forward ? 0 : 1);
 		//the place to put the next min forward, is calculated as this line is placed based off the largest radius unit, (ie the next row)
 		double nextMinForward = minForward;
 		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
@@ -542,7 +437,7 @@ public strictfp class Lane
 		//the last row will need to be centered, so remember it
 		ArrayList<Unit> lastRow = new ArrayList<Unit>();
 		//while minForward hasn't reached the forward bound (depending on if we're going up or down the lane) and there are still units to place
-		while(((minForward < forwardBound && start == 0) || (minForward > forwardBound && start == 1)) && !units.isEmpty())
+		while(((minForward < forwardBound && forward) || (minForward > forwardBound && !forward)) && !units.isEmpty())
 		{
 			lastRow.clear();
 			startWidth = this.getWidth()/2; //restart the lateral placement
@@ -550,21 +445,20 @@ public strictfp class Lane
 			{
 				Unit u = units.get(i);
 				
-				if((start == 0 && minForward + 2*u.getRadius()/this.getLength() > forwardBound) //if this unit will never fit
-					|| (start == 1 && minForward - 2*u.getRadius()/this.getLength() < forwardBound)
+				if((forward && minForward + 2*u.getRadius()/this.getLength() > forwardBound) //if this unit will never fit
+					|| (!forward && minForward - 2*u.getRadius()/this.getLength() < forwardBound)
 					|| (2*u.getRadius() > width))
 				{
 					units.remove(i); //get rid of it
 					deletedUnits.add(u);
 					u.getOwner().removeUnit(u);
 				}
-				
-				if(startWidth - 2*u.getRadius() > -width/2) //if there's enough room to fit the unit
+				else if(startWidth - 2*u.getRadius() > -width/2) //if there's enough room to fit the unit
 				{
 					double pos = u.getRadius()/this.getLength(); //get the radius in terms of length along the curve
-					pos = minForward + (start == 0 ? pos : -pos); //now figure out where the exact position along the lane the unit should go
+					pos = minForward + (forward ? pos : -pos); //now figure out where the exact position along the lane the unit should go
 					Transformation tpos = this.getPosition(pos); //use the position to get the exact transformation of that position
-					if(start == 1) tpos = new Transformation(tpos.getPosition(), tpos.getRotation() - Math.PI);
+					if(!forward) tpos = new Transformation(tpos.getPosition(), tpos.getRotation() - Math.PI);
 					double w = startWidth - u.getRadius(); //figure out the lateral translation from the center line of the curve for the unit
 					tpos = new Transformation(
 							new Position(tpos.getPosition().getX() + w*Math.sin(tpos.getRotation()),
@@ -575,12 +469,20 @@ public strictfp class Lane
 					
 					units.remove(i); //the unit has been placed, get it out of here
 					lastRow.add(u);
-					if(start == 0) //if we're going up the lane
+					if(forward) //if we're going up the lane
+					{
 						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward) //if this unit has a bigger radius than any other unit
+						{
 							nextMinForward = 2*u.getRadius()/this.getLength() + minForward; //that's already been placed in this row
+							if(nextMinForward < 0)
+								System.out.print("");
+						}
+					}
 					else //if we're going down the lane
+					{
 						if(minForward - 2*u.getRadius()/this.getLength() < nextMinForward) //same as above
 							nextMinForward = minForward - 2*u.getRadius()/this.getLength();
+					}
 				}
 				else //if there's not enough room, check the next biggest unit
 					i++;
@@ -618,17 +520,35 @@ public strictfp class Lane
 	 */
 	private double findForwardBound(Node n)
 	{
-		Gate closestGate = gates.get(n);
-		double start = 0;
+		Gate closestGate = this.getGate(n);
+		boolean forward = true;
 		if (closestGate.getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < closestGate.getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
-			start = 1;
+			forward = false;
 		
-		if(start == 0)
-			return LANE_SPAWN_DISTANCE + closestGate.getRadius()/this.getLength();
-		else 
-			return 1 - LANE_SPAWN_DISTANCE + closestGate.getRadius()/this.getLength();
+		double pos;
+		if(forward)
+		{
+			pos = 1;
+			for(Wave w : this.getWaves())
+			{
+				double d = w.getPositionToP0();
+				if(d < pos)
+					pos = d;
+			}
+		}
+		else 	
+		{
+			pos = 0;
+			for(Wave w : this.getWaves())
+			{
+				double d = 1 - w.getPositionToP3();
+				if(d > pos)
+					pos = d;
+			}
+		}
+		return pos;
 	}	
 	
 	/**
@@ -703,6 +623,9 @@ public strictfp class Lane
 	{
 		if(nodes.size() != 2)
 			throw new IllegalStateException("This lane doesn't know about both its end point nodes");
+		
+		for(Node n : nodes)
+			this.addPendingWaves(n);
 		
 		for(int i = 0; i < waves.size();)
 		{
@@ -823,6 +746,20 @@ public strictfp class Lane
 	
 	public Gate getGate(Node n)
 	{
+		//add a dummy gate
+		if(gates.get(n) == null)
+		{
+			Transformation t = null;
+			if (n.getTransformation().getPosition().distanceSquared(
+					this.getPosition(1).getPosition()) < n.getTransformation().getPosition()
+					.distanceSquared(this.getPosition(0).getPosition()))
+				t = this.getPosition(1 - LANE_GATE_DISTANCE);
+			else
+				t = this.getPosition(LANE_GATE_DISTANCE);
+			Gate g = gameState.getPlayer(0).getGateDefinition().createGate(t);
+			g.setState(MapItemState.Dead);
+			gates.put(n, g);
+		}
 		return gates.get(n);
 	}
 	
@@ -834,9 +771,9 @@ public strictfp class Lane
 		if (n.getTransformation().getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < n.getTransformation().getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
-			t = this.getPosition(1 - LANE_SPAWN_DISTANCE);
+			t = this.getPosition(1 - LANE_GATE_DISTANCE);
 		else
-			t = this.getPosition(LANE_SPAWN_DISTANCE);
+			t = this.getPosition(LANE_GATE_DISTANCE);
 		Gate g = p.getGateDefinition().createGate(t);
 		Gate oldG = gates.get(n);
 		gates.put(n, g);
@@ -904,14 +841,18 @@ public strictfp class Lane
 	
 	@Override
 	public boolean equals(Object o){
-		if(o == null) return false;
-		if(!(o instanceof Lane)) return false;
-		Lane other = (Lane) o;
-		if(width != other.width) return false;
-		if(!(waves.equals(other.waves))) return false;
-		if(!projectiles.equals(other.projectiles)) return false;
-		//TODO test more here?
-		return true;
+//		if(o == null) return false;
+//		if(!(o instanceof Lane)) return false;
+//		Lane other = (Lane) o;
+//		if(width != other.width) return false;
+//		if(!(waves.equals(other.waves))) return false;
+//		if(!projectiles.equals(other.projectiles)) return false;
+//		//TODO test more here?
+//		return true;
+		if(o instanceof Lane)
+			return this.getName().equals(((Lane)o).getName());
+		else
+			return false;
 	}
 	
 	public List<LaneBorder> getLaneBorders() {

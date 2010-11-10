@@ -4,6 +4,8 @@ import linewars.gamestate.Node;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
+import linewars.gamestate.mapItems.strategies.combat.NoCombat;
+import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
 /**
@@ -18,6 +20,10 @@ public strictfp class Gate extends Unit {
 	public Gate(Transformation t, GateDefinition def, MovementStrategy ms,
 			CombatStrategy cs) {
 		super(t, def, ms, cs);
+	}
+
+	public Gate(Transformation t) {
+		super(t, null, new Immovable(), new NoCombat());
 	}
 	
 }
