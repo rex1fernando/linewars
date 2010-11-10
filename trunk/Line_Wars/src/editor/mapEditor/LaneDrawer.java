@@ -104,7 +104,7 @@ public class LaneDrawer
 		Circle circP2 = new Circle(new Transformation(gameP2, 0), 5 / scale);
 		
 		//draw lines connecting p0 to p1 and p2 to p3
-		g.setColor(Color.orange);
+		g.setColor(Color.yellow);
 		((Graphics2D)g).setStroke(new BasicStroke(5));
 		g.drawLine((int)screenP0.getX(), (int)screenP0.getY(), (int)screenP1.getX(), (int)screenP1.getY());
 		g.drawLine((int)screenP2.getX(), (int)screenP2.getY(), (int)screenP3.getX(), (int)screenP3.getY());

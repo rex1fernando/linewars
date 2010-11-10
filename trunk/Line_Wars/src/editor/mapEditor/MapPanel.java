@@ -11,11 +11,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
+import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.BuildingSpot;
 import linewars.gamestate.Lane;
@@ -32,11 +35,13 @@ public class MapPanel extends JPanel
 	private static final double MIN_ZOOM = 1.5;
 	
 	private JSlider laneWidthSlider;
+	private JComboBox nodeSelector;
+	private JComboBox buildingSelector;
+	private JComboBox commandCenterSelector;
 
 	private double zoomLevel;
 	private double lastDrawTime;
 	
-	private boolean isValid;
 	private String mapURI;
 	private double mapWidth;
 	private double mapHeight;
@@ -69,6 +74,8 @@ public class MapPanel extends JPanel
 	
 	private Lane selectedLane;
 	private Node selectedNode;
+	private BuildingSpot selectedBuilding;
+	private BuildingSpot selectedCommandCenter;
 	
 	private boolean lanesVisible;
 	private boolean nodesVisible;
@@ -86,6 +93,9 @@ public class MapPanel extends JPanel
 		setPreferredSize(new Dimension(width, height));
 		
 		laneWidthSlider = null;
+		nodeSelector = null;
+		buildingSelector = null;
+		commandCenterSelector = null;
 		
 		// starts the user fully zoomed out
 		zoomLevel = 1.0;
@@ -143,32 +153,121 @@ public class MapPanel extends JPanel
 		addMouseListener(ih);
 	}
 	
-	public void loadConfigFile(ConfigData data)
+	public void loadConfigFile(ConfigData data, boolean force)
 	{
-		isValid = Boolean.getBoolean(data.getString(ParserKeys.valid));
+		if(!force && !Boolean.getBoolean(data.getString(ParserKeys.valid)))
+			throw new IllegalArgumentException("The config data object is not valid");
+		
+		List<ParserKeys> definedKeys = data.getDefinedKeys();
 		
 		lanes = new ArrayList<Lane>();
 		nodes = new ArrayList<Node>();
 		buildingSpots = new ArrayList<BuildingSpot>();
 		commandCenters = new ArrayList<BuildingSpot>();
 
-		setMapImage(data.getString(ParserKeys.icon));
-		setMapSize((int)(double)data.getNumber(ParserKeys.imageWidth), (int)(double)data.getNumber(ParserKeys.imageHeight));
-		
-		List<ConfigData> ls = data.getConfigList(ParserKeys.lanes);
-		for(ConfigData l : ls)
-			lanes.add(new Lane(l));
-		
-		List<ConfigData> ns = data.getConfigList(ParserKeys.nodes);
-		for(ConfigData n : ns)
+		if(definedKeys.contains(ParserKeys.icon))
+			setMapImage(data.getString(ParserKeys.icon));
+		else if(force)
 		{
-			Node newNode = new Node(n, lanes.toArray(new Lane[0]));
-			nodes.add(newNode);
-			
-			commandCenters.add(newNode.getCommandCenterSpot());
-			for(BuildingSpot s : newNode.getBuildingSpots())
+			setMapImage(null);
+			return;
+		}
+		else
+			throw new IllegalArgumentException("The map image is not defined");
+		
+		if(definedKeys.contains(ParserKeys.imageWidth) && definedKeys.contains(ParserKeys.imageHeight))
+			setMapSize((int)(double)data.getNumber(ParserKeys.imageWidth), (int)(double)data.getNumber(ParserKeys.imageHeight));
+		else if(!force)
+			throw new IllegalArgumentException("The map size is not defined");
+		
+		if(definedKeys.contains(ParserKeys.lanes))
+		{
+			List<ConfigData> ls = data.getConfigList(ParserKeys.lanes);
+			for(ConfigData l : ls)
 			{
-				buildingSpots.add(s);
+				Lane lane;
+				try
+				{
+					lane = new Lane(l, force);
+				}
+				catch(NoSuchKeyException e)
+				{
+					if(force)
+						continue;
+					else
+						throw new IllegalArgumentException("A lane could not be properly constructed");
+				}
+				
+				lanes.add(lane);
+			}
+		}
+		else
+			throw new IllegalArgumentException("There are no lanes defined");
+		
+		if(definedKeys.contains(ParserKeys.nodes))
+		{
+			List<ConfigData> ns = data.getConfigList(ParserKeys.nodes);
+			for(ConfigData n : ns)
+			{
+				Node newNode;
+				try
+				{
+					newNode = new Node(n, lanes.toArray(new Lane[0]), force);
+				}
+				catch(NoSuchKeyException e)
+				{
+					if(force)
+						continue;
+					else
+						throw new IllegalArgumentException("A node could not be properly constructed");
+				}
+				
+				nodes.add(newNode);
+				
+				commandCenters.add(newNode.getCommandCenterSpot());
+				for(BuildingSpot s : newNode.getBuildingSpots())
+				{
+					buildingSpots.add(s);
+				}
+			}
+		}
+		else
+			throw new IllegalArgumentException("There are no nodes defined");
+		
+		boolean valid = false;
+		while(!valid)
+		{
+			valid = true;
+			for(Lane l : lanes)
+			{
+				Node[] nodes = l.getNodes();
+				if(nodes.length == 0)
+				{
+					if(!force)
+						throw new IllegalArgumentException("Lane " + l.getName() + " has no nodes");
+					
+					lanes.remove(l);
+				}
+				else if(nodes.length == 1)
+				{
+					if(!force)
+						throw new IllegalArgumentException("Lane " + l.getName() + " has only one attached node");
+						
+					valid = false;
+					nodes[0].removeAttachedLane(l);
+					lanes.remove(l);
+				}
+			}
+			
+			for(Node n : nodes)
+			{
+				if(n.getAttachedLanes().length == 0)
+				{
+					if(!force)
+						throw new IllegalArgumentException("There is a node with no attached lanes");
+						
+					nodes.remove(n);
+				}
 			}
 		}
 	}
@@ -177,7 +276,6 @@ public class MapPanel extends JPanel
 	{
 		ConfigData data = new ConfigData();
 		
-		data.set(ParserKeys.valid, Boolean.toString(isValid));
 		data.set(ParserKeys.icon, mapURI);
 		data.set(ParserKeys.imageWidth, mapWidth);
 		data.set(ParserKeys.imageHeight, mapHeight);
@@ -192,12 +290,24 @@ public class MapPanel extends JPanel
 			data.add(ParserKeys.nodes, n.getData());
 		}
 		
+		data.set(ParserKeys.valid, Boolean.toString(isValidConfig()));
+		
 		return data;
 	}
 	
 	public boolean isValidConfig()
 	{
-		return isValid;
+		boolean valid = true;
+		
+		for(Node n : nodes)
+		{
+			if(n.getCommandCenterSpot() == null)
+				valid = false;
+			if(n.getAttachedLanes().length == 0)
+				valid = false;
+		}
+		
+		return valid;
 	}
 	
 	public Node[] getNodes()
@@ -213,6 +323,21 @@ public class MapPanel extends JPanel
 	public BuildingSpot[] getCommandCenters()
 	{
 		return commandCenters.toArray(new BuildingSpot[0]);
+	}
+	
+	public void setSelectedNode(Node n)
+	{
+		selectedNode = n;
+	}
+	
+	public void setSelectedBuilding(BuildingSpot b)
+	{
+		selectedBuilding = b;
+	}
+	
+	public void setSelectedCommandCenter(BuildingSpot b)
+	{
+		selectedCommandCenter = b;
 	}
 	
 	public void setNodesVisible(boolean b)
@@ -279,6 +404,21 @@ public class MapPanel extends JPanel
 		laneWidthSlider = slider;
 	}
 	
+	public void setNodeSelector(JComboBox box)
+	{
+		nodeSelector = box;
+	}
+	
+	public void setBuildingSelector(JComboBox box)
+	{
+		buildingSelector = box;
+	}
+	
+	public void setCommandCenterSelector(JComboBox box)
+	{
+		commandCenterSelector = box;
+	}
+
 	public void setLaneWidth(double width)
 	{
 		if(selectedLane != null)
@@ -340,7 +480,7 @@ public class MapPanel extends JPanel
 		{
 			for(BuildingSpot b : buildingSpots)
 			{
-				buildingDrawer.draw(g, b, toGameCoord(mousePosition), scale);
+				buildingDrawer.draw(g, b, b == selectedBuilding, toGameCoord(mousePosition), scale);
 			}
 		}
 		
@@ -349,7 +489,7 @@ public class MapPanel extends JPanel
 		{
 			for(BuildingSpot b : commandCenters)
 			{
-				buildingDrawer.draw(g, b, toGameCoord(mousePosition), scale, true);
+				buildingDrawer.draw(g, b, b == selectedCommandCenter, toGameCoord(mousePosition), scale, true);
 			}
 		}
 		
@@ -590,26 +730,20 @@ public class MapPanel extends JPanel
 			if(c1.positionIsInShape(p))
 			{
 				movingLane = l;
-				selectedLane = l;
-				
-				if(laneWidthSlider != null)
-					laneWidthSlider.setValue((int)(l.getWidth() / mapHeight * 100));
-				
 				moveP1 = true;
 				break;
 			}
 			else if(c2.positionIsInShape(p))
 			{
 				movingLane = l;
-				selectedLane = l;
-				
-				if(laneWidthSlider != null)
-					laneWidthSlider.setValue((int)(l.getWidth() / mapHeight * 100));
-				
 				moveP2 = true;
 				break;
 			}
 		}
+			
+		selectedLane = movingLane;
+		if(selectedLane != null && laneWidthSlider != null)
+			laneWidthSlider.setValue((int)(selectedLane.getWidth() / mapHeight * 100));
 		
 		if(!moveP1 && !moveP2)
 		{
@@ -653,10 +787,14 @@ public class MapPanel extends JPanel
 		{
 			movingNode = new Node(p);
 			nodes.add(movingNode);
+			nodeSelector.addItem(movingNode);
 			
 			resizeW = true;
 			resizeH = true;
 		}
+		
+		selectedNode = movingNode;
+		nodeSelector.setSelectedItem(movingNode);
 	}
 
 	private void selectBuilding(Position p)
@@ -667,11 +805,15 @@ public class MapPanel extends JPanel
 		{
 			movingSpot = new BuildingSpot(p);
 			buildingSpots.add(movingSpot);
+			buildingSelector.addItem(movingSpot);
 			
 			resizeW = true;
 			resizeH = true;
 			rotating = true;
 		}
+		
+		selectedBuilding = movingSpot;
+		buildingSelector.setSelectedItem(movingSpot);
 	}
 	
 	private void selectCommandCenter(Position p)
@@ -682,11 +824,15 @@ public class MapPanel extends JPanel
 		{
 			movingSpot = new BuildingSpot(p);
 			commandCenters.add(movingSpot);
+			commandCenterSelector.addItem(movingSpot);
 			
 			resizeW = true;
 			resizeH = true;
 			rotating = true;
 		}
+		
+		selectedCommandCenter = movingSpot;
+		commandCenterSelector.setSelectedItem(movingSpot);
 	}
 
 	private void selectBuildingSpot(Position p, ArrayList<BuildingSpot> spots)

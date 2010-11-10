@@ -80,19 +80,24 @@ public strictfp class Lane
 		curve = BezierCurve.buildCurve(p0, p3);
 	}
 		
-	public Lane(ConfigData parser)
+	public Lane(ConfigData parser, boolean force)
 	{
 		curve = BezierCurve.buildCurve(parser);
 		
-		this.width = parser.getNumber(ParserKeys.width);
 		this.nodes = new ArrayList<Node>();
 		this.name = parser.getString(ParserKeys.name);
-		
 		int id = new Integer(name.substring(4)).intValue();
 		if(id >= NEXT_UID)
 		{
 			NEXT_UID = id + 1;
 		}
+		
+		if(parser.getDefinedKeys().contains(ParserKeys.width))
+			this.width = parser.getNumber(ParserKeys.width);
+		else if(force)
+			this.width = 100;
+		else
+			throw new IllegalArgumentException("The lane width is not defined for lane " + name);
 	}
 	
 	public Lane(GameState gameState, ConfigData parser)

@@ -21,12 +21,12 @@ public class BuildingDrawer
 		this.panel = panel;
 	}
 
-	public void draw(Graphics g, BuildingSpot buildingSpot, Position mouse, double scale)
+	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale)
 	{
-		draw(g, buildingSpot, mouse, scale, false);
+		draw(g, buildingSpot, selected, mouse, scale, false);
 	}
 
-	public void draw(Graphics g, BuildingSpot buildingSpot, Position mouse, double scale, boolean commandCenter)
+	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale, boolean commandCenter)
 	{
 		Dimension dim = buildingSpot.getDim();
 		double w = dim.getWidth();
@@ -43,9 +43,9 @@ public class BuildingDrawer
 
 		//set the transparent color
 		if(commandCenter)
-			g.setColor(new Color(255, 255, 0, 80));
+			g.setColor(new Color(255, 140, 0, selected ? 90 : 60));
 		else
-			g.setColor(new Color(0, 0, 255, 80));
+			g.setColor(new Color(0, 0, 255, selected ? 90 : 60));
 
 		//rotate the graphics
 		((Graphics2D)g).rotate(rotation, x, y);
@@ -55,7 +55,7 @@ public class BuildingDrawer
 		
 		//set the border color
 		if(commandCenter)
-			g.setColor(new Color(255, 255, 0));
+			g.setColor(new Color(255, 140, 0));
 		else
 			g.setColor(new Color(0, 0, 255));
 		

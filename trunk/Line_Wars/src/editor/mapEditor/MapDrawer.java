@@ -31,6 +31,13 @@ public class MapDrawer
 	
 	public Dimension setMap(String mapURI)
 	{
+		if(mapURI == null)
+		{
+			map = null;
+			bufferedMap = null;
+			return new Dimension(100, 100);
+		}
+		
 		String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
 
 		try

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,8 +27,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -63,13 +67,17 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JComboBox commandCenterSelector;
 	private JList containedBuildingSpots;
 	private JList containedCommandCenter;
+	private JButton addBuilding;
+	private JButton removeBuilding;
+	private JButton setCommandCenter;
+	private JButton removeCommandCenter;
 	
 	private boolean editingPanelLoaded;
 
 	public MapEditor(JFrame frame)
 	{
 		super(null);
-		setPreferredSize(new Dimension(1200, 800));
+		setPreferredSize(new Dimension(1200, 600));
 		
 		this.frame = frame;
 		
@@ -79,21 +87,21 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = GridBagConstraints.RELATIVE;
-		c.gridheight = GridBagConstraints.RELATIVE;
+		c.gridwidth = 1;
+		c.gridheight = 2;
 		map = new MapPanel(768, 512);
 		layout.setConstraints(map, c);
 		add(map);
 		
 		createCheckBoxes(layout, c);
-		createRadioButtons(layout, c);
 		createEditingPanel(layout, c);
+		createRadioButtons(layout, c);
 		
 		//create and add the map selector button
-		c.gridx = GridBagConstraints.RELATIVE;
-		c.gridy = GridBagConstraints.RELATIVE;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		c.gridheight = GridBagConstraints.REMAINDER;
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		JButton setMap = new JButton("Set Map");
 		setMap.addActionListener(new SetMapListener());
 		layout.setConstraints(setMap, c);
@@ -104,9 +112,9 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	{
 		editingPanelLoaded = false;
 
-		c.gridx = GridBagConstraints.RELATIVE;
+		c.gridx = 1;
 		c.gridy = 1;
-		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.gridwidth = 1;
 		c.gridheight = 1;
 		
 		//create the place holder panel
@@ -121,33 +129,9 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		laneWidthSlider.setVisible(false);
 		layout.setConstraints(laneWidthSlider, c);
 		add(laneWidthSlider);
+		map.setLaneWidthSlider(laneWidthSlider);
 		
-		//create the editor panels for editing the building spots that are in a node
-		startNode = new JCheckBox("start node");
-		nodeSelector = new JComboBox();
-		buildingSpotSelector = new JComboBox();
-		commandCenterSelector = new JComboBox();
-		containedBuildingSpots = new JList();
-		containedCommandCenter = new JList();
-		
-		ArrayList<JComponent> nodeEditors = new ArrayList<JComponent>();
-		nodeEditors.add(new JLabel("Nodes"));
-		nodeEditors.add(new JPanel());
-		nodeEditors.add(nodeSelector);
-		nodeEditors.add(startNode);
-		nodeEditors.add(new JLabel("Buildings"));
-		nodeEditors.add(new JLabel("Command Centers"));
-		nodeEditors.add(buildingSpotSelector);
-		nodeEditors.add(commandCenterSelector);
-		nodeEditors.add(containedBuildingSpots);
-		nodeEditors.add(containedCommandCenter);
-		
-		//add the editor panels to the node editing panel
-		nodeEditorPanel = new JPanel(new GridLayout((nodeEditors.size() + 1) / 2, 2, 25, 10));
-		for(JComponent panel : nodeEditors)
-		{
-			nodeEditorPanel.add(panel);
-		}
+		createNodeEditorPanel();
 		
 		//add the node editing panel to the editor
 		nodeEditorPanel.setVisible(false);
@@ -158,6 +142,117 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		placeholder.setPreferredSize(dim);
 		laneWidthSlider.setPreferredSize(dim);
 		nodeEditorPanel.setPreferredSize(dim);
+	}
+
+	private void createNodeEditorPanel()
+	{
+		GridBagLayout layout = new GridBagLayout();
+		nodeEditorPanel = new JPanel(layout);
+		
+		//create the editor panels for editing the building spots that are in a node
+		startNode = new JCheckBox("start node");
+		nodeSelector = new JComboBox();
+		buildingSpotSelector = new JComboBox();
+		commandCenterSelector = new JComboBox();
+		containedBuildingSpots = new JList();
+		containedCommandCenter = new JList();
+		addBuilding = new JButton("add");
+		removeBuilding = new JButton("remove");
+		setCommandCenter = new JButton("set");
+		removeCommandCenter = new JButton("remove");
+		
+		JLabel label;
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridwidth = 2;
+		c.gridheight = 1;
+				
+		//add the components to the panel
+		c.gridx = 0;
+		c.gridy = 0;
+		label = new JLabel("nodes", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+
+		c.gridx = 0;
+		c.gridy = 1;
+		layout.addLayoutComponent(nodeSelector, c);
+		nodeEditorPanel.add(nodeSelector);
+		map.setNodeSelector(nodeSelector);
+		c.gridx = 2;
+		c.gridwidth = 1;
+		layout.addLayoutComponent(startNode, c);
+		nodeEditorPanel.add(startNode);
+		
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridwidth = 2;
+		label = new JLabel("buildings", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+		c.gridx = 3;
+		label = new JLabel("command centers", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+		
+		c.gridx = 0;
+		c.gridy = 4;
+		layout.addLayoutComponent(buildingSpotSelector, c);
+		nodeEditorPanel.add(buildingSpotSelector);
+		map.setBuildingSelector(buildingSpotSelector);
+		c.gridx = 3;
+		layout.addLayoutComponent(commandCenterSelector, c);
+		nodeEditorPanel.add(commandCenterSelector);
+		map.setCommandCenterSelector(commandCenterSelector);
+		
+		c.gridx = 0;
+		c.gridy = 6;
+		c.gridwidth = 1;
+		layout.addLayoutComponent(addBuilding, c);
+		nodeEditorPanel.add(addBuilding);
+		c.gridx = 1;
+		layout.addLayoutComponent(removeBuilding, c);
+		nodeEditorPanel.add(removeBuilding);
+		c.gridx = 3;
+		layout.addLayoutComponent(setCommandCenter, c);
+		nodeEditorPanel.add(setCommandCenter);
+		c.gridx = 4;
+		layout.addLayoutComponent(removeCommandCenter, c);
+		nodeEditorPanel.add(removeCommandCenter);
+		
+		c.gridx = 0;
+		c.gridy = 8;
+		c.gridwidth = 2;
+		c.gridheight = 4;
+		layout.addLayoutComponent(containedBuildingSpots, c);
+		nodeEditorPanel.add(containedBuildingSpots);
+		c.gridx = 3;
+		layout.addLayoutComponent(containedCommandCenter, c);
+		nodeEditorPanel.add(containedCommandCenter);
+		
+		nodeSelector.setPreferredSize(new Dimension(125, (int)nodeSelector.getMinimumSize().getHeight()));
+		buildingSpotSelector.setPreferredSize(new Dimension(125, (int)buildingSpotSelector.getMinimumSize().getHeight()));
+		commandCenterSelector.setPreferredSize(new Dimension(125, (int)commandCenterSelector.getMinimumSize().getHeight()));
+		
+		containedBuildingSpots.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		containedCommandCenter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		CheckBoxListener checkListener = new CheckBoxListener();
+		startNode.addItemListener(checkListener);
+		
+		ComboBoxListener comboListener = new ComboBoxListener();
+		nodeSelector.addActionListener(comboListener);
+		buildingSpotSelector.addActionListener(comboListener);
+		commandCenterSelector.addActionListener(comboListener);
+		
+		NodeEditorButtonListener buttonListener = new NodeEditorButtonListener();
+		addBuilding.addActionListener(buttonListener);
+		removeBuilding.addActionListener(buttonListener);
+		setCommandCenter.addActionListener(buttonListener);
+		removeCommandCenter.addActionListener(buttonListener);
+		
+		ListListener listListener = new ListListener();
+		containedBuildingSpots.addListSelectionListener(listListener);
+		containedCommandCenter.addListSelectionListener(listListener);
 	}
 
 	private void createRadioButtons(GridBagLayout layout, GridBagConstraints c)
@@ -181,7 +276,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	    RadioButtonListener radioButtonListener = new RadioButtonListener();
 		
 		//add radio buttons to JPanel
-		JPanel createItems = new JPanel(new GridLayout(1, createables.size()));
+		JPanel createItems = new JPanel(new GridLayout(createables.size(), 1));
 		for(JRadioButton button : createables)
 		{
 			group.add(button);
@@ -190,10 +285,10 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		}
 		
 		//add the creatable items panel to the editor
-		c.gridx = 0;
-		c.gridy = GridBagConstraints.RELATIVE;
-		c.gridwidth = GridBagConstraints.RELATIVE;
-		c.gridheight = GridBagConstraints.REMAINDER;
+		c.gridx = 1;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		layout.setConstraints(createItems, c);
 		add(createItems);
 	}
@@ -216,7 +311,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		ItemListener checkBoxListener = new CheckBoxListener();
 
 		//add check boxes to JPanel
-		JPanel selectedItems = new JPanel(new GridLayout(items.size(), 1));
+		JPanel selectedItems = new JPanel(new GridLayout(1, items.size()));
 		for(JCheckBox box : items)
 		{
 			box.setSelected(true);
@@ -225,9 +320,9 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		}
 		
 		//add the selectable items panel to the editor
-		c.gridx = GridBagConstraints.RELATIVE;
-		c.gridy = 0;
-		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
 		c.gridheight = 1;
 		layout.setConstraints(selectedItems, c);
 		add(selectedItems);
@@ -257,40 +352,33 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		editingPanelLoaded = true;
 	}
 	
+	private void populateBuildingLists()
+	{
+		Node n = (Node)nodeSelector.getSelectedItem();
+		
+		containedBuildingSpots.setListData(n.getBuildingSpots().toArray());
+		containedCommandCenter.setListData(new BuildingSpot[] {n.getCommandCenterSpot()});
+	}
+	
 	@Override
 	public void setData(ConfigData cd)
 	{
 		editingPanelLoaded = false;
-
-		try
-		{
-			map.loadConfigFile(cd);
-		}
-		catch(NoSuchKeyException e)
-		{
-			//TODO spawn notificatoin window
-			e.printStackTrace();
-		}
+		map.loadConfigFile(cd, false);
 	}
 
 	@Override
 	public void forceSetData(ConfigData cd)
 	{
 		editingPanelLoaded = false;
-
-		try
-		{
-			map.loadConfigFile(cd);
-		}
-		catch(NoSuchKeyException e){}
+		map.loadConfigFile(cd, true);
 	}
 
 	@Override
 	public void reset()
 	{
 		editingPanelLoaded = false;
-
-		//TODO reset the MapPanel
+		forceSetData(new ConfigData());
 	}
 
 	@Override
@@ -326,7 +414,12 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		{
 			Object source = e.getItemSelectable();
 
-			if(source == selectNodes)
+			if(source == startNode)
+			{
+				Node n = (Node)nodeSelector.getSelectedItem();
+				n.setStartNode(e.getStateChange() == ItemEvent.SELECTED);
+			}
+			else if(source == selectNodes)
 			{
 				map.setNodesVisible(e.getStateChange() == ItemEvent.SELECTED);
 			}
@@ -406,6 +499,71 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		}
 	}
 	
+	private class NodeEditorButtonListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			Object source = e.getSource();
+			
+			if(source == addBuilding)
+			{
+				BuildingSpot building = (BuildingSpot)buildingSpotSelector.getSelectedItem();
+				Node node = (Node)nodeSelector.getSelectedItem();
+				if(building == null || node == null)
+					return;
+				
+				for(Node n : map.getNodes())
+				{
+					if(n.getBuildingSpots().contains(building))
+					{
+						JOptionPane.showMessageDialog(null, "That building is already owned by a node!", "ERROR", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+				
+				node.addBuildingSpot(building);
+			}
+			else if(source == removeBuilding)
+			{
+				BuildingSpot building = (BuildingSpot)buildingSpotSelector.getSelectedItem();
+				Node node = (Node)nodeSelector.getSelectedItem();
+				if(building == null || node == null)
+					return;
+				
+				node.removeBuildingSpot(building);
+			}
+			else if(source == setCommandCenter)
+			{
+				BuildingSpot cc = (BuildingSpot)commandCenterSelector.getSelectedItem();
+				Node node = (Node)nodeSelector.getSelectedItem();
+				if(cc == null || node == null)
+					return;
+				
+				for(Node n : map.getNodes())
+				{
+					if(n.getCommandCenterSpot() == cc)
+					{
+						JOptionPane.showMessageDialog(null, "That command center is already owned by a node!", "ERROR", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+				
+				node.setCommandCenterSpot(cc);
+			}
+			else if(source == removeCommandCenter)
+			{
+				Node node = (Node)nodeSelector.getSelectedItem();
+				if(node == null)
+					return;
+				
+				node.removeCommandCenterSpot();
+			}
+			
+			populateBuildingLists();
+		}
+	}
+	
 	private class SetMapListener implements ActionListener
 	{
 		@Override
@@ -456,10 +614,56 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		@Override
 		public void stateChanged(ChangeEvent e)
 		{
-			JSlider source = (JSlider)e.getSource();
+			Object source = e.getSource();
 			
 			if(source == laneWidthSlider)
 				map.setLaneWidth(laneWidthSlider.getValue());
+		}
+	}
+	
+	private class ComboBoxListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			Object source = e.getSource();
+			
+			if(source == nodeSelector)
+			{
+				Node selected = (Node)nodeSelector.getSelectedItem();
+				if(selected != null)
+				{
+					map.setSelectedNode(selected);
+					startNode.setSelected(selected.isStartNode());
+					populateBuildingLists();
+				}
+			}
+			else if(source == buildingSpotSelector)
+			{
+				map.setSelectedBuilding((BuildingSpot)buildingSpotSelector.getSelectedItem());
+			}
+			else if(source == commandCenterSelector)
+			{
+				map.setSelectedCommandCenter((BuildingSpot)commandCenterSelector.getSelectedItem());
+			}
+		}
+	}
+	
+	private class ListListener implements ListSelectionListener
+	{
+		@Override
+		public void valueChanged(ListSelectionEvent e)
+		{
+			Object source = e.getSource();
+			
+			if(source == containedBuildingSpots)
+			{
+				buildingSpotSelector.setSelectedItem(containedBuildingSpots.getSelectedValue());
+			}
+			else if(source == containedCommandCenter)
+			{
+				commandCenterSelector.setSelectedItem(containedCommandCenter.getSelectedValue());
+			}
 		}
 	}
 }
