@@ -17,14 +17,23 @@ import java.util.ArrayList;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.BuildingSpot;
+import linewars.gamestate.Node;
 import editor.ConfigurationEditor;
 import editor.animations.FileCopy;
 
@@ -43,14 +52,27 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JRadioButton createNode;
 	private JRadioButton createBuilding;
 	private JRadioButton createCommandCenter;
+	
+	private JPanel placeholder;
+	private JSlider laneWidthSlider;
+	private JPanel nodeEditorPanel;
+	
+	private JCheckBox startNode;
+	private JComboBox nodeSelector;
+	private JComboBox buildingSpotSelector;
+	private JComboBox commandCenterSelector;
+	private JList containedBuildingSpots;
+	private JList containedCommandCenter;
+	
+	private boolean editingPanelLoaded;
 
 	public MapEditor(JFrame frame)
 	{
 		super(null);
-		setPreferredSize(new Dimension(768, 512));
+		setPreferredSize(new Dimension(1200, 800));
 		
 		this.frame = frame;
-
+		
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(layout);
@@ -63,36 +85,83 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		layout.setConstraints(map, c);
 		add(map);
 		
-		//create check boxes
-		selectNodes = new JCheckBox("Nodes");
-		selectLanes = new JCheckBox("Lanes");
-		selectBuildings = new JCheckBox("Buildings");
-		selectCommandCenters = new JCheckBox("Command Centers");
+		createCheckBoxes(layout, c);
+		createRadioButtons(layout, c);
+		createEditingPanel(layout, c);
 		
-		ArrayList<JCheckBox> items = new ArrayList<JCheckBox>();
-		items.add(selectNodes);
-		items.add(selectLanes);
-		items.add(selectBuildings);
-		items.add(selectCommandCenters);
-		
-		//the item listener for the check boxes
-		ItemListener checkBoxListener = new CheckBoxListener();
+		//create and add the map selector button
+		c.gridx = GridBagConstraints.RELATIVE;
+		c.gridy = GridBagConstraints.RELATIVE;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.gridheight = GridBagConstraints.REMAINDER;
+		JButton setMap = new JButton("Set Map");
+		setMap.addActionListener(new SetMapListener());
+		layout.setConstraints(setMap, c);
+		add(setMap);
+	}
 
-		//add check boxes to JPanel
-		JPanel selectedItems = new JPanel(new GridLayout(items.size(), 1));
-		for(JCheckBox box : items)
+	private void createEditingPanel(GridBagLayout layout, GridBagConstraints c)
+	{
+		editingPanelLoaded = false;
+
+		c.gridx = GridBagConstraints.RELATIVE;
+		c.gridy = 1;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.gridheight = 1;
+		
+		//create the place holder panel
+		placeholder = new JPanel();
+		placeholder.setVisible(true);
+		layout.setConstraints(placeholder, c);
+		add(placeholder);
+		
+		//create and add the lane width slider
+		laneWidthSlider = new JSlider(JSlider.VERTICAL, 0, 100, 20);
+		laneWidthSlider.addChangeListener(new LaneWidthListener());
+		laneWidthSlider.setVisible(false);
+		layout.setConstraints(laneWidthSlider, c);
+		add(laneWidthSlider);
+		
+		//create the editor panels for editing the building spots that are in a node
+		startNode = new JCheckBox("start node");
+		nodeSelector = new JComboBox();
+		buildingSpotSelector = new JComboBox();
+		commandCenterSelector = new JComboBox();
+		containedBuildingSpots = new JList();
+		containedCommandCenter = new JList();
+		
+		ArrayList<JComponent> nodeEditors = new ArrayList<JComponent>();
+		nodeEditors.add(new JLabel("Nodes"));
+		nodeEditors.add(new JPanel());
+		nodeEditors.add(nodeSelector);
+		nodeEditors.add(startNode);
+		nodeEditors.add(new JLabel("Buildings"));
+		nodeEditors.add(new JLabel("Command Centers"));
+		nodeEditors.add(buildingSpotSelector);
+		nodeEditors.add(commandCenterSelector);
+		nodeEditors.add(containedBuildingSpots);
+		nodeEditors.add(containedCommandCenter);
+		
+		//add the editor panels to the node editing panel
+		nodeEditorPanel = new JPanel(new GridLayout((nodeEditors.size() + 1) / 2, 2, 25, 10));
+		for(JComponent panel : nodeEditors)
 		{
-			box.setSelected(true);
-			box.addItemListener(checkBoxListener);
-			selectedItems.add(box);
+			nodeEditorPanel.add(panel);
 		}
 		
-		//add the selectable items panel to the editor
-		c.gridx = GridBagConstraints.RELATIVE;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		layout.setConstraints(selectedItems, c);
-		add(selectedItems);
+		//add the node editing panel to the editor
+		nodeEditorPanel.setVisible(false);
+		layout.setConstraints(nodeEditorPanel, c);
+		add(nodeEditorPanel);
 		
+		Dimension dim = new Dimension(400, 400);
+		placeholder.setPreferredSize(dim);
+		laneWidthSlider.setPreferredSize(dim);
+		nodeEditorPanel.setPreferredSize(dim);
+	}
+
+	private void createRadioButtons(GridBagLayout layout, GridBagConstraints c)
+	{
 		//create radio buttons
 		createLane = new JRadioButton("Lane");
 		createNode = new JRadioButton("Node");
@@ -127,21 +196,72 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		c.gridheight = GridBagConstraints.REMAINDER;
 		layout.setConstraints(createItems, c);
 		add(createItems);
+	}
+
+	private void createCheckBoxes(GridBagLayout layout, GridBagConstraints c)
+	{
+		//create check boxes
+		selectNodes = new JCheckBox("Nodes");
+		selectLanes = new JCheckBox("Lanes");
+		selectBuildings = new JCheckBox("Buildings");
+		selectCommandCenters = new JCheckBox("Command Centers");
 		
-		//create and add the map selector button
+		ArrayList<JCheckBox> items = new ArrayList<JCheckBox>();
+		items.add(selectNodes);
+		items.add(selectLanes);
+		items.add(selectBuildings);
+		items.add(selectCommandCenters);
+		
+		//the item listener for the check boxes
+		ItemListener checkBoxListener = new CheckBoxListener();
+
+		//add check boxes to JPanel
+		JPanel selectedItems = new JPanel(new GridLayout(items.size(), 1));
+		for(JCheckBox box : items)
+		{
+			box.setSelected(true);
+			box.addItemListener(checkBoxListener);
+			selectedItems.add(box);
+		}
+		
+		//add the selectable items panel to the editor
 		c.gridx = GridBagConstraints.RELATIVE;
-		c.gridy = GridBagConstraints.RELATIVE;
+		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		c.gridheight = GridBagConstraints.REMAINDER;
-		JButton setMap = new JButton("Set Map");
-		setMap.addActionListener(new SetMapListener());
-		layout.setConstraints(setMap, c);
-		add(setMap);
+		c.gridheight = 1;
+		layout.setConstraints(selectedItems, c);
+		add(selectedItems);
+	}
+	
+	private void populateNodeEditingPanel()
+	{
+		nodeSelector.removeAllItems();
+		buildingSpotSelector.removeAllItems();
+		commandCenterSelector.removeAllItems();
+		
+		for(Node n : map.getNodes())
+		{
+			nodeSelector.addItem(n);
+		}
+		
+		for(BuildingSpot b : map.getBuildingSpots())
+		{
+			buildingSpotSelector.addItem(b);
+		}
+		
+		for(BuildingSpot b : map.getCommandCenters())
+		{
+			commandCenterSelector.addItem(b);
+		}
+		
+		editingPanelLoaded = true;
 	}
 	
 	@Override
 	public void setData(ConfigData cd)
 	{
+		editingPanelLoaded = false;
+
 		try
 		{
 			map.loadConfigFile(cd);
@@ -156,6 +276,8 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	@Override
 	public void forceSetData(ConfigData cd)
 	{
+		editingPanelLoaded = false;
+
 		try
 		{
 			map.loadConfigFile(cd);
@@ -166,6 +288,8 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	@Override
 	public void reset()
 	{
+		editingPanelLoaded = false;
+
 		//TODO reset the MapPanel
 	}
 
@@ -180,7 +304,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	public ParserKeys getType()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		return ParserKeys.mapURI;
 	}
 
 	@Override
@@ -189,12 +313,17 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		return this;
 	}
 	
+	@Override
+	public boolean isValidConfig()
+	{
+		return map.isValidConfig();
+	}
+
 	private class CheckBoxListener implements ItemListener
 	{
 		@Override
 		public void itemStateChanged(ItemEvent e)
 		{
-			// TODO Auto-generated method stub
 			Object source = e.getItemSelectable();
 
 			if(source == selectNodes)
@@ -222,22 +351,57 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		public void itemStateChanged(ItemEvent e)
 		{
 			Object source = e.getItemSelectable();
+			boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+			
+			if(selected)
+			{
+				placeholder.setVisible(true);
+				laneWidthSlider.setVisible(false);
+				nodeEditorPanel.setVisible(false);
+			}
 			
 			if(source == createNode)
 			{
-				map.setCreateNode(e.getStateChange() == ItemEvent.SELECTED);
+				map.setCreateNode(selected);
+				
+				if(selected)
+				{
+					placeholder.setVisible(false);
+					nodeEditorPanel.setVisible(true);
+					if(!editingPanelLoaded) populateNodeEditingPanel();
+				}
 			}
 			else if(source == createLane)
 			{
-				map.setCreateLane(e.getStateChange() == ItemEvent.SELECTED);
+				map.setCreateLane(selected);
+				
+				if(selected)
+				{
+					placeholder.setVisible(false);
+					laneWidthSlider.setVisible(true);
+				}
 			}
 			else if(source == createBuilding)
 			{
-				map.setCreateBuilding(e.getStateChange() == ItemEvent.SELECTED);
+				map.setCreateBuilding(selected);
+				
+				if(selected)
+				{
+					placeholder.setVisible(false);
+					nodeEditorPanel.setVisible(true);
+					if(!editingPanelLoaded) populateNodeEditingPanel();
+				}
 			}
 			else if(source == createCommandCenter)
 			{
-				map.setCreateCommandCenter(e.getStateChange() == ItemEvent.SELECTED);
+				map.setCreateCommandCenter(selected);
+				
+				if(selected)
+				{
+					placeholder.setVisible(false);
+					nodeEditorPanel.setVisible(true);
+					if(!editingPanelLoaded) populateNodeEditingPanel();
+				}
 			}
 		}
 	}
@@ -270,7 +434,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			
 			String relativePath = "resources" + File.separator + "maps" + File.separator + mapURI;
 			String moveTo = System.getProperty("user.dir") + File.separator + relativePath;
-			if(!mapFile.getAbsoluteFile().equals(moveTo))
+			if(!mapFile.getAbsolutePath().equals(moveTo))
 			{
 				try
 				{
@@ -284,13 +448,18 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			}
 			
 			map.setMapImage("/resources/maps/" + mapURI);
-			JOptionPane.showMessageDialog(frame, "File loaded successfuly!", "success", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
-
-	@Override
-	public boolean isValidConfig() {
-		// TODO Auto-generated method stub
-		return false;
+	
+	private class LaneWidthListener implements ChangeListener
+	{
+		@Override
+		public void stateChanged(ChangeEvent e)
+		{
+			JSlider source = (JSlider)e.getSource();
+			
+			if(source == laneWidthSlider)
+				map.setLaneWidth(laneWidthSlider.getValue());
+		}
 	}
 }

@@ -44,14 +44,14 @@ public class LaneDrawer
 	 * @param g
 	 *            The Graphics to draw to.
 	 */
-	public void draw(Graphics g, Lane lane, Position mouse, double scale)
+	public void draw(Graphics g, Lane lane, boolean selected, Position mouse, double scale)
 	{
 		Node[] nodes = lane.getNodes();
 
 		Position laneStart = lane.getPosition(0).getPosition();		
 		Position laneEnd = lane.getPosition(1.0).getPosition();				
 
-		g.setColor(new Color(255, 0, 0, 80));
+		g.setColor(new Color(255, 0, 0, selected ? 90 : 60));
 		
 		//initialize the draw positions
 		Position beforePos = nodes[0].getTransformation().getPosition();

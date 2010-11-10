@@ -79,4 +79,10 @@ public class BuildingSpot
 	{
 		return new Dimension((int)rect.getWidth(), (int)rect.getHeight());
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getTrans().getPosition().toString();
+	}
 }

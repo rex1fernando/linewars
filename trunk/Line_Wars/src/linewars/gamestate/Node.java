@@ -121,12 +121,12 @@ public strictfp class Node {
 		
 		for(Lane l : attachedLanes)
 		{
-			data.set(ParserKeys.lanes, l.getName());
+			data.add(ParserKeys.lanes, l.getName());
 		}
 		
 		for(BuildingSpot s : buildingSpots)
 		{
-			data.set(ParserKeys.buildingSpots, s.getData());
+			data.add(ParserKeys.buildingSpots, s.getData());
 		}
 		
 		data.set(ParserKeys.commandCenterTransformation, cCenterTransform.getData());
@@ -174,12 +174,12 @@ public strictfp class Node {
 	
 	public Lane[] getAttachedLanes()
 	{
-		return (Lane[])attachedLanes.toArray();
+		return attachedLanes.toArray(new Lane[0]);
 	}
 	
 	public Unit[] getContainedUnits()
 	{
-		return (Unit[])containedUnits.toArray();
+		return containedUnits.toArray(new Unit[0]);
 	}
 	
 	public Circle getBoundingCircle()
@@ -415,6 +415,12 @@ public strictfp class Node {
 	public int getID()
 	{
 		return ID;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getTransformation().getPosition().toString();
 	}
 	
 	private class Pair<K, V> implements Entry<K, V> {

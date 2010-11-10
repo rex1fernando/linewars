@@ -75,6 +75,12 @@ public class ImageDrawer
 
 		images.put(uri + unitURI, scaledImage);
 	}
+	
+	/*
+	 * TODO add a loadMapImage(String uri, double gameMapWidth, double gameMapHeight)
+	 * This will store the map image width and height along with the game map width and height.
+	 * These will be used for proper scaling in the draw() method.
+	 */
 
 	public BufferedImage loadImage(String uri) throws IOException
 	{

@@ -33,25 +33,30 @@ public class NodeDrawer
 		this.panel = panel;
 	}
 
-	public void draw(Graphics g, Node node, Position mouse, double scale)
+	public void draw(Graphics g, Node node, boolean selected, Position mouse, double scale)
 	{
+		//set the color for the node
 		if(node.isStartNode())
-			g.setColor(new Color(0, 255, 0, 80));
+			g.setColor(new Color(0, 255, 0, selected ? 90 : 60));
 		else
-			g.setColor(new Color(255, 0, 0, 80));
+			g.setColor(new Color(255, 0, 0, selected ? 90 : 60));
 
+		//get the position of the node
 		double radius = node.getBoundingCircle().getRadius();
 		Position centerPos = node.getTransformation().getPosition();
 		Position gamePos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
 		Position screenPos = panel.toScreenCoord(gamePos);
 
+		//draw the inside of the node
 		g.fillOval((int)screenPos.getX(), (int)screenPos.getY(), (int)((2 * radius) * scale), (int)((2 * radius) * scale));
 		
+		//set the border color for the node
 		if(node.isStartNode())
 			g.setColor(new Color(0, 255, 0));
 		else
 			g.setColor(new Color(255, 0, 0));
 
+		//set the stroke size of the border
 		Circle bounds = node.getBoundingCircle();
 		Circle outer = new Circle(bounds.position(), bounds.getRadius() + 2.5 / scale);
 		Circle inner = new Circle(bounds.position(), bounds.getRadius() - 2.5 / scale);
@@ -60,6 +65,7 @@ public class NodeDrawer
 		else
 			((Graphics2D)g).setStroke(new BasicStroke(5));
 		
+		//draw the border of the node
 		g.drawOval((int)screenPos.getX(), (int)screenPos.getY(), (int)((2 * radius) * scale), (int)((2 * radius) * scale));
 	}
 }

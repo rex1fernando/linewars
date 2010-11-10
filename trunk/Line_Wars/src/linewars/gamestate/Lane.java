@@ -276,6 +276,11 @@ public strictfp class Lane
 		return width;
 	}
 	
+	public void setWidth(double width)
+	{
+		this.width = width;
+	}
+	
 	public Wave[] getWaves()
 	{
 		return waves.toArray(new Wave[0]);

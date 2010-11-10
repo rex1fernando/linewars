@@ -1,6 +1,7 @@
 package editor.mapEditor;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
@@ -28,20 +29,22 @@ public class MapDrawer
 		this.panel = panel;
 	}
 	
-	public void setMap(String mapURI)
+	public Dimension setMap(String mapURI)
 	{
-		//String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
+		String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
 
 		try
 		{
-			map = ImageDrawer.getInstance().loadImage(mapURI);
-			//map = ImageIO.read(new URL(absURI));
+			map = ImageIO.read(new URL(absURI));
+			JOptionPane.showMessageDialog(null, "File loaded successfuly!", "success", JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(null, "Unable to load " + mapURI + " from the game resources!", "ERROR", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
+		
+		return new Dimension(map.getWidth(null), map.getHeight(null));
 	}
 	
 	public void draw(Graphics g, Rectangle2D visibleScreen, double scale)
