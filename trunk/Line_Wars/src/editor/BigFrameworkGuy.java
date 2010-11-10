@@ -18,6 +18,7 @@ import editor.abilities.AbilityEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
+import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 
 
@@ -55,7 +56,7 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Tech", "Map Item", "Ability", "Animation"};
+		String[] editors = {"Map", "Tech", "Map Item", "Ability", "Animation", "Function"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -69,6 +70,8 @@ public class BigFrameworkGuy
 				ce = new MapEditor(frame);
 			else if(e.equals("Tech"))
 				ce = new TechEditor(this);
+			else if(e.equals("Function"))
+				ce = new FunctionEditor();
 			//TODO add an if statement for new editors here
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
