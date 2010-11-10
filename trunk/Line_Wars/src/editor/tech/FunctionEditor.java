@@ -47,6 +47,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	
 	private void setData(ConfigData cd, boolean force)
 	{
+		this.reset();
 		if (cd.getDefinedKeys().contains(ParserKeys.functionType)
 				&& cd.getString(ParserKeys.functionType) != null
 				&& cd.getDefinedKeys().contains(ParserKeys.coefficients)
