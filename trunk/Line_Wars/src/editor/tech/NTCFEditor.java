@@ -78,10 +78,12 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	public void forceSetData(ConfigData cd) {
 		if(cd.getDefinedKeys().contains(ParserKeys.name) && cd.getString(ParserKeys.name) != null ){
 			name = cd.getString(ParserKeys.name);
+			nameField.setText(name);
 		}
 		
 		if(cd.getDefinedKeys().contains(ParserKeys.tooltip) && cd.getString(ParserKeys.tooltip) != null){
 			tooltip = cd.getString(ParserKeys.tooltip);
+			tooltipArea.setText(tooltip);
 		}
 		
 		if(cd.getDefinedKeys().contains(ParserKeys.costFunction) && cd.getConfig(ParserKeys.costFunction) != null){

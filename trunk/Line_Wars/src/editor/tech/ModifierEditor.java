@@ -104,11 +104,18 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	@Override
 	public void forceSetData(ConfigData cd) {
 		reset();
+		
+		ConfigData subModifier = null;
+		try{
+			subModifier = cd.getConfig(ParserKeys.modifier);
+		}catch(NoSuchKeyException e){
+			return;
+		}
 
 		//figure out which editor should be used
 		String modifierType = null;
 		try{
-			modifierType = cd.getString(ParserKeys.modifiertype);
+			modifierType = subModifier.getString(ParserKeys.modifiertype);
 		}catch(NoSuchKeyException e){
 			//if the modifiertype is not there, we give up
 			return;
@@ -122,6 +129,8 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 
 		//set its data
 		properEditor.forceSetData(cd);
+		//enable the editor
+		enableSubEditor(properEditor);
 	}
 
 	@Override
@@ -175,8 +184,27 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	 */
 	public boolean modifierIsValid(String URI, ConfigData modifier){
 		String type = null;
+		String key = null;
 		try{
-			type = modifier.getString(ParserKeys.modifiertype);
+			key = modifier.getString(ParserKeys.key);
+		}catch(NoSuchKeyException e){
+			return false;
+		}
+		try{
+			ParserKeys.getKey(key);
+		}catch(IllegalArgumentException e){
+			return false;
+		}
+		
+		//get the config that defines the actual modifier
+		ConfigData subConfig = null;
+		try{
+			subConfig = modifier.getConfig(ParserKeys.modifier);
+		}catch(NoSuchKeyException e){
+			return false;
+		}
+		try{
+			type = subConfig.getString(ParserKeys.modifiertype);
 		}catch(NoSuchKeyException e){
 			return false;
 		}
@@ -199,8 +227,27 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	 */
 	public boolean legalizeModifier(String URI, ConfigData modifier){
 		String type = null;
+		String key = null;
 		try{
-			type = modifier.getString(ParserKeys.modifiertype);
+			key = modifier.getString(ParserKeys.key);
+		}catch(NoSuchKeyException e){
+			return false;
+		}
+		try{
+			ParserKeys.getKey(key);
+		}catch(IllegalArgumentException e){
+			return false;
+		}
+		
+		//get the config that defines the actual modifier
+		ConfigData subConfig = null;
+		try{
+			subConfig = modifier.getConfig(ParserKeys.modifier);
+		}catch(NoSuchKeyException e){
+			return false;
+		}
+		try{
+			type = subConfig.getString(ParserKeys.modifiertype);
 		}catch(NoSuchKeyException e){
 			return false;
 		}
@@ -208,7 +255,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 		if(properEditor == null){
 			return false;
 		}
-		return properEditor.modifierIsValid(URI, modifier);
+		return properEditor.legalizeModifier(URI, modifier);
 	}
 	
 	/**
