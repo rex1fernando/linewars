@@ -71,7 +71,7 @@ public strictfp class Game {
 				networking = new SinglePlayerNetworkProxy();
 			}else{//if the player gave a client address, use the actual networking instead of the proxy
 				try {
-					server = new Server(playerAddresses.toArray(new String[0]), numPlayers);
+					server = new Server(playerAddresses.toArray(new String[0]), SOCKET_PORT);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
@@ -92,7 +92,7 @@ public strictfp class Game {
 			//if this player is the server
 			if(serverAddress.equals("127.0.0.1")){
 				try {
-					server = new Server(null, numPlayers);
+					server = new Server(playerAddresses.toArray(new String[0]), SOCKET_PORT);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}

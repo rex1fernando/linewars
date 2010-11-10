@@ -28,7 +28,7 @@ import linewars.network.messages.SupDawgMessage;
  */
 public class Client implements MessageHandler
 {
-	private static final int K = 6;
+	public static final int K = 6;
 	
 	private List<Message> outgoingMessages;
 	private GateKeeper gateKeeper;

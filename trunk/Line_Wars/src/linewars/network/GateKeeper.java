@@ -228,6 +228,7 @@ public class GateKeeper
 		{
 			this.delay = delay;
 			incompletePackets = new HashMap<MessageID, List<MessagePacket>>();
+			isListening = true;
 		}
 		
 		public void start()

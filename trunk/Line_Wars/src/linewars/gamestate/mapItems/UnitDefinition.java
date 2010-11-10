@@ -33,7 +33,6 @@ public strictfp class UnitDefinition extends MapItemDefinition {
 
 	public UnitDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
-		System.out.println(super.getParser().getString(ParserKeys.name));
 	}
 
 	/**

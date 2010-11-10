@@ -199,6 +199,7 @@ public class Server implements Runnable
 			}
 		}
 		
+		
 		//send the list out to everyone!
 		for(int i = 0; i < clientAddresses.length; i++){
 			gateKeeper.pushMessagesForTick(allMessages.toArray(new Message[0]), clientAddresses[i]);

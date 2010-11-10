@@ -832,7 +832,6 @@ public strictfp class Lane
 			t = this.getPosition(1 - LANE_SPAWN_DISTANCE);
 		else
 			t = this.getPosition(LANE_SPAWN_DISTANCE);
-		System.out.println(t);
 		Gate g = p.getGateDefinition().createGate(t);
 		Gate oldG = gates.get(n);
 		gates.put(n, g);

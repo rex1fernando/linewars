@@ -139,7 +139,6 @@ public strictfp abstract class MapItem {
 	 */
 	public void setTransformation(Transformation t)
 	{
-		//System.out.println("Moving to " + t);
 		Position current = body.position().getPosition();
 		Transformation change = new Transformation(t.getPosition().subtract(current), t.getRotation() - body.position().getRotation());
 		body = body.transform(change);

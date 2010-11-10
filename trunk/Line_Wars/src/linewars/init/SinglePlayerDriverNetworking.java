@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class SinglePlayerDriverNetworking {
 	public static void main(String[] args){
-		String mapDefinitionURI = "resources/maps/map1.cfg";
+		String mapDefinitionURI = "resources/maps/3_lane_map.cfg";
 		int numPlayers = 1;
 		String serverAddress = "127.0.0.1";
 		String raceURI1 = "resources/races/thatOneRace.cfg";
