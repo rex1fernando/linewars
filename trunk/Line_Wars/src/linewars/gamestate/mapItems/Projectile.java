@@ -39,6 +39,14 @@ public strictfp class Projectile extends MapItem {
 	 */
 	public void move()
 	{
+		//first check to see if this unit is outside the lane
+		Transformation t = lane.getPosition(lane.getClosestPointRatio(this.getPosition()));
+		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2))
+		{
+			this.setState(MapItemState.Dead);
+			return;
+		}
+		
 		double v = definition.getVelocity();
 		double r = this.getRotation();
 		Position change = new Position(v*Math.cos(r), v*Math.sin(r));

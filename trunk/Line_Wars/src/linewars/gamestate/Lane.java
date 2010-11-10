@@ -1,5 +1,6 @@
 package linewars.gamestate;
 
+import java.awt.Graphics;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +53,8 @@ public strictfp class Lane
 	
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
+	
+	private LaneBorderDefinition lbd;
 	
 	
 	public Lane(Node n1, Node n2)
@@ -110,49 +113,122 @@ public strictfp class Lane
 		
 		double size = LANE_BORDER_RESOLUTION*this.getLength();
 		try {
-			LaneBorderDefinition lbd = new LaneBorderDefinition(gameState, size);
-			double dis = this.getWidth()/2 + size;
+			lbd = new LaneBorderDefinition(gameState, size);
+//			double dis = this.getWidth()/2 + size;
+//			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
+//			{
+//				Transformation t = this.getPosition(i);
+//				Transformation t1 = new Transformation(t.getPosition().subtract(
+//						dis*Math.sin(t.getRotation()), 
+//						dis*Math.cos(t.getRotation())), 0);
+//				borders.add(lbd.createLaneBorder(t1));
+//				Transformation t2 = new Transformation(t.getPosition().add(
+//						dis*Math.sin(t.getRotation()), 
+//						dis*Math.cos(t.getRotation())), 0);
+//				borders.add(lbd.createLaneBorder(t2));
+//			}
+//			
+//			//now we need to add lane borders at the end of the lanes
+//			Transformation t0 = this.getPosition(0);
+//			//move t0 back by size
+//			t0 = new Transformation(t0.getPosition().subtract(
+//					size*Math.cos(t0.getRotation()), 
+//					size*Math.sin(t0.getRotation())), t0.getRotation());
+////			now do the same for the other end of the lane
+//			Transformation t1 = this.getPosition(1);
+//			t1 = new Transformation(t1.getPosition().add(
+//					size*Math.cos(t1.getRotation()), 
+//					size*Math.sin(t1.getRotation())), t1.getRotation());
+//			
+//			for(double i = this.getWidth()/2 + size; i >= -(this.getWidth()/2 + size); i -= size)
+//			{
+//				Transformation t0Prime = new Transformation(t0.getPosition().add(
+//						i*Math.sin(t0.getRotation()), 
+//						i*Math.cos(t0.getRotation())), t0.getRotation());
+//				borders.add(lbd.createLaneBorder(t0Prime));
+//				Transformation t1Prime = new Transformation(t1.getPosition().add(
+//						i*Math.sin(t1.getRotation()), 
+//						i*Math.cos(t1.getRotation())), t1.getRotation());
+//				borders.add(lbd.createLaneBorder(t1Prime));
+//			}
+			
+			
 			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
 			{
-				Transformation t = this.getPosition(i);
-				Transformation t1 = new Transformation(t.getPosition().subtract(
-						dis*Math.sin(t.getRotation()), 
-						dis*Math.cos(t.getRotation())), 0);
-				borders.add(lbd.createLaneBorder(t1));
-				Transformation t2 = new Transformation(t.getPosition().add(
-						dis*Math.sin(t.getRotation()), 
-						dis*Math.cos(t.getRotation())), 0);
-				borders.add(lbd.createLaneBorder(t2));
-			}
-			
-			//now we need to add lane borders at the end of the lanes
-			Transformation t0 = this.getPosition(0);
-			//move t0 back by size
-			t0 = new Transformation(t0.getPosition().subtract(
-					size*Math.cos(t0.getRotation()), 
-					size*Math.sin(t0.getRotation())), t0.getRotation());
-//			now do the same for the other end of the lane
-			Transformation t1 = this.getPosition(1);
-			t1 = new Transformation(t1.getPosition().add(
-					size*Math.cos(t1.getRotation()), 
-					size*Math.sin(t1.getRotation())), t1.getRotation());
-			
-			for(double i = this.getWidth()/2 + size; i >= -(this.getWidth()/2 + size); i -= size)
-			{
-				Transformation t0Prime = new Transformation(t0.getPosition().add(
-						i*Math.sin(t0.getRotation()), 
-						i*Math.cos(t0.getRotation())), t0.getRotation());
-				borders.add(lbd.createLaneBorder(t0Prime));
-				Transformation t1Prime = new Transformation(t1.getPosition().add(
-						i*Math.sin(t1.getRotation()), 
-						i*Math.cos(t1.getRotation())), t1.getRotation());
-				borders.add(lbd.createLaneBorder(t1Prime));
+				Position before, start, end, after;
+				boolean startLine = false, endLine = false;
+				//special cases at the ends
+				if(i == 0)
+				{
+					before = start = this.getPosition(i).getPosition();
+					end = this.getPosition(i + LANE_BORDER_RESOLUTION).getPosition();
+					after = this.getPosition(i + 2*LANE_BORDER_RESOLUTION).getPosition();
+					startLine = true;
+				}
+				else if(i + 2*LANE_BORDER_RESOLUTION > 1.001)
+				{
+					before = this.getPosition(i - LANE_BORDER_RESOLUTION).getPosition();
+					start = this.getPosition(i).getPosition();
+					end = after = this.getPosition(Math.min(i + 2*LANE_BORDER_RESOLUTION, 1)).getPosition();
+					endLine = true;
+				}
+				else
+				{
+					before = this.getPosition(i - LANE_BORDER_RESOLUTION).getPosition();
+					start = this.getPosition(i).getPosition();
+					end = this.getPosition(i + LANE_BORDER_RESOLUTION).getPosition();
+					after = this.getPosition(Math.min(i + 2*LANE_BORDER_RESOLUTION, 1)).getPosition();
+				}
+				//lane borders are removed, this is the line to uncomment if they need to come back
+//				this.addBorders(before, start, end, after, size, startLine, endLine);
 			}
 			
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
 		
 		
+	}
+	
+	private void addBorders(Position before, Position start, Position end, Position after, double radius, boolean startLine, boolean endLine)
+	{
+		double width = this.getWidth() + 2*radius;
+		
+		// get the vectors that represents the line segments
+		Position segBefore = before.subtract(start);
+		Position segment = start.subtract(end);
+		Position segAfter = end.subtract(after);
+
+		// get the normalized vectors that are orthagonal to the lane
+		// we will use these to get the bounding points on the segment
+		Position normOrthStart = segBefore.orthogonal().add(segment.orthogonal()).normalize();
+		Position normOrthEnd = segment.orthogonal().add(segAfter.orthogonal()).normalize();
+
+		// generate the points that bound the segment to be drawn
+		Position p1 = new Position(start.getX() + normOrthStart.getX() * width / 2,
+														start.getY() + normOrthStart.getY() * width / 2);
+		Position p2 = new Position(start.getX() - normOrthStart.getX() * width / 2,
+														start.getY() - normOrthStart.getY() * width / 2);
+		Position p3 = new Position(end.getX() - normOrthEnd.getX() * width / 2,
+														end.getY() - normOrthEnd.getY() * width / 2);
+		Position p4 = new Position(end.getX() + normOrthEnd.getX() * this.getWidth() / 2,
+														end.getY() + normOrthEnd.getY() * width / 2);
+		
+		addBordersInLine(p1, p4, radius);
+		addBordersInLine(p2, p3, radius);
+		if(startLine)
+			addBordersInLine(p1, p2, radius);
+		if(endLine)
+			addBordersInLine(p3, p4, radius);
+	}
+	
+	private void addBordersInLine(Position start, Position end, double radius)
+	{
+		double distance = Math.sqrt(start.distanceSquared(end));
+		for(double i = 0; i <= distance; i += radius/2)
+		{
+			Position p = end.subtract(start).scale(i/distance).add(start);
+			borders.add(lbd.createLaneBorder(new Transformation(p, 0)));
+		}
 	}
 	
 	public ConfigData getData()
@@ -645,8 +721,9 @@ public strictfp class Lane
 			else
 				i++;
 		}
-		checkWaveConsistency();
+		
 		findAndResolveCollisions();
+		checkWaveConsistency();
 	}
 	
 	private void findAndResolveCollisions(){
@@ -676,7 +753,7 @@ public strictfp class Lane
 						
 						if(second.getState() == MapItemState.Moving){
 							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-2));
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-0.5));
 							collisionVectors.put(first, newPosition);
 						}
 						else{
@@ -727,8 +804,14 @@ public strictfp class Lane
 				if(x != w)
 				{
 					for(Unit u : w.getUnits())
+					{
+						for(Unit y : x.getUnits())
+							if(u == y)
+								throw new IllegalStateException("There are multiple waves with the same unit reference ID!");
+					
 						if(x.contains(u))
-							throw new IllegalStateException("There are multiple waves with the same unit!");
+							System.err.println("There are multiple waves with units in identical positions!");
+					}
 			}
 		}
 	}

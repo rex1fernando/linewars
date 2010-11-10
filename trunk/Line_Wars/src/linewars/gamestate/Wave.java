@@ -93,6 +93,10 @@ public strictfp class Wave {
 			if(d < min)
 				min = d;
 		}
+		if(min < 0)
+			min = 0;
+		if(min > 1)
+			min = 1;
 		return min;
 	}
 	
@@ -157,34 +161,33 @@ public strictfp class Wave {
 			double min = 1;
 			
 			//for efficiency reasons
-			ArrayList<Transformation> closestPoints = new ArrayList<Transformation>();
+			HashMap<Unit, Transformation> closestPoints = new HashMap<Unit, Transformation>();
 			
 			//go through each unit and see how far it's going to go
 			for(int i = 0; i < units.size();)
 			{
 				Unit u = units.get(i);
 				double pos = owner.getClosestPointRatio(u.getPosition());
+				Node target = owner.getNodes()[0];
 				//check to see if we've made it to the node we're going for
-				if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01))
+				//also, don't allow entering the node if the gate is still up
+				if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01) && 
+						(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead)))
 				{
-					Node target = owner.getNodes()[0];
 					if(target.equals(origin))
 						target = owner.getNodes()[1];
-					//don't allow invasion of the node if the gate is still up
-					if(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead))
-					{
-						if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
-							target.setInvader(u.getOwner());
-						target.addUnit(u);
-						units.remove(i);
-					}
+					
+					if(target.getInvader() == null || !target.getInvader().equals(u.getOwner()))
+						target.setInvader(u.getOwner());
+					target.addUnit(u);
+					units.remove(i);
 					continue;
 				}
 				else
 					i++;
 				
 				Transformation t = owner.getPosition(pos);
-				closestPoints.add(t);
+				closestPoints.put(u, t);
 				double angle = t.getRotation();
 				if(dir < 0)
 					angle -= Math.PI;
@@ -200,7 +203,7 @@ public strictfp class Wave {
 			double dis = wayTheFuckOutThere*min;
 			for(int i = 0; i < units.size(); i++)
 			{
-				double angle = closestPoints.get(i).getRotation();
+				double angle = closestPoints.get(units.get(i)).getRotation();
 				if(dir < 0)
 					angle -= Math.PI;
 //				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i)

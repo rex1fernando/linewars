@@ -172,12 +172,7 @@ public class ColoredEdge
 	 * 
 	 * @param g
 	 *            The Graphics object to draw the line segment to.
-	 * @param start
-	 *            The percentage along the bezier curve to start drawing (from
-	 *            0.0 to 1.0).
-	 * @param end
-	 *            The percentage along the bezier curve to stop drawing (from
-	 *            0.0 to 1.0).
+	 * 
 	 */
 	private void drawSegment(Graphics g, Lane lane, Position before, Position start,
 			Position end, Position after, double scale)
