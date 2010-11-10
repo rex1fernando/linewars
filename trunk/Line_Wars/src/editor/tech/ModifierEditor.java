@@ -1,10 +1,13 @@
 package editor.tech;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -28,7 +31,7 @@ import editor.ConfigurationEditor;
  * @author knexer
  *
  */
-public class ModifierEditor implements ConfigurationEditor {
+public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	
 	private BigFrameworkGuy bfg;
 	
@@ -72,10 +75,14 @@ public class ModifierEditor implements ConfigurationEditor {
 		subEditors.put(editorButton, editor);
 		typeToEditor.put(editor.getName(), editor);
 		
+		editorButton.addActionListener(this);
+		
 		unitValidModifiers.put(editor.getName(), editor.getValidUnitModifiers());
 		buildingValidModifiers.put(editor.getName(), editor.getValidBuildingModifiers());
 		abilityValidModifiers.put(editor.getName(), editor.getValidAbilityModifiers());
 		projectileValidModifiers.put(editor.getName(), editor.getValidProjectileModifiers());
+		
+		buttonPanel.add(editorButton);
 	}
 
 	@Override
@@ -238,6 +245,24 @@ public class ModifierEditor implements ConfigurationEditor {
 			}
 		}
 		return false;		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JButton source = (JButton) e.getSource();//we know its a JButton
+		for(Entry<JButton, ModifierConfigurationEditor> entry : subEditors.entrySet()){
+			if(source.equals(entry.getKey())){
+				enableSubEditor(entry.getValue());
+				return;
+			}
+		}
+	}
+
+	private void enableSubEditor(ModifierConfigurationEditor value) {
+		currentModifierTypeEditor = value;
+		panel.add(currentModifierTypeEditor.getPanel(), BorderLayout.CENTER);
+		currentModifierTypeEditor.getPanel().setVisible(true);
+		panel.validate();
 	}
 	
 }

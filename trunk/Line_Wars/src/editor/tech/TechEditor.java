@@ -44,7 +44,7 @@ public class TechEditor implements ConfigurationEditor {
 		
 		keySelector.getPanel().setVisible(false);
 		
-		topLevel.setPreferredSize(new Dimension(800, 650));
+		topLevel.setPreferredSize(new Dimension(800, 700));
 		
 		reset();
 	}
