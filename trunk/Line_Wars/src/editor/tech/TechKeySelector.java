@@ -38,7 +38,7 @@ public class TechKeySelector implements ConfigurationEditor {
 
 		@Override
 		public String[] getOptions() {
-			ParserKeys[] enumForm = ModifierEditor.getModifiableKeysForURI(URI);
+			ParserKeys[] enumForm = modEditor.getModifiableKeysForURI(URI);
 			String[] ret = new String[enumForm.length];
 			for(int i = 0; i < ret.length; i++){
 				ret[i] = enumForm[i].toString();
@@ -70,14 +70,14 @@ public class TechKeySelector implements ConfigurationEditor {
 	};
 
 	public TechKeySelector(BigFrameworkGuy framework) {
+		//init sub editor
+		modEditor = new ModifierEditor(this);
+		
 		panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 1));
-		
+
 		keySelector = new ListURISelector("Key", keySelectorOptions);
 		panel.add(keySelector);
-
-		//init sub editor
-		modEditor = new ModifierEditor();
 		
 		//set up sub editor's space
 		panel.add(modEditor.getPanel());
@@ -198,7 +198,7 @@ public class TechKeySelector implements ConfigurationEditor {
 		}
 		
 		//make sure that all modifications are themselves valid
-		ParserKeys[] definedKeys = ModifierEditor.getModifiableKeysForURI(URI);
+		ParserKeys[] definedKeys = modEditor.getModifiableKeysForURI(URI);
 		for(Entry<ParserKeys, ConfigData> currentEntry : modifiers.entrySet()){
 			//make sure this ParserKeys is defined for this type of upgradable
 			boolean isDefined = false;
@@ -227,6 +227,10 @@ public class TechKeySelector implements ConfigurationEditor {
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	String getCurrentURI(){
+		return URI;
 	}
 
 	
