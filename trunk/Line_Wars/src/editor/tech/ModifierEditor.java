@@ -1,8 +1,10 @@
 package editor.tech;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -11,6 +13,7 @@ import javax.swing.JPanel;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
+import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 
 /**
@@ -27,6 +30,8 @@ import editor.ConfigurationEditor;
  */
 public class ModifierEditor implements ConfigurationEditor {
 	
+	private BigFrameworkGuy bfg;
+	
 	private JPanel panel;
 	private JPanel buttonPanel;
 	private HashMap<JButton, ModifierConfigurationEditor> subEditors;
@@ -37,9 +42,11 @@ public class ModifierEditor implements ConfigurationEditor {
 	private HashMap<String, ParserKeys[]> abilityValidModifiers;
 	private HashMap<String, ParserKeys[]> projectileValidModifiers;
 	
-	private ConfigurationEditor currentModifierTypeEditor;
+	private ModifierConfigurationEditor currentModifierTypeEditor;
 	
-	public ModifierEditor(TechKeySelector parent){
+	public ModifierEditor(TechKeySelector parent, BigFrameworkGuy framework){
+		bfg = framework;
+		
 		panel = new JPanel();
 		buttonPanel = new JPanel();
 		subEditors = new HashMap<JButton, ModifierConfigurationEditor>();
@@ -57,7 +64,7 @@ public class ModifierEditor implements ConfigurationEditor {
 	}
 
 	private void initializeSubEditors() {
-		initializeSubEditor(new FunctionEditor());
+		initializeSubEditor(new NumericModifierEditor(bfg));
 	}
 	
 	private void initializeSubEditor(ModifierConfigurationEditor editor){
@@ -77,7 +84,7 @@ public class ModifierEditor implements ConfigurationEditor {
 
 		//figure out which editor should be used
 		String modifierType = cd.getString(ParserKeys.modifiertype);
-		ConfigurationEditor properEditor = typeToEditor.get(modifierType);
+		ModifierConfigurationEditor properEditor = typeToEditor.get(modifierType);
 		if(properEditor == null){
 			throw new IllegalArgumentException(modifierType + " is not a modifier type!");
 		}
@@ -99,7 +106,7 @@ public class ModifierEditor implements ConfigurationEditor {
 			//if the modifiertype is not there, we give up
 			return;
 		}
-		ConfigurationEditor properEditor = typeToEditor.get(modifierType);
+		ModifierConfigurationEditor properEditor = typeToEditor.get(modifierType);
 		if(properEditor == null){
 			//if the modifiertype is not valid, we give up
 			return;
@@ -128,7 +135,7 @@ public class ModifierEditor implements ConfigurationEditor {
 	@Override
 	public ConfigData getData() {
 		ConfigData ret = currentModifierTypeEditor.getData();
-		ret.set(ParserKeys.modifiertype, currentModifierTypeEditor.toString());//TODO make sure this is implemented?
+		ret.set(ParserKeys.modifiertype, currentModifierTypeEditor.getName());
 		return ret;
 	}
 
@@ -204,15 +211,22 @@ public class ModifierEditor implements ConfigurationEditor {
 	 * @return
 	 */
 	public ParserKeys[] getModifiableKeysForURI(String uri){
-//		Set<ParserKeys> allValidKeys = new HashSet<ParserKeys>();
-//		for(ModifierConfigurationEditor currentEditor : typeToEditor.values()){
-//			if(stringIsInArray(bfg.getUnitURIs(), uri)){
-//				allValidKeys.addAll(currentEditor.)
-//			}
-//		}
-		//TODO
-		ParserKeys[] enumForm = ParserKeys.values();
-		return enumForm;
+		Set<ParserKeys> allValidKeys = new HashSet<ParserKeys>();
+		for(ModifierConfigurationEditor currentEditor : typeToEditor.values()){
+			if(stringIsInArray(bfg.getUnitURIs(), uri)){
+				ParserKeys[] candidates = currentEditor.getValidUnitModifiers();
+				for(ParserKeys toAdd : candidates){
+					allValidKeys.add(toAdd);
+				}
+			}
+		}
+		ParserKeys[] ret = new ParserKeys[allValidKeys.size()];
+		int i = 0;
+		for(ParserKeys toRet : allValidKeys){
+			ret[i] = toRet;
+			i++;
+		}
+		return ret;
 	}
 	
 

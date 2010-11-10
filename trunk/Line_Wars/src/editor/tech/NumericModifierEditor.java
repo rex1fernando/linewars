@@ -11,6 +11,7 @@ import linewars.configfilehandler.ParserKeys;
 
 public class NumericModifierEditor implements ModifierConfigurationEditor {
 	
+	private ParserKeys modifiedKey;
 	private FunctionEditor fEditor;
 	private BigFrameworkGuy bfg;
 	
@@ -18,45 +19,52 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	{
 		bfg = guy;
 		fEditor = new FunctionEditor();
-		
-		//TODO finish contructing
+		modifiedKey = null;
 	}
 
 	@Override
 	public void setData(ConfigData cd) {
-		// TODO Auto-generated method stub
+		forceSetData(cd);
+	}
 
+	private boolean isValid(ConfigData cd) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		// TODO Auto-generated method stub
-
+		String strKey = cd.getString(ParserKeys.key);
+		modifiedKey = ParserKeys.getKey(strKey);
+		ConfigData modifier = cd.getConfig(ParserKeys.modifier);
+		//ignore modifiertype; modifierisvalid handles that
+		
 	}
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		modifiedKey = null;
 		fEditor.reset();
 	}
 
 	@Override
 	public ConfigData getData() {
-		// TODO Auto-generated method stub
-		return null;
+		ConfigData ret = new ConfigData();
+		ret.set(ParserKeys.key, modifiedKey.toString());
+		ConfigData modifier = new ConfigData();
+		ret.set(ParserKeys.modifier, modifier);
+		modifier.set(ParserKeys.modifiertype, getName());
+		modifier.set(ParserKeys.valueFunction, fEditor.getData());
+		return ret;
 	}
 
 	@Override
 	public boolean isValidConfig() {
-		// TODO Auto-generated method stub
-		return false;
+		return isValid(getData());
 	}
 
 	@Override
 	public ParserKeys getType() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

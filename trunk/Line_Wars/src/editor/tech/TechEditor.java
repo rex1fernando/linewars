@@ -46,7 +46,6 @@ public class TechEditor implements ConfigurationEditor {
 		
 		topLevel.setPreferredSize(new Dimension(800, 650));
 		
-		//TODO does this have to be called here?
 		reset();
 	}
 	

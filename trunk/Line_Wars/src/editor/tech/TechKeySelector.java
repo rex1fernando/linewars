@@ -71,7 +71,7 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	public TechKeySelector(BigFrameworkGuy framework) {
 		//init sub editor
-		modEditor = new ModifierEditor(this);
+		modEditor = new ModifierEditor(this, framework);
 		
 		panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 1));
