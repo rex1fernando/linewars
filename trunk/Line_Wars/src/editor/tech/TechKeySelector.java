@@ -1,10 +1,15 @@
 package editor.tech;
 
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
@@ -27,11 +32,13 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	private ParserKeys[] currentlyHighlightedKeys;
 	
+	private ModifierEditor modEditor;
+	
 	private ListSelectorOptions keySelectorOptions = new ListSelectorOptions(){
 
 		@Override
 		public String[] getOptions() {
-			ParserKeys[] enumForm = ParserKeys.values();
+			ParserKeys[] enumForm = ModifierEditor.getModifiableKeysForURI(URI);
 			String[] ret = new String[enumForm.length];
 			for(int i = 0; i < ret.length; i++){
 				ret[i] = enumForm[i].toString();
@@ -64,44 +71,104 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	public TechKeySelector(BigFrameworkGuy framework) {
 		panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.setLayout(new GridLayout(2, 1));
 		
 		keySelector = new ListURISelector("Key", keySelectorOptions);
 		panel.add(keySelector);
 
-		//TODO add a button that is only visible when exactly one thing is selected that does the function stuff
+		//init sub editor
+		modEditor = new ModifierEditor();
+		
+		//set up sub editor's space
+		panel.add(modEditor.getPanel());
+		modEditor.getPanel().setVisible(false);
 		
 		reset();
 	}
 
 	protected void updateCurrentlyHighlighted() {
-		if(currentlyHighlightedKeys.length == 1){
-			//TODO make that one button visible
+		if(currentlyHighlightedKeys.length != 1){
+			modEditor.reset();
+			modEditor.getPanel().setVisible(false);
 		}else{
-			//TODO make that one button not visible
-			//TODO kill the function panel thingy?
+			//save data currently in the modEditor
+			/* until modeditor is more implemented
+			ConfigData currentData = modEditor.getData();
+			String currentModifiedKey = currentData.getString(ParserKeys.key);
+			if(currentModifiedKey != null){
+				modifiers.put(ParserKeys.getKey(currentModifiedKey), currentData);
+			}*/
+			modEditor.forceSetData(modifiers.get(currentlyHighlightedKeys[0]));
+			modEditor.getPanel().setVisible(true);
 		}
 	}
 
 	@Override
-	public void setData(ConfigData cd) {//TODO make sure the implementation of this saves the old version, or drastic measures must be taken!
-		// TODO Auto-generated method stub
+	public void setData(ConfigData cd) {
+		reset();
+		//get the uri; if this fails, fail
+		URI = cd.getString(ParserKeys.URI);
 
+		//check and load the modifiedKeys
+		List<ConfigData> modifiedKeys = cd.getConfigList(ParserKeys.modifiedKey);
+		for(ConfigData modifier : modifiedKeys){
+			//get the key being modified; if this isn't there or isn't a key, we're boned
+			String strKey = modifier.getString(ParserKeys.key);
+			ParserKeys key = ParserKeys.getKey(strKey);
+			//check that it is valid
+			if(!modEditor.modifierIsValid(URI, modifier)){
+				throw new IllegalArgumentException("Uninformative message does not inform.");
+			}
+			//add it to modifiers
+			modifiers.put(key, modifier);
+			//add it to keySelector
+			keySelector.setSelectedURIs(addStringToArray(keySelector.getSelectedURIs(), strKey));
+		}
 	}
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		// TODO Auto-generated method stub
+		reset();
+		//get the uri; if this fails, fail
+		URI = cd.getString(ParserKeys.URI);
 
+		//check and load the modifiedKeys
+		List<ConfigData> modifiedKeys = null;
+		try{
+			modifiedKeys = cd.getConfigList(ParserKeys.modifiedKey);			
+		}catch(NoSuchKeyException e){
+			//then nothing is defined, and we are done!
+			return;
+		}
+		for(ConfigData modifier : modifiedKeys){
+			//get the key being modified; if this isn't there or isn't a key, we're boned
+			String strKey = modifier.getString(ParserKeys.key);
+			ParserKeys key = ParserKeys.getKey(strKey);
+			
+			if(!modEditor.legalizeModifier(URI, modifier)){//if it isn't legal
+				continue;//ignore it, don't use it
+			}
+			//add it to modifiers
+			modifiers.put(key, modifier);
+			//add it to keySelector
+			keySelector.setSelectedURIs(addStringToArray(keySelector.getSelectedURIs(), strKey));
+		}
 	}
 
 	@Override
 	public void reset() {
-		currentlyHighlightedKeys = new ParserKeys[0];
+		//reset state
 		modifiers = new HashMap<ParserKeys, ConfigData>();
 		URI = null;
-		// TODO Auto-generated method stub
-
+		
+		//reset display
+		currentlyHighlightedKeys = new ParserKeys[0];
+		keySelector.setSelectedURIs(new String[0]);
+		
+		//reset child panel
+		modEditor.reset();
+		
+		modEditor.getPanel().setVisible(false);
 	}
 
 	@Override
@@ -116,9 +183,40 @@ public class TechKeySelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isValidConfig() {
+		//make sure there is a URI
+		if(URI == null){
+			return false;
+		}
+		
+		//make sure at least one key is being modified
+		if(modifiers == null){
+			return false;
+		}
+		if(modifiers.keySet().size() == 0){
+			return false;
+		}
+		
+		//make sure that all modifications are themselves valid
+		ParserKeys[] definedKeys = ModifierEditor.getModifiableKeysForURI(URI);
+		for(Entry<ParserKeys, ConfigData> currentEntry : modifiers.entrySet()){
+			//make sure this ParserKeys is defined for this type of upgradable
+			boolean isDefined = false;
+			for(int i = 0; i < definedKeys.length; i++){
+				if(definedKeys[i].equals(currentEntry.getKey())){
+					isDefined = true;
+				}
+			}
+			if(!isDefined){
+				return false;
+			}
+			
+			//make sure this ConfigData is a valid modification
+			if(!modEditor.modifierIsValid(URI, currentEntry.getValue())){
+				return false;
+			}
+		}
+		return true;//ran the gauntlet, yay!
 	}
 
 	@Override
@@ -150,13 +248,14 @@ public class TechKeySelector implements ConfigurationEditor {
 			return true;
 		}
 		
+		ArrayList<ConfigData> legalModifications = new ArrayList<ConfigData>();
 		//Keep only the legal modifications
 		for(ConfigData modifiedKey : modifiedKeys){
-			if(!legalizeModification(modifiedKey, uri)){
-				modifiedKeys.remove(modifiedKey);
+			if(modEditor.legalizeModifier(uri, modifiedKey)){
+				legalModifications.add(modifiedKey);
 			}
 		}
-		modifiedUpgradable.set(ParserKeys.modifiedKey, modifiedKeys.toArray(new ConfigData[0]));
+		modifiedUpgradable.set(ParserKeys.modifiedKey, legalModifications.toArray(new ConfigData[0]));
 		return true;
 	}
 
@@ -178,9 +277,9 @@ public class TechKeySelector implements ConfigurationEditor {
 			return false;
 		}
 		
-		//Make sure all the modifications are legal
+		//Make sure all the modifications are valid
 		for(ConfigData modifiedKey : modifiedKeys){
-			if(!modificationIsValid(modifiedKey, uri)){
+			if(!modEditor.modifierIsValid(uri, modifiedKey)){
 				return false;
 			}
 		}
@@ -188,28 +287,12 @@ public class TechKeySelector implements ConfigurationEditor {
 		return false;
 	}
 	
-
-	
-	//TODO put these elsewhere?
-	private boolean legalizeModification(ConfigData modifiedKey, String uri) {
-		//check that there is a key
-		try{
-			String key = modifiedKey.getString(ParserKeys.key);
-		}catch(NoSuchKeyException e){
-			return false;
+	private String[] addStringToArray(String[] current, String toAdd){
+		String[] ret = new String[current.length + 1];
+		for(int i = 0; i < current.length; i++){
+			ret[i] = current[i];
 		}
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	private boolean modificationIsValid(ConfigData modifiedKey, String uri) {
-		//check that there is a key
-		try{
-			String key = modifiedKey.getString(ParserKeys.key);
-		}catch(NoSuchKeyException e){
-			return false;
-		}
-		// TODO Auto-generated method stub
-		return false;
+		ret[current.length] = toAdd;
+		return ret;
 	}
 }

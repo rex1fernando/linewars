@@ -37,6 +37,8 @@ public class TechURISelector implements ConfigurationEditor {
 	public String[] abilitiesCurrentlyHighlighted = new String[0];
 	public String[] projectilesCurrentlyHighlighted = new String[0];
 	
+	private boolean inHighlightCallback = false;
+	
 	private ListSelectorOptions unitSelectorOptions = new ListSelectorOptions(){
 
 		
@@ -47,7 +49,9 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriSelected(String uri) {
-			modifiedURIs.put(uri, new ConfigData());
+			ConfigData toAdd = new ConfigData();
+			toAdd.set(ParserKeys.URI, uri);
+			modifiedURIs.put(uri, toAdd);
 		}
 
 		@Override
@@ -58,8 +62,14 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriHighlightChange(String[] uris) {
+			if(uris.length == 0 || inHighlightCallback){
+				return;
+			}
+			inHighlightCallback = true;
+			resetHighlightedURIs();
 			unitsCurrentlyHighlighted = uris.clone();
 			updateCurrentlyHighlighted();
+			inHighlightCallback = false;
 		}
 	};
 	private ListSelectorOptions buildingSelectorOptions = new ListSelectorOptions(){
@@ -71,7 +81,9 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriSelected(String uri) {
-			modifiedURIs.put(uri, new ConfigData());
+			ConfigData toAdd = new ConfigData();
+			toAdd.set(ParserKeys.URI, uri);
+			modifiedURIs.put(uri, toAdd);
 		}
 
 		@Override
@@ -82,8 +94,14 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriHighlightChange(String[] uris) {
+			if(uris.length == 0 || inHighlightCallback){
+				return;
+			}
+			inHighlightCallback = true;
+			resetHighlightedURIs();
 			buildingsCurrentlyHighlighted = uris.clone();
 			updateCurrentlyHighlighted();
+			inHighlightCallback = false;
 		}
 	};
 	
@@ -96,7 +114,9 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriSelected(String uri) {
-			modifiedURIs.put(uri, new ConfigData());
+			ConfigData toAdd = new ConfigData();
+			toAdd.set(ParserKeys.URI, uri);
+			modifiedURIs.put(uri, toAdd);
 		}
 
 		@Override
@@ -107,8 +127,14 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriHighlightChange(String[] uris) {
+			if(uris.length == 0 || inHighlightCallback){
+				return;
+			}
+			inHighlightCallback = true;
+			resetHighlightedURIs();
 			abilitiesCurrentlyHighlighted = uris.clone();
 			updateCurrentlyHighlighted();
+			inHighlightCallback = false;
 		}
 	};
 	
@@ -121,7 +147,9 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriSelected(String uri) {
-			modifiedURIs.put(uri, new ConfigData());
+			ConfigData toAdd = new ConfigData();
+			toAdd.set(ParserKeys.URI, uri);
+			modifiedURIs.put(uri, toAdd);
 		}
 
 		@Override
@@ -132,8 +160,14 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriHighlightChange(String[] uris) {
+			if(uris.length == 0 || inHighlightCallback){
+				return;
+			}
+			inHighlightCallback = true;
+			resetHighlightedURIs();
 			projectilesCurrentlyHighlighted = uris.clone();
 			updateCurrentlyHighlighted();
+			inHighlightCallback = false;
 		}
 	};
 	
@@ -221,7 +255,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValidConfig() {
 		for(ConfigData toVerify : modifiedURIs.values()){
 			if(!keySelector.upgradableModificationIsValid(toVerify)){
 				return false;
@@ -240,8 +274,11 @@ public class TechURISelector implements ConfigurationEditor {
 		return panel;
 	}
 
-
 	private void updateCurrentlyHighlighted() {
+		unitSelector.setHighlightedURIs(unitsCurrentlyHighlighted);
+		buildingSelector.setHighlightedURIs(buildingsCurrentlyHighlighted);
+		abilitySelector.setHighlightedURIs(abilitiesCurrentlyHighlighted);
+		projectileSelector.setHighlightedURIs(projectilesCurrentlyHighlighted);
 		if(unitsCurrentlyHighlighted.length + buildingsCurrentlyHighlighted.length + abilitiesCurrentlyHighlighted.length + projectilesCurrentlyHighlighted.length != 1){
 			updateCurrentlyHighlighted(null);
 		}else if(unitsCurrentlyHighlighted.length == 1){
@@ -256,10 +293,21 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 	
 	private void updateCurrentlyHighlighted(String onlyHighlightedURI){
-		keySelector.setData(modifiedURIs.get(onlyHighlightedURI));
+		//save data currently in the keySelector
+		ConfigData currentData = keySelector.getData();
+		String currentModifiedURI = currentData.getString(ParserKeys.URI);
+		if(currentModifiedURI != null){
+			modifiedURIs.put(currentModifiedURI, currentData);			
+		}
+		
+		keySelector.reset();
+		
+		//set its visibility
 		if(onlyHighlightedURI == null){
 			keySelector.getPanel().setVisible(false);
 		}else{
+			//put new data in there
+			keySelector.forceSetData(modifiedURIs.get(onlyHighlightedURI));
 			keySelector.getPanel().setVisible(true);
 		}
 	}
@@ -303,5 +351,12 @@ public class TechURISelector implements ConfigurationEditor {
 			}
 		}
 		return false;		
+	}
+
+	private void resetHighlightedURIs() {
+		unitsCurrentlyHighlighted = new String[0];
+		buildingsCurrentlyHighlighted = new String[0];
+		abilitiesCurrentlyHighlighted = new String[0];
+		projectilesCurrentlyHighlighted = new String[0];
 	}
 }

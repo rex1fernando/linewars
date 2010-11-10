@@ -125,7 +125,7 @@ public class TechEditor implements ConfigurationEditor {
 	 */
 	@Override
 	public boolean isValidConfig() {
-		return ntcf.isValidConfig() && modifiedURIs.isValid();
+		return ntcf.isValidConfig() && modifiedURIs.isValidConfig();
 	}
 
 }

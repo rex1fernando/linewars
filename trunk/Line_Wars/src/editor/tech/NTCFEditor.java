@@ -101,7 +101,9 @@ public class NTCFEditor implements ConfigurationEditor, ActionListener, FocusLis
 	public ConfigData getData() {
 		NTCFData.add(ParserKeys.name, name);
 		NTCFData.add(ParserKeys.tooltip, tooltip);
-		NTCFData.add(ParserKeys.costFunction, costFunction.toConfigData());
+		if(costFunction != null){
+			NTCFData.add(ParserKeys.costFunction, costFunction.toConfigData());			
+		}
 		return NTCFData;
 	}
 

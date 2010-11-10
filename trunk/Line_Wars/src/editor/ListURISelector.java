@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,6 +68,28 @@ public class ListURISelector extends URISelector implements ListSelectionListene
 		for(int i = 0; i < objs.length; i++)
 			uris[i] = (String) objs[i];
 		return uris;
+	}
+	
+	public void setHighlightedURIs(String[] uris){
+		//clear current selection
+		list.clearSelection();
+		
+		//get list of all things in the list
+		String[] allURIs = new String[list.getModel().getSize()];
+		for(int i = 0; i < allURIs.length; i++){
+			allURIs[i] = (String) list.getModel().getElementAt(i);
+		}
+		
+		//figure out which Strings are in both lists
+		//and highlight them
+		for(int i = 0; i < allURIs.length; i++){
+			for(int j = 0; j < uris.length; j++){
+				if(uris[j].equals(allURIs[i])){
+					//highlight this String
+					list.addSelectionInterval(i, i);
+				}
+			}
+		}
 	}
 	
 	public String[] getSelectedURIs()
