@@ -70,7 +70,7 @@ public class ConfigFileWriter {
 			
 			for(ConfigData value : toWrite.getConfigList(key))
 			{
-				out.write(new String(key + " = {\n").getBytes());
+				out.write(new String(prefix + key + " = {\n").getBytes());
 				out.flush();
 				writeRecurse(value, prefix + "\t");
 				out.write(new String("}\n").getBytes());

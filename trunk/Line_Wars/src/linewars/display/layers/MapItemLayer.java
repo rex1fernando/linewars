@@ -1,5 +1,6 @@
 package linewars.display.layers;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -55,6 +56,13 @@ public class MapItemLayer implements ILayer
 			
 			if (visibleScreen.intersects(rect))
 			{
+				if(mapItemType == MapItemType.LANEBORDER)
+				{
+					pos = display.toScreenCoord(pos);
+					g.setColor(Color.red);
+					g.fillOval((int)pos.getX(), (int)pos.getY(), (int)(mapItem.getRadius() * scale), (int)(mapItem.getRadius() * scale));
+					continue;
+				}
 				//get the animation map for the unit
 				String uri = mapItem.getURI();
 				Map<MapItemState, Animation> stateToAnimationMap = unitToStateMap.get(uri);

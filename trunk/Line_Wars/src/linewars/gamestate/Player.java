@@ -92,24 +92,24 @@ public strictfp class Player {
 	 */
 	private void flowSetup()
 	{
-		boolean foundOwnedNode = false;
 		Lane[] lanes = gameState.getMap().getLanes();
-		for(int i = 0; i < lanes.length; i++)
+		for(Lane l : lanes)
 		{
-			Node[] currentNodes = lanes[i].getNodes();
-			for(int j = 0; j < currentNodes.length; j++)
+			Node[] currentNodes = l.getNodes();
+			boolean foundOwnedNode = false;
+			for(Node n : currentNodes)
 			{
-				if(ownedNodes.contains(currentNodes[j]) && !foundOwnedNode)
+				if(ownedNodes.contains(n) && !foundOwnedNode)
 				{
-					startPoints.put(lanes[i], currentNodes[j]);
+					startPoints.put(l, n);
 					foundOwnedNode = true;
 				}
 			}
 			if(!foundOwnedNode)
 			{
-				startPoints.put(lanes[i], lanes[i].getNodes()[0]);
+				startPoints.put(l, l.getNodes()[0]);
 			}
-			flowDist.put(lanes[i], new Double(50));
+			flowDist.put(l, new Double(50));
 		}
 	}
 	
