@@ -14,6 +14,7 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
@@ -130,9 +131,14 @@ public strictfp class Node {
 					attachedLanes.add(l);
 					l.addNode(this);
 				}
-		
-		List<ConfigData> transforms = parser.getConfigList(ParserKeys.buildingSpots);
+
 		buildingSpots = new ArrayList<BuildingSpot>();
+		List<ConfigData> transforms = new ArrayList<ConfigData>();;
+		try {
+			transforms = parser.getConfigList(ParserKeys.buildingSpots);
+		} catch (NoSuchKeyException e) {
+			//This just means there were no buildings defined for this node
+		}
 		for(int i = 0; i < transforms.size(); i++)
 			buildingSpots.add(new BuildingSpot(transforms.get(i)));
 		
@@ -468,8 +474,12 @@ public strictfp class Node {
 	{
 		invader = p;
 		occupationStartTime = (long) (gameState.getTime()*1000);
-		for(Lane l : attachedLanes)
-			l.getGate(this).setState(MapItemState.Dead);
+		for(Lane l : attachedLanes){
+			Gate toKill = l.getGate(this);
+			if(toKill != null){
+				toKill.setState(MapItemState.Dead);
+			}
+		}
 	}
 	
 	public int getID()
