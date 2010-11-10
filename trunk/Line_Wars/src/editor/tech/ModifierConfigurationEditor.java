@@ -18,7 +18,7 @@ public interface ModifierConfigurationEditor extends ConfigurationEditor {
 	 * true iff the modifier is valid
 	 */
 	public boolean modifierIsValid(String URI, ConfigData modifier);
-
+	
 	/**
 	 * Sanitizes the given ConfigData so that it comes to represent a legal modifier, if possible.
 	 * Even if this method returns false, it will change the ConfigData given to it.
@@ -31,7 +31,10 @@ public interface ModifierConfigurationEditor extends ConfigurationEditor {
 	 */
 	public boolean legalizeModifier(String URI, ConfigData modifier);
 	
-	public List<ParserKeys[]> getModifiableTraces(String upgradableURI);
+	public ParserKeys[] getValidUnitModifiers();
+	public ParserKeys[] getValidBuildingModifiers();
+	public ParserKeys[] getValidAbilityModifiers();
+	public ParserKeys[] getValidProjectileModifiers();
 	
 	public String getName();
 }
