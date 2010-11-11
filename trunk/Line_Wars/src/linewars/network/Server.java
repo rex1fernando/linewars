@@ -31,7 +31,7 @@ public class Server implements Runnable
 	
 	public Server(String[] clientAddresses, int port) throws SocketException{
 		this.clientAddresses = clientAddresses.clone();
-		gateKeeper = new GateKeeper(port + 1, port);//TODO retry if it fails?
+		gateKeeper = new GateKeeper(clientAddresses, port + 1, port);//TODO retry if it fails?
 		
 		currentTick = Client.K + 1;
 	}

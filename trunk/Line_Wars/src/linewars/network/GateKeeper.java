@@ -10,7 +10,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +50,9 @@ public class GateKeeper
 	
 	private MessageListener msgListener;
 	
-	public GateKeeper(int port, int sendToPort) throws SocketException
+	private String[] listeningAddresses;
+	
+	public GateKeeper(String[] listeningAddresses, int port, int sendToPort) throws SocketException
 	{
 		messages = new HashMap<Integer, HashMap<String, Message[]>>();
 		resendMessages = new HashMap<Integer, Message[]>();
@@ -61,6 +62,8 @@ public class GateKeeper
 		
 		msgListener = new MessageListener(SLEEP_TIME);
 		this.port = sendToPort;
+		
+		this.listeningAddresses = listeningAddresses;
 	}
 	
 	/**
@@ -144,7 +147,7 @@ public class GateKeeper
 	
 	private void sendMessageResendRequest(int tickID, String playerAddress)
 	{
-		ResendRequest request = new ResendRequest(tickID, playerAddress);
+		ResendRequest request = new ResendRequest(tickID);
 		byte[] packetData = Serializer.serialize(request);
 		try {
 			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(playerAddress), port));
@@ -212,8 +215,29 @@ public class GateKeeper
 				return false;
 			}
 			
-			// the messages to be sent to the requester
-			Message[] toSend = messages.get(request.timeStep).get(request.player);
+			// count the number of messages
+			int numMessages = 0;
+			for (String player : listeningAddresses)
+			{
+				// if we're missing a player, give up
+				if (messages.get(request.timeStep).get(player) == null)
+				{
+					return true;
+				}
+				numMessages += messages.get(request.timeStep).get(player).length;
+			}
+			Message[] toSend = new Message[numMessages];
+			
+			// create a list of messages from all players
+			int curMsg = 0;
+			for (String player : messages.get(request.timeStep).keySet())
+			{
+				for (Message msg : messages.get(request.timeStep).get(player))
+				{
+					toSend[curMsg] = msg;
+					++curMsg;
+				}
+			}
 			
 			// sends the messages back to the requester
 			pushMessagesForTick(toSend, packet.getAddress().getHostAddress());
@@ -331,13 +355,12 @@ public class GateKeeper
 	
 	private static class ResendRequest implements Serializable
 	{
+		private static final long serialVersionUID = 5045500930325923878L;
 		private int timeStep;
-		private String player;
 		
-		public ResendRequest(int timeStep, String player)
+		public ResendRequest(int timeStep)
 		{
 			this.timeStep = timeStep;
-			this.player = player;
 		}
 	}
 	
