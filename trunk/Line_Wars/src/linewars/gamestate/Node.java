@@ -43,8 +43,9 @@ public strictfp class Node {
 	
 	private HashMap<Double, Lane> laneMap;
 	
-	public Node(Position p)
+	public Node(Position p, int id)
 	{
+		ID = id;
 		attachedLanes = new ArrayList<Lane>();
 		buildingSpots = new ArrayList<BuildingSpot>();
 		shape = new Circle(new Transformation(p, 0), 0);
@@ -52,8 +53,10 @@ public strictfp class Node {
 		isStartNode = false;
 	}
 	
-	public Node(ConfigData parser, Lane[] lanes, boolean force)
+	public Node(ConfigData parser, Lane[] lanes, int id, boolean force)
 	{
+		ID = id;
+		
 		attachedLanes = new ArrayList<Lane>();
 		List<String> laneNames = new ArrayList<String>();
 		
