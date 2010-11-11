@@ -533,7 +533,7 @@ public strictfp class Lane
 			pos = 1;
 			for(Wave w : this.getWaves())
 			{
-				double d = w.getPositionToP0();
+				double d = w.getPositionToP0(false);
 				if(d < pos)
 					pos = d;
 			}
