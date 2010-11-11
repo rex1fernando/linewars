@@ -126,16 +126,20 @@ public strictfp class Game {
 	public void run(){
 		if(server != null){
 			Thread serv = new Thread(server);
+			serv.setName("Server");
 			serv.setDaemon(true);
 			serv.start();
 		}
 		Thread net = new Thread(networking);
 		net.setDaemon(true);
+		net.setName("Client GateKeeper");
 		net.start();
 		Thread log = new Thread(logic);
 		log.setDaemon(true);
+		log.setName("Game Logic");
 		log.start();
 		Thread disp = new Thread(display);
+		disp.setName("Display");
 		disp.start();
 	}
 }

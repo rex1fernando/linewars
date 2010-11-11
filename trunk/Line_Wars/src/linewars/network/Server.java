@@ -33,7 +33,7 @@ public class Server implements Runnable
 		this.clientAddresses = clientAddresses.clone();
 		gateKeeper = new GateKeeper(port + 1, port);//TODO retry if it fails?
 		
-		currentTick = 1;
+		currentTick = Client.K + 1;
 	}
 	
 	@Override
@@ -41,12 +41,14 @@ public class Server implements Runnable
 	{
 		//start Gatekeeper in a new thread
 		//TODO or should this be done elsewhere?
-		new Thread(
+		Thread th = new Thread(
 			new Runnable(){
 			public void run(){
 				gateKeeper.startListening();
 			}
-		}).start();
+		});
+		th.setName("Server GateKeeper");
+		th.start();
 		
 		while(true){
 			doTick();

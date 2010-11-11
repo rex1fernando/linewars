@@ -71,70 +71,6 @@ public class GateKeeper
 		msgListener.start();
 	}
 	
-	public Message[] urgentlyPollMessagesForTick(int tickID)
-	{
-		Message[] allMsgs = getAllMessagesFrom(messages.get(tickID));
-		
-		// if some messages are missing ....
-		if (allMsgs == null)
-		{
-			// find the players that we don't have messages from
-			for (String player : messages.get(tickID).keySet())
-			{
-				// if this player has missing messages, request them
-				if (messages.get(tickID).get(player) == null)
-				{
-					// TODO problems here
-					sendMessageResendRequest(tickID, player, false);
-				}
-			}
-		}
-		
-		return allMsgs;
-	}
-	
-	public Message[] pollMessagesForTick(int tickID)
-	{
-		return getAllMessagesFrom(messages.get(tickID));
-	}
-	
-	/**
-	 * Combines all the messages from all players for a time step and returns them.
-	 * 
-	 * @param playerMessages The hash map of messages for a specific time step.
-	 * 
-	 * @return Messages from all players for the specific time step.
-	 */
-	private Message[] getAllMessagesFrom(HashMap<String, Message[]> playerMessages)
-	{
-		// count the number of messages
-		int numMessages = 0;
-		for (String player : playerMessages.keySet())
-		{
-			// if messages are missing from a player ...
-			if (playerMessages.get(player) == null)
-			{
-				return null;
-			}
-			
-			numMessages += playerMessages.get(player).length;
-		}
-		
-		// create a list of messages from all players
-		Message[] toReturn = new Message[numMessages];
-		int curMsg = 0;
-		for (String player : playerMessages.keySet())
-		{	
-			for (Message msg : playerMessages.get(player))
-			{
-				toReturn[curMsg] = msg;
-				++curMsg;
-			}
-		}
-		
-		return toReturn;
-	}
-	
 	/**
 	 * Polls the Gatekeeper for Messages which have arrived from the given address
 	 * which are due to be implemented on the given tickID.
@@ -156,7 +92,7 @@ public class GateKeeper
 		
 		if (toReturn == null)
 		{
-			sendMessageResendRequest(tickID, address, false);
+			sendMessageResendRequest(tickID, address);
 		}
 		
 		return toReturn;
@@ -206,9 +142,9 @@ public class GateKeeper
 		resendMessages.put(msgs[0].getTimeStep(), msgs);
 	}
 	
-	private void sendMessageResendRequest(int tickID, String playerAddress, boolean sendEverything)
+	private void sendMessageResendRequest(int tickID, String playerAddress)
 	{
-		ResendRequest request = new ResendRequest(tickID, playerAddress, sendEverything);
+		ResendRequest request = new ResendRequest(tickID, playerAddress);
 		byte[] packetData = Serializer.serialize(request);
 		try {
 			socket.send(new DatagramPacket(packetData, packetData.length, InetAddress.getByName(playerAddress), port));
@@ -426,13 +362,11 @@ public class GateKeeper
 	{
 		private int timeStep;
 		private String player;
-		private boolean sendEverything;
 		
-		public ResendRequest(int timeStep, String player, boolean sendEverything)
+		public ResendRequest(int timeStep, String player)
 		{
 			this.timeStep = timeStep;
 			this.player = player;
-			this.sendEverything = sendEverything;
 		}
 	}
 	

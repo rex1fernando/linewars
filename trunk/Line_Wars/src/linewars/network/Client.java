@@ -78,7 +78,7 @@ public class Client implements MessageHandler
 			Message[] toSend = outgoingMessages.toArray(new Message[outgoingMessages.size()]);
 			if(toSend.length == 0){
 				toSend = new Message[1];
-				toSend[0] = new SupDawgMessage(0);
+				toSend[0] = new SupDawgMessage(0);	// TODO get my player id???
 			}else{
 				int breakpoint = 0;
 				breakpoint++;
@@ -87,6 +87,7 @@ public class Client implements MessageHandler
 				toSend[i].setTimeStep(currentTick + K);
 			}
 			gateKeeper.pushMessagesForTick(toSend, serverAddress);
+			outgoingMessages.clear();
 			++currentTick;
 		}
 		
