@@ -56,7 +56,7 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Function"};
+		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;

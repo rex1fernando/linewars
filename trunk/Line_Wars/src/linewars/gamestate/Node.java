@@ -488,18 +488,8 @@ public strictfp class Node {
 			}
 		}
 		
-		//if this node isn't a start point, then lets try to make it one
-		for(Lane l : attachedLanes)
-		{
-			//get the node at the other end of the lane
-			Node other = l.getNodes()[0];
-			if(other.equals(this))
-				other = l.getNodes()[1];
-			//if that node is not owned or invaded by this player, its okay to flip the start
-			//TODO remove when we get the ability to adjust flows from the interface
-			if((other.owner == null || !other.owner.equals(p)) && (other.invader == null || !other.invader.equals(p)))
-				p.setStartPoint(l, this);
-		}
+		for(Building b : containedBuildings)
+			b.setState(MapItemState.Idle);
 	}
 	
 	public int getID()

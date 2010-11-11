@@ -281,6 +281,10 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 				cd.set(ParserKeys.valueOf(state.toString()), animationMap.get(state));
 		}
 		
+		//get the abilities
+		if(abilities.getSelectedURIs().length > 0)
+			cd.set(ParserKeys.abilities, abilities.getSelectedURIs());
+		
 		//add the collision strat
 		if(!collisionStrat.getSelectedURI().equals(""))
 		{

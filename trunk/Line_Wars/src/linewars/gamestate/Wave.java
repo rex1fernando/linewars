@@ -38,7 +38,7 @@ public strictfp class Wave {
 		this.owner = owner;
 		opponent = null;
 		units = new ArrayList<Unit>();
-		units.add(u);
+		this.addUnit(u);
 		this.origin = origin;
 	}
 	
@@ -65,6 +65,7 @@ public strictfp class Wave {
 		if(!units.isEmpty() && u.getOwner().getPlayerID() != units.get(0).getOwner().getPlayerID()){
 			return false;
 		}
+		u.setWave(this);
 		return units.add(u);
 	}
 	
@@ -175,11 +176,11 @@ public strictfp class Wave {
 		else
 		{
 			//figure out which direction we're going
-			int dir = 1;
+			boolean forward = true;
 			if (origin.getTransformation().getPosition().distanceSquared(
 					owner.getPosition(1).getPosition()) < origin.getTransformation().getPosition()
 					.distanceSquared(owner.getPosition(0).getPosition()))
-				dir = -1;
+				forward = false;
 			
 			//we're gonna move straight forward because I said so -Connor
 			double wayTheFuckOutThere = 100000000;
@@ -194,27 +195,29 @@ public strictfp class Wave {
 				Unit u = units.get(i);
 				double pos = owner.getClosestPointRatio(u.getPosition());
 				Node target = owner.getNodes()[0];
+				if(target.equals(origin))
+					target = owner.getNodes()[1];
 				//check to see if we've made it to the node we're going for
 				//also, don't allow entering the node if the gate is still up
-				if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01) && 
+				if(((forward && Math.abs(1 - pos) <= 0.01) || (!forward && Math.abs(pos) <= 0.01)) && 
 						(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead) 
 								|| u.getOwner().equals(owner.getGate(target).getOwner())))
 				{
-					if(target.equals(origin))
-						target = owner.getNodes()[1];
-					
 					if((target.getOwner() == null || !target.getOwner().equals(u.getOwner())) 
 							&& (target.getInvader() == null || !target.getInvader().equals(u.getOwner())))
 						target.setInvader(u.getOwner());
+					u.setTransformation(target.getTransformation());
 					target.addUnit(u);
 					units.remove(i);
 					continue;
 				}
 				//if we're close enough but the gate isn't down
-				else if((dir == 1 && Math.abs(1 - pos) <= 0.01) || (dir == -1 && Math.abs(pos) <= 0.01))
+				else if((forward && Math.abs(1 - pos) <= 0.01) || (!forward && Math.abs(pos) <= 0.01))
 				{
 					Transformation t = owner.getPosition(pos);
 					closestPoints.put(u, t);
+					u.setState(MapItemState.Idle);
+					u.getMovementStrategy().setTarget(u.getTransformation());
 					i++;
 					continue;
 				}
@@ -224,7 +227,7 @@ public strictfp class Wave {
 				Transformation t = owner.getPosition(pos);
 				closestPoints.put(u, t);
 				double angle = t.getRotation();
-				if(dir < 0)
+				if(!forward)
 					angle -= Math.PI;
 				double m = u.getMovementStrategy().setTarget(
 						new Transformation(u.getPosition().add(
@@ -239,7 +242,7 @@ public strictfp class Wave {
 			for(int i = 0; i < units.size(); i++)
 			{
 				double angle = closestPoints.get(units.get(i)).getRotation();
-				if(dir < 0)
+				if(!forward)
 					angle -= Math.PI;
 //				Transformation t = owner.getPosition(owner.getClosestPointRatio(closestPoints.get(i)
 //								.getPosition().add(dis * Math.cos(angle),dis * Math.sin(angle))));                                                                                                                                                                                                                                                                                                                                                                                                           
@@ -249,7 +252,10 @@ public strictfp class Wave {
 		}
 		
 		for(Unit u : units)
+		{
 			u.getMovementStrategy().move();
+			u.update();
+		}
 		
 //		Gate destGate = null;
 //		for(int i = 0; i < owner.getNodes().length; i++)

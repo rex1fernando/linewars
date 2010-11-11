@@ -9,6 +9,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 /**
  * 
@@ -37,7 +38,11 @@ public strictfp class BuildingDefinition extends MapItemDefinition {
 	 * @return	the created building
 	 */
 	public Building createBuilding(Transformation t, Node n) {
-		return new Building(t, this, n);
+		Building b = new Building(t, this, n);
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				b.addActiveAbility(ad.createAbility(b));
+		return b;
 	}
 	
 	/**

@@ -47,9 +47,6 @@ public strictfp class ConstructBuilding implements Ability {
 		{
 			built = true;
 			building.setState(MapItemState.Idle);
-			for(AbilityDefinition ad : buildingDefinition.getAbilityDefinitions())
-				if(ad.startsActive())
-					building.addActiveAbility(ad.createAbility(building));
 		}
 	}
 

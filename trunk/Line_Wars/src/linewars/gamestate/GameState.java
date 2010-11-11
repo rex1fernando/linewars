@@ -131,7 +131,9 @@ public strictfp class GameState
 			{
 				Unit[] us = w.getUnits();
 				for(Unit u : us)
+				{
 					units.add(u);
+				}
 			}
 		}
 		

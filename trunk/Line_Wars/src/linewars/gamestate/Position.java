@@ -135,4 +135,9 @@ public strictfp class Position {
 	public double length() {
 		return Math.sqrt(x * x + y * y);
 	}
+	
+	static public Position getUnitVector(double theta)
+	{
+		return new Position(Math.cos(theta), Math.sin(theta));
+	}
 }

@@ -264,11 +264,9 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 
 	@Override
 	public boolean isValidConfig() {
-		//this is necessary since for some reason this method is called before the constructor
-		if(shapeType == null)
-			return false;
 		if(shapeType.getSelectedURI().equals(""))
 			return false;
+			
 		Scanner s = new Scanner(scale.getText());
 		if(!s.hasNextDouble())
 			return false;
@@ -326,12 +324,17 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 			running = false;
 		else if(e.getSource().equals(done))
 		{
-			if(this.isValid()) 
+			if(this.isValidConfig()) 
 			{
 				ConfigData cd = this.getData();
 				mie.setBody(cd);
 				running = false;
 			}
+			else
+				JOptionPane.showMessageDialog(frame,
+					    "The body is invalid.",
+					    "Error",
+					    JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

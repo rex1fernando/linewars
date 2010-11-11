@@ -9,6 +9,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.impact.DealDamageOnce;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 
@@ -56,7 +57,11 @@ public strictfp class ProjectileDefinition extends MapItemDefinition {
 	 */
 	public Projectile createProjectile(Transformation t, Lane l)
 	{
-		return new Projectile(t, this, this.getCollisionStrategy(), iStrat, l);
+		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat, l);
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				p.addActiveAbility(ad.createAbility(p));
+		return p;
 	}
 
 	@Override

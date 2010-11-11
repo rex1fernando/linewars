@@ -32,7 +32,7 @@ public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;
 	static final double LANE_BORDER_RESOLUTION = 0.05;
-	private static final int NUM_COLLISION_FIXES = 3;
+	private static final int NUM_COLLISION_FIXES = 1;
 	private static int NEXT_UID = 1;
 	
 	private String name;
@@ -57,8 +57,6 @@ public strictfp class Lane
 	
 	private LaneBorderDefinition lbd;
 	
-	//TODO debug
-	private static double MAX_LENGTH = 0;
 	
 	public Lane(Node n1, Node n2)
 	{
@@ -157,9 +155,6 @@ public strictfp class Lane
 		} catch (FileNotFoundException e) {
 		} catch (InvalidConfigFileException e) {}
 		
-		//TODO debug
-		if(this.getLength() > Lane.MAX_LENGTH)
-			Lane.MAX_LENGTH = this.getLength();
 	}
 	
 	private void addBorders(Position before, Position start, Position end, Position after, double radius, boolean startLine, boolean endLine)
@@ -390,9 +385,6 @@ public strictfp class Lane
 		if(pendingWaves.isEmpty() || pendingWaves.get(n) == null)
 			return;
 		
-		if(this.getLength() < Lane.MAX_LENGTH)
-			System.out.print("");
-		
 		Set<Entry<Player, Wave>> waveSet = pendingWaves.get(n).entrySet();
 		ArrayList<Wave> waves = new ArrayList<Wave>();
 		for(Entry<Player, Wave> e : waveSet)
@@ -461,10 +453,8 @@ public strictfp class Lane
 					Transformation tpos = this.getPosition(pos); //use the position to get the exact transformation of that position
 					if(!forward) tpos = new Transformation(tpos.getPosition(), tpos.getRotation() - Math.PI);
 					double w = startWidth - u.getRadius(); //figure out the lateral translation from the center line of the curve for the unit
-					tpos = new Transformation(
-							new Position(tpos.getPosition().getX() + w*Math.sin(tpos.getRotation()),
-										tpos.getPosition().getY() + w*Math.cos(tpos.getRotation())),
-							tpos.getRotation()); //now translate the position from the curve itself to w off the curve
+					Position dir = Position.getUnitVector(tpos.getRotation());
+					tpos = new Transformation(dir.orthogonal().scale(w).add(tpos.getPosition()), tpos.getRotation());
 					u.setTransformation(tpos);
 					startWidth -= 2*u.getRadius(); //update the startWidth so the next placed unit will be moved laterally from this unit
 					
@@ -475,8 +465,6 @@ public strictfp class Lane
 						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward) //if this unit has a bigger radius than any other unit
 						{
 							nextMinForward = 2*u.getRadius()/this.getLength() + minForward; //that's already been placed in this row
-							if(nextMinForward < 0)
-								System.out.print("");
 						}
 					}
 					else //if we're going down the lane
@@ -491,15 +479,19 @@ public strictfp class Lane
 			minForward = nextMinForward; //no more units can fit in this row, go to the next row
 		}
 		
+		if(units.size() > 0)
+		{
+			deletedUnits.addAll(units);
+			units.clear();
+		}
+		
 		//now center the last row
 		double moveBack = Math.abs((width - (width/2 - startWidth))/2); //this is how much we need to move the units by to center them
 		for(Unit u : lastRow)
 		{
 			Transformation tpos = u.getTransformation();
-			tpos = new Transformation(
-					new Position(tpos.getPosition().getX() - moveBack*Math.sin(tpos.getRotation()),
-								tpos.getPosition().getY() - moveBack*Math.cos(tpos.getRotation())),
-					tpos.getRotation());
+			Position dir = Position.getUnitVector(u.getRotation());
+			tpos = new Transformation(dir.orthogonal().scale(-moveBack).add(tpos.getPosition()), tpos.getRotation());
 			u.setTransformation(tpos);
 		}
 		
@@ -654,7 +646,7 @@ public strictfp class Lane
 		for(int i = 0; i < NUM_COLLISION_FIXES; i++){
 			findAndResolveCollisions();			
 		}
-		checkWaveConsistency();
+//		checkWaveConsistency();
 	}
 	
 	private void findAndResolveCollisions(){

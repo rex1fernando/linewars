@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.combat.ShootClosestTarget;
@@ -44,6 +45,9 @@ public strictfp class UnitDefinition extends MapItemDefinition {
 	public Unit createUnit(Transformation t) {
 		
 		Unit u = new Unit(t, this, mStrat.copy(), combatStrat.copy());
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				u.addActiveAbility(ad.createAbility(u));
 		
 		return u;
 	}

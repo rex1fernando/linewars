@@ -37,7 +37,6 @@ public strictfp abstract class MapItem {
 	
 	public MapItem(Transformation trans, MapItemDefinition def)
 	{
-		Shape b = def.getBody();
 		body = def.getBody().transform(trans);
 		state = MapItemState.Idle;
 		stateStart = (long) (def.getGameState().getTime()*1000);

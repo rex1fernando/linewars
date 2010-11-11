@@ -26,4 +26,10 @@ public strictfp class Gate extends Unit {
 		super(t, null, new Immovable(), new NoCombat());
 	}
 	
+	@Override
+	public void setState(MapItemState m)
+	{
+		super.setState(m);
+	}
+	
 }
