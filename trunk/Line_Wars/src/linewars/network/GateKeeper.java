@@ -172,6 +172,7 @@ public class GateKeeper
 		
 		public void start()
 		{
+			System.out.println("Started");
 			while (isListening)
 			{
 				DatagramPacket packet = receivePacket();
@@ -223,7 +224,7 @@ public class GateKeeper
 				int numMessages = 0;
 				for (String player : listeningAddresses)
 				{
-					if (messages.get(request.timeStep).get(player) == null)
+					if (messages.get(request.timeStep) == null || messages.get(request.timeStep).get(player) == null)
 					{
 						return true;
 					}

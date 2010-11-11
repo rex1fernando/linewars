@@ -98,7 +98,7 @@ public class Client implements MessageHandler
 			}
 			gateKeeper.pushMessagesForTick(toSend, serverAddress);
 			outgoingMessages.clear();
-			System.out.println(currentTick);
+			//System.out.println(currentTick);
 			++currentTick;
 		}
 		
