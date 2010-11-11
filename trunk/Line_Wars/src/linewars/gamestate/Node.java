@@ -492,8 +492,9 @@ public strictfp class Node {
 			Node other = l.getNodes()[0];
 			if(other.equals(this))
 				other = l.getNodes()[1];
-			//if that node is not owned by this player, its okay to flip the start
-			if(other.owner == null || !other.owner.equals(p))
+			//if that node is not owned or invaded by this player, its okay to flip the start
+			//TODO remove when we get the ability to adjust flows from the interface
+			if((other.owner == null || !other.owner.equals(p)) && (other.invader == null || !other.invader.equals(p)))
 				p.setStartPoint(l, this);
 		}
 	}
