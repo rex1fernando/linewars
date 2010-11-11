@@ -11,12 +11,23 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
 
+/**
+ * The layer with the colored nodes and edges along with the flow indicators.
+ * @author Ryan Tew
+ *
+ */
 public class GraphLayer implements ILayer
 {
 	private ColoredNode cn;
 	private ColoredEdge ce;
 	private FlowIndicator fi;
 	
+	/**
+	 * Constructs this graph layer.
+	 * @param d The display this layer will be drawing for.
+	 * @param pIndex The index of the player the display is for.
+	 * @param numPlayers The number of players in the game.
+	 */
 	public GraphLayer(Display d, int pIndex, int numPlayers)
 	{
 		cn = new ColoredNode(d, numPlayers);

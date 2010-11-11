@@ -4,6 +4,12 @@ import linewars.configfilehandler.ConfigData;
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 
+/**
+ * Encapsulates the information needed to display Node status information.
+ * @author Titus Klinge
+ * @author Ryan Tew
+ *
+ */
 @SuppressWarnings("serial")
 public class NodeStatusPanel extends Panel
 {
@@ -20,6 +26,12 @@ public class NodeStatusPanel extends Panel
 	
 	private Display display;
 	
+	/**
+	 * Creates this Node Status display.
+	 * @param display The display this will be drawn on.
+	 * @param stateManager The gamestate manager for this instance of the game.
+	 * @param anims The list of animations for this panel.
+	 */
 	public NodeStatusPanel(Display display, GameStateProvider stateManager, ConfigData ... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);

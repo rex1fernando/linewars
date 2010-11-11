@@ -20,8 +20,10 @@ public interface ILayer
 	 *            The graphics object to be drawn to.
 	 * @param gamestate
 	 *            The current drawable gamestate of the game.
-	 * @param visibleScreen TODO
-	 * @param scale TODO
+	 * @param visibleScreen
+	 *            The amount of the map that is visible to the user.
+	 * @param scale
+	 *            The conversion factor from game units to screen units.
 	 */
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scale);
 }

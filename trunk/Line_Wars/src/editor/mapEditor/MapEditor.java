@@ -1,6 +1,5 @@
 package editor.mapEditor;
 
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
@@ -14,12 +13,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -34,13 +31,18 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.BuildingSpot;
 import linewars.gamestate.Node;
 import editor.ConfigurationEditor;
 import editor.animations.FileCopy;
 
+/**
+ * The map editor panel for the config file editor.
+ * 
+ * @author Ryan Tew
+ *
+ */
 public class MapEditor extends JPanel implements ConfigurationEditor
 {
 	private MapPanel map;
@@ -384,14 +386,12 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	@Override
 	public ConfigData getData()
 	{
-		//TODO get the data from the MapPanel
 		return map.getData();
 	}
 
 	@Override
 	public ParserKeys getType()
 	{
-		// TODO Auto-generated method stub
 		return ParserKeys.mapURI;
 	}
 

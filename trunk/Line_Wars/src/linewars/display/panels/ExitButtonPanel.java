@@ -16,6 +16,13 @@ import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 
+/**
+ * Encapsulates the Exit button.
+ * 
+ * @author Titus Klinge
+ * @author Ryan Tew
+ * 
+ */
 @SuppressWarnings("serial")
 public class ExitButtonPanel extends Panel
 {
@@ -24,36 +31,47 @@ public class ExitButtonPanel extends Panel
 	 */
 	private static final int WIDTH = 75;
 	private static final int HEIGHT = 25;
-	
+
 	private JFrame frame;
 	private JButton exitButton;
-	
-	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, ConfigData ... anims)
+
+	/**
+	 * Constructs this exit button.
+	 * 
+	 * @param frame
+	 *            The JFrame to close on exit.
+	 * @param stateManager
+	 *            The gamestate manager for this instance of the game.
+	 * @param anims
+	 *            The list of animations for the button.
+	 */
+	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, ConfigData... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
-		
+
 		this.frame = frame;
-		
-		setLayout(new GridLayout(1,1));
+
+		setLayout(new GridLayout(1, 1));
 		exitButton = new JButton();
 		exitButton.setFocusable(false);
 		exitButton.setIcon(new ExitIcon(animations[0].getImage(0, 0.0)));
 		exitButton.setPressedIcon(new ExitIcon(animations[1].getImage(0, 0.0)));
-		exitButton.addActionListener(new ActionListener() {
+		exitButton.addActionListener(new ActionListener()
+		{
 			public void actionPerformed(ActionEvent e)
 			{
 				Object[] options = {"Yes",
-				                    "No"};
+									"No"};
 				int n = JOptionPane.showOptionDialog(getParent(),
-				    "Are you sure you want to exit?",
-				    "Exit",
-				    JOptionPane.YES_NO_OPTION,
-				    JOptionPane.QUESTION_MESSAGE,
-				    null,
-				    options,
-				    options[0]);
-				
-				if (n == JOptionPane.YES_OPTION)
+						"Are you sure you want to exit?",
+						"Exit",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[0]);
+
+				if(n == JOptionPane.YES_OPTION)
 				{
 					ExitButtonPanel.this.frame.dispose();
 				}
@@ -61,27 +79,38 @@ public class ExitButtonPanel extends Panel
 		});
 		add(exitButton);
 	}
-	
+
 	@Override
 	public void updateLocation()
 	{
 		super.updateLocation();
-		
-		//resize the button
+
+		// resize the button
 		exitButton.setSize(WIDTH, HEIGHT);
 
 		setLocation(0, 0);
 	}
-	
+
+	/**
+	 * An animation for the exit button
+	 * 
+	 * @author Ryan Tew
+	 * 
+	 */
 	private class ExitIcon implements Icon
 	{
 		private String imageURI;
-		
+
+		/**
+		 * Constructs this icon animation.
+		 * 
+		 * @param uri
+		 */
 		public ExitIcon(String uri)
 		{
 			imageURI = uri;
 		}
-		
+
 		@Override
 		public int getIconHeight()
 		{

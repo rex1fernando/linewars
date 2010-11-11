@@ -56,7 +56,8 @@ public class ImageDrawer
 	 * 
 	 * @param uri
 	 *            TODO
-	 * @param unitURI TODO
+	 * @param unitURI
+	 *            TODO
 	 * @param width
 	 *            TODO
 	 * @param height
@@ -68,20 +69,23 @@ public class ImageDrawer
 	{
 		if(images.get(uri + unitURI) != null)
 			return;
-		
+
 		Image image = loadImage(uri);
 
 		GameImage scaledImage = new GameImage(image, width, height);
 
 		images.put(uri + unitURI, scaledImage);
 	}
-	
-	/*
-	 * TODO add a loadMapImage(String uri, double gameMapWidth, double gameMapHeight)
-	 * This will store the map image width and height along with the game map width and height.
-	 * These will be used for proper scaling in the draw() method.
-	 */
 
+	/**
+	 * Loads the specified image URI.
+	 * 
+	 * @param uri
+	 *            The URI of the image to load.
+	 * @return The image stored in the file with the given URI.
+	 * @throws IOException
+	 *             If the image could not be loaded.
+	 */
 	public BufferedImage loadImage(String uri) throws IOException
 	{
 		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
@@ -95,7 +99,7 @@ public class ImageDrawer
 		{
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
-		
+
 		return image;
 	}
 
@@ -117,7 +121,7 @@ public class ImageDrawer
 	 */
 	public void draw(Graphics g, String uri, Position position, double rotation, double scale)
 	{
-		//TODO rotate the image
+		// TODO rotate the image
 		GameImage image = images.get(uri);
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
@@ -138,20 +142,32 @@ public class ImageDrawer
 	{
 		switch(playerIndex)
 		{
-		case 0: return new Color(140, 23, 23); //scarlet
-		case 1: return Color.blue;
-		case 2: return Color.green;
-		case 3: return Color.orange;
-		case 4: return Color.yellow;
-		case 5: return Color.pink;
-		case 6: return Color.cyan;
-		case 7: return Color.magenta;
-		case 8: return new Color(0, 128, 128); //teal
-		case 9: return new Color(0, 0, 128); //navy
-		case 10: return new Color(0, 245, 255); //turquoise
-		case 11: return new Color(47, 79, 47); //dark green
+		case 0:
+			return new Color(140, 23, 23); // scarlet
+		case 1:
+			return Color.blue;
+		case 2:
+			return Color.green;
+		case 3:
+			return Color.orange;
+		case 4:
+			return Color.yellow;
+		case 5:
+			return Color.pink;
+		case 6:
+			return Color.cyan;
+		case 7:
+			return Color.magenta;
+		case 8:
+			return new Color(0, 128, 128); // teal
+		case 9:
+			return new Color(0, 0, 128); // navy
+		case 10:
+			return new Color(0, 245, 255); // turquoise
+		case 11:
+			return new Color(47, 79, 47); // dark green
 		}
-		
+
 		return Color.white;
 	}
 }

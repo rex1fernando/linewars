@@ -12,26 +12,70 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Rectangle;
 
+/**
+ * Handles drawing a building spot.
+ * 
+ * @author Ryan Tew
+ * 
+ */
 public class BuildingDrawer
 {
 	private MapPanel panel;
-	
+
+	/**
+	 * Constructs this BuildingDrawer.
+	 * 
+	 * @param panel
+	 *            The map panel this will be drawing to
+	 */
 	public BuildingDrawer(MapPanel panel)
 	{
 		this.panel = panel;
 	}
 
+	/**
+	 * Draws a building spot in blue.
+	 * 
+	 * @param g
+	 *            The graphics object to draw on.
+	 * @param buildingSpot
+	 *            The building spot to draw.
+	 * @param selected
+	 *            Is this building spot selected?
+	 * @param mouse
+	 *            The position of the mouse in game coordinates.
+	 * @param scale
+	 *            The conversion factor from map size to screen size.
+	 */
 	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale)
 	{
 		draw(g, buildingSpot, selected, mouse, scale, false);
 	}
 
-	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale, boolean commandCenter)
+	/**
+	 * Draws a building spot. Blue if this building spot is a building. Orange
+	 * if this building spot is a command center.
+	 * 
+	 * @param g
+	 *            The graphics object to draw on.
+	 * @param buildingSpot
+	 *            The building spot to draw.
+	 * @param selected
+	 *            Is this building spot selected?
+	 * @param mouse
+	 *            The position of the mouse in game coordinates.
+	 * @param scale
+	 *            The conversion factor from map size to screen size.
+	 * @param commandCenter
+	 *            Is this building spot a command center?
+	 */
+	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale,
+			boolean commandCenter)
 	{
 		Dimension dim = buildingSpot.getDim();
 		double w = dim.getWidth();
 		double h = dim.getHeight();
-		
+
 		Transformation trans = buildingSpot.getTrans();
 		Position gamePos = trans.getPosition();
 		Position rotateAbout = panel.toScreenCoord(gamePos);
@@ -41,25 +85,25 @@ public class BuildingDrawer
 		double x = rotateAbout.getX();
 		double y = rotateAbout.getY();
 
-		//set the transparent color
+		// set the transparent color
 		if(commandCenter)
 			g.setColor(new Color(255, 140, 0, selected ? 90 : 60));
 		else
 			g.setColor(new Color(0, 0, 255, selected ? 90 : 60));
 
-		//rotate the graphics
+		// rotate the graphics
 		((Graphics2D)g).rotate(rotation, x, y);
-		
-		//draw the rectangle
+
+		// draw the rectangle
 		g.fillRect((int)pos.getX(), (int)pos.getY(), (int)(w * scale), (int)(h * scale));
-		
-		//set the border color
+
+		// set the border color
 		if(commandCenter)
 			g.setColor(new Color(255, 140, 0));
 		else
 			g.setColor(new Color(0, 0, 255));
-		
-		//set the brush size
+
+		// set the brush size
 		Rectangle outer = new Rectangle(trans, w + 2.5 / scale, h + 2.5 / scale);
 		Rectangle inner = new Rectangle(trans, w - 2.5 / scale, h - 2.5 / scale);
 		if(outer.positionIsInShape(mouse) && !inner.positionIsInShape(mouse))
@@ -67,24 +111,24 @@ public class BuildingDrawer
 		else
 			((Graphics2D)g).setStroke(new BasicStroke(5));
 
-		//draw the border
+		// draw the border
 		g.drawRect((int)pos.getX(), (int)pos.getY(), (int)(w * scale), (int)(h * scale));
-		
-		//set the color for the rotation dot
+
+		// set the color for the rotation dot
 		g.setColor(Color.pink);
-		
-		//set the dot position
+
+		// set the dot position
 		Position dotPos = new Position(gamePos.getX() + w / 2, gamePos.getY() + h / 2);
 		Position drawDot = panel.toScreenCoord(dotPos);
-		
-		//draw the dot
+
+		// draw the dot
 		Circle dot = new Circle(new Transformation(dotPos, 0), 5 / scale);
 		if(dot.positionIsInShape(mouse))
 			g.fillOval((int)drawDot.getX() - 10, (int)drawDot.getY() - 10, 20, 20);
 		else
 			g.fillOval((int)drawDot.getX() - 5, (int)drawDot.getY() - 5, 10, 10);
-		
-		//rotate the graphics back to its original rotation
+
+		// rotate the graphics back to its original rotation
 		((Graphics2D)g).rotate(-rotation, x, y);
 	}
 }

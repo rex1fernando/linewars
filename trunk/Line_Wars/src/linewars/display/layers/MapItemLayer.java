@@ -25,6 +25,13 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
+/**
+ * Handles the drawing of all the map items. (Units, Projectiles, and
+ * Buildings).
+ * 
+ * @author Ryan Tew
+ * 
+ */
 public class MapItemLayer implements ILayer
 {
 	public enum MapItemType
@@ -38,6 +45,14 @@ public class MapItemLayer implements ILayer
 
 	private Map<String, Map<MapItemState, Animation>> unitToStateMap;
 
+	/**
+	 * Constructs this map item layer.
+	 * 
+	 * @param type
+	 *            The type of map item this layer will display.
+	 * @param d
+	 *            The display that this layer will be drawing for.
+	 */
 	public MapItemLayer(MapItemType type, Display d)
 	{
 		display = d;
@@ -56,8 +71,10 @@ public class MapItemLayer implements ILayer
 		{
 			Position pos = mapItem.getPosition();
 			double rotation = mapItem.getRotation();
-			
-			Shape itemShape = mapItem.getBody();//new Rectangle(pos.getX() - width / 2, pos.getY() - height / 2, width, height);
+
+			Shape itemShape = mapItem.getBody();// new Rectangle(pos.getX() -
+												// width / 2, pos.getY() -
+												// height / 2, width, height);
 
 			if(screenRect.isCollidingWith(itemShape))
 			{

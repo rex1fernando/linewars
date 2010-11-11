@@ -21,8 +21,8 @@ public class ColoredNode
 	/**
 	 * Constructs a ColoredNode
 	 * 
-	 * @param n
-	 *            The Node that this ColoredNode will color.
+	 * @param d
+	 *            The display that this ColoredNode will be drawing for.
 	 * @param numPlayers
 	 *            The number of players in the game.
 	 */
@@ -32,6 +32,16 @@ public class ColoredNode
 		this.numPlayers = numPlayers;
 	}
 
+	/**
+	 * Draws the given Node.
+	 * 
+	 * @param g
+	 *            The graphics object to draw on.
+	 * @param node
+	 *            The Node to draw.
+	 * @param scale
+	 *            The conversion factor from game units to screen units.
+	 */
 	public void draw(Graphics g, Node node, double scale)
 	{
 		if(node.isContested() || node.getOwner() == null)

@@ -11,6 +11,12 @@ import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 
+/**
+ * Handles drawing the map.
+ * 
+ * @author Ryan Tew
+ * 
+ */
 public class TerrainLayer implements ILayer
 {
 	private Image map;
@@ -19,10 +25,22 @@ public class TerrainLayer implements ILayer
 	private int lastWidth, lastHeight;
 	private boolean bufferedChanged;
 	private Display display;
-	
+
 	double scaleX;
 	double scaleY;
-	
+
+	/**
+	 * Constructs this Terrain Layer.
+	 * 
+	 * @param mapURI
+	 *            The URI of the map that will be drawn.
+	 * @param d
+	 *            The display that this will be drawing for.
+	 * @param mapWidth
+	 *            The width of the map in game units.
+	 * @param mapHeight
+	 *            The height of the map in game units.
+	 */
 	public TerrainLayer(String mapURI, Display d, double mapWidth, double mapHeight)
 	{
 		try
@@ -34,33 +52,28 @@ public class TerrainLayer implements ILayer
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		display = d;
-		
+
 		scaleX = map.getWidth(null) / mapWidth;
 		scaleY = map.getHeight(null) / mapHeight;
 	}
-	
+
 	@Override
 	public void draw(Graphics g, GameState gamestate, Rectangle2D visibleScreen, double scale)
 	{
-//		int x = (int)(-visibleScreen.getX() * scale);
-//		int y = (int)(-visibleScreen.getY() * scale);
-//		int w = (int)(map.getWidth(null) * scale);
-//		int h = (int)(map.getHeight(null) * scale);
-//		g.drawImage(map, x, y, w, h, null);
-		
-		if (bufferedMap == null || lastWidth != display.getScreenWidth() || lastHeight != display.getScreenHeight())
+		if(bufferedMap == null || lastWidth != display.getScreenWidth() || lastHeight != display.getScreenHeight())
 		{
-			bufferedMap = new BufferedImage(display.getScreenWidth(), display.getScreenHeight(), BufferedImage.TYPE_INT_ARGB);
+			bufferedMap = new BufferedImage(display.getScreenWidth(), display.getScreenHeight(),
+					BufferedImage.TYPE_INT_ARGB);
 			bufferedChanged = true;
 			lastWidth = display.getScreenWidth();
 			lastHeight = display.getScreenHeight();
 		}
-		
-		if (bufferedChanged || !visibleScreen.equals(lastVisibleScreen))
+
+		if(bufferedChanged || !visibleScreen.equals(lastVisibleScreen))
 		{
-			
+
 			int dx1 = 0;
 			int dy1 = 0;
 			int dx2 = display.getScreenWidth();
@@ -70,18 +83,18 @@ public class TerrainLayer implements ILayer
 			int sx2 = (int)((visibleScreen.getX() + visibleScreen.getWidth()) * scaleX);
 			int sy2 = (int)((visibleScreen.getY() + visibleScreen.getHeight()) * scaleY);
 			Color bg = Color.black;
-			
+
 			Graphics bmg = bufferedMap.getGraphics();
 			bmg.setColor(bg);
 			bmg.fillRect(0, 0, display.getScreenWidth(), display.getScreenHeight());
 			bmg.drawImage(map, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null);
-			
+
 			lastVisibleScreen = new Rectangle2D.Double();
 			lastVisibleScreen.setRect(visibleScreen);
-			
+
 			bufferedChanged = false;
 		}
-		
+
 		g.drawImage(bufferedMap, 0, 0, null);
 	}
 }

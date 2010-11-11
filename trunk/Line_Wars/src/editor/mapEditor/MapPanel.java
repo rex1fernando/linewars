@@ -12,13 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
+import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.BuildingSpot;
 import linewars.gamestate.Lane;
@@ -29,6 +28,12 @@ import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
+/**
+ * The panel that contains the map in the map editor.
+ * 
+ * @author Ryan Tew
+ *
+ */
 public class MapPanel extends JPanel
 {
 	private static final double MAX_ZOOM = 0.15;
@@ -397,6 +402,7 @@ public class MapPanel extends JPanel
 	{
 		mapWidth = width;
 		mapHeight = height;
+		mapDrawer.setMapSize(width, height);
 		mapSize.setSize(width, height);
 		viewport.setRect(0, 0, width, height);
 	}
