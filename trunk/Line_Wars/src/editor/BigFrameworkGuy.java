@@ -56,7 +56,7 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Tech", "Map Item", "Ability", "Animation", "Function"};
+		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Function"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -72,6 +72,8 @@ public class BigFrameworkGuy
 				ce = new TechEditor(this);
 			else if(e.equals("Function"))
 				ce = new FunctionEditor();
+			else if (e.equals("Race"))
+				ce = new RaceEditor(this);
 			//TODO add an if statement for new editors here
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
