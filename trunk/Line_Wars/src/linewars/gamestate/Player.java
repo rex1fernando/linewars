@@ -212,12 +212,11 @@ public strictfp class Player {
 	 * @param l The lane which is having its distribution modified.
 	 * @param val The new magnitude for the flow distribution.
 	 */
-	public void setFlowDist(Lane l, Double val)
+	public void setFlowDist(Lane l, Double val, int nodeID)
 	{
-		if(val < 0)
+		if(startPoints.get(l).getID() != nodeID)
 		{
 			swapStartPoints(l);
-			val *= -1;
 		}
 		flowDist.put(l, val);
 	}
