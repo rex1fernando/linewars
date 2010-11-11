@@ -220,7 +220,8 @@ public class GateKeeper
 			for (String player : listeningAddresses)
 			{
 				// if we're missing a player, give up
-				if (messages.get(request.timeStep).get(player) == null)
+				if (messages.get(request.timeStep) == null
+						|| messages.get(request.timeStep).get(player) == null)
 				{
 					return true;
 				}

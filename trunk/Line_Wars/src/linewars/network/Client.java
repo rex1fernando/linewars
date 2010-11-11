@@ -29,6 +29,7 @@ import linewars.network.messages.SupDawgMessage;
 public class Client implements MessageHandler
 {
 	public static final int K = 6;
+	private static final long POLLING_INTERVAL_MS = 5;
 	
 	private List<Message> outgoingMessages;
 	private GateKeeper gateKeeper;
@@ -66,8 +67,16 @@ public class Client implements MessageHandler
 		if(tickID <= K + 1){
 			toReturn = new Message[0];
 		}
+		
+		toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
 		while (toReturn == null)
 		{
+			try {
+				Thread.sleep(POLLING_INTERVAL_MS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
 		}
 		
