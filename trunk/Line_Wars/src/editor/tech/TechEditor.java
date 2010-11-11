@@ -93,12 +93,12 @@ public class TechEditor implements ConfigurationEditor {
 		ConfigData modifiedURIsData = modifiedURIs.getData();
 		ConfigData ret = new ConfigData();
 		for(ParserKeys toAdd : ntcfData.getDefinedKeys()){
-			ret.set(toAdd, ntcfData.getStringList(toAdd).toArray(new String[0]));
-			ret.set(toAdd, ntcfData.getConfigList(toAdd).toArray(new ConfigData[0]));
+			ret.add(toAdd, ntcfData.getStringList(toAdd).toArray(new String[0]));
+			ret.add(toAdd, ntcfData.getConfigList(toAdd).toArray(new ConfigData[0]));
 		}
 		for(ParserKeys toAdd : modifiedURIsData.getDefinedKeys()){
-			ret.set(toAdd, modifiedURIsData.getStringList(toAdd).toArray(new String[0]));
-			ret.set(toAdd, modifiedURIsData.getConfigList(toAdd).toArray(new ConfigData[0]));
+			ret.add(toAdd, modifiedURIsData.getStringList(toAdd).toArray(new String[0]));
+			ret.add(toAdd, modifiedURIsData.getConfigList(toAdd).toArray(new ConfigData[0]));
 		}
 		return ret;
 	}

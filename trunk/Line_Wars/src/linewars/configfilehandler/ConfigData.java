@@ -237,6 +237,21 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
+	public void add(ParserKeys toAdd, String[] array) {
+		for(String s : array)
+			this.add(toAdd, s);
+	}
+
+	public void add(ParserKeys toAdd, ConfigData[] array) {
+		for(ConfigData cd : array)
+			this.add(toAdd, cd);
+	}
+	
+	public void add(ParserKeys toAdd, Double[] array) {
+		for(Double d : array)
+			this.add(toAdd, d);
+	}
+	
 	/**
 	 * Removes the given value from the list of values mapped to the given key.
 	 * @param key
@@ -344,5 +359,7 @@ public class ConfigData {
 			super(s);
 		}
 	}
+
+	
 
 }

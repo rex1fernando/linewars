@@ -111,8 +111,8 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 		ret.add(ParserKeys.costFunction, costFunctionEditor.getData());
 		ConfigData iconData = iconEditor.getData();
 		for(ParserKeys toAdd : iconData.getDefinedKeys()){
-			ret.set(toAdd, iconData.getStringList(toAdd).toArray(new String[0]));
-			ret.set(toAdd, iconData.getConfigList(toAdd).toArray(new ConfigData[0]));
+			ret.add(toAdd, iconData.getStringList(toAdd).toArray(new String[0]));
+			ret.add(toAdd, iconData.getConfigList(toAdd).toArray(new ConfigData[0]));
 		}
 		return ret;
 	}
@@ -143,7 +143,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 		}
 		
 		try{
-			iconEditor.setData(cd);
+			iconEditor.isValid(cd);
 		}catch(Exception e){
 			return false;
 		}

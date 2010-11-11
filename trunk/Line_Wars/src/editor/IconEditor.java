@@ -75,6 +75,27 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 			else
 				throw new IllegalArgumentException(key + " is not valid");				
 		}
+		
+		this.validate();
+		this.updateUI();
+	}
+	
+	public boolean isValid(ConfigData cd)
+	{
+		for(ParserKeys key : icons)
+		{
+			if(cd.getDefinedKeys().contains(key))
+			{
+				try {
+					panels.get(key).testURI(cd.getString(key));
+				} catch(Exception e) {
+					return false;
+				}
+			}
+			else 
+				return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -115,8 +136,13 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 			this.add(set);
 		}
 		
+		public void testURI(String u) {
+			ImageIcon i = new ImageIcon(u);
+			i = new ImageIcon(i.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
+		}
+
 		public String getURI() {
-			return uri;
+			return "/" + uri;
 		}
 		
 		public ParserKeys getKey() {
@@ -131,6 +157,9 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		public void setURI(String u) {
+			if(u.charAt(0) == '/')
+				u = u.substring(1, u.length());
+			
 			if(icon != null)
 				this.remove(icon);
 			ImageIcon i = new ImageIcon(u);
