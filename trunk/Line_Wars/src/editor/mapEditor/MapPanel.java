@@ -34,6 +34,8 @@ public class MapPanel extends JPanel
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
 	
+	private static int NEXT_NODE_ID = 1;
+	
 	private JSlider laneWidthSlider;
 	private JComboBox nodeSelector;
 	private JComboBox buildingSelector;
@@ -212,7 +214,7 @@ public class MapPanel extends JPanel
 				Node newNode;
 				try
 				{
-					newNode = new Node(n, lanes.toArray(new Lane[0]), force);
+					newNode = new Node(n, lanes.toArray(new Lane[0]), NEXT_NODE_ID++, force);
 				}
 				catch(NoSuchKeyException e)
 				{
@@ -785,7 +787,7 @@ public class MapPanel extends JPanel
 		
 		if(!moving && !resizeW && !resizeH)
 		{
-			movingNode = new Node(p);
+			movingNode = new Node(p, NEXT_NODE_ID++);
 			nodes.add(movingNode);
 			nodeSelector.addItem(movingNode);
 			
