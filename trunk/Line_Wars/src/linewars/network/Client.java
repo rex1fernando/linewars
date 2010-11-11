@@ -66,18 +66,19 @@ public class Client implements MessageHandler
 		Message[] toReturn = null;
 		if(tickID <= K + 1){
 			toReturn = new Message[0];
-		}
-		
-		toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
-		while (toReturn == null)
+		} else
 		{
-			try {
-				Thread.sleep(POLLING_INTERVAL_MS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
 			toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
+			while (toReturn == null)
+			{
+				try {
+					Thread.sleep(POLLING_INTERVAL_MS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				toReturn = gateKeeper.urgentlyPollMessagesForTick(tickID, serverAddress);
+			}
 		}
 		
 		//At this point we know we have received the full set of messages from the server
@@ -97,6 +98,7 @@ public class Client implements MessageHandler
 			}
 			gateKeeper.pushMessagesForTick(toSend, serverAddress);
 			outgoingMessages.clear();
+			System.out.println(currentTick);
 			++currentTick;
 		}
 		

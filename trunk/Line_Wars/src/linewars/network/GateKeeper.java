@@ -219,9 +219,13 @@ public class GateKeeper
 			int numMessages = 0;
 			for (String player : listeningAddresses)
 			{
+				if (messages.get(request.timeStep) == null )
+				{
+					messages.put(request.timeStep, new HashMap<String, Message[]>());
+				}
+				
 				// if we're missing a player, give up
-				if (messages.get(request.timeStep) == null
-						|| messages.get(request.timeStep).get(player) == null)
+				if (messages.get(request.timeStep).get(player) == null)
 				{
 					return true;
 				}
