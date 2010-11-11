@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sound.midi.Receiver;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -38,7 +37,9 @@ import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.AdjustFlowDistributionMessage;
 
@@ -51,7 +52,7 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
 @SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
-	private static boolean OPPONENTS_NODES_SELECTABLE = true;
+	private static final boolean OPPONENTS_NODES_SELECTABLE = true;
 	
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
@@ -433,15 +434,33 @@ public class Display extends JFrame implements Runnable
 				commandCardPanel.setVisible(true);
 				commandCardPanel.updateButtons(cc, node);
 
-				// draws a rectangle around the command center
-				Position p = cc.getPosition();
-				int recX = (int)(p.getX() - cc.getWidth() / 2);
-				int recY = (int)(p.getY() - cc.getHeight() / 2);
-				Position pos = toScreenCoord(new Position(recX, recY));
-				int recW = (int)(cc.getWidth() * scale);
-				int recH = (int)(cc.getHeight() * scale);
+				int recX;
+				int recY;
+				int recW;
+				int recH;
+				if(zoomLevel <= ZOOM_THRESHOLD)
+				{
+					Position p = cc.getPosition();
+					
+					recX = (int)(p.getX() - cc.getWidth() / 2);
+					recY = (int)(p.getY() - cc.getHeight() / 2);
+					recW = (int)(cc.getWidth() * scale);
+					recH = (int)(cc.getHeight() * scale);
+				}
+				else
+				{
+					Position p = node.getTransformation().getPosition();
+					double radius = node.getBoundingCircle().getRadius();
+					
+					recX = (int)(p.getX() - radius);
+					recY = (int)(p.getY() - radius);
+					recW = (int)(2 * radius * scale);
+					recH = (int)(2 * radius * scale);
+				}
 				
+				// draws a rectangle around the command center
 				g.setColor(Color.red);
+				Position pos = toScreenCoord(new Position(recX, recY));
 				g.drawRect((int)pos.getX(), (int)pos.getY(), recW, recH);
 			}
 			
@@ -473,15 +492,21 @@ public class Display extends JFrame implements Runnable
 				{
 					if(cc.getOwner().getPlayerID() == playerIndex || OPPONENTS_NODES_SELECTABLE)
 					{
-						Position p = cc.getPosition();
-						if(lastClickPosition.getX() > p.getX() - cc.getWidth() / 2
-								&& lastClickPosition.getY() > p.getY() - cc.getHeight() / 2)
+						Rectangle rect;
+						if(zoomLevel <= ZOOM_THRESHOLD)
 						{
-							if(lastClickPosition.getX() < p.getX() + cc.getWidth() / 2
-									&& lastClickPosition.getY() < p.getY() + cc.getHeight() / 2)
-							{
-								return cc.getNode();
-							}
+							rect = new Rectangle(new Transformation(cc.getPosition(), 0), cc.getWidth(), cc.getHeight());
+						}
+						else
+						{
+							Node node = cc.getNode();
+							double radius = node.getBoundingCircle().getRadius();
+							rect = new Rectangle(node.getTransformation(), 2 * radius, 2 * radius);
+						}
+						
+						if(rect.positionIsInShape(lastClickPosition))
+						{
+							return cc.getNode();
 						}
 					}
 				}

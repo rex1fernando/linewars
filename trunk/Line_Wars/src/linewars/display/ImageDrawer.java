@@ -138,7 +138,7 @@ public class ImageDrawer
 	{
 		switch(playerIndex)
 		{
-		case 0: return Color.red;
+		case 0: return new Color(140, 23, 23); //scarlet
 		case 1: return Color.blue;
 		case 2: return Color.green;
 		case 3: return Color.orange;
