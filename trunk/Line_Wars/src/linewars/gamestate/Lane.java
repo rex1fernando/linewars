@@ -32,6 +32,7 @@ public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;
 	static final double LANE_BORDER_RESOLUTION = 0.05;
+	private static final int NUM_COLLISION_FIXES = 3;
 	private static int NEXT_UID = 1;
 	
 	private String name;
@@ -650,25 +651,23 @@ public strictfp class Lane
 				i++;
 		}
 		
-		findAndResolveCollisions();
+		for(int i = 0; i < NUM_COLLISION_FIXES; i++){
+			findAndResolveCollisions();			
+		}
 		checkWaveConsistency();
 	}
 	
 	private void findAndResolveCollisions(){
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
-		//HashMap<Unit, Integer> numCollisions = new HashMap<Unit, Integer>();
 		List<MapItem> allUnits = getCollidableMapItems();
 		for(MapItem first : allUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
-			//numCollisions.put(first, 0);
 			
 			for(MapItem second : allUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
 				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
-						//numCollisions.put(first, numCollisions.get(first) + 1);
-						if(first.getState() != MapItemState.Moving) continue;//if the unit isn't moving, it can't get shoved
 						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
 						
 						//Calculate how far they should be shifted
@@ -676,40 +675,61 @@ public strictfp class Lane
 						double radSum = first.getRadius() + second.getRadius();
 						double overlap = radSum - distanceApart;
 						double scalingFactor = overlap / distanceApart;
-						//scalingFactor = 1 - ((1 - scalingFactor) * (1 - scalingFactor));
 						offsetVector = offsetVector.scale(scalingFactor);
 						
-						if(second.getState() == MapItemState.Moving){
+						//figure out the direction that each one is moving
+						Node firstOrigin = ((Unit)first).getWave().getOrigin();
+						Position firstOriginPos = firstOrigin.getTransformation().getPosition();
+						Node secondOrigin = ((Unit)first).getWave().getOrigin();
+						Position secondOriginPos = secondOrigin.getTransformation().getPosition();
+						Position zeroPos = curve.getP0();
+						Position onePos = curve.getP1();
+						
+						//these will be true if first and second respectively originated from the 'one' end of the lane
+						boolean firstOne = firstOriginPos.distanceSquared(onePos) < firstOriginPos.distanceSquared(zeroPos);
+						boolean secondOne = secondOriginPos.distanceSquared(onePos) < secondOriginPos.distanceSquared(zeroPos);
+						
+						if(firstOne != secondOne){//if they are moving in diff directions, push each away by half of their overlap
 							//move first by -offsetvector/2
 							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-0.5));
+							collisionVectors.put(first, newPosition);
+						}else{//now they have to be going in the same direction
+							boolean firstFirst = false;
+							double firstDistance = curve.getClosestPointRatio(first.getPosition());
+							double secondDistance = curve.getClosestPointRatio(second.getPosition());
+							if(firstOne){//if 1 -> 0
+								if(firstDistance < secondDistance){
+									firstFirst = true;
+								}
+							}else{//0 -> 1
+								if(firstDistance > secondDistance){
+									firstFirst = true;
+								}
+							}
+							
+							if(!firstFirst){//if first is coming up from behind and thus should be moved
+								//move first by -offsetvector (100% of the distance)
+								Position newPosition = collisionVectors.get(first).add(offsetVector.scale(1));
+								collisionVectors.put(first, newPosition);								
+							}
+						}
+						
+						
+						/*
+						if(second.getState() == MapItemState.Moving){
+							//move first by -offsetvector/2
+							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
 							collisionVectors.put(first, newPosition);
 						}
 						else{
 							//move first by -offsetvector
 							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
 							collisionVectors.put(first, newPosition);
-						}
+						}*/
 					}
 				}
 			}
-		}
-		/*
-		HashMap<Unit, Position> oneDepthRecursionVectors = new HashMap<Unit, Position>();
-		
-		for(Unit first : allUnits){
-			oneDepthRecursionVectors.put(first, new Position(0, 0));
-			for(Unit second : allUnits){
-				if(first == second) continue;//units can't collide with themselves
-				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
-					if(first.isCollidingWith(second)){//if the two units are actually colliding
-						//add the second unit's collision vector to the first unit's oneDepthRecursionVector
-						Position toPut = oneDepthRecursionVectors.get(first).add(collisionVectors.get(second));
-						oneDepthRecursionVectors.put(first, toPut);
-					}
-				}
-			}
-		}*/
-		
+		}		
 
 		//Then resolve them by shifting stuff around
 		for(MapItem toMove : allUnits){
