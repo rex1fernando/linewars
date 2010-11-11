@@ -6,6 +6,11 @@ import java.util.List;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class BezierCurve {
 	/*
  	 * These points represent the 4 control
@@ -19,7 +24,6 @@ public strictfp class BezierCurve {
 	private Position p3;
 	
 	private double length;
-	//TODO Test what the right stepsize is to balance time vs accuracy.
 	private static final double STEP_SIZE = 0.001;
 	
 	public static BezierCurve buildCurve(ConfigData configuration){
@@ -186,12 +190,6 @@ public strictfp class BezierCurve {
 
 		ret = Math.atan2(dy, dx);
 
-		/*atan2 handles these calculations! then we don't have to deal with the edge cases where dx or dy == 0
-		if (dx < 0 && dy < 0) ret *= -1;
-		if (dx > 0 && dy < 0) ret *= -1;
-		if (dx < 0 && dy > 0) ret = Math.PI * 2 - ret;
-		if (dx > 0 && dy > 0) ret = Math.PI * 2 - ret;
-		*/
 		return ret;
 	}
 	

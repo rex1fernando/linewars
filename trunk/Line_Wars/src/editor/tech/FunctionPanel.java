@@ -42,7 +42,7 @@ public class FunctionPanel implements ActionListener{
 		String[] typeOptions = {"", "Polynomial", "Exponential"};
 		this.cd = cd;
 		functionDisplay = new JTextArea(15, 15);
-		c0Label = new JLabel("c0: ");
+		c0Label = new JLabel("c: ");
 		c1Label = new JLabel("c1: ");
 		c2Label = new JLabel("c2: ");
 		addCoefficientLabel = new JLabel("Coefficient: ");

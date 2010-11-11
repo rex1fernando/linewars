@@ -3,6 +3,10 @@ package editor.tech;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.TextAttribute;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -61,7 +65,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 				{
 					for(int i = 0; i < cos.size(); i++)
 					{
-						this.addCoefficient();
+						this.addCoefficient("Exponential");
 						this.frames.get(this.frames.size() - 1).setDouble(cos.get(i));
 					}
 				}
@@ -75,7 +79,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 				
 				for(int i = 0; i < cos.size(); i++)
 				{
-					this.addCoefficient();
+					this.addCoefficient("Polynomial");
 					this.frames.get(this.frames.size() - 1).setDouble(cos.get(i));
 				}
 				addFrames.setEnabled(true);
@@ -142,10 +146,27 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 		
 		private JTextField value;
 		
-		public CoefficientFrame(int degree) {
+		public CoefficientFrame(int degree, String fType) {
 			value = new JTextField();
 			value.setColumns(10);
-			this.add(new JLabel("c" + degree));
+			
+			if(fType.equalsIgnoreCase("Polynomial")){
+				String dString = String.valueOf(degree);
+				if(degree == 0){
+					this.add(new JLabel("(x ^ "+dString + ") * "));
+				}else{
+					this.add(new JLabel("+ (x ^ "+dString + ") * "));
+				}
+			}else if(fType.equalsIgnoreCase("Exponential")){
+				if(degree == 0){
+					this.add(new JLabel("Const:"));
+				}else if(degree == 1){
+					this.add(new JLabel("* :"));
+				}else if(degree == 2){
+					this.add(new JLabel("^ :"));
+				}
+			}
+
 			this.add(value);
 		}
 		
@@ -174,14 +195,14 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 		this.reset();
 		if(uri.equalsIgnoreCase("Exponential"))
 		{
-			this.addCoefficient();
-			this.addCoefficient();
-			this.addCoefficient();
+			this.addCoefficient("Exponential");
+			this.addCoefficient("Exponential");
+			this.addCoefficient("Exponential");
 			this.addFrames.setEnabled(false);
 		}
 		else if(uri.equalsIgnoreCase("Polynomial"))
 		{
-			this.addCoefficient();
+			this.addCoefficient("Polynomial");
 			this.addFrames.setEnabled(true);
 		}
 		type.setSelectedURI(uri);
@@ -189,14 +210,18 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		this.addCoefficient();		
+		if(type.getSelectedURI().equalsIgnoreCase("Exponential")){
+			this.addCoefficient("Exponential");		
+		}else if(type.getSelectedURI().equalsIgnoreCase("Polynomial")){
+			this.addCoefficient("Polynomial");
+		}
 	}
 	
-	private void addCoefficient()
+	private void addCoefficient(String fType)
 	{
 		this.remove(addFrames);
 		
-		this.frames.add(new CoefficientFrame(this.frames.size()));
+		this.frames.add(new CoefficientFrame(this.frames.size(), fType));
 		this.add(this.frames.get(this.frames.size() - 1));
 		
 		this.add(addFrames);

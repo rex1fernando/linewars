@@ -225,6 +225,9 @@ public strictfp class Wave {
 					i++;
 				
 				Transformation t = owner.getPosition(pos);
+				if(Math.abs(t.getRotation()) < .001){
+					System.out.println("t's rotation is 0");
+				}
 				closestPoints.put(u, t);
 				double angle = t.getRotation();
 				if(!forward)
