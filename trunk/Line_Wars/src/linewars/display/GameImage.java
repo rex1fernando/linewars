@@ -17,6 +17,9 @@ public class GameImage
 	{
 		originalImage = image;
 		
+		scaleX = (double)width / image.getWidth(null);
+		scaleY = (double)height / image.getHeight(null);
+		
 		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = lastScaledImage.getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
@@ -28,8 +31,8 @@ public class GameImage
 	{
 		if(scale != lastScale)
 		{
-			int width = (int)(originalImage.getWidth(null) * scale);
-			int height = (int)(originalImage.getHeight(null) * scale);
+			int width = (int)(originalImage.getWidth(null) * scaleX * scale);
+			int height = (int)(originalImage.getHeight(null) * scaleY * scale);
 			
 			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			
