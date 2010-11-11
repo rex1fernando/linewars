@@ -136,7 +136,22 @@ public class ImageDrawer
 	 */
 	public static Color getPlayerColor(int playerIndex, int numPlayers)
 	{
-		double mask = Math.log(0xFFFFFF) / Math.log(numPlayers + 2);
-		return new Color((int)Math.pow(playerIndex + 2, mask));
+		switch(playerIndex)
+		{
+		case 0: return Color.red;
+		case 1: return Color.blue;
+		case 2: return Color.green;
+		case 3: return Color.orange;
+		case 4: return Color.yellow;
+		case 5: return Color.pink;
+		case 6: return Color.cyan;
+		case 7: return Color.magenta;
+		case 8: return new Color(0, 128, 128); //teal
+		case 9: return new Color(0, 0, 128); //navy
+		case 10: return new Color(0, 245, 255); //turquoise
+		case 11: return new Color(47, 79, 47); //dark green
+		}
+		
+		return Color.white;
 	}
 }

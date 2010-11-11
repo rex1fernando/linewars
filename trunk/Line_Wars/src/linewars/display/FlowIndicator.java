@@ -61,8 +61,8 @@ public class FlowIndicator
 			g.drawLine((int)origin1.getX(), (int)origin1.getY(), (int)point1.getX(), (int)point1.getY());
 			g.drawLine((int)origin2.getX(), (int)origin2.getY(), (int)point2.getX(), (int)point2.getY());
 			
-			g.fillOval((int)point1.getX() - 10, (int)point1.getY() - 10, 20, 20);
-			g.fillOval((int)point2.getX() - 10, (int)point2.getY() - 10, 20, 20);
+			CircleDrawer.drawCircle(g, point1, 10);
+			CircleDrawer.drawCircle(g, point2, 10);
 		}
 	}
 }

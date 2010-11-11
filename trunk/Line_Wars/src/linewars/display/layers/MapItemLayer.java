@@ -16,6 +16,7 @@ import linewars.configfilehandler.ConfigFileReader;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.display.Animation;
+import linewars.display.CircleDrawer;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
@@ -60,7 +61,7 @@ public class MapItemLayer implements ILayer
 				{
 					pos = display.toScreenCoord(pos);
 					g.setColor(Color.red);
-					g.fillOval((int)pos.getX(), (int)pos.getY(), (int)(mapItem.getRadius() * scale), (int)(mapItem.getRadius() * scale));
+					CircleDrawer.drawCircle(g, pos, mapItem.getRadius() * scale);
 					continue;
 				}
 				//get the animation map for the unit
