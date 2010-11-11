@@ -6,4 +6,5 @@ public strictfp interface GameStateProvider {
 	public GameState getCurrentGameState();
 	public void lockViewableGameState();
 	public void unlockViewableGameState();
+	public double getUpdateRate();
 }

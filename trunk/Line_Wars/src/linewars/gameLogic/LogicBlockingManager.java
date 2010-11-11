@@ -17,6 +17,9 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	private HashMap<Integer, Message[]> orders;
 	private GameState viewableState, freeState;
 	
+	private long lastUpdateTime;
+	private long lastLastUpdateTime;
+	
 	//Display: render continuously
 	//Means all swapping must happen in getCurrentGameState()
 	private boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
@@ -29,10 +32,15 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		
 		fullyUpdated = true;
 		locked = false;
+		
+		lastUpdateTime = System.currentTimeMillis();
+		lastLastUpdateTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public void addOrdersForTick(int tickID, Message[] newOrders) {
+		lastLastUpdateTime = lastUpdateTime;
+		lastUpdateTime = System.currentTimeMillis();
 		if(orders.containsKey(tickID)){
 			throw new IllegalStateException("Orders already exist for the given tickID!");
 		}
@@ -101,6 +109,11 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 			//free state is no longer necessarily fully updated
 			fullyUpdated = false;
 		}		
+	}
+
+	@Override
+	public double getUpdateRate() {
+		return 1000.0 / (lastUpdateTime - lastLastUpdateTime);
 	}
 
 }
