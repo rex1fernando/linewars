@@ -253,6 +253,17 @@ public class BigFrameworkGuy
 			boolean valid = ce.isValidConfig();
 			ParserKeys key = ce.getType();
 			
+			if(!valid)
+			{
+				int res = JOptionPane.showConfirmDialog(
+					    frame,
+					    "The Config is not complete.\n Would you like to save anywas?",
+					    "Error",
+					    JOptionPane.YES_NO_OPTION);
+				if(res != JOptionPane.YES_OPTION)
+					return;
+			}
+			
 			//if the uri is already in the list, get rid of it
 			if(masterList.getDefinedKeys().contains(key) && masterList.getStringList(key).contains(uri))
 				masterList.remove(key, uri);
@@ -262,10 +273,13 @@ public class BigFrameworkGuy
 					
 			try {
 				new ConfigFileWriter(uri).write(cd, valid);
-			} catch (FileNotFoundException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(frame,
+					    "There was an error saving the config.",
+					    "Error",
+					    JOptionPane.ERROR_MESSAGE);
+				return;
 			}
 			
 			if(valid)
@@ -280,6 +294,10 @@ public class BigFrameworkGuy
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
+			JOptionPane.showMessageDialog(frame,
+				    "Save successfull.", 
+				    "Message", JOptionPane.INFORMATION_MESSAGE);	
 		}
 		
 	}

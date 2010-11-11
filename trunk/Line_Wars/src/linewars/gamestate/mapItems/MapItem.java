@@ -169,7 +169,7 @@ public strictfp abstract class MapItem {
 	
 	/**
 	 * 
-	 * @return	the time at which the map item entered its current state
+	 * @return	the time at which the map item entered its current state, in ms
 	 */
 	public double getStateStartTime()
 	{

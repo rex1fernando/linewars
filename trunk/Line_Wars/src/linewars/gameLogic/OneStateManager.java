@@ -65,4 +65,10 @@ public strictfp class OneStateManager implements GameStateProvider, GameStateUpd
 	public void unlockViewableGameState() {
 	}
 
+	@Override
+	public double getUpdateRate() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
