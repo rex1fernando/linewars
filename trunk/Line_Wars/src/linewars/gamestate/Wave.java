@@ -82,14 +82,15 @@ public strictfp class Wave {
 	
 	/**
 	 * Gets the position of the wave within the lane.
+	 * @param includeGates TODO
 	 * @return a double that represents the percentage of the lane that is between the wave and p0 in the lane.
 	 */
-	public double getPositionToP0()
+	public double getPositionToP0(boolean includeGates)
 	{
 		double min = 1;
 		for(Unit u : units)
 		{
-			if(u instanceof Gate)
+			if(u instanceof Gate && !includeGates)
 				continue;
 			double d = owner.getClosestPointRatio(u.getPosition()) - u.getRadius()/owner.getLength();
 			if(d < min)
