@@ -486,4 +486,8 @@ public strictfp class Player {
 		}
 		return ret;
 	}
+	
+	public Node getStartNode(Lane l) {
+		return this.startPoints.get(l);
+	}
 }

@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.midi.Receiver;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -31,11 +32,15 @@ import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
+import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.CommandCenter;
 import linewars.network.MessageReceiver;
+import linewars.network.messages.AdjustFlowDistributionMessage;
 
 /**
  * Encapsulates the display information.
@@ -61,6 +66,10 @@ public class Display extends JFrame implements Runnable
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
 	
+	private int adjustingFlowDist;
+	private boolean adjustingFlow1;
+	private boolean clicked;
+	
 	private int playerIndex;
 
 	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer)
@@ -68,6 +77,8 @@ public class Display extends JFrame implements Runnable
 		super("Line Wars");
 		
 		playerIndex = curPlayer;
+		adjustingFlowDist = -1;
+		clicked = false;
 		
 		messageReceiver = receiver;
 		gameStateProvider = provider;
@@ -169,14 +180,6 @@ public class Display extends JFrame implements Runnable
 
 			// add the map image to the MapItemDrawer
 			String mapURI = mapParser.getString(ParserKeys.icon);
-//			try
-//			{
-//				ImageDrawer.getInstance().addImage(mapURI, "", mapWidth, mapHeight);
-//			}
-//			catch (IOException e)
-//			{
-//				e.printStackTrace();
-//			}
 
 			ConfigData leftUIPanel = null;
 			ConfigData rightUIPanel = null;
@@ -201,7 +204,7 @@ public class Display extends JFrame implements Runnable
 			setOpaque(false);
 
 			strategicView = new ArrayList<ILayer>(2);
-			strategicView.add(new GraphLayer(Display.this, numPlayers));
+			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
 
 			tacticalView = new ArrayList<ILayer>();
 			tacticalView.add(new TerrainLayer(mapURI, Display.this));
@@ -247,6 +250,8 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
+			detectFlowIndicatorChange(gamestate);
+			
 			List<ILayer> currentView = (zoomLevel > ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
 			//fill the background black
@@ -273,6 +278,91 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 			
 			this.repaint();
+		}
+		
+		private void detectFlowIndicatorChange(GameState state)
+		{
+			Lane[] lanes = state.getMap().getLanes();
+			if(clicked)
+			{
+				clicked = false;
+				Position clickPos = toScreenCoord(lastClickPosition);
+				for(int i = 0; i < lanes.length; ++i)
+				{
+					BezierCurve curve = lanes[i].getCurve();
+					Player p = state.getPlayer(playerIndex);
+					Node startNode = p.getStartNode(lanes[i]);
+					double flow = p.getFlowDist(lanes[i]);
+					
+					Position origin1 = toScreenCoord(curve.getP0());
+					Position origin2 = toScreenCoord(curve.getP3());
+					Position point1 = toScreenCoord(curve.getP0());
+					Position point2 = toScreenCoord(curve.getP3());
+					
+					Node[] nodes = lanes[i].getNodes();
+					if(startNode == nodes[0])
+					{
+						Position destination = toScreenCoord(curve.getP1());
+						Position scale = destination.subtract(origin1).normalize();
+						point1 = origin1.add(scale.scale(flow * 2));
+					}
+					else if(startNode == nodes[1])
+					{
+						Position destination = toScreenCoord(curve.getP2());
+						Position scale = destination.subtract(origin2).normalize();
+						point2 = origin2.add(scale.scale(flow * 2));
+					}
+					
+					if(point1.subtract(clickPos).length() <= 10)
+					{
+						adjustingFlowDist = i;
+						adjustingFlow1 = true;
+						break;
+					}
+					else if(point2.subtract(clickPos).length() <= 10)
+					{
+						adjustingFlowDist = i;
+						adjustingFlow1 = false;
+						break;
+					}
+				}
+			}
+			else if(adjustingFlowDist != -1)
+			{	
+				double flow = 0;
+				BezierCurve curve = lanes[adjustingFlowDist].getCurve();
+				int startNode;
+				if(adjustingFlow1)
+				{
+					Position p0 = toScreenCoord(curve.getP0());
+					Position axis = toScreenCoord(curve.getP1()).subtract(p0).normalize();
+					Position ray = mousePosition.subtract(p0);
+					
+					flow = ray.length() * axis.dot(ray.normalize()) / 2;
+					if(flow > 100)
+						flow = 100;
+					if(flow < 0)
+						flow = 0;
+					
+					startNode = lanes[adjustingFlowDist].getNodes()[0].getID();
+				}
+				else
+				{
+					Position p3 = toScreenCoord(curve.getP3());
+					Position axis = toScreenCoord(curve.getP2()).subtract(p3).normalize();
+					Position ray = mousePosition.subtract(p3);
+					
+					flow = ray.length() * axis.dot(ray.normalize()) / 2;
+					if(flow > 100)
+						flow = 100;
+					if(flow < 0)
+						flow = 0;
+				
+					startNode = lanes[adjustingFlowDist].getNodes()[1].getID();
+				}
+				
+				messageReceiver.addMessage(new AdjustFlowDistributionMessage(playerIndex, adjustingFlowDist, flow, startNode));
+			}
 		}
 		
 		private void updateViewPortPan(double fps, double scale)
@@ -415,10 +505,26 @@ public class Display extends JFrame implements Runnable
 		private class InputHandler extends MouseAdapter
 		{
 			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
+				lastClickPosition = toGameCoord(p);
+				clicked = true;
+			}
+			
+			@Override
 			public void mouseReleased(MouseEvent e)
 			{
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				lastClickPosition = toGameCoord(p);
+				adjustingFlowDist = -1;
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e)
+			{
+				Position p = new Position(e.getPoint().getX(),e.getPoint().getY());
+				mousePosition = p;
 			}
 
 			@Override
