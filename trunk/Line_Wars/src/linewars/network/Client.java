@@ -64,7 +64,7 @@ public class Client implements MessageHandler
 	public Message[] getMessagesForTick(int tickID)
 	{
 		Message[] toReturn = null;
-		if(tickID <= K + 1){
+		if(tickID < K + 1){
 			toReturn = new Message[0];
 		} else
 		{

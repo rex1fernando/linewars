@@ -215,32 +215,31 @@ public class GateKeeper
 				return false;
 			}
 			
-			// count the number of messages
-			int numMessages = 0;
-			for (String player : listeningAddresses)
-			{
-				if (messages.get(request.timeStep) == null )
-				{
-					messages.put(request.timeStep, new HashMap<String, Message[]>());
-				}
-				
-				// if we're missing a player, give up
-				if (messages.get(request.timeStep).get(player) == null)
-				{
-					return true;
-				}
-				numMessages += messages.get(request.timeStep).get(player).length;
-			}
-			Message[] toSend = new Message[numMessages];
+			Message[] toSend = resendMessages.get(request.timeStep);
 			
-			// create a list of messages from all players
-			int curMsg = 0;
-			for (String player : messages.get(request.timeStep).keySet())
+			if (toSend == null)
 			{
-				for (Message msg : messages.get(request.timeStep).get(player))
+				// count the number of messages
+				int numMessages = 0;
+				for (String player : listeningAddresses)
 				{
-					toSend[curMsg] = msg;
-					++curMsg;
+					if (messages.get(request.timeStep).get(player) == null)
+					{
+						return true;
+					}
+					numMessages += messages.get(request.timeStep).get(player).length;
+				}
+				toSend = new Message[numMessages];
+				
+				// create a list of messages from all players
+				int curMsg = 0;
+				for (String player : messages.get(request.timeStep).keySet())
+				{
+					for (Message msg : messages.get(request.timeStep).get(player))
+					{
+						toSend[curMsg] = msg;
+						++curMsg;
+					}
 				}
 			}
 			
