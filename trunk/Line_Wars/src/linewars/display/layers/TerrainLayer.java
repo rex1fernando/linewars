@@ -20,7 +20,10 @@ public class TerrainLayer implements ILayer
 	private boolean bufferedChanged;
 	private Display display;
 	
-	public TerrainLayer(String mapURI, Display d)
+	double scaleX;
+	double scaleY;
+	
+	public TerrainLayer(String mapURI, Display d, double mapWidth, double mapHeight)
 	{
 		try
 		{
@@ -33,6 +36,9 @@ public class TerrainLayer implements ILayer
 		}
 		
 		display = d;
+		
+		scaleX = map.getWidth(null) / mapWidth;
+		scaleY = map.getHeight(null) / mapHeight;
 	}
 	
 	@Override
@@ -59,10 +65,10 @@ public class TerrainLayer implements ILayer
 			int dy1 = 0;
 			int dx2 = display.getScreenWidth();
 			int dy2 = display.getScreenHeight();
-			int sx1 = (int) visibleScreen.getX();
-			int sy1 = (int) visibleScreen.getY();
-			int sx2 = (int) (visibleScreen.getX() + (display.getScreenWidth() / scale));
-			int sy2 = (int) (visibleScreen.getY() + (display.getScreenHeight() / scale));
+			int sx1 = (int)(visibleScreen.getX() * scaleX);
+			int sy1 = (int)(visibleScreen.getY() * scaleY);
+			int sx2 = (int)((visibleScreen.getX() + visibleScreen.getWidth()) * scaleX);
+			int sy2 = (int)((visibleScreen.getY() + visibleScreen.getHeight()) * scaleY);
 			Color bg = Color.black;
 			
 			Graphics bmg = bufferedMap.getGraphics();

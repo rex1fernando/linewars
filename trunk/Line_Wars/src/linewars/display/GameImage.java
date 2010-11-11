@@ -7,18 +7,20 @@ import java.awt.image.ImageObserver;
 
 public class GameImage
 {
+	private double scaleX;
+	private double scaleY;
 	private double lastScale;
 	private Image originalImage;
 	private Image lastScaledImage;
 
 	public GameImage(Image image, int width, int height)
 	{
-		originalImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		originalImage = image;
 		
-		Graphics g = originalImage.getGraphics();
+		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = lastScaledImage.getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
 
-		lastScaledImage = originalImage;
 		lastScale = 1.0;
 	}
 

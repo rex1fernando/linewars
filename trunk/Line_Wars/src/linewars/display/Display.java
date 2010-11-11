@@ -208,7 +208,7 @@ public class Display extends JFrame implements Runnable
 			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
 
 			tacticalView = new ArrayList<ILayer>();
-			tacticalView.add(new TerrainLayer(mapURI, Display.this));
+			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
@@ -520,6 +520,11 @@ public class Display extends JFrame implements Runnable
 			@Override
 			public void componentResized(ComponentEvent e)
 			{
+				Dimension2D visibleSize = new Dimension();
+				visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
+				double scale = (getHeight() / visibleSize.getHeight()) / (getWidth() / visibleSize.getWidth());
+				viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight() * scale);
+				
 				commandCardPanel.updateLocation();
 				nodeStatusPanel.updateLocation();
 				resourceDisplayPanel.updateLocation();
