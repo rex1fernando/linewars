@@ -12,8 +12,11 @@ import linewars.network.MessageHandler;
 import linewars.network.Server;
 import linewars.network.SinglePlayerNetworkProxy;
 
-//TODO test
-//TODO document
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp class Game {
 	
 	private static final int SOCKET_PORT = 9001;

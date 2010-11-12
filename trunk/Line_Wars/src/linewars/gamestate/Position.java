@@ -7,7 +7,7 @@ import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
- * @author Connor Schenck
+ * @author Connor Schenck, Taylor Bergquist
  *
  */
 public strictfp class Position {

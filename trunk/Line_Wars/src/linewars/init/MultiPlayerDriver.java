@@ -2,17 +2,23 @@ package linewars.init;
 
 import java.util.ArrayList;
 
+/**
+ * For testing only.
+ * @author Taylor Bergquist
+ *
+ */
 public class MultiPlayerDriver {
 	public static void main(String[] args) {
 		String mapDefinitionURI = "resources/maps/3_lane_map.cfg";
 		int numPlayers = 2;
-		String serverAddress = "127.0.0.1";
+		String serverAddress = "129.186.40.179";
 		String raceURI1 = "resources/races/thatOneRace.cfg";
 		String playerName1 = "Titus";
 		String playerName2 = "Taylor";
 		String playerAddress1 = serverAddress;
-		String playerAddress2 = "129.186.150.197";
+		String playerAddress2 = "127.0.0.1";
 		ArrayList<String> raceURIs = new ArrayList<String>();
+		raceURIs.add(raceURI1);
 		raceURIs.add(raceURI1);
 		ArrayList<String> playerNames = new ArrayList<String>();
 		playerNames.add(playerName1);

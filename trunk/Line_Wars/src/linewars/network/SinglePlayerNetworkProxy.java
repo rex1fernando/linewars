@@ -5,6 +5,11 @@ import java.util.HashMap;
 
 import linewars.network.messages.Message;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public class SinglePlayerNetworkProxy implements MessageHandler {
 	
 	private int currentTick;

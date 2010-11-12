@@ -2,6 +2,11 @@ package linewars.gamestate.shapes;
 
 import java.util.HashMap;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp abstract class ShapeCollisionStrategy {
 	
 	private static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;

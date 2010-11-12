@@ -24,7 +24,7 @@ import linewars.network.messages.SupDawgMessage;
  * 			Pack up all Messages due to be sent to the server and send them with a tick id of x + k, where k is
  * 			some positive integral constant.
  * 
- * @author Titus Klinge
+ * @author Titus Klinge, Taylor Bergquist
  */
 public class Client implements MessageHandler
 {

@@ -18,6 +18,11 @@ import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public class TechURISelector implements ConfigurationEditor {
 	
 	private JPanel panel;

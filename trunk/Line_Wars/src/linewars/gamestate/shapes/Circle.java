@@ -6,6 +6,11 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp class Circle extends Shape {
 	
 	static {

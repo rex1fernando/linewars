@@ -8,8 +8,11 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.network.messages.Message;
 
-//TODO thread safety
-//TODO document
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp class LogicBlockingManager implements GameStateProvider, GameStateUpdater {
 	
 	private static final int SLEEP_TIME_MS = 10;

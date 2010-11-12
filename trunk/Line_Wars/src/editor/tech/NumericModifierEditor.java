@@ -9,6 +9,11 @@ import editor.BigFrameworkGuy;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public class NumericModifierEditor implements ModifierConfigurationEditor {
 	
 	private ParserKeys modifiedKey;

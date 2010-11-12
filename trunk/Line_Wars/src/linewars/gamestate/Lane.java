@@ -30,7 +30,7 @@ import linewars.gamestate.shapes.Circle;
 
 /**
  * 
- * @author John George, Connor Schenck
+ * @author John George, Connor Schenck, Taylor Bergquist
  *
  */
 public strictfp class Lane
@@ -656,7 +656,6 @@ public strictfp class Lane
 	
 	private void findAndResolveCollisions(){
 		pushUnitsOntoLane();
-		
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
 		List<Unit> allUnits = getCollidableMapItems();

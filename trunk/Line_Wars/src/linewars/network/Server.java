@@ -16,7 +16,7 @@ import linewars.network.messages.Message;
  * Once all of the Messages associated with some tick id have been received, send them all out to each Client.
  * 
  * 
- * @author Titus Klinge
+ * @author Titus Klinge, Taylor Bergquist
  */
 public class Server implements Runnable
 {

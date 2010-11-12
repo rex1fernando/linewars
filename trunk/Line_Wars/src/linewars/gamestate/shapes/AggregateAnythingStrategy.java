@@ -1,5 +1,10 @@
 package linewars.gamestate.shapes;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp class AggregateAnythingStrategy extends ShapeCollisionStrategy {
 	
 	static {

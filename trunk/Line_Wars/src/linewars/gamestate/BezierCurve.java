@@ -156,6 +156,11 @@ public strictfp class BezierCurve {
 	{
 		if(pos < 0 || pos > 1)
 			throw new IllegalArgumentException("pos " + pos + " is out of range!");
+		if(pos == 0){
+			pos = .001;
+		}else if(pos == 1){
+			pos = .999;
+		}
 		
 		double term0 = Math.pow((1 - pos), 3);
 		double term1 = 3 * Math.pow(1 - pos, 2) * pos;
@@ -169,7 +174,6 @@ public strictfp class BezierCurve {
 
 		Position quad = getQuadraticPos(pos);
 		Position cube = new Position(posX, posY);
-		
 		double rot = calculateRot(quad, cube);
 		return new Transformation(cube, rot);
 	}

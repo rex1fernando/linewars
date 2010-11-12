@@ -36,7 +36,7 @@ import linewars.network.messages.Message;
  * FOR DEBUGGING PURPOSES ONLY
  * FOR DEBUGGING PURPOSES ONLY
  * FOR DEBUGGING PURPOSES ONLY
- * @author Knexer
+ * @author Taylor Bergquist
  *
  */
 public strictfp class OneStateManager implements GameStateProvider, GameStateUpdater {
@@ -64,11 +64,10 @@ public strictfp class OneStateManager implements GameStateProvider, GameStateUpd
 	@Override
 	public void unlockViewableGameState() {
 	}
-
+	
 	@Override
 	public double getUpdateRate() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 }

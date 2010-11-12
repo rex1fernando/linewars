@@ -24,7 +24,7 @@ import editor.IconEditor;
 
 /**
  * 
- * @author John George
+ * @author John George, Taylor Bergquist
  *
  */
 public class NTCFEditor implements ConfigurationEditor, FocusListener {

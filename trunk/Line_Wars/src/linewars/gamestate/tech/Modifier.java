@@ -5,7 +5,7 @@ import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
- * @author John George
+ * @author John George, Taylor Bergquist
  *
  */
 public interface Modifier {

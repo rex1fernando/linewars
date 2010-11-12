@@ -6,6 +6,11 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import editor.ConfigurationEditor;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public interface ModifierConfigurationEditor extends ConfigurationEditor {
 	
 	/**

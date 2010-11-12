@@ -2,6 +2,11 @@ package linewars.init;
 
 import java.util.ArrayList;
 
+/**
+ * For testing only.
+ * @author Taylor Bergquist
+ *
+ */
 public class SinglePlayerDriverNetworking {
 	public static void main(String[] args){
 		String mapDefinitionURI = "resources/maps/3_lane_map.cfg";

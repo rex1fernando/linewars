@@ -12,6 +12,11 @@ import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public class TechEditor implements ConfigurationEditor {
 	
 	private JPanel topLevel;

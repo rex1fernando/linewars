@@ -28,7 +28,7 @@ import editor.ConfigurationEditor;
  * This configuration should happen in another ConfigurationEditor; there should be one class
  * implementing ConfigurationEditor for each modifier type.
  * 
- * @author knexer
+ * @author Taylor Bergquist
  *
  */
 public class ModifierEditor implements ConfigurationEditor, ActionListener {

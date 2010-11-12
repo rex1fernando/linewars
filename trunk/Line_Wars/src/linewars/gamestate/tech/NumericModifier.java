@@ -6,7 +6,7 @@ import linewars.gamestate.Function;
 
 /**
  * 
- * @author John George
+ * @author John George, Taylor Bergquist
  *
  */
 public class NumericModifier implements Modifier {

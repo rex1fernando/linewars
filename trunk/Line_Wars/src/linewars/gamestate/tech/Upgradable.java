@@ -7,7 +7,7 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 
 /**
  * 
- * @author John George
+ * @author John George, Taylor Bergquist
  *
  */
 public interface Upgradable {

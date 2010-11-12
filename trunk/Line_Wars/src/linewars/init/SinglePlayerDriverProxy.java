@@ -2,6 +2,11 @@ package linewars.init;
 
 import java.util.ArrayList;
 
+/**
+ * For testing only.
+ * @author Taylor Bergquist
+ *
+ */
 public class SinglePlayerDriverProxy {
 	public static void main(String[] args){
 		String mapDefinitionURI = "resources/maps/Less_Maximally_Curvy_Map.cfg";

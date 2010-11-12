@@ -21,6 +21,11 @@ import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public class TechKeySelector implements ConfigurationEditor {
 	
 	private HashMap<ParserKeys, ConfigData> modifiers;

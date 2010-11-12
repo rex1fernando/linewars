@@ -2,6 +2,11 @@ package linewars.gamestate.shapes;
 
 import linewars.gamestate.Position;
 
+/**
+ * 
+ * @author Taylor Bergquist
+ *
+ */
 public strictfp class RectangleCircleStrategy extends ShapeCollisionStrategy {
 
 	static{
