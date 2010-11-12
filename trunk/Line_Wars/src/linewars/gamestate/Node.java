@@ -19,6 +19,11 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.*;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Node {
 	
 	private static final long TIME_TO_OCCUPY = 30000;

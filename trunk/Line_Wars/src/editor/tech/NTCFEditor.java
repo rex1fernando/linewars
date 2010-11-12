@@ -22,6 +22,11 @@ import linewars.gamestate.Function;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public class NTCFEditor implements ConfigurationEditor, FocusListener {
 
 	private JPanel panel;
@@ -38,15 +43,16 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 		costFunctionEditor = new FunctionEditor();
 		iconEditor = new IconEditor();
 		
+		//Initialize the elements
 		panel = new JPanel();
 		JLabel nameLabel = new JLabel("Name: ");
 		JLabel tooltipLabel = new JLabel("Tooltip: ");
 		nameField = new JTextField(20);
 		tooltipArea = new JTextArea();
 		JScrollPane scroller = new JScrollPane(tooltipArea);
+		
+		//Set the attributes of the elements
 		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		//TODO Make this scrollbar work.
-
 		nameField.addFocusListener(this);
 		tooltipArea.addFocusListener(this);
 		tooltipArea.setLineWrap(true);
@@ -54,6 +60,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 		tooltipArea.setPreferredSize(new Dimension(200, 200));
 		scroller.setPreferredSize(new Dimension(200, 100));
 		
+		//Add the elements to the main panel
 		panel.add(nameLabel);
 		panel.add(nameField);
 		panel.add(tooltipLabel);
@@ -161,9 +168,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 		return panel;
 	}
 
-	/**
-	 * Goggles.
-	 */
+	
 	@Override
 	public void focusGained(FocusEvent arg0) {}
 

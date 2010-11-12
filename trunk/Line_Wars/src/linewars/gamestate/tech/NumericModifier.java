@@ -4,6 +4,11 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Function;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public class NumericModifier implements Modifier {
 	
 	Function f;

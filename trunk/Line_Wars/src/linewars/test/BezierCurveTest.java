@@ -14,7 +14,6 @@ public class BezierCurveTest {
 	 *	closest to that arbitrary point.
 	 */
 	public static void main(String[] args)	{
-	 BezierCToJavaTest blah = new BezierCToJavaTest();  
 	 Position[] bezCurve = new Position[4]; /*  A cubic Bezier curve	*/
 	 bezCurve[0] = new Position(0.0, 0.0);
 	 bezCurve[1] = new Position(1.0, 2.0);
@@ -24,8 +23,8 @@ public class BezierCurveTest {
 	 Position  pointOnCurve;		 /*  Nearest point on the curve */
 
 	    /*  Find the closest point */
-	    pointOnCurve = blah.NearestPointOnCurve(arbPoint, bezCurve);
-	    System.out.println(pointOnCurve.getX());
-	    System.out.println(pointOnCurve.getY());
+//	    pointOnCurve = blah.NearestPointOnCurve(arbPoint, bezCurve);
+//	    System.out.println(pointOnCurve.getX());
+//	    System.out.println(pointOnCurve.getY());
 	}
 }

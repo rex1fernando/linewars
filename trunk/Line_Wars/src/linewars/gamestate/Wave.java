@@ -8,6 +8,12 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.Circle;
+
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Wave {
 	private Lane owner;
 	private Node origin;

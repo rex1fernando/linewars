@@ -14,6 +14,11 @@ import linewars.gamestate.tech.Tech;
 import linewars.gamestate.tech.Upgradable;
 
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Player {
 
 	private GameState gameState;

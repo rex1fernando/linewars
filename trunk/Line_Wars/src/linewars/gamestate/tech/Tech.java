@@ -10,6 +10,11 @@ import linewars.configfilehandler.*;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Tech {
 	
 	private Player owner;

@@ -6,7 +6,12 @@ import java.util.List;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
-//TODO implement Race
+
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Race {
 	
 	private String name;
@@ -56,7 +61,6 @@ public strictfp class Race {
 		return ret;
 	}
 	
-	//Is the name of the race sufficient for equals()? Will it be possible to name different races the same thing?
 	@Override
 	public boolean equals(Object o)
 	{

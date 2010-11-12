@@ -28,6 +28,11 @@ import linewars.gamestate.mapItems.strategies.combat.NoCombat;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.shapes.Circle;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;

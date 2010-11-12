@@ -22,6 +22,11 @@ import editor.URISelector.SelectorOptions;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public class FunctionEditor extends JPanel implements ConfigurationEditor, SelectorOptions, ActionListener {
 	
 	private ArrayList<CoefficientFrame> frames = new ArrayList<FunctionEditor.CoefficientFrame>();
@@ -159,11 +164,11 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 				}
 			}else if(fType.equalsIgnoreCase("Exponential")){
 				if(degree == 0){
-					this.add(new JLabel("Const:"));
+					this.add(new JLabel("Constant:"));
 				}else if(degree == 1){
-					this.add(new JLabel("* :"));
+					this.add(new JLabel("Exponent:"));
 				}else if(degree == 2){
-					this.add(new JLabel("^ :"));
+					this.add(new JLabel("Exponent Multiplier:"));
 				}
 			}
 

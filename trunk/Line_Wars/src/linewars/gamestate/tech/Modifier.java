@@ -3,6 +3,11 @@ package linewars.gamestate.tech;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author John George
+ *
+ */
 public interface Modifier {
 	public void modify(ConfigData cd, ParserKeys p, double d);
 	public ConfigData toConfigData();
