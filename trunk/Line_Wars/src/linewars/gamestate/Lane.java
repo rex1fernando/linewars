@@ -650,9 +650,11 @@ public strictfp class Lane
 	}
 	
 	private void findAndResolveCollisions(){
+		pushUnitsOntoLane();
+		
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
-		List<MapItem> allUnits = getCollidableMapItems();
+		List<Unit> allUnits = getCollidableMapItems();
 		for(MapItem first : allUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
 			
@@ -705,19 +707,6 @@ public strictfp class Lane
 								collisionVectors.put(first, newPosition);								
 							}
 						}
-						
-						
-						/*
-						if(second.getState() == MapItemState.Moving){
-							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
-							collisionVectors.put(first, newPosition);
-						}
-						else{
-							//move first by -offsetvector
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-1));
-							collisionVectors.put(first, newPosition);
-						}*/
 					}
 				}
 			}
@@ -733,6 +722,26 @@ public strictfp class Lane
 				offset = offset.add(new Position(xNoise, yNoise));
 				toMove.setPosition(toMove.getPosition().add(offset));				
 			}
+		}
+	}
+
+	private void pushUnitsOntoLane() {
+		//for each unit
+		List<Unit> allUnits = getCollidableMapItems();
+		for(Unit toMove : allUnits){
+			//get its closest point on the curve
+			Transformation pointOnCurve = curve.getPosition(curve.getClosestPointRatio(toMove.getPosition()));
+			//use the width and stuff to figure out where it should be placed so it's actually on the Lane
+			Position offset = toMove.getPosition().subtract(pointOnCurve.getPosition());
+			double offsetMag = offset.length();
+			double maxShouldBe = width / 2;
+			if(offsetMag < maxShouldBe){
+				continue;
+			}
+			double ratio = maxShouldBe / offsetMag;
+			offset = offset.scale(ratio);
+			//put it there
+			toMove.setTransformation(new Transformation(pointOnCurve.getPosition().add(offset), pointOnCurve.getRotation()));
 		}
 	}
 
@@ -811,15 +820,12 @@ public strictfp class Lane
 		*/
 	}
 	
-	public List<MapItem> getCollidableMapItems(){
-		ArrayList<MapItem> units = new ArrayList<MapItem>();
+	public List<Unit> getCollidableMapItems(){
+		ArrayList<Unit> units = new ArrayList<Unit>();
 		for(Wave w : waves){
-			for(MapItem toAdd : w.getUnits()){
+			for(Unit toAdd : w.getUnits()){
 				units.add(toAdd);
 			}
-		}
-		for(MapItem border : borders){
-			units.add(border);
 		}
 		return units;
 	}
