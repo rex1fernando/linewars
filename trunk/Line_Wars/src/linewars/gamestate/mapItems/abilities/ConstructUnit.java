@@ -7,7 +7,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the ability that constructs units.
  */

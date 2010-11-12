@@ -7,7 +7,7 @@ import linewars.gamestate.mapItems.Unit;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the ability shoot. All it does is spawn
  * a projectile in front of the unit and finish.

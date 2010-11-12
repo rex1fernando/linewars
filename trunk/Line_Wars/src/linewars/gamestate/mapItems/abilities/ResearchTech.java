@@ -7,7 +7,7 @@ import linewars.gamestate.tech.Tech;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the ability that researches a tech.
  */

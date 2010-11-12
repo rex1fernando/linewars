@@ -8,6 +8,12 @@ import linewars.configfilehandler.ParserKeys;
 
 
 //this class simulates a function
+
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class Function {
 	
 	private enum FunctionClass {

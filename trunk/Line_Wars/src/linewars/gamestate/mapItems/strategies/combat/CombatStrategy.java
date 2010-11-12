@@ -4,7 +4,7 @@ import linewars.gamestate.mapItems.Unit;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  *This interface represents a combat strategy for a unit. It decides,
  *when in combat, how a unit should move and use its abilities.

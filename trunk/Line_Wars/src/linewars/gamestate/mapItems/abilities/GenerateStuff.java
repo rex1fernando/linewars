@@ -2,6 +2,11 @@ package linewars.gamestate.mapItems.abilities;
 
 import linewars.gamestate.Player;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class GenerateStuff implements Ability {
 	
 	private GenerateStuffDefinition gsd;

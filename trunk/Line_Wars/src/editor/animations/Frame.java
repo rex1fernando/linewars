@@ -18,6 +18,11 @@ import javax.swing.JTextField;
 
 
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class Frame extends JPanel implements ItemListener{
 
 	private JLabel file;

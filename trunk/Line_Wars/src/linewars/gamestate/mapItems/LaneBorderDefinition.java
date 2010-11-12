@@ -9,6 +9,11 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
 import linewars.gamestate.shapes.Circle;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class LaneBorderDefinition extends MapItemDefinition {
 
 	public LaneBorderDefinition(GameState gameState, double size) throws FileNotFoundException, InvalidConfigFileException {

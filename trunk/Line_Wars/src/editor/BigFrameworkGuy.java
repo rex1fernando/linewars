@@ -28,6 +28,11 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";

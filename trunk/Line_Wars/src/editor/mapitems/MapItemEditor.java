@@ -25,6 +25,11 @@ import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 import editor.mapitems.StrategySelector.StrategySelectorCallback;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class MapItemEditor extends JPanel implements ConfigurationEditor, ActionListener {
 	
 	//variable for the name

@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  *This class is a type of CollisionStrategy. It defines a strategy that collides with
  *only enemies.

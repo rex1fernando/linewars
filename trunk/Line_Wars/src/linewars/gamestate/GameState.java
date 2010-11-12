@@ -19,6 +19,12 @@ import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
 import linewars.network.messages.UpgradeMessage;
 
+
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class GameState
 {
 	

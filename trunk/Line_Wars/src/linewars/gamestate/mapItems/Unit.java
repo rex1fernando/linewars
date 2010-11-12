@@ -11,7 +11,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents a unit. It owns a movementStrategy and
  * a combatStrategy for the unit. It also knows how many health

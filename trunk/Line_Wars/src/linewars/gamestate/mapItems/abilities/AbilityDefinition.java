@@ -15,7 +15,7 @@ import linewars.gamestate.tech.Upgradable;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the template for an ability. It is owned
  * by a MapItemDefinition and is responsible for creating abilities

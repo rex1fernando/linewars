@@ -5,6 +5,11 @@ import java.util.Scanner;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class Position {
 	
 	private double x;

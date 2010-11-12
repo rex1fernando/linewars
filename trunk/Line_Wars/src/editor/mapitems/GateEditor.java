@@ -9,7 +9,12 @@ import linewars.configfilehandler.ParserKeys;
 
 import editor.ConfigurationEditor;
 
-//TODO allow editing gate's hp
+
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class GateEditor extends JPanel implements ConfigurationEditor {
 
 	/**
@@ -73,6 +78,14 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
 			cd.set(ParserKeys.maxHP, s.nextDouble());
+		
+		ConfigData combat = new ConfigData();
+		combat.set(ParserKeys.type, "NoCombat");
+		cd.set(ParserKeys.combatStrategy, combat);
+		
+		ConfigData mov = new ConfigData();
+		mov.set(ParserKeys.type, "Immovable");
+		cd.set(ParserKeys.movementStrategy, mov);
 		return cd;
 	}
 

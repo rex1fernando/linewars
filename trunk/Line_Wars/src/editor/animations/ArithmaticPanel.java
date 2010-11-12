@@ -11,6 +11,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class ArithmaticPanel extends JPanel implements ActionListener {
 	
 	private JTextField number;

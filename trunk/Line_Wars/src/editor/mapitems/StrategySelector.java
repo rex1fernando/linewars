@@ -19,6 +19,11 @@ import editor.URISelector.SelectorOptions;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class StrategySelector extends JPanel implements SelectorOptions, ActionListener, ConfigurationEditor {
 	
 	/**

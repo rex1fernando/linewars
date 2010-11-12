@@ -7,7 +7,7 @@ import linewars.gamestate.mapItems.Unit;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines a movement strategy that attempts to go in
  * a straight line to the target and stops the first time it

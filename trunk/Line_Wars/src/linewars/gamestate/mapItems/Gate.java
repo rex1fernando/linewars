@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the gate unit, a unit that sits
  * at the end of a lane and must be destroyed to enter a node.

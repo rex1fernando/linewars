@@ -22,6 +22,11 @@ import editor.animations.FileCopy;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	/**

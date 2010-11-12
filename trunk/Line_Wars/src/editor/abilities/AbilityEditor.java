@@ -16,6 +16,11 @@ import editor.ConfigurationEditor;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class AbilityEditor extends JPanel implements ConfigurationEditor, SelectorOptions {
 
 	private URISelector abilityType;

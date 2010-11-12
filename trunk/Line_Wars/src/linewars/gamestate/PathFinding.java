@@ -8,6 +8,11 @@ import java.util.Queue;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class PathFinding {
 	
 	private static final int UNIT_PRECISION = 2;

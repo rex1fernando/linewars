@@ -30,7 +30,7 @@ import linewars.gamestate.shapes.Circle;
 
 /**
  * 
- * @author John George
+ * @author John George, Connor Schenck
  *
  */
 public strictfp class Lane

@@ -33,6 +33,11 @@ import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 import editor.animations.Sprite;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class BodyEditor extends JPanel implements ConfigurationEditor, ActionListener, Runnable, MouseListener, WindowListener {
 	
 	private MapItemEditor mie;

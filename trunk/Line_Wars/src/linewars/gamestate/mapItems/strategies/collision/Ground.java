@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines a collision strategy for ground map items.
  * That is, any map item that is considered on the "ground".

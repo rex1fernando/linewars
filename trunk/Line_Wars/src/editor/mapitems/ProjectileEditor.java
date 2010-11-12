@@ -16,6 +16,11 @@ import editor.ConfigurationEditor;
 import editor.mapitems.StrategySelector.StrategySelectorCallback;
 import editor.mapitems.StrategySelector.StrategySelectorFieldType;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class ProjectileEditor extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
 
 	/**

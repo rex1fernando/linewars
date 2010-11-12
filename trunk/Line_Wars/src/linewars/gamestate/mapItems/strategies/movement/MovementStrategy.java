@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.Unit;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This interface represents how a unit gets around on
  * the map. Before it can be told to move, the target

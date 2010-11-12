@@ -2,7 +2,7 @@ package linewars.gamestate.mapItems.abilities;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents an ability that is currently active
  * on its mapItem.

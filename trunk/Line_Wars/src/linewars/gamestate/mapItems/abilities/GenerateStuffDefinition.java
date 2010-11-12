@@ -5,6 +5,11 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.mapItems.MapItem;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class GenerateStuffDefinition extends AbilityDefinition {
 
 	private double stuffIncome;

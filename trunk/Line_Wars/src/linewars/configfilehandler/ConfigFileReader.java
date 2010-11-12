@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 /**
  * This class encapsulates the process of reading data from a config file.
- * @author Knexer
+ * @author Connor Schenck
  *
  */
 public class ConfigFileReader {

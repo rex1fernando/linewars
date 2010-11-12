@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This class encapsulates the process of writing configuration data to a config file.
  * 
- * @author Knexer
+ * @author Connor Schenck
  *
  */
 public class ConfigFileWriter {

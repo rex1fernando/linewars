@@ -6,7 +6,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents a building. It is a type of map item.
  * It knows what nodes it is in.

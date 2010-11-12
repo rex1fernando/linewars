@@ -18,7 +18,7 @@ import linewars.gamestate.Transformation;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines a unit. It is a type of MapItemDefinition.
  * It knows the maximum health points allowed for the units it

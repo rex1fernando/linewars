@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the ability definition that creates units.
  * Knows which unit it creates and starts active. Must be given

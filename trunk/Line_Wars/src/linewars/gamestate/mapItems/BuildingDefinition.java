@@ -13,7 +13,7 @@ import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines buildings. It is a type of MapItemDefinition.
  * It knows how much a building costs and how long it takes to

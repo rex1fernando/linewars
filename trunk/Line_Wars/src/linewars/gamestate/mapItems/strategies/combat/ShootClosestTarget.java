@@ -12,7 +12,7 @@ import linewars.gamestate.mapItems.abilities.ShootDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines a combat strategy that finds the closest
  * unit, moves within range of it, and shoots. Any unit using

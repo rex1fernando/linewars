@@ -15,7 +15,7 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines a projectile. It is a type of MapItemDefinition. It
  * knows the velocity of the projectile and a template for its impact

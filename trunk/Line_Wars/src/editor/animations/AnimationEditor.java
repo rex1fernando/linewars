@@ -35,6 +35,11 @@ import linewars.configfilehandler.ParserKeys;
 
 
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class AnimationEditor implements ActionListener, ConfigurationEditor, Runnable {
 
 	

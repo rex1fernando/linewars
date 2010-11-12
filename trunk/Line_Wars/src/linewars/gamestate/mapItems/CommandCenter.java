@@ -7,7 +7,7 @@ import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the command center, or the central
  * building in a node. It is a type of building.

@@ -23,7 +23,7 @@ import linewars.gamestate.tech.Upgradable;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents a definition for a map item. It is used
  * to create the map items it defines (similar to the way a class

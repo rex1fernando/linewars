@@ -21,7 +21,7 @@ import linewars.gamestate.shapes.*;
 
 /**
  * 
- * @author John George
+ * @author John George, Connor Schenck
  *
  */
 public strictfp class Node {

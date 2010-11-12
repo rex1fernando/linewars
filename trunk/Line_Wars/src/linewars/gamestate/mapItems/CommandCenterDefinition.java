@@ -16,7 +16,7 @@ import linewars.gamestate.tech.Tech;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class is the definition of the command center building.
  * It is responsible for creating command centers. It also

@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * this class represents the definition of the shoot ability.
  * It knows what projectile definition to use and the maximum

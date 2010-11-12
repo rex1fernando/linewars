@@ -14,7 +14,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the definition for an ability that constructs
  * a building. Knows what buiding it contructs.

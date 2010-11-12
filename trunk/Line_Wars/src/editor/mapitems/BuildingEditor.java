@@ -12,6 +12,11 @@ import linewars.configfilehandler.ParserKeys;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class BuildingEditor extends JPanel implements ConfigurationEditor {
 
 	/**

@@ -15,7 +15,7 @@ import linewars.gamestate.tech.Tech;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class is the definition of the research tech ability. It knows
  * what tech to research, how many times that tech has been researched,

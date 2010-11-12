@@ -3,6 +3,11 @@ package linewars.gamestate;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+/**
+ * 
+ * @author Connor Schenck
+ *
+ */
 public strictfp class Transformation {
 	
 	private Position pos;

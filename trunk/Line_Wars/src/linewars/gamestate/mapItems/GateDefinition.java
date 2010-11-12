@@ -13,7 +13,7 @@ import linewars.gamestate.mapItems.strategies.movement.Immovable;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines gates that sit at the end of lanes.
  */

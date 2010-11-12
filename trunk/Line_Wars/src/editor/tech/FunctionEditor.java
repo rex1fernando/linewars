@@ -24,7 +24,7 @@ import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
- * @author John George
+ * @author John George, Connor Schenck
  *
  */
 public class FunctionEditor extends JPanel implements ConfigurationEditor, SelectorOptions, ActionListener {

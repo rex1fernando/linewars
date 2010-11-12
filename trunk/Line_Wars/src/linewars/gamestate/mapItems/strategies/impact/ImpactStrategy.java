@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItem;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This interface specifies how a projectile handles impacting
  * mapItems.

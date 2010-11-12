@@ -8,7 +8,7 @@ import linewars.gamestate.mapItems.Unit;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class defines an impact strategy. This strategy
  * impacts the first thing it hits, deals damage, and 

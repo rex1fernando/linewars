@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  *This interface specifies how a mapItem can collide with other
  *mapItems. Each mapItem must have one.

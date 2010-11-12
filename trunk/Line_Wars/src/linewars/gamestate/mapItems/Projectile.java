@@ -10,7 +10,7 @@ import linewars.gamestate.shapes.Shape;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents a projectile. It knows how the projectile collides
  * with map items and what it should do upon impact. It is a map item.

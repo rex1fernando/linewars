@@ -5,7 +5,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  *	This class defines a collision strategy for map items
  *	that can't collide with anything.

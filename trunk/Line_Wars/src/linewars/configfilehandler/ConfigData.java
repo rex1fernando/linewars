@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Represents a body of configuration data which defines an entity or set of entities.
  * 
- * @author Knexer
+ * @author Connor Schenck
  *
  */
 public class ConfigData {

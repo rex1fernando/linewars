@@ -12,7 +12,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.shapes.Shape;
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the basic item on the map. Any agent
  * on the map is a mapItem. This mapItem knows where it is,

@@ -8,7 +8,7 @@ import linewars.gamestate.mapItems.MapItemState;
 
 /**
  * 
- * @author cschenck
+ * @author , Connor Schenck
  *
  * This class represents the ability that constructs a building.
  */
