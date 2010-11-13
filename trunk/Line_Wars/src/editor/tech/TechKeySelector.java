@@ -68,7 +68,7 @@ public class TechKeySelector implements ConfigurationEditor {
 		public void uriHighlightChange(String[] uris) {
 			currentlyHighlightedKeys = new ParserKeys[uris.length];
 			for(int i = 0; i < uris.length; i++){
-				currentlyHighlightedKeys[i] = ParserKeys.valueOf(uris[i]);
+				currentlyHighlightedKeys[i] = ParserKeys.getKey(uris[i]);
 			}
 			updateCurrentlyHighlighted();
 		}
@@ -296,7 +296,7 @@ public class TechKeySelector implements ConfigurationEditor {
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	private String[] addStringToArray(String[] current, String toAdd){

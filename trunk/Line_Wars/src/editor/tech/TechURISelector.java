@@ -61,7 +61,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriRemoved(String uri) {
-			modifiedURIs.remove(modifiedURIs.get(uri));
+			modifiedURIs.remove(uri);
 			unitsCurrentlyHighlighted = new String[0];
 			updateCurrentlyHighlighted();
 		}
@@ -94,7 +94,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriRemoved(String uri) {
-			modifiedURIs.remove(modifiedURIs.get(uri));
+			modifiedURIs.remove(uri);
 			buildingsCurrentlyHighlighted = new String[0];
 			updateCurrentlyHighlighted();
 		}
@@ -128,7 +128,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriRemoved(String uri) {
-			modifiedURIs.remove(modifiedURIs.get(uri));
+			modifiedURIs.remove(uri);
 			abilitiesCurrentlyHighlighted = new String[0];
 			updateCurrentlyHighlighted();
 		}
@@ -162,7 +162,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 		@Override
 		public void uriRemoved(String uri) {
-			modifiedURIs.remove(modifiedURIs.get(uri));
+			modifiedURIs.remove(uri);
 			projectilesCurrentlyHighlighted = new String[0];
 			updateCurrentlyHighlighted();
 		}
@@ -336,6 +336,9 @@ public class TechURISelector implements ConfigurationEditor {
 		ConfigData currentData = keySelector.getData();
 		try{
 			String currentModifiedURI = currentData.getString(ParserKeys.URI);
+			if(currentModifiedURI == null){
+				return;
+			}
 			modifiedURIs.put(currentModifiedURI, currentData);
 		}catch(NoSuchKeyException e){
 			//just have to discard the data, but this shouldn't ever happen...
