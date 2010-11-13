@@ -97,12 +97,12 @@ public class TechKeySelector implements ConfigurationEditor {
 			modEditor.getPanel().setVisible(false);
 		}else{
 			//save data currently in the modEditor
-			/* until modeditor is more implemented
-			ConfigData currentData = modEditor.getData();
-			String currentModifiedKey = currentData.getString(ParserKeys.key);
-			if(currentModifiedKey != null){
-				modifiers.put(ParserKeys.getKey(currentModifiedKey), currentData);
-			}*/
+			saveModData();
+			ConfigData toModify = modifiers.get(currentlyHighlightedKeys[0]);
+			if(toModify == null){
+				toModify = new ConfigData();
+			}
+			toModify.set(ParserKeys.key, currentlyHighlightedKeys[0].toString());
 			modEditor.forceSetData(modifiers.get(currentlyHighlightedKeys[0]));
 			modEditor.getPanel().setVisible(true);
 		}
@@ -178,6 +178,9 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	@Override
 	public ConfigData getData() {
+		//save data currently in the ModifierEditor
+		saveModData();
+		
 		ConfigData ret = new ConfigData();
 		ret.add(ParserKeys.URI, URI);
 		for(Entry<ParserKeys, ConfigData> modifiedKey : modifiers.entrySet()){
@@ -303,5 +306,16 @@ public class TechKeySelector implements ConfigurationEditor {
 		}
 		ret[current.length] = toAdd;
 		return ret;
+	}
+	
+	private void saveModData() {
+		ConfigData currentData = modEditor.getData();
+		try{
+			ParserKeys currentModifiedKey = ParserKeys.getKey(currentData.getString(ParserKeys.key));
+			modifiers.put(currentModifiedKey, currentData);
+		}catch(NoSuchKeyException e){
+			//just have to discard the data, but this shouldn't ever happen...
+			//System.out.println("Discarding data because there was no key.  This should not happen, there is a bug somewhere.");
+		}
 	}
 }

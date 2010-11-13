@@ -31,6 +31,11 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	public void setData(ConfigData cd) {
 		forceSetData(cd);
 	}
+	
+	@Override
+	public ParserKeys getModifiedKey(){
+		return modifiedKey;
+	}
 
 	private boolean isValid(ConfigData cd) {
 		throw new UnsupportedOperationException();
@@ -57,6 +62,9 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	@Override
 	public ConfigData getData() {
 		ConfigData ret = new ConfigData();
+		if(modifiedKey == null){
+			throw new IllegalStateException("Call setModifiedKey before getData!");
+		}
 		ret.set(ParserKeys.key, modifiedKey.toString());
 		ConfigData modifier = new ConfigData();
 		ret.set(ParserKeys.modifier, modifier);
@@ -221,6 +229,11 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	@Override
 	public String getName() {
 		return "numeric";
+	}
+
+	@Override
+	public void setModifiedKey(ParserKeys newValue) {
+		modifiedKey = newValue;
 	}
 
 }

@@ -105,6 +105,14 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	public void forceSetData(ConfigData cd) {
 		reset();
 		
+		try{
+			String strKey = cd.getString(ParserKeys.key);
+			ParserKeys key = ParserKeys.getKey(strKey);
+			setModifiedKey(key);
+		}catch(NoSuchKeyException e){
+			throw new IllegalArgumentException(cd + " does not define the key to be modified!");
+		}
+		
 		ConfigData subModifier = null;
 		try{
 			subModifier = cd.getConfig(ParserKeys.modifier);
@@ -133,6 +141,13 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 		enableSubEditor(properEditor);
 	}
 
+	private void setModifiedKey(ParserKeys key) {
+		// TODO Auto-generated method stub
+		for(ModifierConfigurationEditor subEditor : typeToEditor.values()){
+			subEditor.setModifiedKey(key);
+		}
+	}
+
 	@Override
 	public void reset() {
 		//reset this class' panel
@@ -150,6 +165,9 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 
 	@Override
 	public ConfigData getData() {
+		if(currentModifierTypeEditor == null){
+			return new ConfigData();
+		}
 		ConfigData ret = currentModifierTypeEditor.getData();
 		ret.set(ParserKeys.modifiertype, currentModifierTypeEditor.getName());
 		return ret;
@@ -244,16 +262,18 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 		try{
 			subConfig = modifier.getConfig(ParserKeys.modifier);
 		}catch(NoSuchKeyException e){
-			return false;
+			return true;//if no modifier was defined, this is easy
 		}
 		try{
 			type = subConfig.getString(ParserKeys.modifiertype);
 		}catch(NoSuchKeyException e){
-			return false;
+			modifier.set(ParserKeys.modifier, new ConfigData());
+			return true;//if no type is defined, this is still easy
 		}
 		ModifierConfigurationEditor properEditor = typeToEditor.get(type);
 		if(properEditor == null){
-			return false;
+			modifier.set(ParserKeys.modifier, new ConfigData());
+			return true;
 		}
 		return properEditor.legalizeModifier(URI, modifier);
 	}

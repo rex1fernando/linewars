@@ -42,4 +42,7 @@ public interface ModifierConfigurationEditor extends ConfigurationEditor {
 	public ParserKeys[] getValidProjectileModifiers();
 	
 	public String getName();
+
+	ParserKeys getModifiedKey();
+	void setModifiedKey(ParserKeys newValue);
 }

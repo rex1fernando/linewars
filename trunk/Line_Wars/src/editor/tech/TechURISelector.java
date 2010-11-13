@@ -63,6 +63,7 @@ public class TechURISelector implements ConfigurationEditor {
 		public void uriRemoved(String uri) {
 			modifiedURIs.remove(modifiedURIs.get(uri));
 			unitsCurrentlyHighlighted = new String[0];
+			updateCurrentlyHighlighted();
 		}
 
 		@Override
@@ -95,6 +96,7 @@ public class TechURISelector implements ConfigurationEditor {
 		public void uriRemoved(String uri) {
 			modifiedURIs.remove(modifiedURIs.get(uri));
 			buildingsCurrentlyHighlighted = new String[0];
+			updateCurrentlyHighlighted();
 		}
 
 		@Override
@@ -128,6 +130,7 @@ public class TechURISelector implements ConfigurationEditor {
 		public void uriRemoved(String uri) {
 			modifiedURIs.remove(modifiedURIs.get(uri));
 			abilitiesCurrentlyHighlighted = new String[0];
+			updateCurrentlyHighlighted();
 		}
 
 		@Override
@@ -161,6 +164,7 @@ public class TechURISelector implements ConfigurationEditor {
 		public void uriRemoved(String uri) {
 			modifiedURIs.remove(modifiedURIs.get(uri));
 			projectilesCurrentlyHighlighted = new String[0];
+			updateCurrentlyHighlighted();
 		}
 
 		@Override
@@ -250,6 +254,8 @@ public class TechURISelector implements ConfigurationEditor {
 
 	@Override
 	public ConfigData getData() {
+		//save data currently in the keySelector
+		saveKeyData();
 		ConfigData ret = new ConfigData();
 		for(String modified : modifiedURIs.keySet()){
 			ConfigData toAdd = modifiedURIs.get(modified);
@@ -298,12 +304,21 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 	
 	private void updateCurrentlyHighlighted(String onlyHighlightedURI){
-		//save data currently in the keySelector
+		//make sure this isn't getting double-called
+
 		ConfigData currentData = keySelector.getData();
-		String currentModifiedURI = currentData.getString(ParserKeys.URI);
-		if(currentModifiedURI != null){
-			modifiedURIs.put(currentModifiedURI, currentData);			
+		try{
+			String currentModifiedURI = currentData.getString(ParserKeys.URI);
+			if(currentModifiedURI != null && currentModifiedURI.equals(onlyHighlightedURI)){
+				return;
+			}
+		}catch(NoSuchKeyException e){
+			
 		}
+		//we're good, this is an actual change
+		
+		//save data currently in the keySelector
+		saveKeyData();
 		
 		keySelector.reset();
 		
@@ -314,6 +329,17 @@ public class TechURISelector implements ConfigurationEditor {
 			//put new data in there
 			keySelector.forceSetData(modifiedURIs.get(onlyHighlightedURI));
 			keySelector.getPanel().setVisible(true);
+		}
+	}
+
+	private void saveKeyData() {
+		ConfigData currentData = keySelector.getData();
+		try{
+			String currentModifiedURI = currentData.getString(ParserKeys.URI);
+			modifiedURIs.put(currentModifiedURI, currentData);
+		}catch(NoSuchKeyException e){
+			//just have to discard the data, but this shouldn't ever happen...
+			System.out.println("Discarding data because there was no URI.  This should not happen, there is a bug somewhere.");
 		}
 	}
 
