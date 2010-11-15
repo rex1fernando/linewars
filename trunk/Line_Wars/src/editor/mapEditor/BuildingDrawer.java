@@ -72,30 +72,21 @@ public class BuildingDrawer
 	public void draw(Graphics g, BuildingSpot buildingSpot, boolean selected, Position mouse, double scale,
 			boolean commandCenter)
 	{
-		Dimension dim = buildingSpot.getDim();
-		double w = dim.getWidth();
-		double h = dim.getHeight();
-
-		Transformation trans = buildingSpot.getTrans();
-		Position gamePos = trans.getPosition();
-		Position rotateAbout = panel.toScreenCoord(gamePos);
-		Position pos = panel.toScreenCoord(new Position(gamePos.getX() - (w / 2), gamePos.getY() - (h / 2)));
-
-		double rotation = trans.getRotation();
-		double x = rotateAbout.getX();
-		double y = rotateAbout.getY();
+		Position[] corners = buildingSpot.getRect().getVertexPositions();
+		for(int i = 0; i < corners.length; ++i)
+			corners[i] = panel.toScreenCoord(corners[i]);
+		
+		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(), (int)corners[3].getX()};
+		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(), (int)corners[3].getY()};
 
 		// set the transparent color
 		if(commandCenter)
 			g.setColor(new Color(255, 140, 0, selected ? 90 : 60));
 		else
 			g.setColor(new Color(0, 0, 255, selected ? 90 : 60));
-
-		// rotate the graphics
-		((Graphics2D)g).rotate(rotation, x, y);
-
-		// draw the rectangle
-		g.fillRect((int)pos.getX(), (int)pos.getY(), (int)(w * scale), (int)(h * scale));
+		
+		//fill the rectangle
+		g.fillPolygon(x, y, 4);
 
 		// set the border color
 		if(commandCenter)
@@ -104,21 +95,25 @@ public class BuildingDrawer
 			g.setColor(new Color(0, 0, 255));
 
 		// set the brush size
+		Transformation trans = buildingSpot.getTrans();
+		Dimension dim = buildingSpot.getDim();
+		double w = dim.getWidth();
+		double h = dim.getHeight();
 		Rectangle outer = new Rectangle(trans, w + 2.5 / scale, h + 2.5 / scale);
 		Rectangle inner = new Rectangle(trans, w - 2.5 / scale, h - 2.5 / scale);
 		if(outer.positionIsInShape(mouse) && !inner.positionIsInShape(mouse))
 			((Graphics2D)g).setStroke(new BasicStroke(10));
 		else
 			((Graphics2D)g).setStroke(new BasicStroke(5));
-
-		// draw the border
-		g.drawRect((int)pos.getX(), (int)pos.getY(), (int)(w * scale), (int)(h * scale));
+		
+		//draw the border
+		g.drawPolygon(x, y, 4);
 
 		// set the color for the rotation dot
 		g.setColor(Color.pink);
 
 		// set the dot position
-		Position dotPos = new Position(gamePos.getX() + w / 2, gamePos.getY() + h / 2);
+		Position dotPos = buildingSpot.getRect().getVertexPositions()[0];//new Position(gamePos.getX() + w / 2, gamePos.getY() + h / 2);
 		Position drawDot = panel.toScreenCoord(dotPos);
 
 		// draw the dot
@@ -127,8 +122,5 @@ public class BuildingDrawer
 			g.fillOval((int)drawDot.getX() - 10, (int)drawDot.getY() - 10, 20, 20);
 		else
 			g.fillOval((int)drawDot.getX() - 5, (int)drawDot.getY() - 5, 10, 10);
-
-		// rotate the graphics back to its original rotation
-		((Graphics2D)g).rotate(-rotation, x, y);
 	}
 }

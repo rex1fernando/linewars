@@ -98,7 +98,10 @@ public strictfp class Position {
 	{
 		double length = Math.sqrt((x * x) + (y * y));
 		
-		return scale(1 / length);
+		if(length == 0)
+			return scale(1);
+		else
+			return scale(1 / length);
 	}
 
 	public Position orthogonal()

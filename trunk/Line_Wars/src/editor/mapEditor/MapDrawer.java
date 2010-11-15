@@ -13,8 +13,6 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import linewars.display.ImageDrawer;
-
 /**
  * Handles drawing the map to the map panel.
  * 
@@ -30,8 +28,8 @@ public class MapDrawer
 	private boolean bufferedChanged;
 	private MapPanel panel;
 
-	double scaleX;
-	double scaleY;
+	private double scaleX;
+	private double scaleY;
 
 	/**
 	 * Constructs this map drawer.
@@ -91,8 +89,16 @@ public class MapDrawer
 	 */
 	public void setMapSize(double mapWidth, double mapHeight)
 	{
-		scaleX = map.getWidth(null) / mapWidth;
-		scaleY = map.getHeight(null) / mapHeight;
+		if(map == null)
+		{
+			scaleX = 1;
+			scaleY = 1;
+		}
+		else
+		{
+			scaleX = map.getWidth(null) / mapWidth;
+			scaleY = map.getHeight(null) / mapHeight;
+		}
 	}
 
 	/**
@@ -122,8 +128,8 @@ public class MapDrawer
 			int dy1 = 0;
 			int dx2 = panel.getWidth();
 			int dy2 = panel.getHeight();
-			int sx1 = (int)visibleScreen.getX();
-			int sy1 = (int)visibleScreen.getY();
+			int sx1 = (int)(visibleScreen.getX() * scaleX);
+			int sy1 = (int)(visibleScreen.getY() * scaleY);
 			int sx2 = (int)((visibleScreen.getX() + visibleScreen.getWidth()) * scaleX);
 			int sy2 = (int)((visibleScreen.getY() + visibleScreen.getHeight()) * scaleY);
 			Color bg = Color.black;

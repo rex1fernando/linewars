@@ -154,8 +154,8 @@ public class Display extends JFrame implements Runnable
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 
-			mousePosition = new Position(0, 0);
-			lastClickPosition = new Position(0, 0);
+			mousePosition = null;
+			lastClickPosition = null;
 
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
@@ -283,6 +283,9 @@ public class Display extends JFrame implements Runnable
 		
 		private void detectFlowIndicatorChange(GameState state)
 		{
+			if(lastClickPosition == null)
+				return;
+			
 			Lane[] lanes = state.getMap().getLanes();
 			if(clicked)
 			{
@@ -368,6 +371,9 @@ public class Display extends JFrame implements Runnable
 		
 		private void updateViewPortPan(double fps, double scale)
 		{
+			if(mousePosition == null)
+				return;
+			
 			double moveX = 0.0;
 			double moveY = 0.0;
 			
@@ -484,6 +490,9 @@ public class Display extends JFrame implements Runnable
 		 */
 		private Node getSelectedNode(GameState gs)
 		{
+			if(lastClickPosition == null)
+				return null;
+			
 			List<CommandCenter> ccs = gs.getCommandCenters();
 			for(int i = 0; i < ccs.size(); i++)
 			{

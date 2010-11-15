@@ -404,7 +404,8 @@ public class MapPanel extends JPanel
 		mapHeight = height;
 		mapDrawer.setMapSize(width, height);
 		mapSize.setSize(width, height);
-		viewport.setRect(0, 0, width, height);
+		double scale = (getHeight() / height) / (getWidth() / width);
+		viewport = new Rectangle2D.Double(0, 0, width, height * scale);
 	}
 	
 	public void setLaneWidthSlider(JSlider slider)
@@ -705,20 +706,25 @@ public class MapPanel extends JPanel
 			double height = r.getHeight();
 			if(resizeW)
 			{
-				double rotation = r.position().getRotation();
-				Position axis = new Position(Math.cos(rotation), Math.sin(rotation));
+				Position[] corners = r.getVertexPositions();
+				Position axis = corners[3].subtract(r.position().getPosition()).add(corners[0].subtract(r.position().getPosition())).normalize();
 				Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
 				
 				width = ray.length() * Math.abs(axis.dot(ray.normalize())) * 2;
 			}
 			if(resizeH)
 			{
-				double rotation = r.position().getRotation();
-				Position axis = new Position(Math.sin(rotation), Math.cos(rotation));
+				Position[] corners = r.getVertexPositions();
+				Position axis = corners[1].subtract(r.position().getPosition()).add(corners[0].subtract(r.position().getPosition())).normalize();
 				Position ray = toGameCoord(mousePosition).subtract(r.position().getPosition());
 				
 				height = ray.length() * Math.abs(axis.dot(ray.normalize())) * 2;
 			}
+			
+			if(width < 25)
+				width = 25;
+			if(height < 25)
+				height = 25;
 			
 			movingSpot.setDim((int)width, (int)height);
 		}
@@ -850,8 +856,8 @@ public class MapPanel extends JPanel
 		{
 			Rectangle r = b.getRect();
 			Rectangle dragSpot = new Rectangle(r.position(), r.getWidth() - 2.5 / scale, r.getHeight() - 2.5 / scale);
-			Rectangle resizeWidth = new Rectangle(r.position(), r.getWidth() + 2.5 / scale, r.getHeight());
-			Rectangle resizeHeight = new Rectangle(r.position(), r.getWidth(), r.getHeight() + 2.5 / scale);
+			Rectangle resizeWidth = new Rectangle(r.position(), r.getWidth() + 2.5 / scale, r.getHeight() - 2.5 / scale);
+			Rectangle resizeHeight = new Rectangle(r.position(), r.getWidth() - 2.5 / scale, r.getHeight() + 2.5 / scale);
 			
 			Position circlePos = r.getVertexPositions()[0];
 			Circle rotate = new Circle(new Transformation(circlePos, 0), 5 / scale);

@@ -17,7 +17,7 @@ public class BuildingSpot
 	
 	public BuildingSpot(Position p)
 	{
-		rect = new Rectangle(new Transformation(p, 0), 0, 0);
+		rect = new Rectangle(new Transformation(p, 0), 25, 25);
 	}
 	
 	public BuildingSpot(ConfigData data)

@@ -89,7 +89,7 @@ public strictfp class Rectangle extends Shape {
 	public Position[] getVertexPositions(){
 		Position[] ret = new Position[4];
 		Position halfWidth = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width).scale(.5);
-		Position halfHeight = new Position(Math.sin(position.getRotation()) * height, Math.cos(position.getRotation()) * height).scale(.5);
+		Position halfHeight = new Position(-Math.sin(position.getRotation()) * height, Math.cos(position.getRotation()) * height).scale(.5);
 		ret[0] = position.getPosition().add(halfHeight).add(halfWidth);
 		ret[1] = position.getPosition().add(halfHeight).subtract(halfWidth);
 		ret[2] = position.getPosition().subtract(halfHeight).subtract(halfWidth);
@@ -118,14 +118,42 @@ public strictfp class Rectangle extends Shape {
 		Position[] vertices = getVertexPositions();
 		
 		for(int i = 0, j = vertices.length - 1; i < vertices.length; j = i, i++){
-			if(vertices[i].getX() <= toTest.getX() && vertices[j].getX() <= toTest.getX()
-				&& ((vertices[i].getY() < toTest.getY() && vertices[j].getY() >= toTest.getY())
-				|| (vertices[j].getY() < toTest.getY() && vertices[i].getY() >= toTest.getY()))){
+			if(pointRayCrossesSegment(toTest, vertices[i], vertices[j])){
 					numCrossings++;
 				}
 		}
 		
 		return numCrossings % 2 == 1;
+	}
+	
+	private boolean pointRayCrossesSegment(Position p, Position a, Position b)
+	{
+		double px = p.getX();
+		double py = p.getY();
+		double ax = a.getX();
+		double ay = a.getY();
+		double bx = b.getX();
+		double by = b.getY();
+		
+		//if p is above or below the segment
+		if(py > Math.max(ay, by) || py < Math.min(ay, by))
+			return false;
+		//if p is to the right of the segment
+		if(px > Math.max(ax, bx))
+			return false;
+		//if p is to the left of the segment
+		if(px < Math.min(ax, bx))
+			return true;
+		
+		//find the angle from a to b and from a to p
+		double anglePA = Math.abs(Math.atan2(py - ay, px - ax));
+		double angleBA = Math.abs(Math.atan2(by - ay, bx - ax));
+		
+		//if the angle from a to p is greater than the angle from a to b
+		if(anglePA >= angleBA)
+			return true;
+		else
+			return false;
 	}
 	
 	//Very strict; these Rectangles will only be considered equal if they are bit-identical.
