@@ -39,6 +39,41 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		lastUpdateTime = System.currentTimeMillis();
 		lastLastUpdateTime = System.currentTimeMillis();
 	}
+	
+	public HashMap<Integer, Message[]> getOrders()
+	{
+		return orders;
+	}
+	
+	public GameState getViewableState()
+	{
+		return viewableState;
+	}
+	
+	public GameState getFreeState()
+	{
+		return freeState;
+	}
+	
+	public boolean getFullyUpdate()
+	{
+		return fullyUpdated;
+	}
+	
+	public boolean getLocked()
+	{
+		return locked;
+	}
+	
+	public long getLastUpdatedTime()
+	{
+		return lastUpdateTime;
+	}
+	
+	public long getLastLastUpdatedTime()
+	{
+		return lastLastUpdateTime;
+	}
 
 	@Override
 	public void addOrdersForTick(int tickID, Message[] newOrders) {

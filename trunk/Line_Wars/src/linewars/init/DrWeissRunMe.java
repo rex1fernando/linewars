@@ -116,10 +116,10 @@ public class DrWeissRunMe {
 			null,
 			options,
 			options[0]);
-			
-			String mapURI = "resources/maps/map1.cfg";
-			if(n == JOptionPane.NO_OPTION)
-				mapURI = "resources/maps/4_node_map.cfg";
+			String mapURI = "resources/maps/4_node_map.cfg";
+			//String mapURI = "resources/maps/map1.cfg";
+			//if(n == JOptionPane.NO_OPTION)
+				//mapURI = "resources/maps/4_node_map.cfg";
 			
 			options = new String[]{"Yes", "No, hit it!"};
 			n = JOptionPane.showOptionDialog(null,
