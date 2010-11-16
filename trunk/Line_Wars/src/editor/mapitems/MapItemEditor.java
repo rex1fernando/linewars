@@ -378,7 +378,13 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		if(arg0.getSource().equals(bodyButton))
 		{
 			if(animationMap.get(MapItemState.Idle) == null)
+			{
+				JOptionPane.showMessageDialog(this,
+					    "The Idle animation must be set before setting the body.",
+					    "Error",
+					    JOptionPane.ERROR_MESSAGE);
 				return;
+			}
 			BodyEditor be = new BodyEditor(this);
 			if(bodyConfig != null)
 				be.setData(bodyConfig);
