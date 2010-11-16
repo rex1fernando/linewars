@@ -1,5 +1,6 @@
 package editor.mapitems;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,10 +76,11 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		
 		//set up the abilities and collision strat panel
 		abilities = new ListURISelector("Abilities", new AbilitySelector());
+		JPanel aPanel = new JPanel();
+		aPanel.add(abilities);
 		collisionStrat = new URISelector("Collision Strategy", new CollisionStrategySelector());
-		JPanel abilitiesColStratPanel = new JPanel();
-		abilitiesColStratPanel.add(abilities);
-		abilitiesColStratPanel.add(collisionStrat);
+		JPanel cPanel = new JPanel();
+		cPanel.add(collisionStrat);
 		
 		//set up the body panel
 		bodyButton = new JButton("Set the body...");
@@ -95,7 +97,8 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(namePanel);
 		this.add(statesPanel);
-		this.add(abilitiesColStratPanel);
+		this.add(aPanel);
+		this.add(cPanel);
 		this.add(bodyPanel);
 		this.add(mapItemType);
 		
