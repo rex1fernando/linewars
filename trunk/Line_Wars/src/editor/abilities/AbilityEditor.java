@@ -257,7 +257,10 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 			subPanel.add(uriSelector);
 		}
 		else
+		{
+			subPanel.remove(uriSelector);
 			uriSelector = null;
+		}
 		
 		if(numberLabel != null)
 		{
@@ -267,10 +270,13 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 			subPanel.add(numberBox);
 		}
 		else
+		{
+			subPanel.remove(numberBox);
 			numberBox = null;
+		}
 		
 		this.validate();
-		
+		this.updateUI();
 	}
 	
 	private class UnitSelector implements SelectorOptions {
