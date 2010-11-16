@@ -15,7 +15,7 @@ import org.junit.Test;
 public class PositionTests 
 {
 
-	private Position p1, p2, p3, p4, p5;
+	private Position p1, p2, p3, p4, p5, p6;
 	
 	@Before
 	public void setUp() 
@@ -25,6 +25,7 @@ public class PositionTests
 		p3 = new Position ("66.7, 5");
 		p4 = new Position ("5a66");
 		p5 = new Position (20, 0);
+		p6 = new Position (66.7, 5);
 		//TODO:
 		//test third ctor
 	}
@@ -103,9 +104,74 @@ public class PositionTests
 	@Test
 	public void testDistanceSquared()
 	{
-		
+		assertEquals(p2.distanceSquared(p5), ((78.3-20) * (78.3 - 20)), 0.0);
+		assertEquals(p1.distanceSquared(p1), 0, 0.0);
+		assertEquals(p1.distanceSquared(p3), ((-55-66.7) *(-55-66.7)) + ((5.7-5) * (5.7-5)), 0.0);
+	}
+	
+	@Test
+	public void testEquals ()
+	{
+		assertEquals (false, p1.equals("-55, 5.7"));
+		assertEquals(true, p1.equals(p1));
+		assertEquals(false, p1.equals(p6));
+		assertEquals(true, p3.equals(p6));
+		assertEquals(true, p6.equals(p3));
+		assertEquals(false, p5.equals(null));
+	}
+	
+	@Test
+	public void testNormalize()
+	{
+		//TODO:
+	}
+	
+	@Test
+	public void testOrthogonal()
+	{
+		//TODO:
+	}
+	
+	@Test
+	public void testDot()
+	{
+		//TODO:
 	}
 
+	@Test
+	public void testScalarProjection()
+	{
+		//TODO:
+	}
 
+	@Test
+	public void testVectorProjection()
+	{
+		//TODO:
+	}
+
+	@Test
+	public void testHashCode()
+	{
+		//TODO:
+	}
+	
+	@Test
+	public void testToString()
+	{
+		//TODO:
+	}
+
+	@Test
+	public void testLength()
+	{
+		//TODO:
+	}
+
+	@Test
+	public void testGetUnitVector()
+	{
+		//TODO:
+	}
 
 }
