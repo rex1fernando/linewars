@@ -315,9 +315,13 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		{
 			String s = (String)JOptionPane.showInputDialog(mainPanel, "Input the maximum background speed", "",
 					JOptionPane.PLAIN_MESSAGE, null, null, "" + speedSlider.getMaximum());
-			int i = Integer.valueOf(s);
-			speedSlider.setMaximum(i);
-			speedSlider.setMinimum(-i);
+			try {
+				int i = Integer.valueOf(s);
+				speedSlider.setMaximum(i);
+				speedSlider.setMinimum(-i);
+			} catch(NumberFormatException e) {
+				
+			}
 		}
 		else if(arg0.getSource().equals(removeSelected))
 		{
