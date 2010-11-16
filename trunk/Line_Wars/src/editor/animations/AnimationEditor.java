@@ -195,14 +195,17 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 				
 			if(newList != null)
 			{
-				if(newList.isEmpty())
-					list.clear();
-				else
+				list.clear();
+				scrollPanel.removeAll();
+				for(Frame f : newList)
 				{
-					for(Frame f : newList)
-						list.add(f);
+					list.add(f);
+					scrollPanel.add(f);
 				}
 				newList = null;
+				current = 0;
+				scrollPanel.validate();
+				scrollPanel.updateUI();
 			}
 			
 			try {
@@ -230,6 +233,11 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	            File[] file = fc.getSelectedFiles();
 	            
 	            ArrayList<Frame> newList = new ArrayList<Frame>();
+	            
+	            //add the current list
+	            for(Frame f : list)
+	            	newList.add(f);
+	            
 	            for(File f : file)
 	            {
 	            	try {
@@ -238,7 +246,6 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 						e.printStackTrace();
 						return;
 					}
-	            	scrollPanel.add(newList.get(newList.size() - 1));
 	            }
 	            
 	            this.newList = newList;
@@ -314,16 +321,14 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		}
 		else if(arg0.getSource().equals(removeSelected))
 		{
-			for(int i = 0; i < list.size();)
+			 ArrayList<Frame> newList = new ArrayList<Frame>();
+			for(int i = 0; i < list.size();i++)
 			{
-				if(list.get(i).getChecked())
-				{
-					scrollPanel.remove(list.get(i));
-					list.remove(i);
-				}
-				else
-					i++;
+				if(!list.get(i).getChecked())
+					newList.add(list.get(i));
 			}
+			
+			this.newList = newList;
 		}
 		
 		mainPanel.validate();
