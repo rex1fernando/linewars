@@ -693,8 +693,21 @@ public strictfp class Lane
 							collisionVectors.put(first, newPosition);
 						}else{//now they have to be going in the same direction
 							boolean firstFirst = false;
-							double firstDistance = curve.getClosestPointRatio(first.getPosition());
-							double secondDistance = curve.getClosestPointRatio(second.getPosition());
+							
+							//if first is a unit then there's a more efficient way to get its position
+							double firstDistance = -1;
+							if(first instanceof Unit)
+								firstDistance = ((Unit)first).getPositionAlongCurve();
+							else
+								firstDistance = curve.getClosestPointRatio(first.getPosition());
+							
+							//if second is a unit then there's a more efficient way to get its position
+							double secondDistance = -1;
+							if(first instanceof Unit)
+								secondDistance = ((Unit)first).getPositionAlongCurve();
+							else
+								secondDistance = curve.getClosestPointRatio(first.getPosition());
+							
 							if(firstOne){//if 1 -> 0
 								if(firstDistance < secondDistance){
 									firstFirst = true;
@@ -734,7 +747,7 @@ public strictfp class Lane
 		List<Unit> allUnits = getCollidableMapItems();
 		for(Unit toMove : allUnits){
 			//get its closest point on the curve
-			Transformation pointOnCurve = curve.getPosition(curve.getClosestPointRatio(toMove.getPosition()));
+			Transformation pointOnCurve = curve.getPosition(toMove.getPositionAlongCurve());
 			//use the width and stuff to figure out where it should be placed so it's actually on the Lane
 			Position offset = toMove.getPosition().subtract(pointOnCurve.getPosition());
 			double offsetMag = offset.length();

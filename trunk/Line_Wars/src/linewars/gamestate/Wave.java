@@ -99,7 +99,7 @@ public strictfp class Wave {
 		{
 			if(u instanceof Gate && !includeGates)
 				continue;
-			double d = owner.getClosestPointRatio(u.getPosition()) - u.getRadius()/owner.getLength();
+			double d = u.getPositionAlongCurve() - u.getRadius()/owner.getLength();
 			if(d < min)
 				min = d;
 		}
@@ -121,7 +121,7 @@ public strictfp class Wave {
 		{
 			if(u instanceof Gate)
 				continue;
-			double d = owner.getClosestPointRatio(u.getPosition()) + u.getRadius()/owner.getLength();
+			double d = u.getPositionAlongCurve() + u.getRadius()/owner.getLength();
 			if(d > max)
 				max = d;
 		}
@@ -199,7 +199,7 @@ public strictfp class Wave {
 			for(int i = 0; i < units.size();)
 			{
 				Unit u = units.get(i);
-				double pos = owner.getClosestPointRatio(u.getPosition());
+				double pos = u.getPositionAlongCurve();
 				Node target = owner.getNodes()[0];
 				if(target.equals(origin))
 					target = owner.getNodes()[1];

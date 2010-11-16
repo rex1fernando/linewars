@@ -27,6 +27,9 @@ public strictfp class Unit extends MapItem {
 	private double hp;
 	
 	private Wave currentWave = null;
+	
+	private double positionOnCurve;
+	private int lastTickPositionMarker = -1;
 
 	//TODO remove the public, it is here for testing purposes
 	public Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
@@ -121,6 +124,16 @@ public strictfp class Unit extends MapItem {
 	public void setWave(Wave w)
 	{
 		currentWave = w;
+	}
+	
+	public double getPositionAlongCurve()
+	{
+		if(lastTickPositionMarker != definition.getGameState().getTimerTick())
+		{
+			lastTickPositionMarker = definition.getGameState().getTimerTick();
+			positionOnCurve = currentWave.getLane().getClosestPointRatio(this.getPosition());
+		}
+		return positionOnCurve;
 	}
 
 	//This should be very strict; true iff the two objects are bit-identical
