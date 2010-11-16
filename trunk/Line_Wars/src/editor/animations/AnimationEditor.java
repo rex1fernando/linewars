@@ -238,15 +238,21 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	            for(Frame f : list)
 	            	newList.add(f);
 	            
+	           String errors = "";
 	            for(File f : file)
 	            {
 	            	try {
 						newList.add(new Frame(f.getAbsolutePath()));
-					} catch (IOException e) {
-						e.printStackTrace();
-						return;
+					} catch (Exception e) {
+						errors += f.getAbsolutePath() + "\n";
 					}
 	            }
+	            
+	            if(!errors.equals(""))
+	            	JOptionPane.showMessageDialog(mainPanel,
+	            	    "There was an error loading the following:\n" + errors,
+	            	    "Error",
+	            	    JOptionPane.ERROR_MESSAGE);
 	            
 	            this.newList = newList;
 	            

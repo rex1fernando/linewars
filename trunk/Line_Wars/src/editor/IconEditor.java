@@ -15,7 +15,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import editor.animations.FileCopy;
 
@@ -39,6 +41,8 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	private HashMap<ParserKeys, IconPanel> panels = new HashMap<ParserKeys, IconEditor.IconPanel>();
 	
+	private JPanel mainPanel;
+	
 	public IconEditor()
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -48,6 +52,11 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 			this.add(panel);
 			panels.put(key, panel);
 		}
+		
+		JScrollPane scroller = new JScrollPane(this);
+		scroller.setPreferredSize(new Dimension(200, 175));
+		mainPanel = new JPanel();
+		mainPanel.add(scroller);
 	}
 
 	@Override
@@ -124,7 +133,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public JPanel getPanel() {
-		return this;
+		return mainPanel;
 	}
 	
 	private class IconPanel extends JPanel implements ActionListener {
@@ -188,6 +197,20 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 			if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
 			{
 				File f = fc.getSelectedFile();
+				
+				//test loading the image
+				try {
+					ImageIcon i = new ImageIcon(f.getAbsolutePath());
+					if(i.getImage().getHeight(null) < 0)
+						throw new Exception();
+				} catch(Exception e) {
+					JOptionPane.showMessageDialog(IconEditor.this,
+						    "Error loading\n" + f.getAbsolutePath(),
+						    "Error",
+						    JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				File to = new File(new File("resources/animations"), f.getName());
 				if(!to.exists())
 				{
