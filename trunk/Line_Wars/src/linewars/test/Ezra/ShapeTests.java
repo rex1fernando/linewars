@@ -4,7 +4,7 @@ import org.junit.Before;
 import linewars.gamestate.shapes.*;
 import linewars.gamestate.Position;
 
-public class ShapesPackageTests {
+public class ShapeTests {
 	//Not much to test in the Shape class itself
 	//Shape only has:
 	//its static initializer block that calls two private static initalizers
@@ -13,10 +13,6 @@ public class ShapesPackageTests {
 	
 	//TODO:
 	//figure out a way to test the static crap of Shape
-	
-	//TODO:
-	//test Position
-	//test Transformation
 	
 	@Before
 	public void setUp()
