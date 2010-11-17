@@ -22,15 +22,8 @@ public class BezierCToJavaTest {
 	from "Graphics Gems", Academic Press, 1990
 	*/
 
-	 /*	point_on_curve.c	*/		
-
-	/*
-	 *  Forward declarations
-	 */
-
-	int		MAXDEPTH = 64;	/*  Maximum depth for recursion */
-
-	double	EPSILON = Math.pow(1.0, -(MAXDEPTH - 1)); /*Flatness control value */
+	int		MAXDEPTH = 10;	/*  Maximum depth for recursion */
+	double	EPSILON = Math.pow(2.0, -MAXDEPTH-1); /*Flatness control value */
 	int 	DEGREE = 3;		/*  Cubic Bezier curve		*/
 	int		W_DEGREE = 5;		/*  Degree of eqn to find roots of */
 
@@ -42,7 +35,7 @@ public class BezierCToJavaTest {
 	 *		Param P: The user-supplied point
 	 *		Param V: Control points of cubic Bezier 
 	 */
-	public Position NearestPointOnCurve(Position P, Position[] V)	{
+	public double NearestPointOnCurve(Position P, Position[] V)	{
 	    Position[] w;			/* Ctl pts for 5th-degree eqn	*/
 	    double[] t_candidate = new double[W_DEGREE];	/* Possible roots		*/     
 	    int 	n_solutions;		/* Number of roots found	*/
@@ -58,7 +51,6 @@ public class BezierCToJavaTest {
 	    {
 			double 	dist, new_dist;
 			Position p;
-//			Position v;
 			int		i;
 
 		
@@ -73,7 +65,6 @@ public class BezierCToJavaTest {
 		    	if (new_dist < dist) {
 	                	dist = new_dist;
 		        		t = t_candidate[i];
-		        		System.out.println(t);
 	    	    }
 	        }
 
@@ -81,13 +72,13 @@ public class BezierCToJavaTest {
 			new_dist = V2SquaredLength(V2Sub(P, V[DEGREE]));
 	        	if (new_dist < dist) {
 	            	dist = new_dist;
-		    	t = 1.0;
+	            	t = 1.0;
 	        }
 	    }
 
+	    return t;
 	    /*  Return the point on the curve at parameter value t */
-	    System.out.println(t);
-	    return (Bezier(V, DEGREE, t, null, null));
+//	    return (Bezier(V, DEGREE, t, null, null));
 	}
 
 
@@ -137,7 +128,7 @@ public class BezierCToJavaTest {
 	    /* Also, set up the x-values, making these "points"		*/
 	    w = new Position[W_DEGREE + 1];
 	    for (i = 0; i <= W_DEGREE; i++) {
-			w[i] = new Position(0.0, (double)(i)/W_DEGREE);
+			w[i] = new Position((double)(i)/W_DEGREE, 0.0);
 	    }
 
 	    n = DEGREE;
@@ -148,7 +139,6 @@ public class BezierCToJavaTest {
 			for (i = lb; i <= ub; i++) {
 		    	j = k - i;
 		    	w[i+j] = new Position(w[i+j].getX(), w[i+j].getY() + cdTable[j][i] * z[j][i]);
-//		    	w[i+j].y += cdTable[j][i] * z[j][i];
 			}
 	    }
 
@@ -364,37 +354,27 @@ public class BezierCToJavaTest {
 	 *	Compute intersection of chord from first control point to last
 	 *  	with 0-axis.
 	 * 
-	 */
-	/* NOTE: "T" and "Y" do not have to be computed, and there are many useless
-	 * operations in the following (e.g. "0.0 - 0.0").
+	 *
 	 * 	    Point2 	*V;			  Control points	
-	    int		degree; 		  Degree of curve
+	 *      int		degree; 	  Degree of curve
 	 */
 	public double ComputeXIntercept(Position[] V, int degree)
-
 	{
-	    double	XLK, YLK, XNM, YNM, XMK, YMK;
+	    double	XNM, YNM, XMK, YMK;
 	    double	det, detInv;
-	    double	S, T;
-	    double	X, Y;
+	    double	S;
 
-	    XLK = 1.0 - 0.0;
-	    YLK = 0.0 - 0.0;
 	    XNM = V[degree].getX() - V[0].getX();
 	    YNM = V[degree].getY() - V[0].getY();
-	    XMK = V[0].getX() - 0.0;
-	    YMK = V[0].getY() - 0.0;
+	    XMK = V[0].getX();
+	    YMK = V[0].getY();
 
-	    det = XNM*YLK - YNM*XLK;
+	    det =  -YNM;
 	    detInv = 1.0/det;
 
 	    S = (XNM*YMK - YNM*XMK) * detInv;
-	/*  T = (XLK*YMK - YLK*XMK) * detInv; */
 
-	    X = 0.0 + XLK * S;
-	/*  Y = 0.0 + YLK * S; */
-
-	    return X;
+	    return S;
 	}
 
 
@@ -491,18 +471,73 @@ public class BezierCToJavaTest {
 		new Position( 3.0, 0.0 ),
 		new Position( 4.0, 0.0 ),
 	    };
-	    Position arbPoint = new Position( 3.0, 0.0 ); /*Some arbitrary point*/
-	    Position	pointOnCurve;		 /*  Nearest point on the curve */
+	    Position arbPoint = new Position( 2.5, 9.0 ); /*Some arbitrary point*/
 	    double pointRatio = 0.0;
 	    
 	    BezierCToJavaTest blah = new BezierCToJavaTest();
 	    BezierCurve bc = new BezierCurve(bezCurve[0], bezCurve[1], bezCurve[2], bezCurve[3]);
+	    System.out.println(bc.getPosition(.6));
+	    System.out.println(blah.Bezier(bezCurve, 3, .6, null, null));
 	    /*  Find the closest point */
-	    pointOnCurve = blah.NearestPointOnCurve(arbPoint, bezCurve);
-	    pointRatio = bc.getClosestPointRatio(arbPoint);
+//	    for(int i = 0; i < 1; i++){
+//	    	pointRatio = blah.NearestPointOnCurve(arbPoint, bezCurve);
+//	    	System.out.println(pointRatio);
+//	    }
+//	    for(int i = 0; i < 1; i++){
+//	    	pointRatio = bc.getClosestPointRatio(arbPoint);
+//	    }
 	    System.out.println(pointRatio);
-	    System.out.println("pointOnCurve : " +pointOnCurve.getX() +", " +pointOnCurve.getY());
 	    
 	}
+	
+
+//	STORAGE FOR THE OLD getClosestPointRatio method in case of emergency
+//	 * first finds the closest point in the curve to p, then returns that
+//	 * position's ratio along the curve (ie [0,1])
+//	 * 
+//	 * @param p		the position to find the ratio for
+//	 * @return		the ratio along the curve [0,1] of p
+//	 */
+//	public double getClosestPointRatio(Position p) 
+//	{
+//		return getClosestPointRatioRec(p, 0.0, 1.0, 0.1, 4);
+//	}
+//	
+//	/**
+//	 * Recursive helper method for getClosestPointRatio.
+//	 * @param p The position in question.
+//	 * @param leftBound The leftmost percent of the curve to be considered for this execution.
+//	 * @param rightBound The rightmost percent of the curve to be considered for this execution.
+//	 * @param stepSize The percentage of the curve between the bounds to advance each iteration.
+//	 * @param numRecursions The number of recursions to execute before termination.
+//	 * @return
+//	 */
+//	private double getClosestPointRatioRec(Position p, double leftBound, double rightBound, double stepSize, int numRecursions)
+//	{
+//		double minVal = Double.POSITIVE_INFINITY;
+//		double ret = Double.POSITIVE_INFINITY;
+//		Position comp;
+//		int slice = 0;
+//		int i = 0;
+//		for(double d = leftBound; d < (rightBound - .00005); d += stepSize)
+//		{
+//			comp = getPosition(d).getPosition();
+//			double value = p.distanceSquared(comp);
+//			if(value < minVal)
+//			{
+//				minVal = value;
+//				slice = i;
+//				ret = d;
+//			}
+//			i++;
+//		}
+//		
+//		if(numRecursions == 0)
+//		{
+//			return ret + slice*stepSize;
+//		}
+//		leftBound = leftBound + slice*stepSize;
+//		return getClosestPointRatioRec(p, leftBound, leftBound + stepSize, stepSize / 10, numRecursions - 1);
+//	}
 
 }
