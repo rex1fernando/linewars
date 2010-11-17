@@ -117,7 +117,7 @@ public strictfp class BezierCurve {
 	}
 	
 	/**
-	 * Approximates the length of this Lane by stepping along it and calculating line segment lenghts.
+	 * Approximates the length of this Lane by stepping along it and calculating line segment lengths.
 	 * @param stepSize The size of the step to be taken. Smaller steps increase accuracy and calculation time.
 	 */
 	private void calculateLength(double stepSize)
