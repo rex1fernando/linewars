@@ -9,7 +9,7 @@ import org.junit.Test;
 public class TransformationTests {
 
 	@Before
-	public void testUp()
+	public void setUp()
 	{
 		//TODO:
 		//test both ctors
