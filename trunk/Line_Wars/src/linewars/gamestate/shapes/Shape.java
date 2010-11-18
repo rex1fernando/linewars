@@ -15,6 +15,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
 /**
+ * Represents an area in 2D space.
  * 
  * @author Taylor Bergquist
  *
@@ -160,6 +161,12 @@ public strictfp abstract class Shape {
 	 */
 	public abstract Transformation position();
 
+	/**
+	 * Constructs a Shape on the data in the given ConfigData object.
+	 * 
+	 * @param parser
+	 * @return
+	 */
 	public static Shape buildFromParser(ConfigData parser) {
 		String type = parser.getString(ParserKeys.shapetype);
 		Class<? extends Shape> initializer = typeToClass.get(type.toLowerCase());

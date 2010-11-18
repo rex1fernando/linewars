@@ -5,16 +5,16 @@ import java.util.HashMap;
 /**
  * 
  * @author Taylor Bergquist
+ * 
+ * This class encapsulates an algorithm for computing whether two given shapes intersect.  
  *
  */
 public strictfp abstract class ShapeCollisionStrategy {
 	
 	private static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;
 	
-	//TODO document
-	//TODO test, heh
 	/**
-	 * Call this method to add your Strategy to the pool of usable strategy
+	 * Call this method to add your Strategy to the pool of usable strategies
 	 */
 	protected static void addStrategy(ShapeCollisionStrategy toAdd, Class<? extends Shape> first, Class<? extends Shape> second){
 		//instantiate if this hasn't been (singleton)
@@ -62,5 +62,12 @@ public strictfp abstract class ShapeCollisionStrategy {
 		return detector;
 	}
 	
+	/**
+	 * Computes whether the given Shapes are colliding.  Two Shapes are defined to be colliding if the area of their intersection is nonzero.
+	 * 
+	 * @param first
+	 * @param second
+	 * @return
+	 */
 	public abstract boolean collides(Shape first, Shape second);
 }

@@ -10,6 +10,9 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
 /**
+ * Represents a collection of Shapes, each with a specific relative position and orientation.
+ * 
+ * NYI
  * 
  * @author Taylor Bergquist
  *

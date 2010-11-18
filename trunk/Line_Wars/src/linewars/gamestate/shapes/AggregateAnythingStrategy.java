@@ -1,6 +1,7 @@
 package linewars.gamestate.shapes;
 
 /**
+ * Encapsulates an algorithm for determining whether an aggregate of Shapes collides with another aribtrary shape.
  * 
  * @author Taylor Bergquist
  *
