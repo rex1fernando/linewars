@@ -18,6 +18,7 @@ import linewars.gamestate.tech.Upgradable;
  * 
  * @author John George
  *
+ * This class represents a player of the game and contains all of the state that a player needs to know.
  */
 public strictfp class Player {
 
@@ -118,32 +119,74 @@ public strictfp class Player {
 		}
 	}
 	
+	/**
+	 * Checks whether or not the Node n is a start point for flow distribution for this player for
+	 * the specified Lane.
+	 * @param l
+	 * 		The Lane for which to check n.
+	 * @param n
+	 * 		The Node being checked.
+	 * @return
+	 * 		true if n is a start point for this Player for l, false otherwise.
+	 */
 	public boolean isStartPoint(Lane l, Node n)
 	{
 		return startPoints.get(l).equals(n);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The amount of Stuff this Player owns.
+	 */
 	public double getStuff(){
 		return stuffAmount;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		This Player's name.
+	 */
 	public String getPlayerName(){
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @param l
+	 * 		The lane for which to get this Player's flow distribution.
+	 * @return
+	 * 		This Player's flow distribution for the specified Lane.
+	 */
 	public double getFlowDist(Lane l){
 		return flowDist.get(l);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The HashMap representing the flow distribution of this Player.
+	 */
 	public HashMap<Lane, Double> getFlowDist()
 	{
 		return flowDist;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An ArrayList containing all of the Nodes owned by this Player.
+	 */
 	public ArrayList<Node> getOwnedNodes(){
 		return ownedNodes;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An array containing all of the UnitDefinitions owned by this Player.
+	 */
 	public UnitDefinition[] getUnitDefinitions(){
 		Set<Entry<String, UnitDefinition>> set = unitDefs.entrySet();
 		Iterator<Entry<String, UnitDefinition>> it = set.iterator();
@@ -153,6 +196,11 @@ public strictfp class Player {
 		return ret.toArray(new UnitDefinition[0]);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An array containing all of the BuildingDefinitions owned by this Player.
+	 */
 	public BuildingDefinition[] getBuildingDefintions()
 	{
 		Set<Entry<String, BuildingDefinition>> set = buildingDefs.entrySet();
@@ -163,6 +211,11 @@ public strictfp class Player {
 		return ret.toArray(new BuildingDefinition[0]);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An array containing all of the AbilityDefinitions owned by this Player.
+	 */
 	public AbilityDefinition[] getAbilityDefinitions()
 	{
 		Set<Entry<String, AbilityDefinition>> set = abilityDefs.entrySet();
@@ -173,6 +226,11 @@ public strictfp class Player {
 		return ret.toArray(new AbilityDefinition[0]);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An array containing all of the Tech owned by this Player.
+	 */
 	public Tech[] getTech()
 	{
 		Set<Entry<String, Tech>> set = techLevels.entrySet();
@@ -396,16 +454,31 @@ public strictfp class Player {
 		return mid;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		This Player's CommandCenterDefinition.
+	 */
 	public CommandCenterDefinition getCommandCenterDefinition()
 	{
 		return ccd;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		This Player's gateDefinition.
+	 */
 	public GateDefinition getGateDefinition()
 	{
 		return gateDefinition;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		This Player's playerID.
+	 */
 	public int getPlayerID()
 	{
 		return playerID;
@@ -437,30 +510,51 @@ public strictfp class Player {
 		return playerID;
 	}
 	
+	/**
+	 * Removes u from this Player's list of owned Units.
+	 * @param u
+	 * 		The Unit to be removed from the list of owned Units.
+	 */
 	public void removeUnit(Unit u)
 	{
 		ownedUnits.remove(u);
 	}
 	
+	/**
+	 * Removes u from this Player's list of owned Buildings.
+	 * @param u
+	 * 		The Building to be removed from the list of owned Buildings.
+	 */
 	public void removeBuilding(Building u)
 	{
 		ownedBuildings.remove(u);
 	}
 	
+	/**
+	 * Removes u from this Player's list of owned Projectiles.
+	 * @param u
+	 * 		The Projectile to be removed from the list of owned Projectiles.
+	 */
 	public void removeProjectile(Projectile u)
 	{
 		ownedProjectiles.remove(u);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The GameState object owned by this Player.
+	 */
 	public GameState getGameState()
 	{
 		return gameState;
 	}
 
 	/**
-	 * This was all Taylor
 	 * @param key
+	 * 		The ConfigData key for the desired Upgradable.
 	 * @return
+	 * 		The Upgradable owned by this player that is specified by key.
 	 */
 	public Upgradable getUpgradable(String key) {
 		Upgradable ret = null;
@@ -492,6 +586,13 @@ public strictfp class Player {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @param l
+	 * 		The Lane of which to check the adjacent Nodes.
+	 * @return
+	 * 		The flow start node of this Player for the specified Lane.
+	 */
 	public Node getStartNode(Lane l) {
 		return this.startPoints.get(l);
 	}

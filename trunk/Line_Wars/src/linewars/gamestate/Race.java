@@ -11,6 +11,8 @@ import linewars.configfilehandler.ParserKeys;
  * 
  * @author John George
  *
+ *	This class represents a race, of which each player has one. Races know what units and buildings are available to be 
+ *  created by itself.
  */
 public strictfp class Race {
 	
@@ -21,6 +23,11 @@ public strictfp class Race {
 	private String commandCenterURI;
 	private String gateURI;
 	
+	/**
+	 * Creates a new Race object based on the information in the given ConfigData.
+	 * @param p
+	 * 		The ConfigData object to be used to create this Race.
+	 */
 	public Race(ConfigData p)
 	{
 		name = p.getString(ParserKeys.name);
@@ -31,6 +38,11 @@ public strictfp class Race {
 		gateURI = p.getString(ParserKeys.gateURI);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		A List containing all of the BuildingURIs associated with this Race.
+	 */
 	public List<String> getBuildingURIs()
 	{
 		ArrayList<String> ret = new ArrayList<String>();
@@ -41,6 +53,11 @@ public strictfp class Race {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * 		A List containing all of the UnitURIs associated with this Race.
+	 */
 	public List<String> getUnitURIs()
 	{
 		ArrayList<String> ret = new ArrayList<String>();
@@ -51,6 +68,11 @@ public strictfp class Race {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		A List containing all of the TechURIs associated with this Race.
+	 */
 	public List<String> getTechURIs()
 	{
 		ArrayList<String> ret = new ArrayList<String>();
@@ -59,6 +81,36 @@ public strictfp class Race {
 			ret.add(techURIs.get(i));
 		}
 		return ret;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * 		The CommandCenterURI associated with this Race.
+	 */
+	public String getCommandCenterURI()
+	{
+		return commandCenterURI;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * 		The name of this Race.
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * 		The GateURI associated with this Race.
+	 */
+	public String getGateURI()
+	{
+		return gateURI;
 	}
 	
 	@Override
@@ -74,21 +126,6 @@ public strictfp class Race {
 		}
 		
 		return false;
-	}
-
-	public String getCommandCenterURI()
-	{
-		return commandCenterURI;
-	}
-	
-	public String getName()
-	{
-		return name;
-	}
-	
-	public String getGateURI()
-	{
-		return gateURI;
 	}
 
 }

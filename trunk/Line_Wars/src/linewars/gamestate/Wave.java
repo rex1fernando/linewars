@@ -13,6 +13,7 @@ import linewars.gamestate.shapes.Circle;
  * 
  * @author John George, Connor Schenck
  *
+ * This class represents a wave of units. It knows which Lane it's in, where its center is, and what units it contains.
  */
 public strictfp class Wave {
 	private Lane owner;
@@ -39,6 +40,15 @@ public strictfp class Wave {
 		return origin;
 	}
 	
+	/**
+	 * Creates a Wave with a single Unit in it.
+	 * @param owner
+	 * 		The Lane that contains this Wave.
+	 * @param u
+	 * 		The Unit to start with Wave with.
+	 * @param origin
+	 * 		The Node that generated this Wave.
+	 */
 	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
@@ -48,6 +58,11 @@ public strictfp class Wave {
 		this.origin = origin;
 	}
 	
+	/**
+	 * Creates an empty Wave in the given Lane.
+	 * @param owner
+	 * 		The Lane that contains this Wave.
+	 */
 	public Wave(Lane owner)
 	{
 		this.owner = owner;
@@ -55,6 +70,11 @@ public strictfp class Wave {
 		opponent = null;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		An array containing all of the Units in this Wave.
+	 */
 	public Unit[] getUnits()
 	{
 		return units.toArray(new Unit[0]);
@@ -332,16 +352,34 @@ public strictfp class Wave {
 		return ret;
 	}
 	
+	/**
+	 * Checks whether or not this Wave contains a given Unit.
+	 * @param u
+	 * 		The Unit to check for.
+	 * @return
+	 * 		True if u is in this Wave, false otherwise.
+	 */
 	public boolean contains(Unit u)
 	{
 		return units.contains(u);
 	}
 	
+	
+	/**
+	 * Removes the specified Unit from this Wave
+	 * @param u
+	 * 		The Unit to be removed.
+	 */
 	public void remove(Unit u)
 	{
 		units.remove(u);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The Position of the center of this Wave.
+	 */
 	public Position getCenter()
 	{
 		Position average = new Position(0,0);

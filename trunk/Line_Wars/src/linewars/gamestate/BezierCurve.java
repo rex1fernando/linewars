@@ -9,7 +9,10 @@ import linewars.configfilehandler.ParserKeys;
 /**
  * 
  * @author John George
- *
+ * This class represents a Bezier Curve represented by four control points and calculated by the formula found at
+ * http://en.wikipedia.org/wiki/Bezier_curve.
+ * It contains methods for calculating various attributes of the curve and finding positions along it.
+ * 
  */
 public strictfp class BezierCurve {
 	/*
@@ -23,17 +26,34 @@ public strictfp class BezierCurve {
 	private Position p2;
 	private Position p3;
 	
+	//The length of this curve.
 	private double length;
+	
+	//The step size used in the calculateLength method.
 	private static final double STEP_SIZE = 0.001;
 	
 	/*
 	 * These are for the getClosestPointRatio method.
 	 */
-	int		MAXDEPTH = 5;	/*  Maximum depth for recursion */
-	double	EPSILON = Math.pow(2.0, -MAXDEPTH-1); /*Flatness control value */
-	int 	DEGREE = 3;		/*  Cubic Bezier curve		*/
-	int		W_DEGREE = 5;		/*  Degree of eqn to find roots of */
+	//Maximum depth for recursion
+	int		MAXDEPTH = 10;
 	
+	//Flatness control value
+	double	EPSILON = Math.pow(2.0, -MAXDEPTH-1);
+	
+	//Cubic Bezier curve
+	int 	DEGREE = 3;
+	
+	//Degree of equation to find roots of.
+	int		W_DEGREE = 5;
+	
+	/**
+	 * Creates a BezierCurve object using the information found in the supplied ConfigData.
+	 * @param configuration 
+	 * 		The ConfigData object which contains the information used to construct this curve.
+	 * @return 
+	 * 		A new BezierCurve object using the information from configuration.
+	 */
 	public static BezierCurve buildCurve(ConfigData configuration){
 		List<ConfigData> positions = configuration.getConfigList(ParserKeys.controlPoint);
 		ArrayList<Position> parsedPositions = new ArrayList<Position>();
@@ -43,6 +63,13 @@ public strictfp class BezierCurve {
 		return buildCurve(parsedPositions);
 	}
 	
+	/**
+	 * Creates a BezierCurve object using the points in the supplied list as the ordered control points of the curve.
+	 * @param orderedControlPoints
+	 * 		The list of points to create a curve from.
+	 * @return
+	 * 		A new BezierCurve object consisting of the control points supplied in orderedControlPoints.
+	 */
 	public static BezierCurve buildCurve(List<Position> orderedControlPoints){
 		if(orderedControlPoints.size() == 2){
 			return buildCurve(orderedControlPoints.get(0), orderedControlPoints.get(1));
@@ -54,21 +81,70 @@ public strictfp class BezierCurve {
 		throw new IllegalArgumentException("2 - 4 control points expected; " + orderedControlPoints.size() + " found.");
 	}
 	
+	/**
+	 * Creates a new BezierCurve object representing a linear Bezier curve using the two supplied positions as control points.
+	 * @param p0
+	 * 		The start position for the new curve.
+	 * @param p1
+	 * 		The end position for the new curve.
+	 * @return
+	 * 		A new BezierCurve object with the specified start and endpoints.
+	 */
 	public static BezierCurve buildCurve(Position p0, Position p1){
 		Position newP1 = p0.scale(.5).add(p1.scale(.5));
 		return buildCurve(p0, newP1, p1);
 	}
 	
+	/**
+	 * Creates a new BezierCurve object representing a quadratic Bezier curve using the three supplied positions as control
+	 * points.
+	 * @param p0
+	 * 		The start position for the new curve.
+	 * @param p1
+	 * 		The intermediate control point for the new curve.
+	 * @param p2
+	 * 		The end position for the new curve.
+	 * @return
+	 * 		A new BezierCurve object with the specified control points.
+	 */
 	public static BezierCurve buildCurve(Position p0, Position p1, Position p2){
 		Position newP1 = p0.scale(1.0 / 3).add(p1.scale(1 - (1.0 / 3)));
 		Position newP2 = p1.scale(2.0 / 3).add(p2.scale(1 - (2.0 / 3)));
 		return new BezierCurve(p0, newP1, newP2, p2);
 	}
 	
+	/**
+	 * Creates a new BezierCurve object representing a cubic Bezier curve using the three supplied positions as control
+	 * points. 
+	 * @param p0
+	 * 		The start position for the new curve.
+	 * @param p1
+	 * 		The first intermediate control point for the new curve.
+	 * @param p2
+	 * 		The second intermediate control point for the new curve.
+	 * @param p3
+	 * 		The end position for the new curve.
+	 * @return
+	 * 		A new BezierCurve object with the specified control points.
+	 */
 	public static BezierCurve buildCurve(Position p0, Position p1, Position p2, Position p3){
 		return new BezierCurve(p0, p1, p2, p3);
 	}
 	
+	/**
+	 * Creates a new BezierCurve object representing a cubic Bezier curve using the three supplied positions as control
+	 * points and calculates the length. 
+	 * @param p0
+	 * 		The start position for the new curve.
+	 * @param p1
+	 * 		The first intermediate control point for the new curve.
+	 * @param p2
+	 * 		The second intermediate control point for the new curve.
+	 * @param p3
+	 * 		The end position for the new curve.
+	 * @return
+	 * 		A new BezierCurve object with the specified control points.
+	 */
 	public BezierCurve(Position p0, Position p1, Position p2, Position p3)
 	{
 		this.p0 = p0;
@@ -79,46 +155,92 @@ public strictfp class BezierCurve {
 		calculateLength(STEP_SIZE);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The first control point of this Bezier curve.
+	 */
 	public Position getP0()
 	{
 		return p0;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * 		The second control point of this Bezier curve.
+	 */
 	public Position getP1()
 	{
 		return p1;
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 * 		The third control point of this Bezier curve.
+	 */
 	public Position getP2()
 	{
 		return p2;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * 		The fourth control point of this Bezier curve.
+	 */
 	public Position getP3()
 	{
 		return p3;
 	}
 	
+	/**
+	 * Sets the first control point to p.
+	 * @param p
+	 * 		The new value for the first control point.
+	 */
 	public void setP0(Position p)
 	{
 		p0 = p;
 	}
 	
+	/**
+	 * Sets the second control point to p.
+	 * @param p
+	 * 		The new value for the second control point.
+	 */
 	public void setP1(Position p)
 	{
 		p1 = p;
 	}
 	
+	/**
+	 * Sets the third control point to p.
+	 * @param p
+	 * 		The new value for the third control point.
+	 */
 	public void setP2(Position p)
 	{
 		p2 = p;
 	}
 	
+	/**
+	 * Sets the fourth control point to p.
+	 * @param p
+	 * 		The new value for the fourth control point.
+	 */
 	public void setP3(Position p)
 	{
 		p3 = p;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * 		The approximate length of this BezierCurve.
+	 */
 	public double getLength()
 	{
 		return length;
@@ -189,9 +311,13 @@ public strictfp class BezierCurve {
 	/**
 	 * Calculate the rotation at a point on the cubic bezier curve given the position on it.
 	 * Implements the algorithm found at http://bimixual.org/AnimationLibrary/beziertangents.html
-	 * @param quad The position along the quadratic bezier curve represented by the first 3 points.
-	 * @param cube The position along the cubic bezier curve (all 4 points)
-	 * @return The rotation at point cube.
+	 * 
+	 * @param quad 
+	 * 		The position along the quadratic bezier curve represented by the first 3 points.
+	 * @param cube
+	 * 		 The position along the cubic bezier curve (all 4 points)
+	 * @return 
+	 * 		The rotation at point cube.
 	 */
 	private double calculateRot(Position quad, Position cube)
 	{
@@ -210,7 +336,9 @@ public strictfp class BezierCurve {
 	 * This will be used in getPosition to get the rotatation of the curve using the formula found at
 	 * http://bimixual.org/AnimationLibrary/beziertangents.html
 	 * @param pos
+	 * 		The percentage along the 3-point curve to get the position.
 	 * @return
+	 * 		The position on the quadratic Bezier curve that is pos percent along it.
 	 */
 	private Position getQuadraticPos(double pos)
 	{
@@ -228,43 +356,57 @@ public strictfp class BezierCurve {
 	
 	
 	/*
+	 * Original C code from:
+	 * 
 	 * Solving the Nearest Point-on-Curve Problem and
 	 *	A Bezier Curve-Based Root-Finder
 	 *	by Philip J. Schneider
 	 *	from "Graphics Gems", Academic Press, 1990
-	 *  NearestPointOnCurve :
-	 *  	Compute the parameter value of the point on a Bezier
-	 *		curve segment closest to some arbitrary, user-input point.
-	 *		Return the point on the curve at that parameter value.
-	 *		Param P: The user-supplied point
-	 *		Param V: Control points of cubic Bezier 
+	 */
+	
+	
+	/**
+	 * Compute the parameter value of the point on a Bezier curve
+	 * segment closest to some arbitrary, user-input point.
+	 * 
+	 * @param P
+	 * 		The user-supplied point.
+	 * @return
+	 * 		The point on the curve at that parameter value.
 	 */
 	public double getClosestPointRatio(Position P)	{
-	    Position[] w;			/* Ctl pts for 5th-degree eqn	*/
-	    double[] t_candidate = new double[W_DEGREE];	/* Possible roots		*/     
-	    int 	n_solutions;		/* Number of roots found	*/
-	    double	t;			/* Parameter value of closest pt*/
+		//Ctl pts for 5th-degree eqn
+	    Position[] w;
+	    
+	    //Possible roots
+	    double[] t_candidate = new double[W_DEGREE];
+	    
+	    //Number of roots found
+	    int 	n_solutions;		
+	    
+	    //Parameter value of closest pt
+	    double	t;
 
 	    Position[] V = { p0, p1, p2, p3 };
 	    
-	    /*  Convert problem to 5th-degree Bezier form	*/
+	    //  Convert problem to 5th-degree Bezier form
 	    w = ConvertToBezierForm(P, V);
 
-	    /* Find all possible roots of 5th-degree equation */
+	    // Find all possible roots of 5th-degree equation 
 	    n_solutions = FindRoots(w, W_DEGREE, t_candidate, 0);
 
-	    /* Compare distances of P to all candidates, and to t=0, and t=1 */
+	    // Compare distances of P to all candidates, and to t=0, and t=1 
 	    {
 			double 	dist, new_dist;
 			Position p;
 			int		i;
 
 		
-		/* Check distance to beginning of curve, where t = 0	*/
+		// Check distance to beginning of curve, where t = 0	
 			dist = V2SquaredLength(V2Sub(P, V[0]));
 	        t = 0.0;
 
-		/* Find distances for candidate points	*/
+		// Find distances for candidate points	
 	        for (i = 0; i < n_solutions; i++) {
 		    	p = Bezier(V, DEGREE, t_candidate[i], null, null);
 		    	new_dist = V2SquaredLength(V2Sub(P, p));
@@ -274,7 +416,7 @@ public strictfp class BezierCurve {
 	    	    }
 	        }
 
-		/* Finally, look at distance to end point, where t = 1.0 */
+		// Finally, look at distance to end point, where t = 1.0 
 			new_dist = V2SquaredLength(V2Sub(P, V[DEGREE]));
 	        	if (new_dist < dist) {
 	            	dist = new_dist;
@@ -285,51 +427,77 @@ public strictfp class BezierCurve {
 	    return t;
 	}
 
-
-	/*
-	 *  ConvertToBezierForm :
-	 *		Given a point and a Bezier curve, generate a 5th-degree
-	 *		Bezier-format equation whose solution finds the point on the
-	 *      curve nearest the user-defined point.
-	 *      Point2 	P;			The point to find t for
-	    	Point2 	*V;			The control points
+	
+	/**
+	 * Given a point and a Bezier curve, generate a 5th-degree
+	 * Bezier-format equation whose solution finds the point on the 
+	 * curve nearest the user-defined point.
+	 * 
+	 * @param P
+	 * 		The point to find t for.
+	 * @param V
+	 * 		The control points.
+	 * @return
+	 * 		An array of points representing the solution curve.
+	 * 	
 	 */
 	public Position[] ConvertToBezierForm(Position P, Position[] V){
 
 	    int 	i, j, k, m, n, ub, lb;	
-	    int 	row, column;		/* Table indices		*/
-	    Position[] c = new Position[DEGREE+1];		/* V(i)'s - P			*/
-	    Position[] d = new Position[DEGREE];		/* V(i+1) - V(i)		*/
-	    Position[] 	w;			/* Ctl pts of 5th-degree curve  */
-	    double[][] cdTable = new double[3][4];		/* Dot product of c, d		*/
-	    double[][] z = {	/* Precomputed "z" for cubics	*/
+	    
+	    //Table indices
+	    int 	row, column;
+	    
+	    //V(i)'s - P	
+	    Position[] c = new Position[DEGREE+1];
+	    
+	    //V(i+1) - V(i)
+	    Position[] d = new Position[DEGREE];
+	    
+	    //Ctl pts of 5th-degree curve
+	    Position[] 	w;
+	    
+	    //Dot product of c, d
+	    double[][] cdTable = new double[3][4];
+	    
+	    //Precomputed "z" for cubics
+	    double[][] z = {
 		{1.0, 0.6, 0.3, 0.1},
 		{0.4, 0.6, 0.6, 0.4},
 		{0.1, 0.3, 0.6, 1.0},
 	    };
 
 
-	    /*Determine the c's -- these are vectors created by subtracting*/
-	    /* point P from each of the control points				*/
+	    /* 
+	     * Determine the c's -- these are vectors created by subtracting
+	     * point P from each of the control points.		
+		 */
 	    for (i = 0; i <= DEGREE; i++) {
 			c[i] = V2Sub(V[i], P);
 	    }
-	    /* Determine the d's -- these are vectors created by subtracting*/
-	    /* each control point from the next					*/
+	    
+	    /* 
+	     * Determine the d's -- these are vectors created by subtracting
+	     * each control point from the next.
+	    */ 				
 	    for (i = 0; i <= DEGREE - 1; i++) { 
 			d[i] = V2ScaleII(V2Sub(V[i+1], V[i]), 3.0);
 	    }
 
-	    /* Create the c,d table -- this is a table of dot products of the */
-	    /* c's and d's							*/
+	    /* 
+	     * Create the c,d table -- this is a table of dot products of the 
+	     * c's and d's	
+	     */ 						
 	    for (row = 0; row <= DEGREE - 1; row++) {
 			for (column = 0; column <= DEGREE; column++) {
 		    	cdTable[row][column] = V2Dot(d[row], c[column]);
 			}
 	    }
 
-	    /* Now, apply the z's to the dot products, on the skew diagonal*/
-	    /* Also, set up the x-values, making these "points"		*/
+	    /* 
+	     * Now, apply the z's to the dot products, on the skew diagonal
+	     * Also, set up the x-values, making these "points"		
+	     */
 	    w = new Position[W_DEGREE + 1];
 	    for (i = 0; i <= W_DEGREE; i++) {
 			w[i] = new Position((double)(i)/W_DEGREE, 0.0);
@@ -349,33 +517,48 @@ public strictfp class BezierCurve {
 	    return (w);
 	}
 
-
-	/*
-	 *  FindRoots :
-	 *	Given a 5th-degree equation in Bernstein-Bezier form, find
-	 *	all of the roots in the interval [0, 1].  Return the number
-	 *	of roots found.
-	 *  Point2 	*w;			 The control points		
-	    int 	degree;		 The degree of the polynomial	
-	    double 	*t;			 RETURN candidate t-values	
-	    int 	depth;		 The depth of the recursion	
+	
+	/**
+	 * Given a 5th-degree equation in Bernstein-Bezier form, find all
+	 * of the roots in the interval [0, 1].
+	 * 
+	 * @param w
+	 * 		The control points
+	 * @param degree
+	 * 		The degree of the polynomial
+	 * @param t
+	 * 		RETURN candidate t-values
+	 * @param depth
+	 * 		The depth of the recursion
+	 * @return
+	 * 		The number of roots found.
 	 */
 	public int FindRoots(Position[] w, int degree, double[] t, int depth){  
 	    int 	i;
-	    Position[] Left = new Position[W_DEGREE+1];	/* New left and right 		*/
-	    Position[] Right = new Position[W_DEGREE+1];	/* control polygons		*/
-	    int 	left_count,		/* Solution count from		*/
-			right_count;		/* children			*/
-	    double[] left_t = new double[W_DEGREE+1];	/* Solutions from kids		*/
+	    //New left and right
+	    Position[] Left = new Position[W_DEGREE+1];
+	    
+	    //Control polygons.
+	    Position[] Right = new Position[W_DEGREE+1];
+	    
+	    //Solution count from children.
+	    int 	left_count,	right_count;
+	    
+	    //Solutions from kids.
+	    double[] left_t = new double[W_DEGREE+1];
 		double[] right_t = new double[W_DEGREE+1];
 
 	    switch (CrossingCount(w, degree)) {
-	       	case 0 : {	/* No solutions here	*/
+	    //No solutions here
+	       	case 0 : {
 		     return 0;	
 		}
-		case 1 : {	/* Unique solution	*/
-		    /* Stop recursion when the tree is deep enough	*/
-		    /* if deep enough, return 1 solution at midpoint 	*/
+	    //Unique solution
+		case 1 : {
+		    /* 
+		     * Stop recursion when the tree is deep enough.
+		     * If deep enough, return 1 solution at midpoint.
+		  	 */
 		    if (depth >= MAXDEPTH) {
 				t[0] = (w[0].getX() + w[W_DEGREE].getX()) / 2.0;
 				return 1;
@@ -388,14 +571,16 @@ public strictfp class BezierCurve {
 		}
 	}
 
-	    /* Otherwise, solve recursively after	*/
-	    /* subdividing control polygon		*/
+	    /*
+	     *  Otherwise, solve recursively after
+	     *  subdividing control polygon
+	     */
 	    Bezier(w, degree, 0.5, Left, Right);
 	    left_count  = FindRoots(Left,  degree, left_t, depth+1);
 	    right_count = FindRoots(Right, degree, right_t, depth+1);
 
 
-	    /* Gather solutions together	*/
+	    // Gather solutions together
 	    for (i = 0; i < left_count; i++) {
 	        t[i] = left_t[i];
 	    }
@@ -403,24 +588,29 @@ public strictfp class BezierCurve {
 	 		t[i+left_count] = right_t[i];
 	    }
 
-	    /* Send back total number of solutions	*/
+	    // Send back total number of solutions	
 	    return (left_count+right_count);
 	}
 
-
-	/*
-	 * CrossingCount :
-	 *	Count the number of times a Bezier control polygon 
-	 *	crosses the 0-axis. This number is >= the number of roots.
-	 *
-	 *	Point2	*V;			  Control pts of Bezier curve	
-	    int		degree;		  Degreee of Bezier curve
-	 *
+	
+	/**
+	 * Count the number of times a Bezier control polygon
+	 * crosses the 0-axis. This number is >= the number of roots.
+	 * 
+	 * @param V
+	 * 		Control points of Bezier curve.
+	 * @param degree
+	 * 		Degree of the Bezier curve.
+	 * @return
+	 * 		The number of crossings.
 	 */
 	public int CrossingCount(Position[] V, int degree){
 	    int 	i;	
-	    int 	n_crossings = 0;	/*  Number of zero-crossings	*/
-	    double		sign, old_sign;		/*  Sign of coefficients	*/
+	    //Number of zero-crossings.
+	    int 	n_crossings = 0;
+	    
+	    //Sign of coefficients
+	    double	sign, old_sign;
 
 	    sign = old_sign = Math.signum(V[0].getY());
 	    for (i = 1; i <= degree; i++) {
@@ -431,35 +621,41 @@ public strictfp class BezierCurve {
 	    return n_crossings;
 	}
 
-
-
-	/*
-	 *  ControlPolygonFlatEnough :
-	 *	Check if the control polygon of a Bezier curve is flat enough
-	 *	for recursive subdivision to bottom out.
-	 *
-	*/
-
-    /*Point2	*V;		/* Control points
-    int 	degree;		/* Degree of polynomial
-	/* static int ControlPolygonFlatEnough( const Point2* V, int degree ) */
+	
+	/**
+	 * Check if the control polygon of a Bezier curve is flat enough
+	 * for recursive subdivision to bottom out.
+	 * 
+	 * @param V
+	 * 		Control points
+	 * @param degree
+	 * 		Degree of polynomial
+	 * @return
+	 * 		true if the curve is flat enough, false otherwise.
+	 */
 	public boolean ControlPolygonFlatEnough(Position[] V, int degree){
-	    int     i;        /* Index variable        */
+		//Index variable
+	    int     i;
 	    double  value;
 	    double  max_distance_above;
 	    double  max_distance_below;
-	    double  error;        /* Precision of root        */
+	    
+	    //Precision of root
+	    double  error;
 	    double  intercept_1,
 	            intercept_2,
 	            left_intercept,
 	            right_intercept;
-	    double  a, b, c;    /* Coefficients of implicit    */
-	            /* eqn for line from V[0]-V[deg]*/
+	    
+	    //Coefficients of implicit eqn for line from V[0]-V[deg]
+	    double  a, b, c; 
 	    double  det, dInv;
 	    double  a1, b1, c1, a2, b2, c2;
 
-	    /* Derive the implicit equation for line connecting first *'
-	    /*  and last control points */
+	    /* 
+	     * Derive the implicit equation for line connecting first
+	     * and last control points.
+	     */
 	    a = V[0].getY() - V[degree].getY();
 	    b = V[degree].getX() - V[0].getX();
 	    c = V[0].getX() * V[degree].getY() - V[degree].getX() * V[0].getY();
@@ -480,12 +676,12 @@ public strictfp class BezierCurve {
 	        }
 	    }
 
-	    /*  Implicit equation for zero line */
+	    //  Implicit equation for zero line 
 	    a1 = 0.0;
 	    b1 = 1.0;
 	    c1 = 0.0;
 
-	    /*  Implicit equation for "above" line */
+	    //  Implicit equation for "above" line 
 	    a2 = a;
 	    b2 = b;
 	    c2 = c - max_distance_above;
@@ -495,7 +691,7 @@ public strictfp class BezierCurve {
 
 	    intercept_1 = (b1 * c2 - b2 * c1) * dInv;
 
-	    /*  Implicit equation for "below" line */
+	    //  Implicit equation for "below" line 
 	    a2 = a;
 	    b2 = b;
 	    c2 = c - max_distance_below;
@@ -505,7 +701,7 @@ public strictfp class BezierCurve {
 
 	    intercept_2 = (b1 * c2 - b2 * c1) * dInv;
 
-	    /* Compute intercepts of bounding box    */
+	    // Compute intercepts of bounding box   
 	    left_intercept = Math.min(intercept_1, intercept_2);
 	    right_intercept = Math.max(intercept_1, intercept_2);
 
@@ -514,15 +710,17 @@ public strictfp class BezierCurve {
 	    return (error < EPSILON)? true : false;
 	}
 
-
-	/*
-	 *  ComputeXIntercept :
-	 *	Compute intersection of chord from first control point to last
-	 *  	with 0-axis.
+	
+	/**
+	 * Compute intersection of chord from first control point to last
+	 * with 0-axis.
 	 * 
-	 *
-	 * 	    Point2 	*V;			  Control points	
-	 *      int		degree; 	  Degree of curve
+	 * @param V
+	 * 		Control points.
+	 * @param degree
+	 * 		Degree of curve
+	 * @return
+	 * 		The X-intercept.
 	 */
 	public double ComputeXIntercept(Position[] V, int degree)
 	{
@@ -543,33 +741,39 @@ public strictfp class BezierCurve {
 	    return S;
 	}
 
-
-	/*
-	 *  Bezier : 
-	 *	Evaluate a Bezier curve at a particular parameter value
-	 *      Fill in control points for resulting sub-curves if "Left" and
-	 *	"Right" are non-null.
+	
+	/**
+	 * Evaluate a Bezier curve at a particular parameter value.
+	 * Fill in control points for resulting sub-curves if "Left" and 
+	 * "Right" are non-null.
 	 * 
-	 * 	    int 	degree;		 Degree of bezier curve	
-	    Point2 	*V;			 Control pts			
-	    double 	t;			 Parameter value		
-	    Point2 	*Left;		 RETURN left half ctl pts	
-	    Point2 	*Right;		 RETURN right half ctl pts	
-	 * 
+	 * @param degree
+	 * 		Degree of Bezier curve
+	 * @param V
+	 * 		Control points
+	 * @param t
+	 * 		Parameter value
+	 * @param Left
+	 * 		RETURN left half control points
+	 * @param Right
+	 * 		RETURN right half control points
+	 * @return
+	 * 		The position that is t% along the curve represented in V.
 	 */
 	private Position Bezier(Position[] V, int degree, double t, Position[] Left, Position[] Right)
 
 	{
-	    int 	i, j;		/* Index variables	*/
+		//Index variables.
+	    int 	i, j;
 	    Position[][] Vtemp = new Position[W_DEGREE+1][W_DEGREE+1];
 
 
-	    /* Copy control points	*/
+	    // Copy control points	
 	    for (j =0; j <= degree; j++) {
 			Vtemp[0][j] = V[j];
 	    }
 
-	    /* Triangle computation	*/
+	    // Triangle computation	
 	    for (i = 1; i <= degree; i++) {	
 			for (j =0 ; j <= degree - i; j++) {
 				Vtemp[i][j] = new Position((1.0 - t) * Vtemp[i-1][j].getX() + t * Vtemp[i-1][j+1].getX(), 
@@ -599,12 +803,12 @@ public strictfp class BezierCurve {
 	    return (result);
 	}
 	
-	/* returns squared length of input vector */
+	// returns squared length of input vector 
 	private double V2SquaredLength(Position a){
 		return((a.getX() * a.getX())+(a.getY() * a.getY()));
 	}
 
-	/* return vector difference c = a-b */
+	// return vector difference c = a-b 
 	private Position V2Sub(Position a, Position b){
 		double x =  a.getX() - b.getX();
 		double y = a.getY() - b.getY();
@@ -613,7 +817,7 @@ public strictfp class BezierCurve {
 	}
 
 
-/* return the dot product of vectors a and b */
+	// return the dot product of vectors a and b 
 	private double V2Dot(Position a, Position b){
 		return((a.getX() * b.getX())+(a.getY() * b.getY()));
 	}
