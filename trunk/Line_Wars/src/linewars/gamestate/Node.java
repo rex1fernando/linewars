@@ -551,4 +551,12 @@ public strictfp class Node {
 	{
 		return this.getID();
 	}
+	
+	public long getLastSpawnTime() {
+		return lastSpawnTime;
+	}
+	
+	public long getSpawnTime() {
+		return TIME_TO_SPAWN;
+	}
 }
