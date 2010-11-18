@@ -729,13 +729,13 @@ public strictfp class Lane
 			}
 		}		
 
+		Random rand = new Random(gameState.getTimerTick());
 		//Then resolve them by shifting stuff around
 		for(MapItem toMove : allUnits){
 			Position offset = collisionVectors.get(toMove);
-			if(offset.length() > 0){
-				Random rand = new Random(gameState.getTimerTick()); 
-				double xNoise = rand.nextDouble();
-				double yNoise = rand.nextDouble();
+			if(offset.length() > 0){ 
+				double xNoise = rand.nextDouble() - 0.5;
+				double yNoise = rand.nextDouble() - 0.5;
 				offset = offset.add(new Position(xNoise, yNoise));
 				toMove.setPosition(toMove.getPosition().add(offset));				
 			}

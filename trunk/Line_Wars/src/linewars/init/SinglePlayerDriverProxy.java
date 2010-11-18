@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class SinglePlayerDriverProxy {
 	public static void main(String[] args){
-		String mapDefinitionURI = "resources/maps/Less_Maximally_Curvy_Map.cfg";
+		String mapDefinitionURI = "resources/maps/Cycle_map.cfg";
 		int numPlayers = 1;
 		String serverAddress = "127.0.0.1";
 		String raceURI1 = "resources/races/thatOneRace.cfg";
