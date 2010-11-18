@@ -32,6 +32,23 @@ public class BuildingDrawer
 	{
 		this.panel = panel;
 	}
+	
+	public void createMap(Graphics g, BuildingSpot b, boolean commandCenter)
+	{
+		Position[] corners = b.getRect().getVertexPositions();
+		
+		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(), (int)corners[3].getX()};
+		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(), (int)corners[3].getY()};
+
+		// set the transparent color
+		if(commandCenter)
+			g.setColor(Color.yellow);
+		else
+			g.setColor(Color.blue);
+		
+		//fill the rectangle
+		g.fillPolygon(x, y, 4);
+	}
 
 	/**
 	 * Draws a building spot in blue.

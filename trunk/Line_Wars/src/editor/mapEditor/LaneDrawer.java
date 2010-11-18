@@ -33,6 +33,55 @@ public class LaneDrawer
 	{
 		this.panel = panel;
 	}
+	
+	public void createMap(Graphics g, Lane lane)
+	{
+		Node[] nodes = lane.getNodes();
+
+		Position laneStart = lane.getPosition(0).getPosition();
+		Position laneEnd = lane.getPosition(1.0).getPosition();
+
+		g.setColor(Color.red);
+
+		// initialize the draw positions
+		Position beforePos = nodes[0].getTransformation().getPosition();
+		Position startPos = laneStart;
+		Position endPos = lane.getPosition(SEGMENT_STEP).getPosition();
+		Position afterPos = lane.getPosition(2 * SEGMENT_STEP).getPosition();
+
+		// draw the first segment it needs to start at the node
+		drawSegment(g, lane, beforePos, beforePos, laneStart, endPos, true);
+
+		// draw the first segment in the lane
+		drawSegment(g, lane, beforePos, laneStart, endPos, afterPos, true);
+
+		// draw lane
+		for(double pos = 3 * SEGMENT_STEP; pos < 1; pos += SEGMENT_STEP)
+		{
+			// increment the positions
+			beforePos = startPos;
+			startPos = endPos;
+			endPos = afterPos;
+			afterPos = lane.getPosition(pos).getPosition();
+
+			drawSegment(g, lane, beforePos, startPos, endPos, afterPos, true);
+		}
+
+		// increment the positions
+		beforePos = startPos;
+		startPos = endPos;
+		endPos = afterPos;
+		afterPos = nodes[1].getTransformation().getPosition();
+
+		// draw the second to last segment
+		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, true);
+
+		// draw the last segment in the lane
+		drawSegment(g, lane, startPos, endPos, laneEnd, afterPos, true);
+
+		// draw the last segment it needs to end at the node
+		drawSegment(g, lane, endPos, laneEnd, afterPos, afterPos, true);
+	}
 
 	/**
 	 * Draws the given lane and its corresponding control points.
@@ -64,10 +113,10 @@ public class LaneDrawer
 		Position afterPos = lane.getPosition(2 * SEGMENT_STEP).getPosition();
 
 		// draw the first segment it needs to start at the node
-		drawSegment(g, lane, beforePos, beforePos, laneStart, endPos, scale);
+		drawSegment(g, lane, beforePos, beforePos, laneStart, endPos, false);
 
 		// draw the first segment in the lane
-		drawSegment(g, lane, beforePos, laneStart, endPos, afterPos, scale);
+		drawSegment(g, lane, beforePos, laneStart, endPos, afterPos, false);
 
 		// draw lane
 		for(double pos = 3 * SEGMENT_STEP; pos < 1; pos += SEGMENT_STEP)
@@ -78,7 +127,7 @@ public class LaneDrawer
 			endPos = afterPos;
 			afterPos = lane.getPosition(pos).getPosition();
 
-			drawSegment(g, lane, beforePos, startPos, endPos, afterPos, scale);
+			drawSegment(g, lane, beforePos, startPos, endPos, afterPos, false);
 		}
 
 		// increment the positions
@@ -88,13 +137,13 @@ public class LaneDrawer
 		afterPos = nodes[1].getTransformation().getPosition();
 
 		// draw the second to last segment
-		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, scale);
+		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, false);
 
 		// draw the last segment in the lane
-		drawSegment(g, lane, startPos, endPos, laneEnd, afterPos, scale);
+		drawSegment(g, lane, startPos, endPos, laneEnd, afterPos, false);
 
 		// draw the last segment it needs to end at the node
-		drawSegment(g, lane, endPos, laneEnd, afterPos, afterPos, scale);
+		drawSegment(g, lane, endPos, laneEnd, afterPos, afterPos, false);
 
 		// get the control points
 		BezierCurve curve = lane.getCurve();
@@ -145,11 +194,10 @@ public class LaneDrawer
 	 *            The position along the bezier curve to stop drawing.
 	 * @param after
 	 *            A position that is close to and comes after end.
-	 * @param scale
-	 *            The conversion factor from map size to screen size.
+	 * @param drawMap TODO
 	 */
 	private void drawSegment(Graphics g, Lane lane, Position before, Position start,
-			Position end, Position after, double scale)
+			Position end, Position after, boolean drawMap)
 	{
 		// get the vectors that represents the line segments
 		Position segBefore = before.subtract(start);
@@ -162,14 +210,22 @@ public class LaneDrawer
 		Position normOrthEnd = segment.orthogonal().add(segAfter.orthogonal()).normalize();
 
 		// generate the points that bound the segment to be drawn
-		Position p1 = panel.toScreenCoord(new Position(start.getX() + normOrthStart.getX() * lane.getWidth() / 2,
-														start.getY() + normOrthStart.getY() * lane.getWidth() / 2));
-		Position p2 = panel.toScreenCoord(new Position(start.getX() - normOrthStart.getX() * lane.getWidth() / 2,
-														start.getY() - normOrthStart.getY() * lane.getWidth() / 2));
-		Position p3 = panel.toScreenCoord(new Position(end.getX() - normOrthEnd.getX() * lane.getWidth() / 2,
-														end.getY() - normOrthEnd.getY() * lane.getWidth() / 2));
-		Position p4 = panel.toScreenCoord(new Position(end.getX() + normOrthEnd.getX() * lane.getWidth() / 2,
-														end.getY() + normOrthEnd.getY() * lane.getWidth() / 2));
+		Position p1 = new Position(start.getX() + normOrthStart.getX() * lane.getWidth() / 2,
+												start.getY() + normOrthStart.getY() * lane.getWidth() / 2);
+		Position p2 = new Position(start.getX() - normOrthStart.getX() * lane.getWidth() / 2,
+												start.getY() - normOrthStart.getY() * lane.getWidth() / 2);
+		Position p3 = new Position(end.getX() - normOrthEnd.getX() * lane.getWidth() / 2,
+												end.getY() - normOrthEnd.getY() * lane.getWidth() / 2);
+		Position p4 = new Position(end.getX() + normOrthEnd.getX() * lane.getWidth() / 2,
+												end.getY() + normOrthEnd.getY() * lane.getWidth() / 2);
+		
+		if(!drawMap)
+		{
+			p1 = panel.toScreenCoord(p1);
+			p2 = panel.toScreenCoord(p2);
+			p3 = panel.toScreenCoord(p3);
+			p4 = panel.toScreenCoord(p4);
+		}
 
 		int[] x = {(int)p1.getX(), (int)p2.getX(), (int)p3.getX(), (int)p4.getX()};
 		int[] y = {(int)p1.getY(), (int)p2.getY(), (int)p3.getY(), (int)p4.getY()};

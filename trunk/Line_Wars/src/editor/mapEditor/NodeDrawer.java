@@ -29,6 +29,21 @@ public class NodeDrawer
 	{
 		this.panel = panel;
 	}
+	
+	public void createMap(Graphics g, Node node)
+	{
+		// set the color for the node
+		g.setColor(Color.red);
+
+		// get the position of the node
+		double radius = node.getBoundingCircle().getRadius();
+		Position centerPos = node.getTransformation().getPosition();
+		Position pos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
+
+		// draw the node
+		g.fillOval((int)pos.getX(), (int)pos.getY(), (int)(2 * radius),
+				(int)(2 * radius));
+	}
 
 	/**
 	 * Draws the given node on the map panel.

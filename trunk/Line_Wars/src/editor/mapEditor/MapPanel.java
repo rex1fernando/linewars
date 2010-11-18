@@ -3,17 +3,24 @@ package editor.mapEditor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -45,6 +52,8 @@ public class MapPanel extends JPanel
 	private JComboBox nodeSelector;
 	private JComboBox buildingSelector;
 	private JComboBox commandCenterSelector;
+	private JTextField mapWidthTextField;
+	private JTextField mapHeightTextField;
 
 	private double zoomLevel;
 	private double lastDrawTime;
@@ -54,7 +63,6 @@ public class MapPanel extends JPanel
 	private double mapHeight;
 
 	private Position mousePosition;
-	private Position lastClickPosition;
 	private Rectangle2D viewport;
 	private Dimension2D mapSize;
 	
@@ -106,9 +114,8 @@ public class MapPanel extends JPanel
 		
 		// starts the user fully zoomed out
 		zoomLevel = 1.0;
-		mousePosition = new Position(0, 0);
-		lastClickPosition = new Position(0, 0);
-		mapSize = new Dimension(0, 0);
+		mousePosition = null;
+		mapSize = new Dimension(100, 100);
 		viewport = new Rectangle2D.Double(0, 0, 100, 100);
 		
 		mapURI = null;
@@ -116,6 +123,7 @@ public class MapPanel extends JPanel
 		mapHeight = 100;
 		
 		mapDrawer = new MapDrawer(this);
+		mapDrawer.setMapSize(100, 100);
 		laneDrawer = new LaneDrawer(this);
 		nodeDrawer = new NodeDrawer(this);
 		buildingDrawer = new BuildingDrawer(this);
@@ -177,14 +185,15 @@ public class MapPanel extends JPanel
 		else if(force)
 		{
 			setMapImage(null);
-			return;
 		}
 		else
 			throw new IllegalArgumentException("The map image is not defined");
 		
 		if(definedKeys.contains(ParserKeys.imageWidth) && definedKeys.contains(ParserKeys.imageHeight))
-			setMapSize((int)(double)data.getNumber(ParserKeys.imageWidth), (int)(double)data.getNumber(ParserKeys.imageHeight));
-		else if(!force)
+			setMapSize((int)(double)data.getNumber(ParserKeys.imageWidth), (int)(double)data.getNumber(ParserKeys.imageHeight), true);
+		else if(force)
+			setMapSize(100, 100, true);
+		else
 			throw new IllegalArgumentException("The map size is not defined");
 		
 		if(definedKeys.contains(ParserKeys.lanes))
@@ -283,6 +292,9 @@ public class MapPanel extends JPanel
 	{
 		ConfigData data = new ConfigData();
 		
+		if(mapURI == null)
+			createMapImage();
+		
 		data.set(ParserKeys.icon, mapURI);
 		data.set(ParserKeys.imageWidth, mapWidth);
 		data.set(ParserKeys.imageHeight, mapHeight);
@@ -304,7 +316,7 @@ public class MapPanel extends JPanel
 	
 	public boolean isValidConfig()
 	{
-		boolean valid = true;
+		boolean valid = mapURI != null && mapWidth != 0 && mapHeight != 0;
 		
 		for(Node n : nodes)
 		{
@@ -317,6 +329,47 @@ public class MapPanel extends JPanel
 		return valid;
 	}
 	
+	private void createMapImage()
+	{
+		BufferedImage map = new BufferedImage((int)mapWidth, (int)mapHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = map.getGraphics();
+		
+		g.setColor(Color.black);
+		g.fillRect(0, 0, (int)mapWidth, (int)mapHeight);
+		
+		for(Lane l : lanes)
+			laneDrawer.createMap(g, l);
+		
+		for(Node n : nodes)
+			nodeDrawer.createMap(g, n);
+		
+		for(BuildingSpot b : buildingSpots)
+			buildingDrawer.createMap(g, b, false);
+		
+		for(BuildingSpot b : commandCenters)
+			buildingDrawer.createMap(g, b, true);
+		
+		int i = 0;
+		File file = null;
+		boolean fileFound = false;
+		while(!fileFound)
+		{
+			file = new File("resources/maps/map" + ++i + ".png");
+			fileFound = !file.exists();
+		}
+		
+		mapURI = "/resources/maps/map" + i + ".png";
+		try
+		{
+			ImageIO.write(map, "png", file);
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(null, "The map image file " + mapURI + " could not be saved!", "ERROR", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+
 	public Node[] getNodes()
 	{
 		return nodes.toArray(new Node[0]);
@@ -395,10 +448,10 @@ public class MapPanel extends JPanel
 	{
 		this.mapURI = mapURI;
 		Dimension dim = mapDrawer.setMap(mapURI);
-		setMapSize(dim.getWidth(), dim.getHeight());
+		setMapSize(dim.getWidth(), dim.getHeight(), true);
 	}
 	
-	public void setMapSize(double width, double height)
+	public void setMapSize(double width, double height, boolean setEdits)
 	{
 		mapWidth = width;
 		mapHeight = height;
@@ -406,6 +459,12 @@ public class MapPanel extends JPanel
 		mapSize.setSize(width, height);
 		double scale = (getHeight() / height) / (getWidth() / width);
 		viewport = new Rectangle2D.Double(0, 0, width, height * scale);
+		
+		if(setEdits)
+		{
+			mapWidthTextField.setText(Double.toString(width));
+			mapHeightTextField.setText(Double.toString(height));
+		}
 	}
 	
 	public void setLaneWidthSlider(JSlider slider)
@@ -427,11 +486,82 @@ public class MapPanel extends JPanel
 	{
 		commandCenterSelector = box;
 	}
+	
+	public void setMapWidthTextField(JTextField t)
+	{
+		mapWidthTextField = t;
+	}
+
+	public void setMapHeightTextField(JTextField t)
+	{
+		mapHeightTextField = t;
+	}
 
 	public void setLaneWidth(double width)
 	{
 		if(selectedLane != null)
 			selectedLane.setWidth(mapHeight * (width / 100));
+	}
+	
+	public void deleteSelectedItem()
+	{
+		if(createLane)
+		{
+			Node[] attachedNodes = selectedLane.getNodes();
+			for(Node n : attachedNodes)
+			{
+				n.removeAttachedLane(selectedLane);
+			}
+			
+			lanes.remove(selectedLane);
+			selectedLane = null;
+		}
+		else if(createNode)
+		{
+			Lane[] attachedLanes = selectedNode.getAttachedLanes();
+			for(Lane l : attachedLanes)
+			{
+				Node[] attachedNodes = l.getNodes();
+				for(Node n : attachedNodes)
+				{
+					n.removeAttachedLane(l);
+				}
+				
+				lanes.remove(l);
+			}
+			
+			nodes.remove(selectedNode);
+			nodeSelector.removeItem(selectedNode);
+			selectedNode = null;
+		}
+		else if(createBuilding)
+		{
+			for(Node n : nodes)
+			{
+				if(n.getBuildingSpots().contains(selectedBuilding))
+				{
+					n.removeBuildingSpot(selectedBuilding);
+				}
+			}
+			
+			buildingSpots.remove(selectedBuilding);
+			buildingSelector.removeItem(selectedBuilding);
+			selectedBuilding = null;
+		}
+		else if(createCC)
+		{
+			for(Node n : nodes)
+			{
+				if(n.getCommandCenterSpot() == selectedCommandCenter)
+				{
+					n.removeCommandCenterSpot();
+				}
+			}
+			
+			commandCenters.remove(selectedCommandCenter);
+			commandCenterSelector.removeItem(selectedCommandCenter);
+			selectedCommandCenter = null;
+		}
 	}
 
 	public Position toGameCoord(Position screenCoord)
@@ -507,6 +637,9 @@ public class MapPanel extends JPanel
 	
 	private void updateViewPortPan(double fps, double scale)
 	{
+		if(mousePosition == null)
+			return;
+		
 		double moveX = 0.0;
 		double moveY = 0.0;
 		
@@ -908,7 +1041,18 @@ public class MapPanel extends JPanel
 		
 		if(otherNode != null)
 		{
-			Lane l = new Lane(selectedNode, otherNode);
+			//determine the order to add the nodes, this prevents the lane
+			//from being "twisted" when the file is loaded again
+			ArrayList<Node> attachedNodes = new ArrayList<Node>();
+			for(Node n : nodes)
+			{
+				if(n == selectedNode)
+					attachedNodes.add(selectedNode);
+				else if(n == otherNode)
+					attachedNodes.add(otherNode);
+			}
+			
+			Lane l = new Lane(attachedNodes.get(0), attachedNodes.get(1));
 			selectedLane = l;
 			
 			if(laneWidthSlider != null)
@@ -965,7 +1109,6 @@ public class MapPanel extends JPanel
 		public void mouseReleased(MouseEvent e)
 		{
 			Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
-			lastClickPosition = toGameCoord(p);
 			
 			if(createLane && selectedNode != null)
 				createLane(toGameCoord(p));

@@ -212,7 +212,7 @@ public strictfp class GameState
 		//check for win
 		Node n1 = map.getNodes()[0];
 		for(Node n : map.getNodes())
-			if(!n1.getOwner().equals(n.getOwner()))
+			if(n1.getOwner() == null || !n1.getOwner().equals(n.getOwner()))
 				return;
 		winningPlayer = n1.getOwner();
 	}

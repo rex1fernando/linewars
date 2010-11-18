@@ -11,12 +11,16 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -24,11 +28,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.NumberFormatter;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
@@ -62,6 +70,9 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	private JPanel placeholder;
 	private JSlider laneWidthSlider;
 	private JPanel nodeEditorPanel;
+	
+	private JTextField editWidth;
+	private JTextField editHeight;
 	
 	private JCheckBox startNode;
 	private JComboBox nodeSelector;
@@ -98,16 +109,74 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		createCheckBoxes(layout, c);
 		createEditingPanel(layout, c);
 		createRadioButtons(layout, c);
+		createMapEditPanel(layout, c);
+	}
+	
+	private void createMapEditPanel(GridBagLayout layout, GridBagConstraints c)
+	{
+		//create the layout manager
+		GridBagLayout mapEditLayout = new GridBagLayout();
+		GridBagConstraints mapEditConstraints = new GridBagConstraints();
+		
+		//add radio buttons to JPanel
+		JPanel mapEdit = new JPanel(mapEditLayout);
+		mapEdit.setPreferredSize(new Dimension(400, 50));
+		
+		//create the labels
+		mapEditConstraints.gridx = 0;
+		mapEditConstraints.gridy = 0;
+		mapEditConstraints.gridwidth = 1;
+		mapEditConstraints.gridheight = 1;
+		JLabel label = new JLabel("map width");
+		mapEditLayout.setConstraints(label, mapEditConstraints);
+		mapEdit.add(label);
+		
+		mapEditConstraints.gridx = 1;
+		label = new JLabel("map height");
+		mapEditLayout.setConstraints(label, mapEditConstraints);
+		mapEdit.add(label);
+		
+		//create edit boxes
+		mapEditConstraints.gridx = 0;
+		mapEditConstraints.gridy = 1;
+		editWidth = new JFormattedTextField(NumberFormat.getInstance());
+		editWidth.setText("100");
+		map.setMapWidthTextField(editWidth);
+		mapEditLayout.setConstraints(editWidth, mapEditConstraints);
+		mapEdit.add(editWidth);
+		
+		mapEditConstraints.gridx = 1;
+		editHeight = new JFormattedTextField(NumberFormat.getInstance());
+		editHeight.setText("100");
+		map.setMapHeightTextField(editHeight);
+		mapEditLayout.setConstraints(editHeight, mapEditConstraints);
+		mapEdit.add(editHeight);
 		
 		//create and add the map selector button
+		mapEditConstraints.gridx = 2;
+		mapEditConstraints.gridy = 0;
+		mapEditConstraints.gridheight = 2;
+		JButton setMap = new JButton("Set Map Image");
+		setMap.addActionListener(new SetMapListener());
+		mapEditLayout.setConstraints(setMap, mapEditConstraints);
+		mapEdit.add(setMap);
+		
+		//add an action listener to the text fields
+		MapSizeListener listener = new MapSizeListener();
+		editWidth.getDocument().addDocumentListener(listener);
+		editHeight.getDocument().addDocumentListener(listener);
+		
+		//set the preferred size of the text fields
+		editWidth.setPreferredSize(new Dimension(100, editWidth.getMinimumSize().height));
+		editHeight.setPreferredSize(new Dimension(100, editHeight.getMinimumSize().height));
+				
+		//add the map edit panel to the editor
 		c.gridx = 1;
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		JButton setMap = new JButton("Set Map");
-		setMap.addActionListener(new SetMapListener());
-		layout.setConstraints(setMap, c);
-		add(setMap);
+		layout.setConstraints(mapEdit, c);
+		add(mapEdit);
 	}
 
 	private void createEditingPanel(GridBagLayout layout, GridBagConstraints c)
@@ -186,7 +255,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		nodeEditorPanel.add(startNode);
 		
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 2;
 		c.gridwidth = 2;
 		label = new JLabel("buildings", JLabel.CENTER);
 		layout.addLayoutComponent(label, c);
@@ -197,7 +266,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		nodeEditorPanel.add(label);
 		
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 3;
 		layout.addLayoutComponent(buildingSpotSelector, c);
 		nodeEditorPanel.add(buildingSpotSelector);
 		map.setBuildingSelector(buildingSpotSelector);
@@ -207,7 +276,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		map.setCommandCenterSelector(commandCenterSelector);
 		
 		c.gridx = 0;
-		c.gridy = 6;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		layout.addLayoutComponent(addBuilding, c);
 		nodeEditorPanel.add(addBuilding);
@@ -222,7 +291,28 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		nodeEditorPanel.add(removeCommandCenter);
 		
 		c.gridx = 0;
-		c.gridy = 8;
+		c.gridy = 5;
+		c.gridwidth = 2;
+		label = new JLabel("buildings in", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+		c.gridy = 6;
+		label = new JLabel("selected node:", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+
+		c.gridx = 3;
+		c.gridy = 5;
+		label = new JLabel("command center", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+		c.gridy = 6;
+		label = new JLabel("for selected node", JLabel.CENTER);
+		layout.addLayoutComponent(label, c);
+		nodeEditorPanel.add(label);
+		
+		c.gridx = 0;
+		c.gridy = 7;
 		c.gridwidth = 2;
 		c.gridheight = 4;
 		layout.addLayoutComponent(containedBuildingSpots, c);
@@ -278,13 +368,17 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	    RadioButtonListener radioButtonListener = new RadioButtonListener();
 		
 		//add radio buttons to JPanel
-		JPanel createItems = new JPanel(new GridLayout(createables.size(), 1));
+		JPanel createItems = new JPanel(new GridLayout(createables.size() + 1, 1));
 		for(JRadioButton button : createables)
 		{
 			group.add(button);
 			button.addItemListener(radioButtonListener);
 			createItems.add(button);
 		}
+		
+		JButton delete = new JButton("delete");
+		delete.addActionListener(new DeleteButtonListener());
+		createItems.add(delete);
 		
 		//add the creatable items panel to the editor
 		c.gridx = 1;
@@ -664,6 +758,52 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			{
 				commandCenterSelector.setSelectedItem(containedCommandCenter.getSelectedValue());
 			}
+		}
+	}
+	
+	private class MapSizeListener implements DocumentListener
+	{
+		@Override
+		public void changedUpdate(DocumentEvent e)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent e)
+		{
+			Object source = e.getDocument();
+			
+			if(source == editWidth.getDocument() || source == editHeight.getDocument())
+			{
+				String sWidth = editWidth.getText().replace(",", "");
+				String sHeight = editHeight.getText().replace(",", "");
+				
+				if(sWidth.equals(""))
+					sWidth = "100";
+				
+				if(sHeight.equals(""))
+					sHeight = "100";
+				
+				map.setMapSize(Double.valueOf(sWidth), Double.valueOf(sHeight), false);
+			}
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	private class DeleteButtonListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			map.deleteSelectedItem();
 		}
 	}
 }
