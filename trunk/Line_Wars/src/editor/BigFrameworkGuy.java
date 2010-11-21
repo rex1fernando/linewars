@@ -35,6 +35,11 @@ import linewars.configfilehandler.ParserKeys;
  * 
  * @author Connor Schenck
  *
+ *The purpose of this class is to contain all the panels of the individual
+ *editors. It handles knowing all the valid types of units, maps, etc
+ *for the other editors to use as well as it handles dealing with the
+ *file structure directly. It also handles exporting game files to a 
+ *specified directory.
  */
 public class BigFrameworkGuy
 {
@@ -48,6 +53,14 @@ public class BigFrameworkGuy
 	private List<ConfigurationEditor> editors;
 	private HashMap<ConfigurationEditor, String> loadedURIs = new HashMap<ConfigurationEditor, String>();
 	
+	/**
+	 * Constructs the entire editor. Creating an instance of BigFrameworkGuy
+	 * will cause the editor window to appear and all the editors in it. There
+	 * is no need to call any initialize methods after calling this constructor.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
 	public BigFrameworkGuy() throws FileNotFoundException, InvalidConfigFileException
 	{
 		masterList = new ConfigFileReader(MASTER_LIST_URI).read();
@@ -134,48 +147,88 @@ public class BigFrameworkGuy
 		
 	}
 	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete command centers (just
+	 * 			returns the list of buildings).
+	 */
 	public String[] getCommandCenterURIs()
 	{
 		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete units.
+	 */
 	public String[] getUnitURIs()
 	{
 		return masterList.getStringList(ParserKeys.unitURI).toArray(new String[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete buildings.
+	 */
 	public String[] getBuildingURIs()
 	{
 		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete techs.
+	 */
 	public String[] getTechURIs()
 	{
 		return masterList.getStringList(ParserKeys.techURI).toArray(new String[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete gates.
+	 */
 	public String[] getGateURIs()
 	{
 		return masterList.getStringList(ParserKeys.gateURI).toArray(new String[0]);
 	}
 
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete projectiles.
+	 */
 	public String[] getProjectileURIs() {
 		return masterList.getStringList(ParserKeys.projectileURI).toArray(new String[0]);
 	}
 
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete animations.
+	 */
 	public String[] getAnimationURIs() {
 		return masterList.getStringList(ParserKeys.animationURI).toArray(new String[0]);
 	}
 
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete abilities.
+	 */
 	public String[] getAbilityURIs() {
 		return masterList.getStringList(ParserKeys.abilityURI).toArray(new String[0]);
 	}
 	
+	/**
+	 * This is the main method for running the editors as a standalone application
+	 * 
+	 * @param args
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
 	public static void main(String[] args) throws FileNotFoundException, InvalidConfigFileException {
 		new BigFrameworkGuy();
 	}
 	
-	public class NewButtonListener implements ActionListener {
+	private class NewButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
@@ -187,7 +240,7 @@ public class BigFrameworkGuy
 		}
 	}
 	
-	public class LoadButtonListener implements ActionListener {
+	private class LoadButtonListener implements ActionListener {
 		
 		private int selected;
 		private String[] list;
@@ -227,7 +280,7 @@ public class BigFrameworkGuy
 			loadFrame.setVisible(true);
 		}
 		
-		public class LoadURICallback implements SelectorOptions {
+		private class LoadURICallback implements SelectorOptions {
 
 			@Override
 			public String[] getOptions() {
@@ -252,7 +305,7 @@ public class BigFrameworkGuy
 		}
 	}
 	
-	public class SaveButtonListener implements ActionListener {
+	private class SaveButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -318,7 +371,7 @@ public class BigFrameworkGuy
 		
 	}
 	
-	public class SaveAsButtonListener implements ActionListener {
+	private class SaveAsButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -373,7 +426,7 @@ public class BigFrameworkGuy
 		
 	}
 	
-	public class ExportButtonListener implements ActionListener {
+	private class ExportButtonListener implements ActionListener {
 		
 		//variables to remember errors encountered
 		private ArrayList<String> errors = new ArrayList<String>();

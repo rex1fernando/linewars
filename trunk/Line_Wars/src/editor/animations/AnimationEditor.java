@@ -39,6 +39,8 @@ import linewars.configfilehandler.ParserKeys;
  * 
  * @author Connor Schenck
  *
+ *A panel that allows the animations to be edited.
+ *
  */
 public class AnimationEditor implements ActionListener, ConfigurationEditor, Runnable {
 
@@ -64,6 +66,13 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	
 	private String animationFolder;
 	
+	/**
+	 * Animation editor constructor. Puts all the components in
+	 * the contained panel. Any container that wishes to include
+	 * this panel must explicitly add it to that container.
+	 * 
+	 * @param folderToPutImages		
+	 */
 	public AnimationEditor(String folderToPutImages)
 	{
 		this.animationFolder = folderToPutImages;

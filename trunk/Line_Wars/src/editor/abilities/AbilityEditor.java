@@ -3,7 +3,6 @@ package editor.abilities;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -19,6 +18,10 @@ import editor.URISelector.SelectorOptions;
 /**
  * 
  * @author Connor Schenck
+ *
+ *This class represents the ability editor. It creates
+ *all the components it will need and puts them in a panel
+ *which can be displayed by whatever is containing this.
  *
  */
 public class AbilityEditor extends JPanel implements ConfigurationEditor, SelectorOptions {
@@ -37,7 +40,11 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	private static final long serialVersionUID = -8201026782173643981L;
 	
 	
-	
+	/**
+	 * Constructs the Ability Editor
+	 * 
+	 * @param guy	the BigFrameworkGuy that knows about URIs
+	 */
 	public AbilityEditor(BigFrameworkGuy guy) {
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(800, 600));

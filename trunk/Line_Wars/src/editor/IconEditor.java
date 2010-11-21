@@ -28,6 +28,12 @@ import linewars.configfilehandler.ParserKeys;
  * 
  * @author Connor Schenck
  *
+ *This class represents a panel that allows icons to be
+ *selected and previewed. Adding this panel to any other
+ *panel will present the user with a list of buttons,
+ *and when a valid icon is selected, it will preview that
+ *icon next to the button. This panel contains itself in
+ *a scroll pain of size (200, 175).
  */
 public class IconEditor extends JPanel implements ConfigurationEditor {
 	
@@ -43,6 +49,11 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	private JPanel mainPanel;
 	
+	/**
+	 * Creates the Icon Editor. Does not display it in any way. The
+	 * panel that this editor will be on is responsible for adding
+	 * it as a component.
+	 */
 	public IconEditor()
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -94,6 +105,15 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		this.updateUI();
 	}
 	
+	/**
+	 * This method takes in a ConfigData object and checks to
+	 * see if all the keys needed for icons are present and
+	 * if each key maps to a valid URI that represents an icon
+	 * image.
+	 * 
+	 * @param cd	the config data object to check
+	 * @return		true if all the keys and values are correct; false otherwise
+	 */
 	public boolean isValid(ConfigData cd)
 	{
 		for(ParserKeys key : icons)
