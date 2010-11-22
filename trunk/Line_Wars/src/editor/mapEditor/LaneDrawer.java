@@ -34,6 +34,11 @@ public class LaneDrawer
 		this.panel = panel;
 	}
 	
+	/**
+	 * Draws the lanes for a map image.
+	 * @param g The Graphics object for the image.
+	 * @param lane The lane to be drawn.
+	 */
 	public void createMap(Graphics g, Lane lane)
 	{
 		Node[] nodes = lane.getNodes();
@@ -41,7 +46,7 @@ public class LaneDrawer
 		Position laneStart = lane.getPosition(0).getPosition();
 		Position laneEnd = lane.getPosition(1.0).getPosition();
 
-		g.setColor(Color.red);
+		g.setColor(Color.white);
 
 		// initialize the draw positions
 		Position beforePos = nodes[0].getTransformation().getPosition();
@@ -219,6 +224,7 @@ public class LaneDrawer
 		Position p4 = new Position(end.getX() + normOrthEnd.getX() * lane.getWidth() / 2,
 												end.getY() + normOrthEnd.getY() * lane.getWidth() / 2);
 		
+		//if we are drawing to the screen we want to convert these positions to screen coordinates
 		if(!drawMap)
 		{
 			p1 = panel.toScreenCoord(p1);

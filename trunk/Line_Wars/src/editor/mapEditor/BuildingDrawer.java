@@ -32,21 +32,33 @@ public class BuildingDrawer
 	{
 		this.panel = panel;
 	}
-	
+
+	/**
+	 * Draws the building spots for a map image.
+	 * 
+	 * @param g
+	 *            The Graphics object for the image.
+	 * @param b
+	 *            The building spot to draw.
+	 * @param commandCenter
+	 *            Is this building spot a command center?
+	 */
 	public void createMap(Graphics g, BuildingSpot b, boolean commandCenter)
 	{
 		Position[] corners = b.getRect().getVertexPositions();
-		
-		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(), (int)corners[3].getX()};
-		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(), (int)corners[3].getY()};
+
+		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(),
+				(int)corners[3].getX()};
+		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(),
+				(int)corners[3].getY()};
 
 		// set the transparent color
 		if(commandCenter)
 			g.setColor(Color.yellow);
 		else
 			g.setColor(Color.blue);
-		
-		//fill the rectangle
+
+		// fill the rectangle
 		g.fillPolygon(x, y, 4);
 	}
 
@@ -92,17 +104,19 @@ public class BuildingDrawer
 		Position[] corners = buildingSpot.getRect().getVertexPositions();
 		for(int i = 0; i < corners.length; ++i)
 			corners[i] = panel.toScreenCoord(corners[i]);
-		
-		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(), (int)corners[3].getX()};
-		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(), (int)corners[3].getY()};
+
+		int[] x = new int[] {(int)corners[0].getX(), (int)corners[1].getX(), (int)corners[2].getX(),
+				(int)corners[3].getX()};
+		int[] y = new int[] {(int)corners[0].getY(), (int)corners[1].getY(), (int)corners[2].getY(),
+				(int)corners[3].getY()};
 
 		// set the transparent color
 		if(commandCenter)
 			g.setColor(new Color(255, 140, 0, selected ? 90 : 60));
 		else
 			g.setColor(new Color(0, 0, 255, selected ? 90 : 60));
-		
-		//fill the rectangle
+
+		// fill the rectangle
 		g.fillPolygon(x, y, 4);
 
 		// set the border color
@@ -122,15 +136,25 @@ public class BuildingDrawer
 			((Graphics2D)g).setStroke(new BasicStroke(10));
 		else
 			((Graphics2D)g).setStroke(new BasicStroke(5));
-		
-		//draw the border
+
+		// draw the border
 		g.drawPolygon(x, y, 4);
 
 		// set the color for the rotation dot
 		g.setColor(Color.pink);
 
 		// set the dot position
-		Position dotPos = buildingSpot.getRect().getVertexPositions()[0];//new Position(gamePos.getX() + w / 2, gamePos.getY() + h / 2);
+		Position dotPos = buildingSpot.getRect().getVertexPositions()[0];// new
+																			// Position(gamePos.getX()
+																			// +
+																			// w
+																			// /
+																			// 2,
+																			// gamePos.getY()
+																			// +
+																			// h
+																			// /
+																			// 2);
 		Position drawDot = panel.toScreenCoord(dotPos);
 
 		// draw the dot

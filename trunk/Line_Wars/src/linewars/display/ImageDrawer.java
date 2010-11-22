@@ -55,26 +55,26 @@ public class ImageDrawer
 	 * Adds an image to the MapItemDrawer's repository of images.
 	 * 
 	 * @param uri
-	 *            TODO
-	 * @param unitURI
-	 *            TODO
+	 *            The URI of the image to load.
+	 * @param mapItemURI
+	 *            The URI of the MapItem this image is for.
 	 * @param width
-	 *            TODO
+	 *            The width of the image in game units.
 	 * @param height
-	 *            TODO
+	 *            The height of the image in game units.
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, String unitURI, int width, int height) throws IOException
+	public void addImage(String uri, String mapItemURI, int width, int height) throws IOException
 	{
-		if(images.get(uri + unitURI) != null)
+		if(images.get(uri + mapItemURI) != null)
 			return;
 
 		Image image = loadImage(uri);
 
 		GameImage scaledImage = new GameImage(image, width, height);
 
-		images.put(uri + unitURI, scaledImage);
+		images.put(uri + mapItemURI, scaledImage);
 	}
 
 	/**
@@ -112,16 +112,13 @@ public class ImageDrawer
 	 *            The URI of the image to be drawn.
 	 * @param position
 	 *            The position to draw the image.
-	 * @param rotation
-	 *            The rotation of the image.
 	 * @param scaleX
 	 *            The amount to scale the image on the x-axis.
 	 * @param scaleY
 	 *            The amount to scale the image on the y-axis.
 	 */
-	public void draw(Graphics g, String uri, Position position, double rotation, double scale)
+	public void draw(Graphics g, String uri, Position position, double scale)
 	{
-		// TODO rotate the image
 		GameImage image = images.get(uri);
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);

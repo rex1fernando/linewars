@@ -17,7 +17,19 @@ public class Animation
 	private String[] imageURIs;
 	private double[] displayTimes;
 
-	public Animation(ConfigData parser, String unitURI, int width, int height)
+	/**
+	 * Creates this animation.
+	 * 
+	 * @param parser
+	 *            The ConfigData for the animation.
+	 * @param mapItemURI
+	 *            The URI of the MapItem this animation is for.
+	 * @param width
+	 *            The width of the animation in game units.
+	 * @param height
+	 *            The height of the animation in game units.
+	 */
+	public Animation(ConfigData parser, String mapItemURI, int width, int height)
 	{
 		// get the file the animation is in
 		String file = "/" + parser.getURI();
@@ -44,7 +56,7 @@ public class Animation
 		{
 			try
 			{
-				ImageDrawer.getInstance().addImage(uri, unitURI, width, height);
+				ImageDrawer.getInstance().addImage(uri, mapItemURI, width, height);
 			}
 			catch (IOException e)
 			{

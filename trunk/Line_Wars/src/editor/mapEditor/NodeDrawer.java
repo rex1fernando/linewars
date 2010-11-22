@@ -29,7 +29,15 @@ public class NodeDrawer
 	{
 		this.panel = panel;
 	}
-	
+
+	/**
+	 * Draws the node to a map image.
+	 * 
+	 * @param g
+	 *            The Graphics object of the image.
+	 * @param node
+	 *            The node to be drawn
+	 */
 	public void createMap(Graphics g, Node node)
 	{
 		// set the color for the node
