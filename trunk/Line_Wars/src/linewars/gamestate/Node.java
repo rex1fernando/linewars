@@ -559,4 +559,8 @@ public strictfp class Node {
 	public long getSpawnTime() {
 		return TIME_TO_SPAWN;
 	}
+	
+	public long getCaptureTime() {
+		return TIME_TO_OCCUPY;
+	}
 }

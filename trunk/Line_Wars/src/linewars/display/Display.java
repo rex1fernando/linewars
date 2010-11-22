@@ -267,7 +267,8 @@ public class Display extends JFrame implements Runnable
 			
 			//TODO
 			g.setColor(Color.white);
-			g.drawString(Double.toString(fps), 300, 300);
+			g.drawString("Logic ups: " + Double.toString(gameStateProvider.getUpdateRate()), 125, 25);
+			g.drawString("Display fps: " + Double.toString(fps), 125, 50);
 
 			// draws the panels if they are shown
 			updatePanels(g, gamestate, scale);
@@ -435,16 +436,23 @@ public class Display extends JFrame implements Runnable
 				CommandCenter cc = node.getCommandCenter();
 
 				nodeStatusPanel.setVisible(true);
-				// TODO populate status panel
+				nodeStatusPanel.updateNodeStatus(node, gamestate.getTime()*1000);
 
-				commandCardPanel.setVisible(true);
-				commandCardPanel.updateButtons(cc, node);
+				if(cc == null)
+				{
+					commandCardPanel.setVisible(true);
+				}
+				else
+				{
+					commandCardPanel.setVisible(true);
+					commandCardPanel.updateButtons(cc, node);
+				}
 
 				int recX;
 				int recY;
 				int recW;
 				int recH;
-				if(zoomLevel <= ZOOM_THRESHOLD)
+				if(zoomLevel <= ZOOM_THRESHOLD && cc != null)
 				{
 					Position p = cc.getPosition();
 					
@@ -493,33 +501,48 @@ public class Display extends JFrame implements Runnable
 			if(lastClickPosition == null)
 				return null;
 			
-			List<CommandCenter> ccs = gs.getCommandCenters();
-			for(int i = 0; i < ccs.size(); i++)
+			Node[] nodes = gs.getMap().getNodes();
+			for(Node n : nodes)
 			{
-				CommandCenter cc = ccs.get(i);
-				if(cc != null)
+				if((n.getOwner() != null && n.getOwner().getPlayerID() == playerIndex) || OPPONENTS_NODES_SELECTABLE)
 				{
-					if(cc.getOwner().getPlayerID() == playerIndex || OPPONENTS_NODES_SELECTABLE)
+					double radius = n.getBoundingCircle().getRadius();
+					Rectangle rect = new Rectangle(n.getTransformation(), 2 * radius, 2 * radius);
+					
+					if(rect.positionIsInShape(lastClickPosition))
 					{
-						Rectangle rect;
-						if(zoomLevel <= ZOOM_THRESHOLD)
-						{
-							rect = new Rectangle(new Transformation(cc.getPosition(), 0), cc.getWidth(), cc.getHeight());
-						}
-						else
-						{
-							Node node = cc.getNode();
-							double radius = node.getBoundingCircle().getRadius();
-							rect = new Rectangle(node.getTransformation(), 2 * radius, 2 * radius);
-						}
-						
-						if(rect.positionIsInShape(lastClickPosition))
-						{
-							return cc.getNode();
-						}
+						return n;
 					}
 				}
 			}
+			
+//			List<CommandCenter> ccs = gs.getCommandCenters();
+//			for(int i = 0; i < ccs.size(); i++)
+//			{
+//				CommandCenter cc = ccs.get(i);
+//				if(cc != null)
+//				{
+//					if(cc.getOwner().getPlayerID() == playerIndex || OPPONENTS_NODES_SELECTABLE)
+//					{
+//						Rectangle rect;
+//						if(zoomLevel <= ZOOM_THRESHOLD)
+//						{
+//							rect = new Rectangle(new Transformation(cc.getPosition(), 0), cc.getWidth(), cc.getHeight());
+//						}
+//						else
+//						{
+//							Node node = cc.getNode();
+//							double radius = node.getBoundingCircle().getRadius();
+//							rect = new Rectangle(node.getTransformation(), 2 * radius, 2 * radius);
+//						}
+//						
+//						if(rect.positionIsInShape(lastClickPosition))
+//						{
+//							return cc.getNode();
+//						}
+//					}
+//				}
+//			}
 
 			return null;
 		}
