@@ -229,8 +229,7 @@ public strictfp class Wave {
 						(owner.getGate(target) == null || owner.getGate(target).getState().equals(MapItemState.Dead) 
 								|| u.getOwner().equals(owner.getGate(target).getOwner())))
 				{
-					if((target.getOwner() == null || !target.getOwner().equals(u.getOwner())) 
-							&& (target.getInvader() == null || !target.getInvader().equals(u.getOwner())))
+					if(target.getOwner() == null || target.isContested() || !target.getOwner().equals(u.getOwner()))
 						target.setInvader(u.getOwner());
 					u.setTransformation(target.getTransformation());
 					target.addUnit(u);
@@ -285,35 +284,6 @@ public strictfp class Wave {
 			u.getMovementStrategy().move();
 			u.update();
 		}
-		
-//		Gate destGate = null;
-//		for(int i = 0; i < owner.getNodes().length; i++)
-//		{
-//			if(owner.getNodes()[i] != origin){
-//				destGate = owner.getGate(owner.getNodes()[i]);
-//			}
-//		}
-//		double lowestMove = 1;
-//		if(destGate == null){
-//			return;// haxed together a NPE fix here, prob still a logical error here
-//		}
-//		Position gatePos = destGate.getPosition();
-//		if(opponent == null)
-//		{
-//			lowestMove = setTransformations(destGate, gatePos, 1);
-//			setTransformations(destGate, gatePos, lowestMove);
-//		}else{
-//			Unit[] enemies = opponent.getUnits();
-//			for(int i = 0; i < units.size(); i++)
-//			{
-//				units.get(i).getCombatStrategy().fight(enemies);
-//			}
-//		}
-//		for(int j = 0; j < units.size(); j++)
-//		{
-//			units.get(j).getMovementStrategy().move();
-//			units.get(j).update();
-//		}
 	}
 	
 

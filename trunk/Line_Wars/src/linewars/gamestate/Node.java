@@ -484,17 +484,27 @@ public strictfp class Node {
 	
 	public void setInvader(Player p)
 	{
-		invader = p;
-		occupationStartTime = (long) (gameState.getTime()*1000);
-		for(Lane l : attachedLanes){
-			Gate toKill = l.getGate(this);
-			if(toKill != null){
-				toKill.setState(MapItemState.Dead);
-			}
+		if(p.equals(owner))
+		{
+			invader = null;
+			occupationStartTime = -1;
 		}
-		
-		for(Building b : containedBuildings)
-			b.setState(MapItemState.Idle);
+		else
+		{
+			if(invader != null && p.equals(invader))
+				return;
+			invader = p;
+			occupationStartTime = (long) (gameState.getTime()*1000);
+			for(Lane l : attachedLanes){
+				Gate toKill = l.getGate(this);
+				if(toKill != null){
+					toKill.setState(MapItemState.Dead);
+				}
+			}
+			
+			for(Building b : containedBuildings)
+				b.setState(MapItemState.Idle);
+		}
 	}
 	
 	public int getID()
