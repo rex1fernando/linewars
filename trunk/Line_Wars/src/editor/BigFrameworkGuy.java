@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
+import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 import editor.abilities.AbilityEditor;
 import editor.animations.AnimationEditor;
@@ -215,6 +216,22 @@ public class BigFrameworkGuy
 	 */
 	public String[] getAbilityURIs() {
 		return masterList.getStringList(ParserKeys.abilityURI).toArray(new String[0]);
+	}
+	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete maps.
+	 */
+	public String[] getMapURIs() {
+		return masterList.getStringList(ParserKeys.mapURI).toArray(new String[0]);
+	}
+	
+	/**
+	 * 
+	 * @return	A list of URIs of all the valid, complete races.
+	 */
+	public String[] getRaceURIs() {
+		return masterList.getStringList(ParserKeys.raceURI).toArray(new String[0]);
 	}
 	
 	/**
@@ -437,19 +454,167 @@ public class BigFrameworkGuy
 		private JProgressBar bar;
 		private double size;
 		private double current;
+		
+		//variables for knowing what URIs to copy
+		private List<String> urisToCopy;
+		
+		//variables for the racemap selector
+		private JFrame selectorFrame; 
+		private ListURISelector maps;
+		private ListURISelector races;
+		private JButton export;
+		private JButton cancel;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JFileChooser fc = new JFileChooser();
-			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			if(fc.showOpenDialog(BigFrameworkGuy.this.frame) == JFileChooser.APPROVE_OPTION)
+			if(e.getSource().equals(export))
 			{
-				File dir = fc.getSelectedFile();
-				export(dir);
+				if(maps.getSelectedURIs().length <= 0 || races.getSelectedURIs().length <= 0)
+				{
+					JOptionPane.showMessageDialog(frame,
+						    "You must select at least one map and at least one race.",
+						    "Error",
+						    JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				selectorFrame.dispose();
+				
+				populateURIList();
+				
+				JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				if(fc.showOpenDialog(BigFrameworkGuy.this.frame) == JFileChooser.APPROVE_OPTION)
+				{
+					File dir = fc.getSelectedFile();
+					export(dir);
+				}
+			}
+			else if(e.getSource().equals(cancel))
+				selectorFrame.dispose();
+			else //the only other way to get in here is from clicking export from the main frame
+			{
+				//set up the buttons
+				export = new JButton("Export");
+				export.addActionListener(this);
+				cancel = new JButton("Cancel");
+				cancel.addActionListener(this);
+				
+				//set up the list uri selectors
+				maps = new ListURISelector("Maps", new ListSelectorOptions() {
+					public void uriSelected(String uri) {}
+					public void uriRemoved(String uri) {}
+					public void uriHighlightChange(String[] uris) {}
+					public String[] getOptions() {
+						return BigFrameworkGuy.this.getMapURIs();
+					}
+				});
+				
+				races = new ListURISelector("Races", new ListSelectorOptions() {
+					public void uriSelected(String uri) {}
+					public void uriRemoved(String uri) {}
+					public void uriHighlightChange(String[] uris) {}
+					public String[] getOptions() {
+						return BigFrameworkGuy.this.getRaceURIs();
+					}
+				});
+				
+				//set up the button panel
+				JPanel buttonPanel = new JPanel();
+				buttonPanel.add(export);
+				buttonPanel.add(cancel);
+				
+				//set up the list panel
+				JPanel listPanel = new JPanel();
+				listPanel.add(maps);
+				listPanel.add(races);
+				
+				//set up the frame
+				selectorFrame = new JFrame("Select races and maps to include");
+				selectorFrame.getContentPane().setLayout(new BorderLayout());
+				selectorFrame.getContentPane().add(listPanel, BorderLayout.CENTER);
+				selectorFrame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+				selectorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				selectorFrame.pack();
+				selectorFrame.setVisible(true);
 			}
 			
 		}
 		
+		private void populateURIList() {
+			urisToCopy = new ArrayList<String>();
+			
+			//add the map uris
+			String[] uris = maps.getSelectedURIs();
+			for(String uri : uris)
+				urisToCopy.add(uri);
+			
+			//add the race uris
+			uris = races.getSelectedURIs();
+			for(String uri : uris)
+				urisToCopy.add(uri);
+			
+			//now add some files that the display relies on
+			urisToCopy.add("resources/animations/left_ui_panel.cfg");
+			urisToCopy.add("resources/animations/right_ui_panel.cfg");
+			urisToCopy.add("resources/animations/Exit_Button.cfg");
+			urisToCopy.add("resources/animations/Exit_Button_Clicked.cfg");
+			
+			//go through the whole list of uris and check to see if they are configs that contain uris
+			for(int i = 0; i < urisToCopy.size(); i++)
+			{
+				//check to see if this uri is a config data
+				ConfigData cd = null;
+				try {
+					cd = new ConfigFileReader(urisToCopy.get(i)).read();
+				} catch(Exception e) {
+					continue;
+				}
+				
+				extractURIs(urisToCopy.get(i), cd);
+			}
+		}
+
+		private void extractURIs(String containingURI, ConfigData cd) {
+			//go throug each key and get all the strings for that key
+			for(ParserKeys key : cd.getDefinedKeys())
+			{
+				//check all the strings and see if they contain a URI
+				for(String s : cd.getStringList(key))
+				{
+					String uri = extractURI(s);
+					//check to see if this is a valid URI
+					if(uri == null)
+					{
+						//BUT WAIT! it might be a file local to the config uri, better check that
+						String pURI = extractURI(new File(containingURI).getParent());
+						uri = pURI + "/" + s;
+					}
+					//check to see if the uri is a valid file
+					try {
+						File f = new File(uri);
+						if(!f.exists() || f.isDirectory() || !f.isFile() || f.isHidden())
+							continue;
+					} catch(Exception e) {
+						continue;
+					}
+					urisToCopy.add(uri);
+				}
+				
+				//now check all the contained configs
+				for(ConfigData c : cd.getConfigList(key))
+					extractURIs(containingURI, c);
+			}
+		}
+		
+		private String extractURI(String s) {
+			int i = s.lastIndexOf("resources");
+			if(i < 0)
+				return null;
+			else
+				return s.substring(i, s.length()).replace('\\', '/');
+		}
+
 		public void export(File dir)
 		{
 			//set up the file filters
@@ -461,9 +626,10 @@ public class BigFrameworkGuy
 					return ".class files";
 				}
 			};
-			FileFilter nonHiddenFiles = new FileFilter() {
+			FileFilter includedURIs = new FileFilter() {
 				public boolean accept(File f) {
-					return f.getName().charAt(0) != '.'; //. denotes a hidden file
+					return !f.isHidden() && (f.isDirectory() ||
+							urisToCopy.contains(extractURI(f.getAbsolutePath())));
 				}
 				public String getDescription() {
 					return "non-hidden files";
@@ -472,7 +638,7 @@ public class BigFrameworkGuy
 			
 			//now calculate the size
 			size = 0;
-			size += copyFile(dir, new File("resources"), nonHiddenFiles, true);
+			size += copyFile(dir, new File("resources"), includedURIs, true);
 			for(File f : new File("bin").listFiles())
 				size += copyFile(dir, f, classesOnly, true);
 			
@@ -498,11 +664,49 @@ public class BigFrameworkGuy
 			//now start copying
 			errors.clear();
 			current = 0;
-			copyFile(dir, new File("resources"), nonHiddenFiles, false);
+			copyFile(dir, new File("resources"), includedURIs, false);
 			for(File f : new File("bin").listFiles())
 				copyFile(dir, f, classesOnly, false);
 			
 			progressFrame.dispose();
+			
+			//make the new masterList.cfg
+			ConfigData newMasterList = new ConfigData();//new FileWriter();
+			for(ParserKeys key : masterList.getDefinedKeys())
+			{
+				if(key.equals(ParserKeys.incomplete))
+					newMasterList.add(key, new ConfigData());
+				else
+				{
+					for(String uri : masterList.getStringList(key))
+					{
+						if(urisToCopy.contains(uri))
+							newMasterList.add(key, uri);
+					}
+				}
+			}
+			try {
+				new ConfigFileWriter(dir.getAbsolutePath() + "/resources/masterList.cfg").write(newMasterList, true);
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+			//make the run scripts
+			String runCommand = "java linewars.init.DrWeissRunMe";
+			String[] runScripts = new String[]{"Windows_Run.bat", "Linux_Mac_Run.sh"};
+			for(String script : runScripts)
+			{
+				try {
+					FileWriter fw = new FileWriter(new File(dir, script));
+					fw.write(runCommand);
+					fw.flush();
+					fw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			
 			//display error dialog if there were errors
 			if(!errors.isEmpty())
@@ -520,20 +724,6 @@ public class BigFrameworkGuy
 					    "Export successfull.", 
 					    "Success",
 					    JOptionPane.DEFAULT_OPTION);
-			
-			String runCommand = "java linewars.init.DrWeissRunMe";
-			String[] runScripts = new String[]{"Windows_Run.bat", "Linux_Mac_Run.sh"};
-			for(String script : runScripts)
-			{
-				try {
-					FileWriter fw = new FileWriter(new File(dir, script));
-					fw.write(runCommand);
-					fw.flush();
-					fw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 		
 		private double copyFile(File dir, File file, FileFilter filter, boolean simulate)

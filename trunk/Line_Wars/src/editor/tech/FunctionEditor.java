@@ -16,7 +16,6 @@ import javax.swing.*;
 import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 import editor.URISelector;
-import editor.BigFrameworkGuy.NewButtonListener;
 import editor.URISelector.SelectorOptions;
 
 import linewars.configfilehandler.ConfigData;
