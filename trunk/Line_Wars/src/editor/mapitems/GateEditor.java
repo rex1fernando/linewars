@@ -14,6 +14,10 @@ import editor.ConfigurationEditor;
  * 
  * @author Connor Schenck
  *
+ *  This class represents the panel that allows users
+ * to edit the specific values related to only
+ * gates.
+ * 
  */
 public class GateEditor extends JPanel implements ConfigurationEditor {
 

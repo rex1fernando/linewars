@@ -16,6 +16,9 @@ import editor.IconEditor;
  * 
  * @author Connor Schenck
  *
+ * This class represents the panel that allows users
+ * to edit the specific values related to only
+ * buildings.
  */
 public class BuildingEditor extends JPanel implements ConfigurationEditor {
 
@@ -33,6 +36,9 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	//variables for the icons
 	private ConfigurationEditor icons;
 	
+	/**
+	 * Constructs this building editor.
+	 */
 	public BuildingEditor()
 	{	
 		//set up the cost panel

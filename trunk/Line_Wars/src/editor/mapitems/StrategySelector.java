@@ -23,6 +23,9 @@ import linewars.configfilehandler.ParserKeys;
  * 
  * @author Connor Schenck
  *
+ * This class represents the panel that allows users
+ * to select the parameters for a strategy.
+ *
  */
 public class StrategySelector extends JPanel implements SelectorOptions, ActionListener, ConfigurationEditor {
 	
@@ -58,6 +61,16 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	private JFrame frame;
 	private String title;
 	
+	/**
+	 * Constructs this strategy selector. Takes in a callback (to
+	 * call when the user hits 'done'), a title for the frame, and
+	 * a map of types of strategies to maps of keys for that strategy
+	 * to field types. Creates a frame to display this editor in.
+	 * 
+	 * @param callback	the class to call when the user hits 'done'.
+	 * @param title		the title of the frame
+	 * @param fieldMap	the map of types of strategies
+	 */
 	public StrategySelector(StrategySelectorCallback callback, String title,
 			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap)
 	{
@@ -147,6 +160,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		}
 	}
 	
+	@Override
 	public boolean isValidConfig()
 	{
 		if(type == null)
@@ -173,6 +187,10 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @return	the title of the window
+	 */
 	public String getTitle()
 	{
 		return title;

@@ -228,6 +228,9 @@ public class Sprite {
 		return alpha;
 	}
 	
+	/**
+	 * @return the file path to the image for this sprite
+	 */
 	public String toString()
 	{
 		return string;

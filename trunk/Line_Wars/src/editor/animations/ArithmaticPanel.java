@@ -14,10 +14,18 @@ import javax.swing.JTextField;
 /**
  * 
  * @author Connor Schenck
- *
+ * 
+ * This class represents the panel in the animation editor that allows
+ * the user to edit the timing of all the selected frames. Supports
+ * =. +, and *.
+ * 
  */
 public class ArithmaticPanel extends JPanel implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4996537704496464443L;
 	private JTextField number;
 	private JButton mult;
 	private JButton add;
@@ -27,6 +35,14 @@ public class ArithmaticPanel extends JPanel implements ActionListener {
 	
 	private AnimationEditor window;
 	
+	/**
+	 * Creates an arithmatic panel. This class directly extends JPanel, so
+	 * it can be added to whatever panel contains it. It needs to have a
+	 * reference to an AnimationEditor though so it can edit the timings
+	 * of the frames in that animation editor.
+	 * 
+	 * @param w	the animation editor with a reference to all the frames
+	 */
 	public ArithmaticPanel(AnimationEditor w)
 	{
 		window = w;

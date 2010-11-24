@@ -22,6 +22,12 @@ import javax.swing.JTextField;
  * 
  * @author Connor Schenck
  *
+ * This class represents a frame in the animation. It knows
+ * what image it is, the timing for this image, and the file
+ * location of that image. It extends JPanel so any panel
+ * wanting to display information about this frame can just
+ * add this frame directly to the containing panel.
+ * 
  */
 public class Frame extends JPanel implements ItemListener{
 
@@ -31,6 +37,13 @@ public class Frame extends JPanel implements ItemListener{
 	private JCheckBox checkBox;
 	private boolean checked = false;
 	
+	/**
+	 * Creates a new frame. Takes in the file path to the image
+	 * for this frame. Sets the default timing to 200ms.
+	 * 
+	 * @param filePath	the file path to the image
+	 * @throws IOException
+	 */
 	public Frame(String filePath) throws IOException
 	{
 		frame = new Sprite(filePath);
@@ -52,10 +65,18 @@ public class Frame extends JPanel implements ItemListener{
 		
 	}
 	
+	/**
+	 * 
+	 * @return	the sprite object associated with the image for this frame
+	 */
 	public Sprite getFrame() {
 		return frame;
 	}
 	
+	/**
+	 * 
+	 * @return	the timing (in ms) for this frame
+	 */
 	public int getTime() {
 		try {
 			return (int) new Scanner(time.getText()).nextDouble();
@@ -64,15 +85,27 @@ public class Frame extends JPanel implements ItemListener{
 		}
 	}
 	
+	/**
+	 * 
+	 * @param times	the timing (in ms) to set this frame to
+	 */
 	public void setTime(String times) {
 		time.setText(times);
 	}
 	
+	/**
+	 * 
+	 * @return	true if the checkbox for this frame is checked; false otherwise
+	 */
 	public boolean getChecked()
 	{
 		return checked;
 	}
 	
+	/**
+	 * 
+	 * @param value	the state to set the checkbox for this frame to.
+	 */
 	public void setChecked(boolean value)
 	{
 		checked = value;

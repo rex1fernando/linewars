@@ -147,6 +147,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         catch(Exception e) {}
 	}
 	
+	@Override
 	public void run() 
 	{
 		
@@ -354,6 +355,10 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		mainPanel.updateUI();
 	}
 	
+	/**
+	 * 
+	 * @return	the list of frames for the animation being displayed
+	 */
 	public ArrayList<Frame> getFrames()
 	{
 		return list;

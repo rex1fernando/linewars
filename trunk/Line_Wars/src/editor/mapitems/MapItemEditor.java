@@ -30,6 +30,9 @@ import editor.mapitems.StrategySelector.StrategySelectorCallback;
  * 
  * @author Connor Schenck
  *
+ * This editor represents the panel that allows users to
+ * edit map items. 
+ *
  */
 public class MapItemEditor extends JPanel implements ConfigurationEditor, ActionListener {
 	
@@ -56,6 +59,13 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	
 	private BigFrameworkGuy bfg;
 	
+	/**
+	 * Constructs this map item editor. Takes in a reference to a
+	 * BigFrameworkGuy so that it can know about URIs for abilities,
+	 * etc.
+	 * 
+	 * @param guy	the big framework guy with a list of all relevant URIs
+	 */
 	public MapItemEditor(BigFrameworkGuy guy)
 	{
 		bfg = guy;
@@ -107,11 +117,24 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		this.setPreferredSize(new Dimension(800, 600));
 	}
 	
+	/**
+	 * Returns the URI of the animation associated with the
+	 * given MapItemState. If there is no animation defined,
+	 * then it returns null.
+	 * 
+	 * @param key	the MapItemState of the animation to get
+	 * @return		the URI for the animation associated with key.
+	 */
 	public String getAnimation(MapItemState key)
 	{
 		return animationMap.get(key);
 	}
 	
+	/**
+	 * Sets the body config to the given config
+	 * 
+	 * @param cd	the body config
+	 */
 	public void setBody(ConfigData cd)
 	{
 		bodyConfig = cd;

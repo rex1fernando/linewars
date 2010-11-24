@@ -20,6 +20,10 @@ import editor.mapitems.StrategySelector.StrategySelectorFieldType;
  * 
  * @author Connor Schenck
  *
+ *  This class represents the panel that allows users
+ * to edit the specific values related to only
+ * projectiles.
+ *
  */
 public class ProjectileEditor extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
 

@@ -37,6 +37,9 @@ import editor.animations.Sprite;
  * 
  * @author Connor Schenck
  *
+ * This class represents the editor that allows the user
+ * to set the body for a map item. 
+ * 
  */
 public class BodyEditor extends JPanel implements ConfigurationEditor, ActionListener, Runnable, MouseListener, WindowListener {
 	
@@ -67,6 +70,13 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	
 	private boolean mouseDown;
 	
+	/**
+	 * Constructs this body editor. Creates a frame that shows this editor.
+	 * Needs a reference to the calling map item editor so it can set the
+	 * body when the user clicks 'done'.
+	 * 
+	 * @param m	the calling map item editor
+	 */
 	public BodyEditor(MapItemEditor m)
 	{
 		mie = m;
