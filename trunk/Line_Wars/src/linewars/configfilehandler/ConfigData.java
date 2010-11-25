@@ -15,7 +15,14 @@ import java.util.Set;
  */
 public class ConfigData {
 	
-	static ParserKeys getKey(String s)
+	/**
+	 * Takes in a string and returns a ParserKeys object that has the
+	 * same value as the string. Ignores case.
+	 * 
+	 * @param s	the string value
+	 * @return	the parser key with s as its string value
+	 */
+	public static ParserKeys getKey(String s)
 	{
 		for(ParserKeys key : ParserKeys.values())
 			if(key.toString().toLowerCase().equals(s.toLowerCase()))
@@ -34,6 +41,9 @@ public class ConfigData {
 		this.startLine = startLine;
 	}
 	
+	/**
+	 * Constructs an empty config data object
+	 */
 	public ConfigData()
 	{
 		URI = "";
@@ -78,19 +88,37 @@ public class ConfigData {
 			list.add(valueType.String);
 			list.add(valueType.StringList);
 		}
+		else if(this.getStringList(k).size() > 0)
+			list.add(valueType.StringList);
 		if(this.getNumber(k) != null)
 		{
 			list.add(valueType.Number);
 			list.add(valueType.NumberList);
 		}
+
+		else if(this.getNumberList(k).size() > 0)
+			list.add(valueType.NumberList);
 		if(this.getConfig(k) != null)
 		{
 			list.add(valueType.Config);
 			list.add(valueType.ConfigList);
 		}
+
+		else if(this.getConfigList(k).size() > 0)
+			list.add(valueType.ConfigList);
 		return list;
 	}
 	
+	/**
+	 * Gets the string associated with the key k. If there is no
+	 * single string associated with the key k, then it returns
+	 * null (ie if there are multiple or no strings associated with
+	 * k). If k is not defined in the config, then this method
+	 * throws an exception.
+	 * 
+	 * @param k	the key too look up	
+	 * @return	the string associated with k
+	 */
 	public String getString(ParserKeys k)
 	{
 		checkKey(k);
@@ -102,6 +130,14 @@ public class ConfigData {
 			return v.getStringList().get(0);
 	}
 	
+	/**
+	 * Returns a list of strings associated with k. If there are no strings
+	 * associated with k, the list is empty. Never returns null. If k
+	 * is not defined, then this method throws an exception.
+	 * 
+	 * @param k	the key to look up
+	 * @return	the list of strings associated with k
+	 */
 	public List<String> getStringList(ParserKeys k)
 	{
 		checkKey(k);
@@ -109,6 +145,16 @@ public class ConfigData {
 		return new ArrayList<String>(map.get(key).getStringList());
 	}
 	
+	/**
+	 * Gets the number associated with the key k. If there is no
+	 * single number associated with the key k, then it returns
+	 * null (ie if there are multiple or no numbers associated with
+	 * k). If k is not defined in the config, then this method
+	 * throws an exception.
+	 * 
+	 * @param k	the key too look up	
+	 * @return	the number associated with k
+	 */
 	public Double getNumber(ParserKeys k)
 	{
 		checkKey(k);
@@ -120,6 +166,14 @@ public class ConfigData {
 			return v.getNumberList().get(0);
 	}
 	
+	/**
+	 * Returns a list of numbers associated with k. If there are no numbers
+	 * associated with k, the list is empty. Never returns null. If k
+	 * is not defined, then this method throws an exception.
+	 * 
+	 * @param k	the key to look up
+	 * @return	the list of numbers associated with k
+	 */
 	public List<Double> getNumberList(ParserKeys k)
 	{
 		checkKey(k);
@@ -127,6 +181,16 @@ public class ConfigData {
 		return new ArrayList<Double>(map.get(key).getNumberList());
 	}
 	
+	/**
+	 * Gets the config associated with the key k. If there is no
+	 * single config associated with the key k, then it returns
+	 * null (ie if there are multiple or no configs associated with
+	 * k). If k is not defined in the config, then this method
+	 * throws an exception.
+	 * 
+	 * @param k	the key too look up	
+	 * @return	the config associated with k
+	 */
 	public ConfigData getConfig(ParserKeys k)
 	{
 		checkKey(k);
@@ -138,6 +202,14 @@ public class ConfigData {
 			return v.getConfigList().get(0);
 	}
 	
+	/**
+	 * Returns a list of configs associated with k. If there are no configs
+	 * associated with k, the list is empty. Never returns null. If k
+	 * is not defined, then this method throws an exception.
+	 * 
+	 * @param k	the key to look up
+	 * @return	the list of configs associated with k
+	 */
 	public List<ConfigData> getConfigList(ParserKeys k)
 	{
 		checkKey(k);
@@ -146,7 +218,16 @@ public class ConfigData {
 	}
 	
 	
-	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, String newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -156,6 +237,16 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, String[] newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -166,6 +257,16 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, Double newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -175,6 +276,16 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, Double[] newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -185,6 +296,16 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, ConfigData newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -194,6 +315,16 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Sets the value that k is associated with in this config to newValue.
+	 * If k is already associated with anything else, this method DELETES 
+	 * the values it is associated with. If you want to append more data
+	 * to associate with this key and retain what it already is associated
+	 * with, then use add instead.
+	 * 
+	 * @param k			the key to associate the new value with
+	 * @param newValue	the value to set k to
+	 */
 	public void set(ParserKeys k, ConfigData[] newValue){
 		String key = k.toString().toLowerCase();
 		if(map.containsKey(key))
@@ -204,6 +335,14 @@ public class ConfigData {
 		map.put(key, v);
 	}
 	
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys k, String toAdd){
 		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
@@ -215,6 +354,14 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys k, Double toAdd){
 		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
@@ -226,6 +373,14 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys k, ConfigData toAdd){
 		String key = k.toString().toLowerCase();
 		Value v = map.get(key);
@@ -237,16 +392,40 @@ public class ConfigData {
 		v.add(toAdd);
 	}
 	
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys toAdd, String[] array) {
 		for(String s : array)
 			this.add(toAdd, s);
 	}
 
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys toAdd, ConfigData[] array) {
 		for(ConfigData cd : array)
 			this.add(toAdd, cd);
 	}
 	
+	/**
+	 * Adds toAdd to the list of values associated with k. Does not alter
+	 * values already associated with k. Add preserves the order in which
+	 * the values are added for each type (string, number, config).
+	 * 
+	 * @param k			the key to associate toAdd with
+	 * @param toAdd		the value to add to the list of values associated with k
+	 */
 	public void add(ParserKeys toAdd, Double[] array) {
 		for(Double d : array)
 			this.add(toAdd, d);
@@ -270,6 +449,15 @@ public class ConfigData {
 		return ret;
 	}
 	
+	/**
+	 * Removes the given value from the list of values mapped to the given key.
+	 * @param key
+	 * The key which currently maps to the given value.
+	 * @param toRemove
+	 * The value to be removed from the list.
+	 * @return
+	 * True iff the value was found and removed.
+	 */
 	public boolean remove(ParserKeys k, Double toRemove){
 		checkKey(k);
 		String key = k.toString().toLowerCase();
@@ -279,6 +467,15 @@ public class ConfigData {
 		return ret;
 	}
 	
+	/**
+	 * Removes the given value from the list of values mapped to the given key.
+	 * @param key
+	 * The key which currently maps to the given value.
+	 * @param toRemove
+	 * The value to be removed from the list.
+	 * @return
+	 * True iff the value was found and removed.
+	 */
 	public boolean remove(ParserKeys k, ConfigData toRemove){
 		checkKey(k);
 		String key = k.toString().toLowerCase();
@@ -288,6 +485,11 @@ public class ConfigData {
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @return	the URI this config data was generated from. If it wasn't generated
+	 * 			from a URI, then returns an empty string.
+	 */
 	public String getURI()
 	{
 		return URI;
