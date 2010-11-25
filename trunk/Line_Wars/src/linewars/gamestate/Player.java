@@ -484,6 +484,7 @@ public strictfp class Player {
 		return playerID;
 	}
 	
+	@Override
 	public boolean equals(Object obj)
 	{
 		if(obj == null){

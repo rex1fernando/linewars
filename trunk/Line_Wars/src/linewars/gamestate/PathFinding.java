@@ -11,6 +11,8 @@ import linewars.gamestate.mapItems.Unit;
 /**
  * 
  * @author Connor Schenck
+ * 
+ * This class represents a path finder
  *
  */
 public strictfp class PathFinding {
@@ -45,6 +47,21 @@ public strictfp class PathFinding {
 		this.gameState = gameState;
 	}
 	
+	/**
+	 * Finds a path from the unit's current position to the within radius of
+	 * the target that avoids the obstacles. For efficiency reasons, the
+	 * path is kept within the rectange defined by upperLeft, width, height.
+	 * Returns the path as a queue of positions.
+	 * 
+	 * @param unit			the unit to find a path for
+	 * @param target		the target of the path
+	 * @param radius		the radius around the target the unit wants to get to
+	 * @param obstacles		the map items that need to be avoided
+	 * @param upperLeft		the upper left of the bounding rectangle
+	 * @param width			the width of the bounding rectangle
+	 * @param height		the height of the boudning rectangle
+	 * @return				a queue of positions for the unit to follow
+	 */
 	public Queue<Position> findPath(Unit unit, Position target, double radius, MapItem[] obstacles, Position upperLeft, double width, double height)
 	{
 		Queue<Position> queue = new LinkedList<Position>();

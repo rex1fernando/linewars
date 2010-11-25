@@ -31,6 +31,8 @@ import linewars.gamestate.shapes.Circle;
 /**
  * 
  * @author John George, Connor Schenck, Taylor Bergquist
+ * 
+ * This class represents a lane in the map.
  *
  */
 public strictfp class Lane
@@ -109,8 +111,6 @@ public strictfp class Lane
 	public Lane(GameState gameState, ConfigData parser)
 	{
 		this.name = parser.getString(ParserKeys.name);
-		//TODO
-		//curve = new BezierCurve(new Position(parser.getString(ParserKeys.p0)), new Position(parser.getString(ParserKeys.p1)),new Position(parser.getString(ParserKeys.p2)), new Position(parser.getString(ParserKeys.p3)));
 		curve = BezierCurve.buildCurve(parser);
 		
 		this.width = parser.getNumber(ParserKeys.width);
@@ -204,6 +204,10 @@ public strictfp class Lane
 		}
 	}
 	
+	/**
+	 * 
+	 * @return	the config data that represents this lane
+	 */
 	public ConfigData getData()
 	{
 		ConfigData data = new ConfigData();
@@ -243,9 +247,14 @@ public strictfp class Lane
 		gates.remove(n);
 	}
 	
-	
-	
 
+	/**
+	 * Merges the second wave given into the first wave.
+	 * 
+	 * @param waveOne
+	 * @param waveTwo
+	 * @throws IllegalArgumentException
+	 */
 	public void mergeWaves(Wave waveOne, Wave waveTwo) throws IllegalArgumentException{
 		if(!waves.contains(waveOne) || !waves.contains(waveTwo)){
 			throw new IllegalArgumentException("Could not merge waves because one or both of the waves is not in this lane. ");
@@ -320,31 +329,55 @@ public strictfp class Lane
 		return projectiles.toArray(new Projectile[0]);
 	}
 
+	/**
+	 * 
+	 * @return	 the width of the lane
+	 */
 	public double getWidth()
 	{
 		return width;
 	}
 	
+	/**
+	 * 
+	 * @param width	the width to set this lane to
+	 */
 	public void setWidth(double width)
 	{
 		this.width = width;
 	}
 	
+	/**
+	 * 
+	 * @return	all the waves currently in this lane
+	 */
 	public Wave[] getWaves()
 	{
 		return waves.toArray(new Wave[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	the nodes attached to either end of this lane
+	 */
 	public Node[] getNodes()
 	{
 		return nodes.toArray(new Node[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	the nodes attached to either end of this lane
+	 */
 	public ArrayList<Node> getNodesList()
 	{
 		return nodes;
 	}
 	
+	/**
+	 * 
+	 * @return	the bezier curve object that defines the path of this lane
+	 */
 	public BezierCurve getCurve()
 	{
 		return curve;
@@ -367,8 +400,12 @@ public strictfp class Lane
 		return curve.getPosition(pos);
 	}
 
-	
-	
+	/**
+	 * Adds u to the list of units pending to be spawned from node n
+	 * 
+	 * @param n	the node to spawn the unit u from
+	 * @param u	the unit to spawn
+	 */
 	public void addToPending(Node n, Unit u) 
 	{
 		if(pendingWaves.get(n) == null)
@@ -383,7 +420,6 @@ public strictfp class Lane
 	/**
 	 * For the given node, add all of the waves from that node to this lane.
 	 * @param n The node the units/waves are coming from.
-	 * TODO this is actually a fairly tricky problem, since we have no particular constraints on the size of anything (except nonnegativity ofc).  Seems fun. - Taylor
 	 */
 	public void addPendingWaves(Node n)
 	{
@@ -428,7 +464,7 @@ public strictfp class Lane
 		//the place to put the next min forward, is calculated as this line is placed based off the largest radius unit, (ie the next row)
 		double nextMinForward = minForward;
 		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
-		double forwardBound = findForwardBound(n);
+		double forwardBound = findForwardBound(n); //TODO make this not related to next closest unit
 		//this represents the position along the lateral part of the lane a unit must be placed below
 		double startWidth = width/2;
 		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
@@ -598,6 +634,12 @@ public strictfp class Lane
 		return items.toArray(new MapItem[0]);
 	}
 	
+	/**
+	 * Returns a list of all units within the circle c and in this lane
+	 * 
+	 * @param c	the circle to get units in
+	 * @return	the units in c
+	 */
 	public List<Unit> getUnitsIn(Circle c)
 	{
 		ArrayList<Unit> units = new ArrayList<Unit>();
@@ -782,6 +824,12 @@ public strictfp class Lane
 		}
 	}
 	
+	/**
+	 * Gets the gate at the end of the lane n is at
+	 * 
+	 * @param n	the node at the end of the lane the gate is at
+	 * @return	the gate at n's end of the lane
+	 */
 	public Gate getGate(Node n)
 	{
 		//add a dummy gate
@@ -801,6 +849,13 @@ public strictfp class Lane
 		return gates.get(n);
 	}
 	
+	/**
+	 * Adds a gate to n's end of the lane and removes any existing gates at that
+	 * end of the lane.
+	 * 
+	 * @param n	the end of the lane to add the gate at
+	 * @param p	the player who owns the new gate being placed
+	 */
 	public void addGate(Node n, Player p)
 	{
 		
@@ -837,6 +892,10 @@ public strictfp class Lane
 		*/
 	}
 	
+	/**
+	 * 
+	 * @return	a list of all the collidable map items in the lane
+	 */
 	public List<Unit> getCollidableMapItems(){
 		ArrayList<Unit> units = new ArrayList<Unit>();
 		for(Wave w : waves){
@@ -847,6 +906,11 @@ public strictfp class Lane
 		return units;
 	}
 	
+	/**
+	 * adds n to the lane as one of its endpoints
+	 * 
+	 * @param n	
+	 */
 	public void addNode(Node n)
 	{
 		if(nodes.size() == 2)
@@ -854,21 +918,40 @@ public strictfp class Lane
 		nodes.add(n);
 	}
 	
+	/**
+	 * 
+	 * @return	the name of the lane
+	 */
 	public String getName()
 	{
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return	the length of the lane
+	 */
 	public double getLength()
 	{
 		return curve.getLength();
 	}
 	
+	/**
+	 * Gets the parameter t such that getPosition(t) returns
+	 * the point on the center line of the lane closest to p.
+	 * 
+	 * @param p	the point to lookup
+	 * @return	the parameter of the point closest to p
+	 */
 	public double getClosestPointRatio(Position p) 
 	{
 		return curve.getClosestPointRatio(p);
 	}
 	
+	/**
+	 * 
+	 * @return	the game state this lane is in
+	 */
 	public GameState getGameState()
 	{
 		return gameState;
@@ -890,6 +973,10 @@ public strictfp class Lane
 			return false;
 	}
 	
+	/**
+	 * 
+	 * @return	the list of lane borders around this lane
+	 */
 	public List<LaneBorder> getLaneBorders() {
 		return borders;
 	}

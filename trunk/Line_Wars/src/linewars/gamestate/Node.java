@@ -22,6 +22,8 @@ import linewars.gamestate.shapes.*;
 /**
  * 
  * @author John George, Connor Schenck
+ * 
+ * Represents a node in the game map
  *
  */
 public strictfp class Node {
@@ -159,6 +161,10 @@ public strictfp class Node {
 		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
 	
+	/**
+	 * 
+	 * @return	the config data representation of this node
+	 */
 	public ConfigData getData()
 	{
 		ConfigData data = new ConfigData();
@@ -180,26 +186,46 @@ public strictfp class Node {
 		return data;
 	}
 	
+	/**
+	 * 
+	 * @return	the current owner of this node. If there is no owner, returns null
+	 */
 	public Player getOwner()
 	{
 		return owner;
 	}
 	
+	/**
+	 * 
+	 * @return	true if the node is contested; false otherwise
+	 */
 	public boolean isContested()
 	{
 		return occupationStartTime >= 0;
 	}
 	
+	/**
+	 * 
+	 * @return	the current invader of the node; null if there is no invader
+	 */
 	public Player getInvader()
 	{
 		return invader;
 	}
 	
+	/**
+	 * 
+	 * @return	the time at which the occupation of this node started in ms
+	 */
 	public long getOccupationStartTime()
 	{
 		return occupationStartTime;
 	}
 	
+	/**
+	 * 
+	 * @return	the buildings contained in this node NOT including the commander center
+	 */
 	public Building[] getContainedBuildings()
 	{
 		ArrayList<Building> ret = new ArrayList<Building>(containedBuildings);
@@ -211,31 +237,55 @@ public strictfp class Node {
 		return ret.toArray(new Building[0]);
 	}
 	
+	/**
+	 * 
+	 * @param l	a lane to attach to this node
+	 */
 	public void addAttachedLane(Lane l)
 	{
 		attachedLanes.add(l);
 	}
 	
+	/**
+	 * 
+	 * @param l	the lane to remove from the attached lanes for this node
+	 */
 	public void removeAttachedLane(Lane l)
 	{
 		attachedLanes.remove(l);
 	}
 	
+	/**
+	 * 
+	 * @return	all the lanes attached to this node
+	 */
 	public Lane[] getAttachedLanes()
 	{
 		return attachedLanes.toArray(new Lane[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	all the units current garrasoned in the node
+	 */
 	public Unit[] getContainedUnits()
 	{
 		return containedUnits.toArray(new Unit[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	a circle that bounds the entire node
+	 */
 	public Circle getBoundingCircle()
 	{
 		return shape.boundingCircle();
 	}
 	
+	/**
+	 * 
+	 * @return	the command center in the node; if there isn't one, returns null
+	 */
 	public CommandCenter getCommandCenter()
 	{
 		return cCenter;
@@ -462,26 +512,49 @@ public strictfp class Node {
 				isStart = true;
 	}
 	
+	/**
+	 * 
+	 * @return	the shape that represents this node
+	 */
 	public Shape getShape()
 	{
 		return shape;
 	}
 	
+	/**
+	 * 
+	 * @param s	sets the shape for this node to s
+	 */
 	public void setShape(Shape s)
 	{
 		shape = s;
 	}
 	
+	/**
+	 * 
+	 * @return	true if this node is a start node; false otherwise
+	 */
 	public boolean isStartNode()
 	{
 		return isStartNode;
 	}
 	
+	/**
+	 * 
+	 * @param b	the start node status to set this node to
+	 */
 	public void setStartNode(boolean b)
 	{
 		isStartNode = b;
 	}
 	
+	/**
+	 * Sets the invader to p and restarts the occupation timer if the invader
+	 * was not already p. If p is the owner, returns the node pack to non-
+	 * contested state.
+	 * 
+	 * @param p	the player invading the node
+	 */
 	public void setInvader(Player p)
 	{
 		if(p.equals(owner))
@@ -507,6 +580,10 @@ public strictfp class Node {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return	the unique ID associated with this node
+	 */
 	public int getID()
 	{
 		return ID;
@@ -562,14 +639,26 @@ public strictfp class Node {
 		return this.getID();
 	}
 	
+	/**
+	 * 
+	 * @return	the last time unit's were spawned in ms
+	 */
 	public long getLastSpawnTime() {
 		return lastSpawnTime;
 	}
 	
+	/**
+	 * 
+	 * @return	the time interval between spawns
+	 */
 	public long getSpawnTime() {
 		return TIME_TO_SPAWN;
 	}
 	
+	/**
+	 * 
+	 * @return	the time interval to capture a node
+	 */
 	public long getCaptureTime() {
 		return TIME_TO_OCCUPY;
 	}

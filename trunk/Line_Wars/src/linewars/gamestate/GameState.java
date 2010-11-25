@@ -24,6 +24,10 @@ import linewars.network.messages.UpgradeMessage;
  * 
  * @author Connor Schenck
  *
+ * This class represents the entirety of the game state at a given point
+ * in time. It also has the ability to update to the game state for the
+ * next tick.
+ *
  */
 public strictfp class GameState
 {
@@ -80,16 +84,28 @@ public strictfp class GameState
 		}
 	}
 	
+	/**
+	 * 
+	 * @return	the dimensions of the map
+	 */
 	public Dimension2D getMapSize()
 	{
 		return map.getDimensions();
 	}
 	
+	/**
+	 * 
+	 * @return	the game map
+	 */
 	public Map getMap()
 	{
 		return map;
 	}
 	
+	/**
+	 * 
+	 * @return	the list of players
+	 */
 	public List<Player> getPlayers()
 	{
 		List<Player> players = new ArrayList<Player>();
@@ -99,16 +115,31 @@ public strictfp class GameState
 		return players;
 	}
 	
+	/**
+	 * 
+	 * @return	the current time represented as a double, in seconds
+	 */
 	public double getTime()
 	{
 		return timerTick * TimingManager.GAME_TIME_PER_TICK_S;
 	}
 	
+	/**
+	 * 
+	 * @return	the current tick for the game state
+	 */
 	public int getTimerTick()
 	{
 		return timerTick;
 	}
 	
+	/**
+	 * Takes in a MapItemType enum object and returns a list of
+	 * all the associated types of map items in the game state.
+	 * 
+	 * @param type	the type of map item
+	 * @return		a list of all the map items of type type in the game state
+	 */
 	public List<? extends MapItem> getMapItemsOfType(MapItemType type)
 	{
 		switch (type)
@@ -126,6 +157,10 @@ public strictfp class GameState
 		}
 	}
 	
+	/**
+	 * 
+	 * @return	all the units in the game state
+	 */
 	public List<Unit> getUnits()
 	{
 		List<Unit> units = new ArrayList<Unit>();
@@ -146,6 +181,10 @@ public strictfp class GameState
 		return units;
 	}
 	
+	/**
+	 * 
+	 * @return	all the buildings in the game state
+	 */
 	public List<Building> getBuildings()
 	{
 		List<Building> buildings = new ArrayList<Building>();
@@ -160,6 +199,10 @@ public strictfp class GameState
 		return buildings;
 	}
 	
+	/**
+	 * 
+	 * @return	all the projectiles in the game state
+	 */
 	public List<Projectile> getProjectiles()
 	{
 		List<Projectile> projectiles = new ArrayList<Projectile>();
@@ -174,6 +217,10 @@ public strictfp class GameState
 		return projectiles;
 	}
 	
+	/**
+	 * 
+	 * @return	all the lane borders in the game state
+	 */
 	public List<LaneBorder> getLaneBorders()
 	{
 		List<LaneBorder> borders = new ArrayList<LaneBorder>();
@@ -182,6 +229,10 @@ public strictfp class GameState
 		return borders;
 	}
 	
+	/**
+	 * 
+	 * @return	all the command centers in the game state
+	 */
 	public List<CommandCenter> getCommandCenters()
 	{
 		ArrayList<CommandCenter> ccs = new ArrayList<CommandCenter>();
@@ -191,11 +242,22 @@ public strictfp class GameState
 		return ccs;
 	}
 	
+	/**
+	 * 
+	 * @return	the amount of stuff each player starts with
+	 */
 	public double getStartingStuffAmount()
 	{
 		return STARTING_STUFF;
 	}
 	
+	/**
+	 * Updates the game state to the next tick. First applies the messages
+	 * past in as arguments, then updates the nodes, then the lanes, then checks
+	 * for a winning player.
+	 * 
+	 * @param messages	the messages to apply for this game state tick
+	 */
 	public void update(Message[] messages)
 	{
 		for(Message m : messages)
@@ -217,6 +279,10 @@ public strictfp class GameState
 		winningPlayer = n1.getOwner();
 	}
 	
+	/**
+	 * 
+	 * @return	if there is a winning player, the winning player; else null
+	 */
 	public Player getWinningPlayer()
 	{
 		return winningPlayer;

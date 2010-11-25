@@ -7,12 +7,14 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
 
-//this class simulates a function
-
 /**
  * 
  * @author Connor Schenck
  *
+ * This class simulates a function. It is constructed from a 
+ * config data object and encapsulates the method for getting
+ * f(x).
+ * 
  */
 public strictfp class Function {
 	
@@ -23,6 +25,10 @@ public strictfp class Function {
 	private FunctionClass type;
 	private ArrayList<Double> coefficients = new ArrayList<Double>();
 	
+	/**
+	 * 
+	 * @param p	the config data to construct this function from
+	 */
 	public Function(ConfigData p)
 	{
 		type = FunctionClass.valueOf(p.getString(ParserKeys.functionType));
@@ -34,6 +40,14 @@ public strictfp class Function {
 			throw new IllegalArgumentException("Coefficients for the exponential function must be c0*c1^(c2*x)");
 	}
 	
+	/**
+	 * Takes in a double precision value and returns the function value of it.
+	 * For example, if this function is simulating a first-degree polynomial with
+	 * coefficents 2 and 5, then it would return 5*x + 2.
+	 * 
+	 * @param x	the independent variable input to the function
+	 * @return	the value of f(x)
+	 */
 	public double f(double x)
 	{
 		if(type == FunctionClass.Polynomial)

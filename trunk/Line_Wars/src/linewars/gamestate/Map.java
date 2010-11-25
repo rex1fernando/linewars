@@ -78,11 +78,19 @@ public strictfp class Map {
 		return nodes.toArray(new Node[0]);
 	}
 	
+	/**
+	 * 
+	 * @return	the dimensions of the map
+	 */
 	public Dimension2D getDimensions()
 	{
 		return dimensions;
 	}
 	
+	/**
+	 * 
+	 * @return	the URI of the map
+	 */
 	public String getMapURI()
 	{
 		return parser.getURI();
