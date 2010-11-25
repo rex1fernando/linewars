@@ -8,6 +8,9 @@ import linewars.gamestate.mapItems.MapItem;
 /**
  * 
  * @author Connor Schenck
+ * 
+ * This class is the definition for the generate stuff ability. It
+ * crteates new generate stuff abilities.
  *
  */
 public strictfp class GenerateStuffDefinition extends AbilityDefinition {
@@ -23,6 +26,10 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition {
 		this.forceReloadConfigData();
 	}
 	
+	/**
+	 * 
+	 * @return	the amount of stuff generated per second
+	 */
 	public double getStuffIncome() {
 		return stuffIncome;
 	}

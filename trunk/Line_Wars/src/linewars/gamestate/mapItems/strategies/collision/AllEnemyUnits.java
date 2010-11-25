@@ -8,6 +8,9 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 /**
  * 
  * @author Connor Schenck
+ * 
+ * This class defines a collision strategy that collides only with
+ * enemy units
  *
  */
 public strictfp class AllEnemyUnits implements CollisionStrategy {

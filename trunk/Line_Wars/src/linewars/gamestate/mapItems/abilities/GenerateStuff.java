@@ -5,6 +5,8 @@ import linewars.gamestate.Player;
 /**
  * 
  * @author Connor Schenck
+ * 
+ * This class is the ability that generates stuff (currency)
  *
  */
 public class GenerateStuff implements Ability {

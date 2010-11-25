@@ -6,6 +6,9 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 /**
  * 
  * @author Connor Schenck
+ * 
+ * this strategy represents a collision strategy that collides
+ * with everything
  *
  */
 public strictfp class CollidesWithAll implements CollisionStrategy {
@@ -17,7 +20,7 @@ public strictfp class CollidesWithAll implements CollisionStrategy {
 		if(m.getCollisionStrategy() instanceof NoCollision)
 			return m.getCollisionStrategy().canCollideWith(mapItem);
 		else
-		return true;
+			return true;
 	}
 
 	@Override

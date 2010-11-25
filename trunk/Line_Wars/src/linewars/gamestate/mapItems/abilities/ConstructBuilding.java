@@ -19,6 +19,13 @@ public strictfp class ConstructBuilding implements Ability {
 	private boolean built = false;
 	private Building building = null;
 	
+	/**
+	 * Creates the ability that constructs a building in node n
+	 * using definition bd.
+	 * 
+	 * @param n
+	 * @param bd
+	 */
 	public ConstructBuilding(Node n, BuildingDefinition bd)
 	{
 		buildingDefinition = bd;
