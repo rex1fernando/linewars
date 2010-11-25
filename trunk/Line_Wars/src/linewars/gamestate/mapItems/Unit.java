@@ -31,7 +31,15 @@ public strictfp class Unit extends MapItem {
 	private double positionOnCurve;
 	private int lastTickPositionMarker = -1;
 
-	//TODO remove the public, it is here for testing purposes
+	/**
+	 * Creates a unit at t, with definition def, movement strategy ms,
+	 * and combat strategy cs.
+	 * 
+	 * @param t		the transformation this unit starts at
+	 * @param def	the definition that created this unit
+	 * @param ms	the movement strategy for this unit
+	 * @param cs	the combat strategy for this unit
+	 */
 	public Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
 		super(t, def);
 		definition = def;
@@ -126,6 +134,15 @@ public strictfp class Unit extends MapItem {
 		currentWave = w;
 	}
 	
+	/**
+	 * gets the position along the curve of the lane this unit is. This positions
+	 * is represented as the parameter to the bezier curve equation to calculate
+	 * the coordinates of the closest point along the center line of the lane to
+	 * the unit. Only calculates the position once per tick, and stores it for
+	 * the entirety of the tick.
+	 * 
+	 * @return
+	 */
 	public double getPositionAlongCurve()
 	{
 		if(lastTickPositionMarker != definition.getGameState().getTimerTick())

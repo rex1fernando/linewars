@@ -26,6 +26,16 @@ import linewars.gamestate.tech.Tech;
  */
 public strictfp class CommandCenterDefinition extends BuildingDefinition {
 
+	/**
+	 * Constructs a command center definition from the config located at URI
+	 * with owner as the owning player. 
+	 * 
+	 * @param URI			the location of the config for this command center definition
+	 * @param owner			the owner of this definition
+	 * @param gameState		the game state associated with this definition
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
 	public CommandCenterDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);
@@ -56,6 +66,13 @@ public strictfp class CommandCenterDefinition extends BuildingDefinition {
 		abilities.remove(rtd);
 	}
 	
+	/**
+	 * Creates a command center at t in n.
+	 * 
+	 * @param t	the transformation to put the command center at
+	 * @param n	the node that owns this command center
+	 * @return	a newly constructed command center
+	 */
 	public Building createCommandCenter(Transformation t, Node n) {
 		return new CommandCenter(t, this, n);
 	}

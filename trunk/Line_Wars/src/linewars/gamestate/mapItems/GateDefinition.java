@@ -19,6 +19,16 @@ import linewars.gamestate.mapItems.strategies.movement.Immovable;
  */
 public strictfp class GateDefinition extends UnitDefinition {
 
+	/**
+	 * Creates a gate definition from the config at URI with owner
+	 * owner.
+	 * 
+	 * @param URI			the URI where teh config for this gate is at
+	 * @param owner			the player that owns this definition
+	 * @param gameState		the game state associated with this definition
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
 	public GateDefinition(String URI, Player owner, GameState gameState)
 			throws FileNotFoundException, InvalidConfigFileException {
 		super(URI, owner, gameState);

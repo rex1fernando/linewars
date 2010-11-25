@@ -243,10 +243,18 @@ public strictfp abstract class MapItem {
 		return this.getDefinition().getParser().getURI();
 	}
 
+	/**
+	 * 
+	 * @return	the width of the bounding rectangle for this map item
+	 */
 	public double getWidth() {
 		return this.getDefinition().getBody().boundingRectangle().getWidth();
 	}
 
+	/**
+	 * 
+	 * @return	the height of the bounding rectangle for this map item
+	 */
 	public double getHeight() {
 		return this.getDefinition().getBody().boundingRectangle().getHeight();
 	}
@@ -259,6 +267,10 @@ public strictfp abstract class MapItem {
 		return body.boundingCircle().getRadius();
 	}
 	
+	/**
+	 * 
+	 * @return	the shape that represents the body of this map item
+	 */
 	public Shape getBody()
 	{
 		return body;

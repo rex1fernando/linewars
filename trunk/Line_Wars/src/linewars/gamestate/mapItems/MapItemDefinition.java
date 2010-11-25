@@ -44,6 +44,16 @@ public strictfp abstract class MapItemDefinition implements Upgradable{
 	protected Shape body;
 	private GameState gameState;
 	
+	/**
+	 * Creates a map item definition loaded from the config at the given
+	 * URI with owner owner.
+	 * 
+	 * @param URI			the location of the config that defines this definition
+	 * @param owner			the player that owns this definition
+	 * @param gameState		the game state associated with this definition
+	 * @throws FileNotFoundException
+	 * @throws InvalidConfigFileException
+	 */
 	public MapItemDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException
 	{
 		parser = new ConfigFileReader(URI).read();
@@ -54,6 +64,11 @@ public strictfp abstract class MapItemDefinition implements Upgradable{
 		this.forceReloadConfigData();
 	}
 	
+	/**
+	 * Creates a dummy map item definition.
+	 * 
+	 * @param gameState	the game state associated with this map item definition
+	 */
 	protected MapItemDefinition(GameState gameState)
 	{
 		validStates = new ArrayList<MapItemState>();
@@ -143,11 +158,18 @@ public strictfp abstract class MapItemDefinition implements Upgradable{
 			return false;
 	}
 	
+	/**
+	 * 
+	 * @return	the game state associated with this definition
+	 */
 	public GameState getGameState()
 	{
 		return gameState;
 	}
 	
+	/**
+	 * Forces this definition to reload itself from its config
+	 */
 	public void forceReloadConfigData() throws FileNotFoundException, InvalidConfigFileException
 	{
 		validStates = new ArrayList<MapItemState>();
@@ -198,6 +220,9 @@ public strictfp abstract class MapItemDefinition implements Upgradable{
 		this.forceSubclassReloadConfigData();
 	}
 	
+	/**
+	 * Forces any subclass of MapItemDefinition to reload itself from its config
+	 */
 	protected abstract void forceSubclassReloadConfigData();
 	
 }

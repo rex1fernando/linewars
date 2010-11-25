@@ -24,6 +24,17 @@ public strictfp class Projectile extends MapItem {
 	
 	private Shape tempBody = null;
 	
+	/**
+	 * Creates a projectile at transformation t with definition def,
+	 * collision strategy cs, and impact strategy is. Sets its container
+	 * to l.
+	 * 
+	 * @param t		the transformation this projectile starts at
+	 * @param def	the definition that created this projectile
+	 * @param cs	the collision strategy for this projectile
+	 * @param is	the impact strategy for this projectile
+	 * @param l		the lane that this projectile is in
+	 */
 	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is, Lane l) {
 		super(t, def);
 		definition = def;

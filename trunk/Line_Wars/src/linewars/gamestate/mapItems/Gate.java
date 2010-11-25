@@ -17,11 +17,25 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
  */
 public strictfp class Gate extends Unit {
 	
+	/**
+	 * Constructs a gate at t, with definition def, movement strategy
+	 * ms, and combat strategy cs.
+	 * 
+	 * @param t		the transformation of this gate
+	 * @param def	the map item definition that created this gate
+	 * @param ms	the movement strategy for this gate
+	 * @param cs	the combat strategy for this gate
+	 */
 	public Gate(Transformation t, GateDefinition def, MovementStrategy ms,
 			CombatStrategy cs) {
 		super(t, def, ms, cs);
 	}
 
+	/**
+	 * Creates a dummy gate at t.
+	 * 
+	 * @param t
+	 */
 	public Gate(Transformation t) {
 		super(t, null, new Immovable(), new NoCombat());
 	}
