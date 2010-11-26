@@ -47,6 +47,8 @@ public class MapPanel extends JPanel
 	private static final double MIN_ZOOM = 1.5;
 
 	private static int NEXT_NODE_ID = 1;
+	
+	private MapEditor parent;
 
 	private JSlider laneWidthSlider;
 	private JComboBox nodeSelector;
@@ -106,16 +108,20 @@ public class MapPanel extends JPanel
 	 * Constructs this map panel with a default, empty map and sets the
 	 * preferred size of the panel.
 	 * 
+	 * @param parent
+	 *            The MapEditor that contains this MapPanel.
 	 * @param width
 	 *            The desired width of the panel.
 	 * @param height
 	 *            The desired height of the panel.
 	 */
-	public MapPanel(int width, int height)
+	public MapPanel(MapEditor parent, int width, int height)
 	{
 		super(null);
 		setPreferredSize(new Dimension(width, height));
 
+		this.parent = parent;
+		
 		laneWidthSlider = null;
 		nodeSelector = null;
 		buildingSelector = null;
@@ -123,7 +129,7 @@ public class MapPanel extends JPanel
 
 		// starts the user fully zoomed out
 		zoomLevel = 1.0;
-		mousePosition = null;
+		mousePosition = new Position(0, 0);
 		mapSize = new Dimension(100, 100);
 		viewport = new Rectangle2D.Double(0, 0, 100, 100);
 
@@ -238,7 +244,7 @@ public class MapPanel extends JPanel
 				lanes.add(lane);
 			}
 		}
-		else
+		else if(!force)
 			throw new IllegalArgumentException("There are no lanes defined");
 
 		if(definedKeys.contains(ParserKeys.nodes))
@@ -268,43 +274,37 @@ public class MapPanel extends JPanel
 				}
 			}
 		}
-		else
+		else if(!force)
 			throw new IllegalArgumentException("There are no nodes defined");
 
-		boolean valid = false;
-		while(!valid)
+		for(Lane l : lanes)
 		{
-			valid = true;
-			for(Lane l : lanes)
+			Node[] nodes = l.getNodes();
+			if(nodes.length == 0)
 			{
-				Node[] nodes = l.getNodes();
-				if(nodes.length == 0)
-				{
-					if(!force)
-						throw new IllegalArgumentException("Lane " + l.getName() + " has no nodes");
+				if(!force)
+					throw new IllegalArgumentException("Lane " + l.getName() + " has no nodes");
 
-					lanes.remove(l);
-				}
-				else if(nodes.length == 1)
-				{
-					if(!force)
-						throw new IllegalArgumentException("Lane " + l.getName() + " has only one attached node");
-
-					valid = false;
-					nodes[0].removeAttachedLane(l);
-					lanes.remove(l);
-				}
+				lanes.remove(l);
 			}
-
-			for(Node n : nodes)
+			else if(nodes.length == 1)
 			{
-				if(n.getAttachedLanes().length == 0)
-				{
-					if(!force)
-						throw new IllegalArgumentException("There is a node with no attached lanes");
+				if(!force)
+					throw new IllegalArgumentException("Lane " + l.getName() + " has only one attached node");
 
-					nodes.remove(n);
-				}
+				nodes[0].removeAttachedLane(l);
+				lanes.remove(l);
+			}
+		}
+
+		for(Node n : nodes)
+		{
+			if(n.getAttachedLanes().length == 0)
+			{
+				if(!force)
+					throw new IllegalArgumentException("There is a node with no attached lanes");
+
+				nodes.remove(n);
 			}
 		}
 	}
@@ -714,6 +714,8 @@ public class MapPanel extends JPanel
 			nodes.remove(selectedNode);
 			nodeSelector.removeItem(selectedNode);
 			selectedNode = null;
+			
+			parent.refreshNodeEditingPanel();
 		}
 		else if(createBuilding)
 		{
@@ -728,6 +730,8 @@ public class MapPanel extends JPanel
 			buildingSpots.remove(selectedBuilding);
 			buildingSelector.removeItem(selectedBuilding);
 			selectedBuilding = null;
+			
+			parent.refreshNodeEditingPanel();
 		}
 		else if(createCC)
 		{
@@ -742,6 +746,8 @@ public class MapPanel extends JPanel
 			commandCenters.remove(selectedCommandCenter);
 			commandCenterSelector.removeItem(selectedCommandCenter);
 			selectedCommandCenter = null;
+			
+			parent.refreshNodeEditingPanel();
 		}
 	}
 
@@ -955,10 +961,12 @@ public class MapPanel extends JPanel
 		if(movingNode != null)
 		{
 			moveNode(change);
+			parent.refreshNodeEditingPanel();
 		}
 		else if(movingSpot != null)
 		{
 			moveSpot(change);
+			parent.refreshNodeEditingPanel();
 		}
 		else if(movingLane != null)
 		{

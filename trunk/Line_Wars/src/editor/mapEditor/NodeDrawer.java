@@ -41,7 +41,7 @@ public class NodeDrawer
 	public void createMap(Graphics g, Node node)
 	{
 		// set the color for the node
-		g.setColor(Color.red);
+		g.setColor(Color.white);
 
 		// get the position of the node
 		double radius = node.getBoundingCircle().getRadius();

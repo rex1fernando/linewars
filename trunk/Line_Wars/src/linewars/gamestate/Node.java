@@ -104,7 +104,7 @@ public strictfp class Node {
 				throw e;
 		}
 
-		if(parser.getDefinedKeys().contains(ParserKeys.buildingSpots))
+		if(parser.getDefinedKeys().contains(ParserKeys.commandCenterTransformation))
 			cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
 		else if(force)
 			cCenterTransform = new BuildingSpot(shape.position().getPosition());
@@ -179,6 +179,9 @@ public strictfp class Node {
 			data.add(ParserKeys.buildingSpots, s.getData());
 		}
 		
+		if(cCenterTransform != null)
+			cCenterTransform = new BuildingSpot(shape.position().getPosition());
+
 		data.set(ParserKeys.commandCenterTransformation, cCenterTransform.getData());
 		data.set(ParserKeys.shape, shape.getData());
 		data.set(ParserKeys.isStartNode, Boolean.toString(isStartNode));

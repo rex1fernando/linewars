@@ -106,7 +106,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 2;
-		map = new MapPanel(768, 512);
+		map = new MapPanel(this, 768, 512);
 		layout.setConstraints(map, c);
 		add(map);
 
@@ -514,8 +514,41 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	{
 		Node n = (Node)nodeSelector.getSelectedItem();
 
-		containedBuildingSpots.setListData(n.getBuildingSpots().toArray());
-		containedCommandCenter.setListData(new BuildingSpot[] {n.getCommandCenterSpot()});
+		if(n != null)
+		{
+			containedBuildingSpots.setListData(n.getBuildingSpots().toArray());
+			containedCommandCenter.setListData(new BuildingSpot[] {n.getCommandCenterSpot()});
+		}
+		else
+		{
+			containedBuildingSpots.setListData(new BuildingSpot[0]);
+			containedCommandCenter.setListData(new BuildingSpot[0]);
+		}
+	}
+	
+	/**
+	 * Refreshes the information in the node editing panel.
+	 */
+	public void refreshNodeEditingPanel()
+	{
+		nodeSelector.repaint();
+		buildingSpotSelector.repaint();
+		commandCenterSelector.repaint();
+		
+		Node selectedNode = (Node)nodeSelector.getSelectedItem();
+		BuildingSpot selectedBuilding = (BuildingSpot)buildingSpotSelector.getSelectedItem();
+		BuildingSpot selectedCC = (BuildingSpot)commandCenterSelector.getSelectedItem();
+		
+		if(selectedNode != null)
+			map.setSelectedNode(selectedNode);
+			
+		if(selectedBuilding != null)
+			map.setSelectedBuilding(selectedBuilding);
+			
+		if(selectedCC != null)
+			map.setSelectedCommandCenter(selectedCC);
+			
+		populateBuildingLists();
 	}
 
 	@Override
