@@ -427,7 +427,7 @@ public class GameLobby extends javax.swing.JFrame {
 							int i = 0;
 							for (; i < players.size() && !players.get(i).ipAddress.equals(ipAddress); ++i);
 							
-							g.initializeClient(players.size(), ipAddress, i);
+							g.initializeClient(players.size(), socket.getInetAddress().getHostAddress(), i);
 						}
 						
 						running = false;
