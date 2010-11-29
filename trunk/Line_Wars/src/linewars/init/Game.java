@@ -3,6 +3,7 @@ package linewars.init;
 import java.io.FileNotFoundException;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.List;
 
 import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.display.Display;
@@ -144,5 +145,50 @@ public strictfp class Game {
 		Thread disp = new Thread(display);
 		disp.setName("Display");
 		disp.start();
+	}
+	
+	public Game(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames)
+	{
+		try {
+			logic = new TimingManager(mapURI, numPlayers, raceURIs, playerNames);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void initializeServer(int numPlayers, List<String> clientAddresses)
+	{
+		//single player init
+		if(numPlayers != 1)
+		{
+			try {
+				server = new Server(clientAddresses.toArray(new String[0]), SOCKET_PORT);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void initializeClient(String serverAddress, int playerIndex)
+	{
+		//single player init
+		if(numPlayers == 1)
+		{
+			networking = new SinglePlayerNetworkProxy();
+		}
+		else
+		{
+			try {
+				networking = new Client(serverAddress, SOCKET_PORT);
+			} catch (SocketException e) {
+				// if this happens.... well crap...
+				e.printStackTrace();
+			}
+		}
+		
+		display = new Display(logic.getGameStateManager(), networking, playerIndex);
+		logic.setClientReference(networking);
 	}
 }
