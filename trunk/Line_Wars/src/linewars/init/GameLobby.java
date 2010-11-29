@@ -131,7 +131,7 @@ public class GameLobby extends javax.swing.JFrame {
 	
 	private void showMainMenu()
 	{
-		
+		// TODO implement
 	}
 	
 	private Game initializeGame()
@@ -282,6 +282,13 @@ public class GameLobby extends javax.swing.JFrame {
 					{
 						writeObject(c, "cancel");
 					}
+					
+					running = false;
+					try {
+						serverSocket.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 				
 				showMainMenu();
@@ -372,6 +379,7 @@ public class GameLobby extends javax.swing.JFrame {
 	{
 		private PrintWriter out;
 		private ObjectInputStream in;
+		private Socket socket;
 		
 		private String ipAddress;
 		private String clientName;
@@ -380,6 +388,7 @@ public class GameLobby extends javax.swing.JFrame {
 		
 		public ServerConnection(Socket socket, String clientName)
 		{
+			this.socket = socket;
 			try {
 				in = new ObjectInputStream(socket.getInputStream());
 				out = new PrintWriter(socket.getOutputStream(), true);
@@ -428,8 +437,14 @@ public class GameLobby extends javax.swing.JFrame {
 					}
 					else if (input.equals("cancel"))
 					{
-						// TODO display a message and return the the main menu
-						System.out.println("The host canceled the game.");
+						// TODO display a message
+						
+						running = false;
+						try {
+							socket.close();
+						} catch (IOException e) {}
+						
+						showMainMenu();
 					}
 				}
 			}
@@ -445,8 +460,13 @@ public class GameLobby extends javax.swing.JFrame {
 			}
 			else if (src == cancelButton)
 			{
-				System.out.println("Client is leaving the game.");
 				// TODO inform the host that this client is leaving the game
+				
+				try {
+					socket.close();
+				} catch (IOException e1) {}
+				
+				showMainMenu();
 			}
 		}
 		
