@@ -160,6 +160,7 @@ public strictfp class Game {
 	
 	public void initializeServer(int numPlayers, List<String> clientAddresses)
 	{
+		this.numPlayers = numPlayers;
 		//single player init
 		if(numPlayers != 1)
 		{
