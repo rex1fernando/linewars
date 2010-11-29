@@ -160,7 +160,6 @@ public strictfp class Game {
 	
 	public void initializeServer(int numPlayers, List<String> clientAddresses)
 	{
-		this.numPlayers = numPlayers;
 		//single player init
 		if(numPlayers != 1)
 		{
@@ -172,10 +171,9 @@ public strictfp class Game {
 		}
 	}
 	
-	public void initializeClient(String serverAddress, int playerIndex)
+	public void initializeClient(int numPlayers, String serverAddress, int playerIndex)
 	{
-		//single player init
-		if(numPlayers == 1)
+		if (numPlayers == 1)
 		{
 			networking = new SinglePlayerNetworkProxy();
 		}
