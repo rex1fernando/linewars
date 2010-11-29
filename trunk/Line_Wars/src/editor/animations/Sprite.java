@@ -66,6 +66,9 @@ public class Sprite {
 		BufferedImage im = null;
 		im = ImageIO.read(new File(imageLocation));
 		
+		if(im == null)
+			throw new IOException("The image " + imageLocation + " was not read correctly");
+		
 		GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		image = gc.createCompatibleImage(im.getWidth(),im.getHeight(),Transparency.TRANSLUCENT);
 		
