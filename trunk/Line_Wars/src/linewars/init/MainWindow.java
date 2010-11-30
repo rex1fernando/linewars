@@ -2,11 +2,16 @@ package linewars.init;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+
+import linewars.configfilehandler.ConfigFileReader;
+import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.configfilehandler.ParserKeys;
 
 
 public class MainWindow extends javax.swing.JFrame implements ActionListener {
@@ -64,22 +69,26 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener {
 	
 	public String[] getMaps()
 	{
-		// TODO get the maps somehow
-		return new String[]{
-				"resources/maps/3_lane_map.cfg"
-		};
+		try {
+			return (new ConfigFileReader("resources/masterList.cfg").read().getStringList(ParserKeys.mapURI)).toArray(new String[0]);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public String[] getRaces()
 	{
-		// TODO get races somehow
-		return new String[] {
-				"resources/races/thatOneRace.cfg",
-				"race 2",
-				"race 3",
-				"race 4",
-				"race 5"
-		};
+		try {
+			return (new ConfigFileReader("resources/masterList.cfg").read().getStringList(ParserKeys.raceURI)).toArray(new String[0]);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigFileException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private void initGUI() {
