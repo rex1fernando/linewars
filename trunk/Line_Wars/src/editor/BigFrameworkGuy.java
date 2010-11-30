@@ -694,7 +694,7 @@ public class BigFrameworkGuy
 			}
 
 			//make the run scripts
-			String runCommand = "java linewars.init.DrWeissRunMe";
+			String runCommand = "java linewars.init.MainWindow";
 			String[] runScripts = new String[]{"Windows_Run.bat", "Linux_Mac_Run.sh"};
 			for(String script : runScripts)
 			{
