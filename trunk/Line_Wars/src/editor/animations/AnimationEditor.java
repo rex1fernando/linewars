@@ -54,6 +54,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	private JButton clearBackground;
 	private JButton setSpeedRange;
 	private JButton removeSelected;
+	private JButton applyRotation;
 	private JPanel scrollPanel;
 	private JScrollPane scrollPane;
 	private JPanel leftPanel;
@@ -107,6 +108,9 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		removeSelected = new JButton("Remove Selected");
 		removeSelected.addActionListener(this);
 		
+		applyRotation = new JButton("Rotate...");
+		applyRotation.addActionListener(this);
+		
 		JPanel buttonLeftPanel = new JPanel();
 		buttonLeftPanel.setLayout(new BoxLayout(buttonLeftPanel, BoxLayout.Y_AXIS));
 		
@@ -117,6 +121,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		buttonLeftPanel.add(setSpeedRange);
 		buttonLeftPanel.add(resetSpeed);
 		buttonLeftPanel.add(removeSelected);
+		buttonLeftPanel.add(applyRotation);
 		buttonPanel.add(buttonLeftPanel);
 		buttonPanel.add(ap);
 		buttonPanel.add(speedSlider);
@@ -142,7 +147,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         
         try {
         	Scanner s = new Scanner(new File("lastBackground.txt"));
-        	background = new Sprite(s.nextLine());
+        	background = new Sprite(s.nextLine(), false);
         }
         catch(Exception e) {}
 	}
@@ -294,7 +299,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	        	try {
-					background = new Sprite(fc.getSelectedFile().getAbsolutePath());
+					background = new Sprite(fc.getSelectedFile().getAbsolutePath(), false);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					return;
@@ -349,6 +354,20 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 			}
 			
 			this.newList = newList;
+		}
+		else if(arg0.getSource().equals(applyRotation))
+		{
+			String s = (String)JOptionPane.showInputDialog(mainPanel, "Input the rotation in degrees", "",
+					JOptionPane.PLAIN_MESSAGE, null, null, "0");
+			try {
+				double rot = Double.valueOf(s);
+				
+				for(Frame f : list)
+					f.getFrame().rotate(-rot/180.0*Math.PI);
+				
+			} catch(NumberFormatException e) {
+				
+			}
 		}
 		
 		mainPanel.validate();
@@ -421,14 +440,11 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 		for(Frame f : list)
 		{
 			File to = new File(dir, new File(f.getFrame().toString()).getName());
-			if(!to.exists())
-			{
-				try {
-					FileCopy.copy(f.getFrame().toString(), to.getAbsolutePath());
-				} catch (IOException e) {
-					e.printStackTrace();
-					continue;
-				}
+			try {
+				f.getFrame().save(to.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+				continue;
 			}
 			
 			cd.add(ParserKeys.icon, new File(f.getFrame().toString()).getName());

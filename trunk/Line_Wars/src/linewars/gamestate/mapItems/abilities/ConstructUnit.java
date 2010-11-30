@@ -31,6 +31,8 @@ public strictfp class ConstructUnit implements Ability {
 	public void update() {
 		if((long)(unitDefinition.getGameState().getTime()*1000) - startTime > buildTime)
 		{
+			if(building.getState() != MapItemState.Active)
+				building.setState(MapItemState.Active);
 			Unit u = unitDefinition.createUnit(building.getTransformation());
 			building.getNode().addUnit(u);
 			startTime = (long)(unitDefinition.getGameState().getTime()*1000);

@@ -1,6 +1,7 @@
 package editor.animations;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -46,7 +47,7 @@ public class Frame extends JPanel implements ItemListener{
 	 */
 	public Frame(String filePath) throws IOException
 	{
-		frame = new Sprite(filePath);
+		frame = new Sprite(filePath, true);
 		ImageIcon icon = new ImageIcon(filePath);
 		Image img = icon.getImage();
 		img = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);

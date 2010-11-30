@@ -46,4 +46,21 @@ public strictfp class Gate extends Unit {
 		super.setState(m);
 	}
 	
+	@Override
+	public void setTransformation(Transformation t)
+	{
+		
+	}
+	
+	@Override 
+	public void setRotation(double rot)
+	{
+		
+	}
+	
+	public void setPosition(double pos)
+	{
+		
+	}
+	
 }

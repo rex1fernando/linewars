@@ -156,7 +156,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 			for(int i = 0; i < uris.length; i++)
 			{
 				try {
-					images[i] = new Sprite(new File(new File(animation.getURI()).getParentFile(), uris[i]).getAbsolutePath());
+					images[i] = new Sprite(new File(new File(animation.getURI()).getParentFile(), uris[i]).getAbsolutePath(), false);
 				} catch (IOException e) {
 					e.printStackTrace();
 					running = false;
@@ -176,8 +176,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 			g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 			
 			//calculate the width and height scaling and pick the smallest
-			double widthScale = canvas.getWidth()/images[currentImage].getWidth();
-			double heightScale = canvas.getHeight()/images[currentImage].getHeight();
+			double widthScale = (double)canvas.getWidth()/images[currentImage].getWidth();
+			double heightScale = (double)canvas.getHeight()/images[currentImage].getHeight();
 			double scale = Math.min(widthScale, heightScale);
 			
 			//draw the image
