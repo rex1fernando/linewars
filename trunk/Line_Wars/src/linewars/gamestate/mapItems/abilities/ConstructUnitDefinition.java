@@ -47,7 +47,7 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 	@Override
 	public Ability createAbility(MapItem m) {
 		if(m instanceof Building)
-			return new ConstructUnit(unitDefinition, (Building)m, buildtime);
+			return new ConstructUnit((Building)m, this);
 		else
 			throw new IllegalArgumentException("Only buildings may construct units");
 	}
@@ -110,6 +110,16 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 		} catch (InvalidConfigFileException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public long getBuildTime()
+	{
+		return buildtime;
+	}
+	
+	public UnitDefinition getUnitDefinition()
+	{
+		return unitDefinition;
 	}
 
 }

@@ -293,6 +293,24 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 					allValidKeys.add(toAdd);
 				}
 			}
+			if(stringIsInArray(bfg.getAbilityURIs(), uri)){
+				ParserKeys[] candidates = currentEditor.getValidAbilityModifiers();
+				for(ParserKeys toAdd : candidates){
+					allValidKeys.add(toAdd);
+				}				
+			}
+			if(stringIsInArray(bfg.getBuildingURIs(), uri)){
+				ParserKeys[] candidates = currentEditor.getValidBuildingModifiers();
+				for(ParserKeys toAdd : candidates){
+					allValidKeys.add(toAdd);
+				}				
+			}
+			if(stringIsInArray(bfg.getProjectileURIs(), uri)){
+				ParserKeys[] candidates = currentEditor.getValidProjectileModifiers();
+				for(ParserKeys toAdd : candidates){
+					allValidKeys.add(toAdd);
+				}				
+			}
 		}
 		ParserKeys[] ret = new ParserKeys[allValidKeys.size()];
 		int i = 0;

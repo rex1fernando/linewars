@@ -31,7 +31,7 @@ public strictfp class Building extends MapItem {
 	}
 
 	@Override
-	protected MapItemDefinition getDefinition() {
+	public MapItemDefinition getDefinition() {
 		return definition;
 	}
 	

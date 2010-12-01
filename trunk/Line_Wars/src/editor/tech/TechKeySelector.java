@@ -273,6 +273,7 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	//means syntactically correct and complete
 	boolean upgradableModificationIsValid(ConfigData modifiedUpgradable){
+		saveModData();
 		//make sure there is a URI here
 		String uri = null;
 		try{

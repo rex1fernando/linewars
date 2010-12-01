@@ -108,7 +108,7 @@ public strictfp class Unit extends MapItem {
 	}
 	
 	@Override
-	protected MapItemDefinition getDefinition() {
+	public MapItemDefinition getDefinition() {
 		return definition;
 	}
 

@@ -13,29 +13,27 @@ import linewars.gamestate.mapItems.UnitDefinition;
  */
 public strictfp class ConstructUnit implements Ability {
 	
-	private UnitDefinition unitDefinition;
 	private Building building;
 	private long startTime;
-	private long buildTime;
+	private ConstructUnitDefinition def;
 	
-	public ConstructUnit(UnitDefinition ud, Building b, long buildTime)
+	public ConstructUnit(Building b, ConstructUnitDefinition def)
 	{
-		unitDefinition = ud;
+		this.def = def;
 		building = b;
 		b.setState(MapItemState.Active);
-		startTime = (long)(unitDefinition.getGameState().getTime()*1000);
-		this.buildTime = buildTime;
+		startTime = (long)(b.getDefinition().getGameState().getTime()*1000);
 	}
 
 	@Override
 	public void update() {
-		if((long)(unitDefinition.getGameState().getTime()*1000) - startTime > buildTime)
+		if((long)(building.getDefinition().getGameState().getTime()*1000) - startTime > def.getBuildTime())
 		{
 			if(building.getState() != MapItemState.Active)
 				building.setState(MapItemState.Active);
-			Unit u = unitDefinition.createUnit(building.getTransformation());
+			Unit u = def.getUnitDefinition().createUnit(building.getTransformation());
 			building.getNode().addUnit(u);
-			startTime = (long)(unitDefinition.getGameState().getTime()*1000);
+			startTime = (long)(building.getDefinition().getGameState().getTime()*1000);
 		}
 	}
 

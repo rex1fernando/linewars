@@ -106,7 +106,7 @@ public strictfp class Projectile extends MapItem {
 	}
 
 	@Override
-	protected MapItemDefinition getDefinition() {
+	public MapItemDefinition getDefinition() {
 		return definition;
 	}
 

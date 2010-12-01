@@ -43,7 +43,7 @@ public strictfp abstract class MapItem {
 		activeAbilities = new ArrayList<Ability>();
 	}
 	
-	protected abstract MapItemDefinition getDefinition();
+	public abstract MapItemDefinition getDefinition();
 	
 	/**
 	 * This method updates all the map item's currently active abilities

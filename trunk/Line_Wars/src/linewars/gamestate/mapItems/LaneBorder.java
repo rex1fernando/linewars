@@ -23,7 +23,7 @@ public strictfp class LaneBorder extends MapItem {
 	}
 
 	@Override
-	protected MapItemDefinition getDefinition() {
+	public MapItemDefinition getDefinition() {
 		return lbd;
 	}
 

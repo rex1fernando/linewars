@@ -318,7 +318,9 @@ public class TechURISelector implements ConfigurationEditor {
 		//we're good, this is an actual change
 		
 		//save data currently in the keySelector
-		saveKeyData();
+		if(onlyHighlightedURI != null){
+			saveKeyData();
+		}
 		
 		keySelector.reset();
 		
