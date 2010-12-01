@@ -51,7 +51,7 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
 @SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
-	private static final boolean OPPONENTS_NODES_SELECTABLE = true;
+	private static final boolean DEBUG_MODE = false;
 
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
@@ -256,7 +256,7 @@ public class Display extends JFrame implements Runnable
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider);
+			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, playerIndex);
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
@@ -300,10 +300,12 @@ public class Display extends JFrame implements Runnable
 				currentView.get(i).draw(g, gamestate, viewport, scale);
 			}
 
-			// TODO
-			g.setColor(Color.white);
-			g.drawString("Logic ups: " + Double.toString(gameStateProvider.getUpdateRate()), 125, 25);
-			g.drawString("Display fps: " + Double.toString(fps), 125, 50);
+			if(DEBUG_MODE)
+			{
+				g.setColor(Color.white);
+				g.drawString("Logic ups: " + Double.toString(gameStateProvider.getUpdateRate()), 125, 25);
+				g.drawString("Display fps: " + Double.toString(fps), 125, 50);
+			}
 
 			// draws the panels if they are shown
 			updatePanels(g, gamestate, scale);
@@ -513,9 +515,9 @@ public class Display extends JFrame implements Runnable
 				nodeStatusPanel.setVisible(true);
 				nodeStatusPanel.updateNodeStatus(node, gamestate.getTime() * 1000);
 
-				if(cc == null)
+				if(cc == null || (cc.getOwner().getPlayerID() != playerIndex && !DEBUG_MODE))
 				{
-					commandCardPanel.setVisible(true);
+					commandCardPanel.setVisible(false);
 				}
 				else
 				{
@@ -579,8 +581,8 @@ public class Display extends JFrame implements Runnable
 			Node[] nodes = gs.getMap().getNodes();
 			for(Node n : nodes)
 			{
-				if((n.getOwner() != null && n.getOwner().getPlayerID() == playerIndex) || OPPONENTS_NODES_SELECTABLE)
-				{
+//				if(n.getOwner() != null)
+//				{
 					double radius = n.getBoundingCircle().getRadius();
 					Rectangle rect = new Rectangle(n.getTransformation(), 2 * radius, 2 * radius);
 
@@ -588,7 +590,7 @@ public class Display extends JFrame implements Runnable
 					{
 						return n;
 					}
-				}
+//				}
 			}
 
 			// List<CommandCenter> ccs = gs.getCommandCenters();

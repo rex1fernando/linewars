@@ -22,6 +22,8 @@ public class ResourceDisplayPanel extends Panel
 	 */
 	private static final int WIDTH = 100;
 	private static final int HEIGHT = 25;
+	
+	private int playerIndex;
 
 	/**
 	 * Constructs this panel.
@@ -29,9 +31,11 @@ public class ResourceDisplayPanel extends Panel
 	 * @param stateManager
 	 *            the gamestate manager for this instance of the game.
 	 */
-	public ResourceDisplayPanel(GameStateProvider stateManager)
+	public ResourceDisplayPanel(GameStateProvider stateManager, int playerIndex)
 	{
 		super(stateManager, WIDTH, HEIGHT);
+		
+		this.playerIndex = playerIndex;
 	}
 
 	@Override
@@ -49,7 +53,7 @@ public class ResourceDisplayPanel extends Panel
 		Graphics b = buf.getGraphics();
 
 		// TODO get the correct player
-		Player player = stateManager.getCurrentGameState().getPlayer(0);
+		Player player = stateManager.getCurrentGameState().getPlayer(playerIndex);
 
 		b.setColor(Color.white);
 		// b.drawString(Integer.toString(3527), 0, 12);
