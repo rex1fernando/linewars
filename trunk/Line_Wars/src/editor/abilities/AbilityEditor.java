@@ -265,7 +265,8 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 		}
 		else
 		{
-			subPanel.remove(uriSelector);
+			if(uriSelector != null)
+				subPanel.remove(uriSelector);
 			uriSelector = null;
 		}
 		
@@ -278,7 +279,8 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 		}
 		else
 		{
-			subPanel.remove(numberBox);
+			if(numberBox != null)
+				subPanel.remove(numberBox);
 			numberBox = null;
 		}
 		
