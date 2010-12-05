@@ -13,6 +13,8 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import linewars.network.messages.Message;
 
@@ -32,35 +34,70 @@ import linewars.network.messages.Message;
  */
 public class GateKeeper
 {
+	/**
+	 * The maximum number of bytes that can be sent in a packet.
+	 */
 	private static final int MAX_MTU = 1500;
-	private static final int TARGET_MTU = 1000;
-	private static final long SLEEP_TIME = 10;
-	private static final int SO_TIMEOUT = 1;
 	
+	/**
+	 * The number of bytes that the Gatekeepwer will allow to be in a single packet
+	 * because of the extra storage of the object wrapper.
+	 */
+	private static final int TARGET_MTU = MAX_MTU - 100;
+	
+	/**
+	 * The socket the Gatekeeper will be communicating over.
+	 */
 	private DatagramSocket socket;
+	
+	/**
+	 * The port the Gatekeeper uses for communication.
+	 */
 	private int port;
 	
-	// TODO access to the hash maps of messages is NOT thread safe!!!!!!
+	/**
+	 * Contains all the messages for the entire game.  Every time step is mapped
+	 * to all the players' messages for that step.  The players are then mapped to
+	 * their specific messages for that tick.
+	 */
+	private Map<Integer, Map<String, Message[]>> messages;
 	
-	// map from timeStep to a (map from playerAddress to messages)
-	private HashMap<Integer, HashMap<String, Message[]>> messages;
+	/**
+	 * A repository of all messages sent to the server.  This map is needed because
+	 * the packet of messages sent to the sever may have dropped before the server
+	 * could redistribute them.  Therefore, this separate map is also required for
+	 * sending requested messages.
+	 */
+	private Map<Integer, Message[]> resendMessages;
 	
-	// messages used for resend requests
-	private HashMap<Integer, Message[]> resendMessages;
-	
+	/**
+	 * The class that listens for messages over the network and acts upon those messages.
+	 */
 	private MessageListener msgListener;
 	
+	/**
+	 * A list of addresses that the server uses to send out messages to.
+	 */
 	private String[] listeningAddresses;
 	
+	/**
+	 * Creates a new GateKeeper with the specified listening addressess, listening port,
+	 * and sending port.
+	 * 
+	 * @param listeningAddresses The list of addresses the GateKeeper should expect messages
+	 *                           from.
+	 * @param port The port the GateKeeper should listen on for incoming messages.
+	 * @param sendToPort The port the GateKeeper should use for sending outgoing messages.
+	 * @throws SocketException If there was a problem setting up the socket.
+	 */
 	public GateKeeper(String[] listeningAddresses, int port, int sendToPort) throws SocketException
 	{
-		messages = new HashMap<Integer, HashMap<String, Message[]>>();
-		resendMessages = new HashMap<Integer, Message[]>();
+		messages = new ConcurrentHashMap<Integer, Map<String, Message[]>>();
+		resendMessages = new ConcurrentHashMap<Integer, Message[]>();
 		
 		socket = new DatagramSocket(port);
-		socket.setSoTimeout(SO_TIMEOUT);
 		
-		msgListener = new MessageListener(SLEEP_TIME);
+		msgListener = new MessageListener();
 		this.port = sendToPort;
 		
 		this.listeningAddresses = listeningAddresses;
@@ -145,6 +182,12 @@ public class GateKeeper
 		resendMessages.put(msgs[0].getTimeStep(), msgs);
 	}
 	
+	/**
+	 * Sends a request to a player for their messages for a specific tick.
+	 * 
+	 * @param tickID The tick we want messages for.
+	 * @param playerAddress The player we want messages from.
+	 */
 	private void sendMessageResendRequest(int tickID, String playerAddress)
 	{
 		ResendRequest request = new ResendRequest(tickID);
@@ -156,41 +199,52 @@ public class GateKeeper
 		}
 	}
 	
+	/**
+	 * The message listener listens for messages from other users and acts upon those messages
+	 * when they arrive (aka storing them or sending resend requests).
+	 */
 	private class MessageListener
 	{
-		private long delay;
 		private boolean isListening;
 		
 		private HashMap<MessageID, List<MessagePacket>> incompletePackets;
 		
-		public MessageListener(long delay)
+		/**
+		 * Initializes a new MessageListener object that is ready to start.
+		 */
+		public MessageListener()
 		{
-			this.delay = delay;
+			// this is thread safe because the listener's thread is the only one that
+		    // uses it
 			incompletePackets = new HashMap<MessageID, List<MessagePacket>>();
-			isListening = true;
+			isListening = false;
 		}
 		
 		public void start()
 		{
-			System.out.println("Started");
+			isListening = true;
 			while (isListening)
 			{
 				DatagramPacket packet = receivePacket();
 				if (packet != null)
 				{
-					if (handleResendRequestPacket(packet) == false)
+					// if the packet is a resend request it handles it
+					boolean isResendRequest = handleResendRequestPacket(packet);
+					if (!isResendRequest)
 					{
+						// if it is NOT a resend request, it must be a message
 						handleMessagePacket(packet);
 					}
-				} else
-				{
-					// sleep
-					try { Thread.sleep(delay); }
-					catch (InterruptedException e) { e.printStackTrace(); }
 				}
 			}
 		}
 		
+		/**
+		 * Waits to receive a packet.  If the receive call times out, this method
+		 * returns null.
+		 * 
+		 * @return The received packet or null if the call timed out while waiting.
+		 */
 		private DatagramPacket receivePacket()
 		{
 			DatagramPacket packet = new DatagramPacket(new byte[MAX_MTU], MAX_MTU);
@@ -205,10 +259,17 @@ public class GateKeeper
 			return (receivedData) ? packet : null;
 		}
 		
+		/**
+		 * Checks to see if the packet is a resend request.  If so, it proceeds to
+		 * send the requested messages back to the requester.
+		 * 
+		 * @param packet The packet to be parsed.
+		 * @return True if the packet is indeed a resend request and was handled.
+		 */
 		private boolean handleResendRequestPacket(DatagramPacket packet)
 		{
-			ResendRequest request = null;
 			// deserializes the packet data
+			ResendRequest request = null;
 			try {
 				request = (ResendRequest) Serializer.deSerialize(packet.getData());
 			} catch (Exception e) {
@@ -216,14 +277,18 @@ public class GateKeeper
 				return false;
 			}
 			
+			// the messages requested
 			Message[] toSend = resendMessages.get(request.timeStep);
 			
+			// if this time step's resendMessages is null, we know 
 			if (toSend == null)
 			{
 				// count the number of messages
 				int numMessages = 0;
 				for (String player : listeningAddresses)
 				{
+					// if any  messages for this tick are missing, return without sending anything and
+					// just wait for them to come in
 					if (messages.get(request.timeStep) == null || messages.get(request.timeStep).get(player) == null)
 					{
 						return true;
@@ -251,11 +316,18 @@ public class GateKeeper
 			
 		}
 		
+		/**
+		 * If the packet is a message packet, it deserializes it into a MessagePacket.
+		 * Since a list of messages could be larger than the maximum packet size, this
+		 * method handles ensuring that all message packets have arrived before fully
+		 * constructing the array of messages.
+		 * 
+		 * @param packet The packet to be deserialized.
+		 */
 		private void handleMessagePacket(DatagramPacket packet)
 		{
-			MessagePacket msgPacket = null;
-			
 			// deserializes the packet data
+			MessagePacket msgPacket = null;
 			try {
 				msgPacket = (MessagePacket) Serializer.deSerialize(packet.getData());
 			} catch (Exception e) {
@@ -280,6 +352,7 @@ public class GateKeeper
 					// if there are multiple packets, create a new list of packets
 					else
 					{
+						// this is thread safe because this thread is the only one touching this
 						List<MessagePacket> packetList = new LinkedList<MessagePacket>();
 						packetList.add(msgPacket);
 						incompletePackets.put(msgID, packetList);
@@ -313,9 +386,9 @@ public class GateKeeper
 		private void buildAndStoreMessages(MessagePacket[] packets, String senderAddress)
 		{
 			int timeStep = packets[0].timeStep;
-			Message[] msgs = null;
 			
 			// create the message
+			Message[] msgs = null;
 			try {
 				msgs = MessageConstructor.constructMessage(packets);
 			} catch (InvalidMessageException e) {
@@ -326,10 +399,45 @@ public class GateKeeper
 			// map for this time step
 			if (messages.get(timeStep) == null)
 			{
-				messages.put(timeStep, new HashMap<String, Message[]>());
+				messages.put(timeStep, new ConcurrentHashMap<String, Message[]>());
 			}
 			
-			messages.get(timeStep).put(senderAddress, msgs);
+			// if messages for this timestep have already been found, ignore them
+			if (messages.get(timeStep).get(senderAddress) == null)
+			{
+				messages.get(timeStep).put(senderAddress, msgs);
+			}
+		}
+		
+		/**
+		 * A class used to uniquely identify messages by using the playerId and
+		 * the time step.  This is used by the MessageListener 
+		 */
+		private class MessageID
+		{
+			private int playerID;
+			private int timeStep;
+			
+			public MessageID(int playerID, int timeStep)
+			{
+				this.playerID = playerID;
+				this.timeStep = timeStep;
+			}
+			
+			@Override
+			public boolean equals(Object o)
+			{
+				if (!(o instanceof MessageID)) return false;
+				
+				MessageID m = (MessageID) o;
+				return (playerID == m.playerID && timeStep == m.timeStep);
+			}
+			
+			@Override
+			public int hashCode()
+			{
+				return (playerID * 31) + (timeStep * 31 * 31);
+			}
 		}
 	}
 	
@@ -358,6 +466,9 @@ public class GateKeeper
 		}
 	}
 	
+	/**
+	 * Contains all the data needed in a resend request.
+	 */
 	private static class ResendRequest implements Serializable
 	{
 		private static final long serialVersionUID = 5045500930325923878L;
@@ -369,6 +480,10 @@ public class GateKeeper
 		}
 	}
 	
+	/**
+	 * A class encapsulating the methods of splitting up messages into packets
+	 * and reconstructing messages from packets.
+	 */
 	private static class MessageConstructor
 	{
 		/**
@@ -451,6 +566,9 @@ public class GateKeeper
 		}
 	}
 	
+	/**
+	 * A class encapsulating how objects are serialized and deserialized.
+	 */
 	private static class Serializer
 	{
 		/**
@@ -495,33 +613,10 @@ public class GateKeeper
 		}
 	}
 	
-	private static class MessageID
-	{
-		private int playerID;
-		private int timeStep;
-		
-		public MessageID(int playerID, int timeStep)
-		{
-			this.playerID = playerID;
-			this.timeStep = timeStep;
-		}
-		
-		@Override
-		public boolean equals(Object o)
-		{
-			if (!(o instanceof MessageID)) return false;
-			
-			MessageID m = (MessageID) o;
-			return (playerID == m.playerID && timeStep == m.timeStep);
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			return (playerID * 31) + (timeStep * 31 * 31);
-		}
-	}
-
+	/**
+	 * An exception thrown when the MessageConstructor is unable to construct messages
+	 * from the packets given.
+	 */
 	private static class InvalidMessageException extends Exception
 	{
 		private static final long serialVersionUID = -7580077906255482160L;
