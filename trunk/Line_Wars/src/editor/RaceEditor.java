@@ -83,7 +83,6 @@ public class RaceEditor implements ConfigurationEditor
 					|| cd.getString(ParserKeys.name) == null
 					|| cd.getString(ParserKeys.commandCenterURI) == null
 					|| cd.getStringList(ParserKeys.unitURI).size() == 0
-					|| cd.getStringList(ParserKeys.techURI).size() == 0
 					|| cd.getStringList(ParserKeys.buildingURI).size() == 0)
 			{
 				return false;
