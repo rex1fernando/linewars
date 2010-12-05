@@ -9,6 +9,8 @@ import linewars.network.MessageProvider;
 import linewars.network.messages.Message;
 
 /**
+ * This class handles the top-level logic related to updating the game - the so-called 'game loop'.
+ * Its most important duty is determining how rapidly the game updates.
  * 
  * @author Taylor Bergquist
  *
@@ -17,64 +19,79 @@ public class TimingManager implements Runnable{
 	public static final int TIME_PER_TICK_MILLIS = 20;
 	public static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 1000.0;
 	
+	private static final long SLEEP_PRECISION_MS = 4;
+	private static final long BUSY_WAIT_PRECISION_MS = 0;
+	
 	private GameStateUpdater manager;
 	private MessageProvider network;
 
 	private int nextTickID;
-	private double gameSpeed;
-	private long lastUpdateTime;
+	private long nextUpdateTime;
 	
 	public TimingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException{
 		manager = new LogicBlockingManager(mapURI, numPlayers, raceURIs, players);
-//		manager = new OneStateManager(mapURI, numPlayers, raceURIs, players);
-		gameSpeed = 1;
 		nextTickID = 1;
 	}
 	
+	/**
+	 * Tells this TimingManager what will be providing it with messages
+	 * @param n
+	 */
 	public void setClientReference(MessageProvider n){
 		network = n;
 	}
 	
+	/**
+	 * Provides a reference to this TimingManager's GameStateProvider.
+	 * @return this TimingManager's GameStateProvider
+	 */
 	public GameStateProvider getGameStateManager(){
-		return (GameStateProvider) manager;//TODO safety
+		return (GameStateProvider) manager;
 	}
 
 	@Override
 	public void run() {
-		//TODO any startup code here?
-		lastUpdateTime = System.currentTimeMillis();
-		while(true){//TODO some exit condition?
+		nextUpdateTime = System.currentTimeMillis();
+		while(true){
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
 			
-			if(messagesForTick.length > 0)
-			{
-				int i = 0;
-				i = i + 1;
-			}
-			
-			//TODO process them as needed - game speed change orders in particular!
 			//give orders to manager
 			manager.addOrdersForTick(nextTickID, messagesForTick);
-			lastUpdateTime = System.currentTimeMillis();
 			//update tick id
 			++nextTickID;
+			nextUpdateTime += TIME_PER_TICK_MILLIS;
 			//compute time to sleep for
-			long nextUpdateTime = lastUpdateTime + TIME_PER_TICK_MILLIS;
 			long timeToSleep = nextUpdateTime - System.currentTimeMillis();
-			//TODO update game speed if necessary?
-			//sleepif(timeToSleep > 0)
+			
+			//idle until it's time to update again
 			if(timeToSleep > 0)
 			{
 				try {
-					Thread.sleep(timeToSleep);
+					accurateIdle(timeToSleep * 1000000);
+					//Thread.sleep(timeToSleep);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
-		// TODO exit code?
 	}
 	
+	/**
+	 * Attempts to return in nanosToWait nanoseconds.  More accurate than Thread.sleep(), but has greater CPU usage when it is almost time to wake up.
+	 * @param nanosToWait
+	 * @throws InterruptedException
+	 */
+	private void accurateIdle(long nanosToWait) throws InterruptedException{
+		final long end = System.nanoTime() + nanosToWait;
+		while(nanosToWait > 0){
+			if(nanosToWait > SLEEP_PRECISION_MS * 1000000){
+				Thread.sleep(1);
+			}
+			else if(nanosToWait > BUSY_WAIT_PRECISION_MS * 1000000){
+				Thread.sleep(0);
+			}
+			nanosToWait = end - System.nanoTime();
+		}
+	}
 }
