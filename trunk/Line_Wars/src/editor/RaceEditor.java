@@ -14,18 +14,21 @@ import linewars.configfilehandler.ParserKeys;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 
+/**
+ * An editor allowing the user to define races.
+ * 
+ * @author Titus Klinge
+ */
 public class RaceEditor implements ConfigurationEditor
 {
-	public static void main(String[] args)
-	{
-		JFrame f = new JFrame();
-		f.setContentPane(new RaceEditor(null).getPanel());
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setSize(new Dimension(800,600));
-		f.setVisible(true);
-	}
-	
+	/**
+	 * The one editor to control them all.
+	 */
 	private BigFrameworkGuy superEditor;
+	
+	/**
+	 * The actual panel that is used by the configuration editor.
+	 */
 	private RacePanel racePanel;
 
 	public RaceEditor(BigFrameworkGuy bfg)
@@ -80,10 +83,10 @@ public class RaceEditor implements ConfigurationEditor
 		try
 		{
 			if (cd.getString(ParserKeys.gateURI) == null
-					|| cd.getString(ParserKeys.name) == null
-					|| cd.getString(ParserKeys.commandCenterURI) == null
-					|| cd.getStringList(ParserKeys.unitURI).size() == 0
-					|| cd.getStringList(ParserKeys.buildingURI).size() == 0)
+			 || cd.getString(ParserKeys.name) == null
+			 || cd.getString(ParserKeys.commandCenterURI) == null
+			 || cd.getStringList(ParserKeys.unitURI).size() == 0
+			 || cd.getStringList(ParserKeys.buildingURI).size() == 0)
 			{
 				return false;
 			}
@@ -97,18 +100,12 @@ public class RaceEditor implements ConfigurationEditor
 	
 	private void updatePanel(ConfigData cd)
 	{
-		racePanel.nameBox.name.setText(
-				(cd.getDefinedKeys().contains(ParserKeys.name)? cd.getString(ParserKeys.name) : ""));
-		racePanel.commandCenter.setSelectedURI(
-				(cd.getDefinedKeys().contains(ParserKeys.commandCenterURI)? cd.getString(ParserKeys.commandCenterURI) : ""));
-		racePanel.gate.setSelectedURI(
-				(cd.getDefinedKeys().contains(ParserKeys.gateURI)? cd.getString(ParserKeys.gateURI) : ""));
-		racePanel.unit.setSelectedURIs(
-				(cd.getDefinedKeys().contains(ParserKeys.unitURI)? cd.getStringList(ParserKeys.unitURI).toArray(new String[0]) : new String[0]));
-		racePanel.building.setSelectedURIs(
-				(cd.getDefinedKeys().contains(ParserKeys.buildingURI)? cd.getStringList(ParserKeys.buildingURI).toArray(new String[0]) : new String[0]));
-		racePanel.tech.setSelectedURIs(
-				(cd.getDefinedKeys().contains(ParserKeys.techURI)? cd.getStringList(ParserKeys.techURI).toArray(new String[0]) : new String[0]));
+		racePanel.nameBox.name.setText((cd.getDefinedKeys().contains(ParserKeys.name)? cd.getString(ParserKeys.name) : ""));
+		racePanel.commandCenter.setSelectedURI((cd.getDefinedKeys().contains(ParserKeys.commandCenterURI)? cd.getString(ParserKeys.commandCenterURI) : ""));
+		racePanel.gate.setSelectedURI((cd.getDefinedKeys().contains(ParserKeys.gateURI)? cd.getString(ParserKeys.gateURI) : ""));
+		racePanel.unit.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.unitURI)? cd.getStringList(ParserKeys.unitURI).toArray(new String[0]) : new String[0]));
+		racePanel.building.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.buildingURI)? cd.getStringList(ParserKeys.buildingURI).toArray(new String[0]) : new String[0]));
+		racePanel.tech.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.techURI)? cd.getStringList(ParserKeys.techURI).toArray(new String[0]) : new String[0]));
 	}
 	
 	private ConfigData createConfigData(RacePanel rp)
@@ -158,41 +155,34 @@ public class RaceEditor implements ConfigurationEditor
 		
 		private void initURISelectors()
 		{
-			commandCenter = new URISelector("Command Center", new SelectorOptions() {
-				public String[] getOptions() { return superEditor.getCommandCenterURIs(); }
-				public void uriSelected(String uri) {}
-			});
+			commandCenter = createSelector("Command Center", superEditor.getCommandCenterURIs());
 			initURISelector(commandCenter);
-			
-			gate = new URISelector("Gate", new SelectorOptions() {
-				public String[] getOptions() { return superEditor.getGateURIs(); }
-				public void uriSelected(String uri) {}
-			});
+			gate = createSelector("Gate", superEditor.getGateURIs());
 			initURISelector(gate);
-			
-			unit = new ListURISelector("Unit", new ListSelectorOptions() {
-				public String[] getOptions() { return superEditor.getUnitURIs(); }
-				public void uriSelected(String uri) {}
-				public void uriRemoved(String uri) {}
-				public void uriHighlightChange(String[] uris) {}
-			});
+			unit = createListSelector("Unit", superEditor.getUnitURIs());
 			initURISelector(unit);
-			
-			building = new ListURISelector("Building", new ListSelectorOptions() {
-				public String[] getOptions() { return superEditor.getCommandCenterURIs(); }
-				public void uriSelected(String uri) {}
-				public void uriRemoved(String uri) {}
-				public void uriHighlightChange(String[] uris) {}
-			});
+			building = createListSelector("Building", superEditor.getBuildingURIs());
 			initURISelector(building);
-			
-			tech = new ListURISelector("Tech", new ListSelectorOptions() {
-				public String[] getOptions() { return superEditor.getTechURIs(); }
+			tech = createListSelector("Tech", superEditor.getTechURIs());
+			initURISelector(tech);
+		}
+		
+		private URISelector createSelector(String name, final String[] options)
+		{
+			return new URISelector(name, new SelectorOptions() {
+				public String[] getOptions() { return options; }
+				public void uriSelected(String uri) {}
+			});
+		}
+
+		private ListURISelector createListSelector(String name, final String[] options)
+		{
+			return new ListURISelector(name, new ListSelectorOptions() {
+				public String[] getOptions() { return options; }
 				public void uriSelected(String uri) {}
 				public void uriRemoved(String uri) {}
 				public void uriHighlightChange(String[] uris) {}
 			});
-			initURISelector(tech);
 		}
 		
 		private void initURISelector(JPanel p)
