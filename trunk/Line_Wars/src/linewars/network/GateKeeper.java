@@ -46,6 +46,16 @@ public class GateKeeper
 	private static final int TARGET_MTU = MAX_MTU - 100;
 	
 	/**
+	 * The time the socket waits when trying to receive a packet.
+	 */
+	private static final int SO_TIMEOUT = 10;
+	
+	/**
+	 * The time the message listener waits between checking for messages.
+	 */
+	private static final int CHECK_DELAY = 10;
+	
+	/**
 	 * The socket the Gatekeeper will be communicating over.
 	 */
 	private DatagramSocket socket;
@@ -96,6 +106,7 @@ public class GateKeeper
 		resendMessages = new ConcurrentHashMap<Integer, Message[]>();
 		
 		socket = new DatagramSocket(port);
+		socket.setSoTimeout(SO_TIMEOUT);
 		
 		msgListener = new MessageListener();
 		this.port = sendToPort;
@@ -236,6 +247,9 @@ public class GateKeeper
 						handleMessagePacket(packet);
 					}
 				}
+				try {
+					Thread.sleep(CHECK_DELAY);
+				} catch (InterruptedException e) {}
 			}
 		}
 		
