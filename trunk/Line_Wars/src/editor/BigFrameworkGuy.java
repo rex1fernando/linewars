@@ -182,6 +182,7 @@ public class BigFrameworkGuy
 	 */
 	public String[] getTechURIs()
 	{
+		System.out.println(masterList.getStringList(ParserKeys.techURI));
 		return masterList.getStringList(ParserKeys.techURI).toArray(new String[0]);
 	}
 	
@@ -375,9 +376,12 @@ public class BigFrameworkGuy
 			
 			try {
 				new ConfigFileWriter(MASTER_LIST_URI).write(masterList, true);
+				masterList = new ConfigFileReader(MASTER_LIST_URI).read();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InvalidConfigFileException e) {
 				e.printStackTrace();
 			}
 			

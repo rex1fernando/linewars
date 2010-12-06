@@ -864,7 +864,10 @@ public strictfp class Lane
 		if (n.getTransformation().getPosition().distanceSquared(
 				this.getPosition(1).getPosition()) < n.getTransformation().getPosition()
 				.distanceSquared(this.getPosition(0).getPosition()))
+		{
 			t = this.getPosition(1 - LANE_GATE_DISTANCE);
+			t = new Transformation(t.getPosition(), Math.PI + t.getRotation());
+		}
 		else
 			t = this.getPosition(LANE_GATE_DISTANCE);
 		Gate g = p.getGateDefinition().createGate(t);
@@ -889,7 +892,7 @@ public strictfp class Lane
 			Gate g = p.getGateDefinition().createGate(t);
 			this.waves.add(new Wave(this, g, n));
 		}
-		*/
+		//*/
 	}
 	
 	/**

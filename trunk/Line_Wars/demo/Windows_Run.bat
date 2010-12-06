@@ -1,0 +1,1 @@
+java linewars.init.MainWindow
