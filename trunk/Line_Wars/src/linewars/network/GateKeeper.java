@@ -392,7 +392,7 @@ public class GateKeeper
 			try {
 				msgs = MessageConstructor.constructMessage(packets);
 			} catch (InvalidMessageException e) {
-				e.printStackTrace();
+				return;
 			}
 			
 			// if this player is the first one to send all of its messages, create a new
