@@ -40,20 +40,20 @@ public class GateKeeper
 	private static final int MAX_MTU = 1500;
 	
 	/**
+	 * 
+	 */
+	private static final long SLEEP_TIME = 10;
+	
+	/**
+ 	 *
+	 */
+	private static final int SO_TIMEOUT = 1;
+	
+	/**
 	 * The number of bytes that the Gatekeepwer will allow to be in a single packet
 	 * because of the extra storage of the object wrapper.
 	 */
 	private static final int TARGET_MTU = MAX_MTU - 100;
-	
-	/**
-	 * The time the socket waits when trying to receive a packet.
-	 */
-	private static final int SO_TIMEOUT = 10;
-	
-	/**
-	 * The time the message listener waits between checking for messages.
-	 */
-	private static final int CHECK_DELAY = 10;
 	
 	/**
 	 * The socket the Gatekeeper will be communicating over.
@@ -108,7 +108,7 @@ public class GateKeeper
 		socket = new DatagramSocket(port);
 		socket.setSoTimeout(SO_TIMEOUT);
 		
-		msgListener = new MessageListener();
+		msgListener = new MessageListener(SLEEP_TIME);
 		this.port = sendToPort;
 		
 		this.listeningAddresses = listeningAddresses;
@@ -216,6 +216,7 @@ public class GateKeeper
 	 */
 	private class MessageListener
 	{
+		private long delay;
 		private boolean isListening;
 		
 		private HashMap<MessageID, List<MessagePacket>> incompletePackets;
@@ -223,8 +224,9 @@ public class GateKeeper
 		/**
 		 * Initializes a new MessageListener object that is ready to start.
 		 */
-		public MessageListener()
+		public MessageListener(long delay)
 		{
+			this.delay = delay;
 			// this is thread safe because the listener's thread is the only one that
 		    // uses it
 			incompletePackets = new HashMap<MessageID, List<MessagePacket>>();
@@ -239,16 +241,12 @@ public class GateKeeper
 				DatagramPacket packet = receivePacket();
 				if (packet != null)
 				{
-					// if the packet is a resend request it handles it
-					boolean isResendRequest = handleResendRequestPacket(packet);
-					if (!isResendRequest)
+					if (handleResendRequestPacket(packet) == false)
 					{
-						// if it is NOT a resend request, it must be a message
 						handleMessagePacket(packet);
 					}
 				}
-				try {
-					Thread.sleep(CHECK_DELAY);
+				try { Thread.sleep(delay);
 				} catch (InterruptedException e) {}
 			}
 		}
