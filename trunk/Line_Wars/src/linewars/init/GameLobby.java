@@ -269,8 +269,8 @@ public class GameLobby extends javax.swing.JFrame {
 					parent.dispose();
 					
 					 Game g = initializeGame();
-					 g.initializeServer(players.size(), addresses);
-					 g.initializeClient(players.size(), "127.0.0.1", 0);
+					 g.initializeServer(addresses);
+					 g.initializeClient("127.0.0.1", 0);
 					 g.run();
 				}
 			}
@@ -427,7 +427,7 @@ public class GameLobby extends javax.swing.JFrame {
 							int i = 0;
 							for (; i < players.size() && !players.get(i).ipAddress.equals(ipAddress); ++i);
 							
-							g.initializeClient(players.size(), socket.getInetAddress().getHostAddress(), i);
+							g.initializeClient(socket.getInetAddress().getHostAddress(), i);
 						}
 						
 						running = false;

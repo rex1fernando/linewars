@@ -37,6 +37,7 @@ public strictfp class Game {
 	
 	/**
 	 * 
+	 * @deprecated
 	 * @param args
 	 * mapDefinitionURI numPlayers serverAddress raceURI0...raceURIn playerName0...playerNamen playerAddress0...playerAddressn
 	 */
@@ -59,6 +60,15 @@ public strictfp class Game {
 		toStart.run();
 	}
 	
+	/**
+	 * @deprecated
+	 * @param map
+	 * @param players
+	 * @param server
+	 * @param races
+	 * @param names
+	 * @param addresses
+	 */
 	public Game(String map, int players, String server, ArrayList<String> races, ArrayList<String> names, ArrayList<String> addresses){
 		mapDefinitionURI = map;
 		numPlayers = players;
@@ -68,6 +78,9 @@ public strictfp class Game {
 		playerAddresses = addresses;
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	public void initialize(){
 		//single player init
 		if(numPlayers == 1){
@@ -147,8 +160,17 @@ public strictfp class Game {
 		disp.start();
 	}
 	
+	/**
+	 * Creates a new Game object and initializes the the logic with the parameters given.
+	 * 
+	 * @param mapURI The location of the map configuration file to be played.
+	 * @param numPlayers The number of players that will be playing in the game.
+	 * @param raceURIs The list of races corresponding to each player.
+	 * @param playerNames The list of names of each player corresponding to the races.
+	 */
 	public Game(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames)
 	{
+		this.numPlayers = numPlayers;
 		try {
 			logic = new TimingManager(mapURI, numPlayers, raceURIs, playerNames);
 		} catch (FileNotFoundException e) {
@@ -158,9 +180,16 @@ public strictfp class Game {
 		}
 	}
 	
-	public void initializeServer(int numPlayers, List<String> clientAddresses)
+	/**
+	 * Called only on the host computer.  Creates the server object for managing the game
+	 * and gives it the address of each player so that the server can properly communicate
+	 * with all players.
+	 * 
+	 * @param clientAddresses The list of all player addresses in the game.
+	 */
+	public void initializeServer(List<String> clientAddresses)
 	{
-		//single player init
+		//single player mode does not require a server
 		if(numPlayers != 1)
 		{
 			try {
@@ -171,8 +200,17 @@ public strictfp class Game {
 		}
 	}
 	
-	public void initializeClient(int numPlayers, String serverAddress, int playerIndex)
+	/**
+	 * Called by every client in the game (including the host).  Initializes the client object
+	 * with the server's address and also initializes the display module with the player's
+	 * index in the game. 
+	 * 
+	 * @param serverAddress The address of the server computer.
+	 * @param playerIndex This player's player index.
+	 */
+	public void initializeClient(String serverAddress, int playerIndex)
 	{
+		// if playing by yourself, use the proxy
 		if (numPlayers == 1)
 		{
 			networking = new SinglePlayerNetworkProxy();

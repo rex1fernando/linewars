@@ -33,7 +33,7 @@ public class Server implements Runnable
 		this.clientAddresses = clientAddresses.clone();
 		gateKeeper = new GateKeeper(clientAddresses, port + 1, port);//TODO retry if it fails?
 		
-		currentTick = Client.K + 1;
+		currentTick = Client.TICK_CONSTANT + 1;
 	}
 	
 	@Override

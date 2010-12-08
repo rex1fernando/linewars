@@ -28,17 +28,54 @@ import linewars.network.messages.SupDawgMessage;
  */
 public class Client implements MessageHandler
 {
-	public static final int K = 6;
+	/**
+	 * A constant added to the tick number of outgoing messages to simulate a buffer
+	 * so that the network has optimal performance.
+	 */
+	public static final int TICK_CONSTANT = 6;
+	
+	/**
+	 * The number of miliseconds the client pauses in between urgently polling
+	 * the gatekeeper for messages.
+	 */
 	private static final long POLLING_INTERVAL_MS = 5;
 	
+	/**
+	 * The list of outgoing messages to be sent through the gatekeeper.
+	 */
 	private List<Message> outgoingMessages;
+	
+	/**
+	 * The object used to send and receive messages.
+	 */
 	private GateKeeper gateKeeper;
+	
+	/**
+	 * The address of the server computer hosting the game.
+	 */
 	private String serverAddress;
 	
+	/**
+	 * The current tick of the game.
+	 */
 	private int currentTick;
 	
+	/**
+	 * Guards access to the list of outgoing messages in order to be sure
+	 * that the list of messages is always correctly associated with the
+	 * current tick without allowing incorrect states.
+	 */
 	private Object tickLock = new Object();
 	
+	/**
+	 * Instaneates a new Client object that will communicate with the server
+	 * whose address is given on the port specified.
+	 * 
+	 * @param serverAddress The address the client will be requesting and sending
+	 *                      messages with.
+	 * @param port The port the client will use to communicate with the server.
+	 * @throws SocketException If the port is already being used.
+	 */
 	public Client(String serverAddress, int port) throws SocketException
 	{
 		this.serverAddress = serverAddress;
@@ -64,7 +101,7 @@ public class Client implements MessageHandler
 	public Message[] getMessagesForTick(int tickID)
 	{
 		Message[] toReturn = null;
-		if(tickID < K + 1){
+		if(tickID < TICK_CONSTANT + 1){
 			toReturn = new Message[0];
 		} else
 		{
@@ -94,7 +131,7 @@ public class Client implements MessageHandler
 				breakpoint++;
 			}
 			for(int i = 0; i < toSend.length; i++){
-				toSend[i].setTimeStep(currentTick + K);
+				toSend[i].setTimeStep(currentTick + TICK_CONSTANT);
 			}
 			gateKeeper.pushMessagesForTick(toSend, serverAddress);
 			outgoingMessages.clear();
