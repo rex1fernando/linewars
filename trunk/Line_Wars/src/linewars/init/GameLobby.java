@@ -515,6 +515,7 @@ public class GameLobby extends javax.swing.JFrame {
 			}
 			else if (src == cancelButton)
 			{
+				running = false;
 				out.println("cancel");
 				
 				try {
@@ -529,9 +530,7 @@ public class GameLobby extends javax.swing.JFrame {
 		{
 			try {
 				return in.readObject();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			} catch (Exception e) { return new Object(); }
 		}
 	
 		private void updateGUI(final PlayerObject[] pArr)
