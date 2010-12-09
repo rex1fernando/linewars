@@ -415,10 +415,10 @@ public class GateKeeper
 			}
 			
 			// if messages for this timestep have already been found, ignore them
-			if (messages.get(timeStep).get(senderAddress) == null)
-			{
+			//if (messages.get(timeStep).get(senderAddress) == null)
+			//{
 				messages.get(timeStep).put(senderAddress, msgs);
-			}
+			//}
 		}
 		
 		/**
