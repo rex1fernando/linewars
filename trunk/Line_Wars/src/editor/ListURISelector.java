@@ -18,8 +18,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionListener;
 
+/**
+ * An extension of the URISelector that allows the selection of multiple
+ * URIs.
+ * 
+ * @author Titus Klinge
+ */
 public class ListURISelector extends URISelector implements ListSelectionListener
 {	
+	/**
+	 * The interface for controlling the behavior of the list selector.
+	 */
 	public static interface ListSelectorOptions extends SelectorOptions
 	{
 		public String[] getOptions();
@@ -34,6 +43,12 @@ public class ListURISelector extends URISelector implements ListSelectionListene
 	private JButton remove;
 	private ListOptions options;
 	
+	/**
+	 * Constructs a list selector with the given label and list options.
+	 * 
+	 * @param label The label of the list selector.
+	 * @param options  The options for this list selector.
+	 */
 	public ListURISelector(String label, ListSelectorOptions options)
 	{
 		super(label, null);
@@ -61,6 +76,11 @@ public class ListURISelector extends URISelector implements ListSelectionListene
 		add(scroll);
 	}
 	
+	/**
+	 * Get's the selector URIs of the list selector.
+	 * 
+	 * @return The selector URIs.
+	 */
 	public String[] getHighlightedURIs()
 	{
 		Object[] objs = list.getSelectedValues();
@@ -70,6 +90,10 @@ public class ListURISelector extends URISelector implements ListSelectionListene
 		return uris;
 	}
 	
+	/**
+	 * Sets the selected URIs for the list selector.
+	 * @param uris The new values to select in this list selector.
+	 */
 	public void setHighlightedURIs(String[] uris){
 		//clear current selection
 		list.clearSelection();
@@ -92,11 +116,20 @@ public class ListURISelector extends URISelector implements ListSelectionListene
 		}
 	}
 	
+	/**
+	 * Gets the selected URIs from the list selector.
+	 * 
+	 * @return Get's the selected URIs of the list selector.
+	 */
 	public String[] getSelectedURIs()
 	{
 		return selections.toArray(new String[selections.size()]);
 	}
 	
+	/**
+	 * Sets the selected URIs of the list selector.
+	 * @param uris The new values that should be selected by this list selector.
+	 */
 	public void setSelectedURIs(String[] uris)
 	{
 		selections.clear();

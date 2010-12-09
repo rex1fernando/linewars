@@ -94,9 +94,6 @@ public class Client implements MessageHandler
 		}
 	}
 
-	//TODO I changed this method a bit; it now sets the Messages' time steps itself
-	//and it also tells the Gatekeeper where to send the Messages and where the Messages should have
-	//come from (The Server demands this functionality)
 	@Override
 	public Message[] getMessagesForTick(int tickID)
 	{

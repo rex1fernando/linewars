@@ -31,6 +31,12 @@ public class RaceEditor implements ConfigurationEditor
 	 */
 	private RacePanel racePanel;
 
+	/**
+	 * Creates a new RaceEditor object with a reference to the BigFrameworkGuy
+	 * as its parent.
+	 * 
+	 * @param bfg The parent big framework guy of the race editor.
+	 */
 	public RaceEditor(BigFrameworkGuy bfg)
 	{
 		superEditor = bfg;
@@ -78,6 +84,13 @@ public class RaceEditor implements ConfigurationEditor
 		return ParserKeys.raceURI;
 	}
 	
+	/**
+	 * Checks to see if the ConfigData object contains all the required
+	 * information to save the race it corresponds to.
+	 * 
+	 * @param cd The ConfigData object to check.
+	 * @return True if the data object has all the necessary elements.
+	 */
 	private boolean isValid(ConfigData cd)
 	{
 		try
@@ -98,6 +111,12 @@ public class RaceEditor implements ConfigurationEditor
 		return true;
 	}
 	
+	/**
+	 * Populates the GUI with all the information stored within the ConfigData
+	 * object.
+	 * 
+	 * @param cd The config data object to populate the gui with.
+	 */
 	private void updatePanel(ConfigData cd)
 	{
 		racePanel.nameBox.name.setText((cd.getDefinedKeys().contains(ParserKeys.name)? cd.getString(ParserKeys.name) : ""));
@@ -108,6 +127,13 @@ public class RaceEditor implements ConfigurationEditor
 		racePanel.tech.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.techURI)? cd.getStringList(ParserKeys.techURI).toArray(new String[0]) : new String[0]));
 	}
 	
+	/**
+	 * Creates and returns a config data object using the data stored within the
+	 * GUI fields.
+	 * 
+	 * @param rp The panel to take the data from.
+	 * @return The config data corresponding to the data stored within the panel.
+	 */
 	private ConfigData createConfigData(RacePanel rp)
 	{
 		ConfigData data = new ConfigData();
@@ -128,21 +154,51 @@ public class RaceEditor implements ConfigurationEditor
 		return racePanel;
 	}
 
+	/**
+	 * The panel that contains all the GUI elements of the race editor.
+	 */
 	private class RacePanel extends JPanel
 	{
 		private static final long serialVersionUID = -4411534509382555738L;
 
+		/**
+		 * The number of units of space between elements in the panel.
+		 */
 		private static final int SPACING = 3;
 		
+		/**
+		 * A label and text field combo for typing in the name of the race.
+		 */
 		private NameBox nameBox;
 		
+		/**
+		 * The selector for the command center.
+		 */
 		private URISelector commandCenter;
+		
+		/**
+		 * The selector for the gate building.
+		 */
 		private URISelector gate;
 		
+		/**
+		 * The selector for the race's units.
+		 */
 		private ListURISelector unit;
+		
+		/**
+		 * The selector for the buildings in the race.
+		 */
 		private ListURISelector building;
+		
+		/**
+		 * The selector for the techs in the race.
+		 */
 		private ListURISelector tech;
 		
+		/**
+		 * Creates a new RacePanel that is empty.
+		 */
 		public RacePanel()
 		{
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -153,6 +209,9 @@ public class RaceEditor implements ConfigurationEditor
 			initURISelectors();
 		}
 		
+		/**
+		 * Initializes all the selectors.
+		 */
 		private void initURISelectors()
 		{
 			commandCenter = createSelector("Command Center", superEditor.getCommandCenterURIs());
@@ -167,6 +226,14 @@ public class RaceEditor implements ConfigurationEditor
 			initURISelector(tech);
 		}
 		
+		/**
+		 * Creates a new selector with the given name and allowing the selection
+		 * of the list of strings.
+		 * 
+		 * @param name The name for the selector.
+		 * @param options The options to select within the selector.
+		 * @return The newly constructed selector.
+		 */
 		private URISelector createSelector(String name, final String[] options)
 		{
 			return new URISelector(name, new SelectorOptions() {
@@ -175,6 +242,13 @@ public class RaceEditor implements ConfigurationEditor
 			});
 		}
 
+		/**
+		 * Similar to the method above, except that it creates a list selector.
+		 * 
+		 * @param name The name of the selector.
+		 * @param options The options to be selected.
+		 * @return The selector that was constructed.
+		 */
 		private ListURISelector createListSelector(String name, final String[] options)
 		{
 			return new ListURISelector(name, new ListSelectorOptions() {
@@ -185,6 +259,11 @@ public class RaceEditor implements ConfigurationEditor
 			});
 		}
 		
+		/**
+		 * Adds the JPanel to the race panel and adds spacing after it.
+		 * 
+		 * @param p The panel to be added.
+		 */
 		private void initURISelector(JPanel p)
 		{
 			add(p);
@@ -192,11 +271,21 @@ public class RaceEditor implements ConfigurationEditor
 		}
 	}
 	
+	/**
+	 * A label and text field pair for typing in a name.
+	 */
 	private class NameBox extends JPanel
 	{
 		private static final long serialVersionUID = -6205161701141390950L;
+		
+		/**
+		 * The text field holding the name.
+		 */
 		private JTextField name;
 		
+		/**
+		 * Constructs a new name box with an empty text field.
+		 */
 		public NameBox()
 		{
 			add(new JLabel("Name"));

@@ -40,12 +40,13 @@ public class GateKeeper
 	private static final int MAX_MTU = 1500;
 	
 	/**
-	 * 
+	 * The number of miliseconds the thread sleeps in between message checks.
 	 */
 	private static final long SLEEP_TIME = 10;
 	
 	/**
- 	 *
+ 	 * The number of miliseconds the gate keeper checks the sockets for messages
+ 	 * before giving up.
 	 */
 	private static final int SO_TIMEOUT = 1;
 	

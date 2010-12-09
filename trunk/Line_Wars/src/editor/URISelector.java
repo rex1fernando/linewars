@@ -12,6 +12,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/**
+ * A Java Swing Component that allows easy selection of a string.
+ * Designed specifically for selecting URIs within the game editor.
+ * 
+ * @author Titus Klinge
+ */
 public class URISelector extends JPanel
 {	
 	private static final long serialVersionUID = 4210934277569886576L;
@@ -24,6 +30,13 @@ public class URISelector extends JPanel
 	protected JTextField textField;
 	private SelectorOptions options;
 	
+	/**
+	 * Constructs a new URISelector with the given label and actions
+	 * defined by the SelectorOptions object.
+	 * 
+	 * @param label The label to give the compoenent.
+	 * @param options The options that control the behavior of the selector.
+	 */
 	public URISelector(String label, SelectorOptions options)
 	{
 		setOptions(options);
@@ -48,16 +61,28 @@ public class URISelector extends JPanel
 		this.options = options;
 	}
 	
+	/**
+	 * Get's the selected URI.
+	 * 
+	 * @return The selected URI.
+	 */
 	public String getSelectedURI()
 	{
 		return textField.getText();
 	}
 	
+	/**
+	 * Sets the selected URI to the given parameter.
+	 * @param uri The URI that is selected.
+	 */
 	public void setSelectedURI(String uri)
 	{
 		textField.setText(uri);
 	}
 	
+	/**
+	 * An event handler for when the select button is pressed.
+	 */
 	private class ButtonClickEvent implements ActionListener
 	{
 		@Override
@@ -82,9 +107,22 @@ public class URISelector extends JPanel
 		}
 	}
 	
+	/**
+	 * The selector options interface for controlling the behavior of
+	 * the selector.
+	 */
 	public static interface SelectorOptions
 	{
+		/**
+		 * Gets the options that are selectable by this selector.
+		 * @return The selectable options for this selector.
+		 */
 		public String[] getOptions();
+		
+		/**
+		 * A callback function that is executed when a URI is selected.
+		 * @param uri
+		 */
 		public void uriSelected(String uri);
 	}
 }
