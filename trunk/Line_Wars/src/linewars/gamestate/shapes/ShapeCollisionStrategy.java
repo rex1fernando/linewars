@@ -11,6 +11,7 @@ import java.util.HashMap;
  */
 public strictfp abstract class ShapeCollisionStrategy {
 	
+	//a map that allows runtime lookup of Strategies for detecting collisions
 	private static HashMap<Class<? extends Shape>, HashMap<Class<? extends Shape>, ShapeCollisionStrategy>> definedStrategies;
 	
 	/**
@@ -33,7 +34,7 @@ public strictfp abstract class ShapeCollisionStrategy {
 		addStrategyHelper(new AggregateAnythingStrategy(), ShapeAggregate.class, second);
 	}
 	
-	//TODO document
+
 	private static void addStrategyHelper(ShapeCollisionStrategy toAdd, Class<? extends Shape> first, Class<? extends Shape> second){
 		if(definedStrategies.get(first) == null){
 			definedStrategies.put(first, new HashMap<Class<? extends Shape>, ShapeCollisionStrategy>());

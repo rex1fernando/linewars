@@ -14,11 +14,13 @@ import linewars.gamestate.Transformation;
 public strictfp class Rectangle extends Shape {
 	
 	static {
+		//Adds this Shape to the map of Shapes for lookup
 		Shape.addClassForInitialization("rectangle", Rectangle.class);
 	}
 	
-	//TODO document
+	//the width and height of the Rectangle
 	private double width, height;
+	//the center and rotation of the Rectangle
 	private Transformation position;
 	
 	public Rectangle(ConfigData config){
@@ -33,7 +35,7 @@ public strictfp class Rectangle extends Shape {
 		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
 	}
 	
-	//TODO document
+	
 	public Rectangle(Transformation position, double width, double height){
 		this.position = position;
 		this.width = width;
@@ -86,6 +88,10 @@ public strictfp class Rectangle extends Shape {
 		return height;
 	}
 	
+	/**
+	 * 
+	 * @return The positions of the four vertices of the Rectangle, in counterclockwise order.
+	 */
 	public Position[] getVertexPositions(){
 		Position[] ret = new Position[4];
 		Position halfWidth = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width).scale(.5);
@@ -97,8 +103,10 @@ public strictfp class Rectangle extends Shape {
 		return ret;
 	}
 	
-	//TODO document
-	//counter-clockwise edge vectors
+	/**
+	 * 
+	 * @return Vectors describing the length and direction of the four edges of the Rectangle, in counterclockwise order
+	 */
 	public Position[] getEdgeVectors(){
 		Position[] ret = new Position[4];
 		Position w = new Position(Math.cos(position.getRotation()) * width, Math.sin(position.getRotation()) * width);

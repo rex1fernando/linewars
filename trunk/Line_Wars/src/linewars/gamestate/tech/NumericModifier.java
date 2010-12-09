@@ -5,12 +5,14 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Function;
 
 /**
+ * Modifies a numeric attribute in an exponential or polynomial way
  * 
  * @author John George, Taylor Bergquist
  *
  */
 public class NumericModifier implements Modifier {
 	
+	//The Function that defines how the Modifier modifies.
 	Function f;
 	
 	public NumericModifier(ConfigData toParse){
@@ -26,6 +28,7 @@ public class NumericModifier implements Modifier {
 		cd.set(p, f.f(d));
 	}
 	
+	@Override
 	public ConfigData toConfigData(){
 		ConfigData ret = new ConfigData();
 		ret.add(ParserKeys.modifiertype, "numeric");

@@ -40,7 +40,6 @@ public class Server implements Runnable
 	public void run()
 	{
 		//start Gatekeeper in a new thread
-		//TODO or should this be done elsewhere?
 		Thread th = new Thread(
 			new Runnable(){
 			public void run(){

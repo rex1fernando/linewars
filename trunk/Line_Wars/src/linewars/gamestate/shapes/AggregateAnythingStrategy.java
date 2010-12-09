@@ -9,6 +9,7 @@ package linewars.gamestate.shapes;
 public strictfp class AggregateAnythingStrategy extends ShapeCollisionStrategy {
 	
 	static {
+		//adds this Strategy to the map for lookup
 		ShapeCollisionStrategy.addStrategy(new AggregateAnythingStrategy(), ShapeAggregate.class, ShapeAggregate.class);
 	}
 

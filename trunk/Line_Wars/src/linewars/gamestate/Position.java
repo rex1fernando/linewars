@@ -221,8 +221,7 @@ public strictfp class Position {
 	@Override
 	public int hashCode()
 	{
-		//TODO how to implement hash code for positions?
-		return 0;
+		return (int) (x + 31 * y);
 	}
 	
 	@Override

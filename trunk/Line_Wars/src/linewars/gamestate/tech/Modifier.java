@@ -4,12 +4,28 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
 /**
+ * Encapsulates a method of modifying a ConfigData
  * 
  * @author John George, Taylor Bergquist
  *
  */
 public interface Modifier {
+	
+	/**
+	 * Modifies the given ConfigData for the dth time.
+	 * @param cd
+	 * The ConfigData to be modified
+	 * @param p
+	 * The ParserKeys to be modified in cd
+	 * @param d
+	 * The double that determines how cd.p is to be modified
+	 */
 	public void modify(ConfigData cd, ParserKeys p, double d);
+	
+	/**
+	 * Returns this Modifier in ConfigData format.
+	 * @return
+	 */
 	public ConfigData toConfigData();
 }
 

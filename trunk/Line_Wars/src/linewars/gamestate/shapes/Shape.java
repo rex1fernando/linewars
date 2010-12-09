@@ -118,7 +118,6 @@ public strictfp abstract class Shape {
 			typeToClass = new HashMap<String, Class<? extends Shape>>();
 		}
 		
-		//TODO any checks here?
 		//to lower case to reduce incidence of errors in the config file
 		typeToClass.put(type.toLowerCase(), entry);
 	}

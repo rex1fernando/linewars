@@ -3,13 +3,14 @@ package linewars.gamestate.shapes;
 import linewars.gamestate.Position;
 
 /**
- * 
+ * Encapsulates an algorithm for computing whether a Rectangle and a Circle collide
  * @author Taylor Bergquist
  *
  */
 public strictfp class RectangleCircleStrategy extends ShapeCollisionStrategy {
 
 	static{
+		//Adds this Strategy to the map of Strategies for lookup
 		ShapeCollisionStrategy.addStrategy(new RectangleCircleStrategy(), Rectangle.class, Circle.class);
 	}
 	

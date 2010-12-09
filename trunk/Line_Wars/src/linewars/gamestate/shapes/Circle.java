@@ -14,19 +14,32 @@ import linewars.gamestate.Transformation;
 public strictfp class Circle extends Shape {
 	
 	static {
+		//Adds this Shape to the map of Shapes for lookup
 		Shape.addClassForInitialization("circle", Circle.class);
 	}
 	
-	//TODO document
+	//the position of the Circle's center
 	private final Transformation position;
+	
+	//the Circle's radius
 	private final double radius;
 	
-	//TODO document
+	/**
+	 * Constructs a Circle with the supplied center and radius.
+	 * @param pos
+	 * The center of the Circle
+	 * @param radius
+	 * The radius of the Circle
+	 */
 	public Circle(Transformation pos, double radius){
 		this.radius = radius;
 		position = pos;
 	}
 	
+	/**
+	 * Constructs a Circle from the data in the ConfigData object
+	 * @param config
+	 */
 	public Circle(ConfigData config){
 		radius = config.getNumber(ParserKeys.radius);
 		double rotation = 0;

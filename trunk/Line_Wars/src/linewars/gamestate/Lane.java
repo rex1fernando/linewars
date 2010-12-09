@@ -696,6 +696,9 @@ public strictfp class Lane
 //		checkWaveConsistency();
 	}
 	
+	/**
+	 * Finds and resolves all the collisions in the Lane
+	 */
 	private void findAndResolveCollisions(){
 		pushUnitsOntoLane();
 		//First find all the collisions

@@ -1,6 +1,7 @@
 package linewars.gamestate.shapes;
 
 /**
+ * Encapsulates an algorithm for computing whether two Circles are colliding.
  * 
  * @author Taylor Bergquist
  *
@@ -8,10 +9,11 @@ package linewars.gamestate.shapes;
 public strictfp class CircleCircleStrategy extends ShapeCollisionStrategy {
 
 	static {
+		//Adds this Strategy to the map of Strategies for lookup
 		ShapeCollisionStrategy.addStrategy(new CircleCircleStrategy(), Circle.class, Circle.class);
 	}
 	
-	//TODO test
+	
 	@Override
 	public boolean collides(Shape first, Shape second) {
 		if(first.getClass() != Circle.class || second.getClass() != Circle.class){

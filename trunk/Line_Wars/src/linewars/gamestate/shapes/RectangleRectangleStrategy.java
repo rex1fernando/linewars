@@ -3,16 +3,18 @@ package linewars.gamestate.shapes;
 import linewars.gamestate.Position;
 
 /**
+ * Encapsulates an algorithm for computing whether two Rectangles collide.
  * 
  * @author Taylor Bergquist
  *
  */
 public strictfp class RectangleRectangleStrategy extends ShapeCollisionStrategy{
 	static {
+		//Adds this Strategy to the map of Strategies for lookup
 		ShapeCollisionStrategy.addStrategy(new RectangleRectangleStrategy(), Rectangle.class, Rectangle.class);
 	}
 
-	//TODO test
+	
 	@Override
 	public boolean collides(Shape first, Shape second) {
 		if(first.getClass() != Rectangle.class || second.getClass() != Rectangle.class){
@@ -35,7 +37,7 @@ public strictfp class RectangleRectangleStrategy extends ShapeCollisionStrategy{
 			|| separatedByAxis(f, s, s.position().getPosition().orthogonal());
 	}
 	
-	//TODO document
+	
 	private boolean separatedByAxis(Rectangle first, Rectangle second, Position axis){
 		Position[] fVertices = first.getVertexPositions();
 		Position[] sVertices = second.getVertexPositions();

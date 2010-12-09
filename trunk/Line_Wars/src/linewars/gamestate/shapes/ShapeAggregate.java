@@ -20,6 +20,7 @@ import linewars.gamestate.Transformation;
 public strictfp class ShapeAggregate extends Shape {
 	
 	static {
+		//Adds this Shape to the map of Shapes for lookup
 		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
 	}
 	
