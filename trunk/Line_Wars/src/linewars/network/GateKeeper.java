@@ -230,12 +230,12 @@ public class GateKeeper
 			// this is thread safe because the listener's thread is the only one that
 		    // uses it
 			incompletePackets = new HashMap<MessageID, List<MessagePacket>>();
-			isListening = false;
+			isListening = true;
 		}
 		
 		public void start()
 		{
-			isListening = true;
+			//isListening = true;
 			while (isListening)
 			{
 				DatagramPacket packet = receivePacket();
@@ -246,8 +246,11 @@ public class GateKeeper
 						handleMessagePacket(packet);
 					}
 				}
-				try { Thread.sleep(delay);
-				} catch (InterruptedException e) {}
+				else
+				{
+					try { Thread.sleep(delay);
+					} catch (InterruptedException e) {}
+				}
 			}
 		}
 		
@@ -404,6 +407,7 @@ public class GateKeeper
 			try {
 				msgs = MessageConstructor.constructMessage(packets);
 			} catch (InvalidMessageException e) {
+				System.out.println("Invalid message exception.");
 				return;
 			}
 			
