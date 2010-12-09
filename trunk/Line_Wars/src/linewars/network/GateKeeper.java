@@ -53,7 +53,7 @@ public class GateKeeper
 	 * The number of bytes that the Gatekeepwer will allow to be in a single packet
 	 * because of the extra storage of the object wrapper.
 	 */
-	private static final int TARGET_MTU = MAX_MTU - 100;
+	private static final int TARGET_MTU = MAX_MTU - 500;
 	
 	/**
 	 * The socket the Gatekeeper will be communicating over.
