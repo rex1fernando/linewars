@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import linewars.network.messages.Message;
 
@@ -102,8 +103,8 @@ public class GateKeeper
 	 */
 	public GateKeeper(String[] listeningAddresses, int port, int sendToPort) throws SocketException
 	{
-		messages = new HashMap<Integer, Map<String, Message[]>>();
-		resendMessages = new HashMap<Integer, Message[]>();
+		messages = new ConcurrentHashMap<Integer, Map<String, Message[]>>();
+		resendMessages = new ConcurrentHashMap<Integer, Message[]>();
 		
 		socket = new DatagramSocket(port);
 		socket.setSoTimeout(SO_TIMEOUT);
@@ -415,7 +416,7 @@ public class GateKeeper
 			// map for this time step
 			if (messages.get(timeStep) == null)
 			{
-				messages.put(timeStep, new HashMap<String, Message[]>());
+				messages.put(timeStep, new ConcurrentHashMap<String, Message[]>());
 			}
 			
 			// if messages for this timestep have already been found, ignore them
