@@ -23,7 +23,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
@@ -31,14 +30,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-/**
- * The window that represents the game lobby that players are in
- * before the game actually starts.  Each player in the lobby can select
- * their race, and the host is able to start the game.  Once the game starts,
- * the lobby exits and the game is popped up.
- * 
- * @author Titus Klinge
- */
+
 public class GameLobby extends javax.swing.JFrame {
 	
 	private static final int PORT = 8002;
@@ -58,12 +50,6 @@ public class GameLobby extends javax.swing.JFrame {
 	
 	private Object playerLock;
 
-	/**
-	 * Creates a new lobby window with the parent object
-	 * given.
-	 * 
-	 * @param parent This window's parent.
-	 */
 	public GameLobby(MainWindow parent) {
 		super();
 		this.parent = parent;
@@ -73,13 +59,6 @@ public class GameLobby extends javax.swing.JFrame {
 		initGUI();
 	}
 	
-	/**
-	 * Initializes the lobby system to be the host.
-	 * 
-	 * @param hostName The host's name.
-	 * @param mapURI The selected map the game will be played on.
-	 * @throws IOException If there was a problem setting up the server socket.
-	 */
 	public void startServer(String hostName, String mapURI) throws IOException
 	{
 		mapField.setText(mapURI);
@@ -99,14 +78,6 @@ public class GameLobby extends javax.swing.JFrame {
 		th.start();
 	}
 	
-	/**
-	 * Initializes the lobby system to be a connecting client.
-	 * 
-	 * @param clientName The client's name.
-	 * @param serverAddress The address of the server hosting the game.
-	 * @throws UnknownHostException If it client cannot connect to the server.
-	 * @throws IOException If there was an IO issue created the socket.
-	 */
 	public void startClient(String clientName, String serverAddress) throws UnknownHostException, IOException
 	{
 		Socket socket = new Socket(serverAddress, PORT);
@@ -160,8 +131,7 @@ public class GameLobby extends javax.swing.JFrame {
 	
 	private void showMainMenu()
 	{
-		this.dispose();
-		parent.setVisible(true);
+		// TODO implement
 	}
 	
 	private Game initializeGame()
@@ -384,38 +354,13 @@ public class GameLobby extends javax.swing.JFrame {
 				String inputLine = null;
 				while ((inputLine = readLine()) != null)
 				{
-					if (inputLine.equals("cancel"))
-					{
-						synchronized (playerLock)
-						{
-							clientConnections.remove(this);
-							for (int i = 0; i < players.size(); ++i)
-							{
-								if (players.get(i).nameField.getText().equals(clientName))
-								{
-									players.remove(i);
-								}
-							}
+					final String race = inputLine;
+					SwingUtilities.invokeLater(new Runnable() { public void run() {
+						synchronized (playerLock) {
+							players.get(clientIndex - 1).raceBox.setSelectedItem(race);
 						}
-						
-						clearPlayers();
-						addPlayer(players.get(0), true);
-						for (int i = 1; i < players.size(); ++i)
-						{
-							addPlayer(players.get(i), false);
-						}
-						updateAllClients();
-					}
-					else 
-					{
-						final String race = inputLine;
-						SwingUtilities.invokeLater(new Runnable() { public void run() {
-							synchronized (playerLock) {
-								players.get(clientIndex - 1).raceBox.setSelectedItem(race);
-							}
-							updateAllClients();
-						}});
-					}
+						ServerClientListener.this.updateAllClients();
+					}});
 				}
 			}
 			
@@ -492,7 +437,7 @@ public class GameLobby extends javax.swing.JFrame {
 					}
 					else if (input.equals("cancel"))
 					{
-						JOptionPane.showMessageDialog(GameLobby.this, "The Host has cancelled the game.");
+						// TODO display a message
 						
 						running = false;
 						try {
@@ -515,8 +460,7 @@ public class GameLobby extends javax.swing.JFrame {
 			}
 			else if (src == cancelButton)
 			{
-				running = false;
-				out.println("cancel");
+				// TODO inform the host that this client is leaving the game
 				
 				try {
 					socket.close();
@@ -530,7 +474,9 @@ public class GameLobby extends javax.swing.JFrame {
 		{
 			try {
 				return in.readObject();
-			} catch (Exception e) { return new Object(); }
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	
 		private void updateGUI(final PlayerObject[] pArr)
@@ -551,9 +497,6 @@ public class GameLobby extends javax.swing.JFrame {
 		}
 	}
 	
-	/**
-	 * This code was generated using a GUI editor.
-	 */
 	private void initGUI() {
 		try {
 			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
