@@ -53,6 +53,11 @@ public strictfp class ShapeAggregate extends Shape {
 		}
 	}
 
+	public ShapeAggregate() {
+		members = new ArrayList<Shape>();
+		rotation = 0;
+	}
+
 	//TODO document after implementing
 	@Override
 	public Shape stretch(Transformation change) {
@@ -66,19 +71,33 @@ public strictfp class ShapeAggregate extends Shape {
 
 	@Override
 	public Shape transform(Transformation change) {
-		//TODO for each Shape
-			//TODO translate by -1 * this.position
-			//TODO rotate by change
-			//TODO translate by this.position and change
-		//TODO change any rotation-related state variables?
-		return this;
+		ShapeAggregate ret = new ShapeAggregate();
+		//for each Shape
+		for(int i = 0; i < members.size(); i++){
+			//translate by -1 * this.position
+			Shape atOrigin = members.get(i).transform(new Transformation(position().getPosition().scale(-1), 0));
+			//rotate by change
+			Shape rotated = atOrigin.transform(new Transformation(new Position(0, 0), change.getRotation()));
+			//translate by this.position and change
+			Shape finalShape = rotated.transform(new Transformation(change.getPosition().add(position().getPosition()), 0));
+			ret.members.add(finalShape);
+		}
+		ret.rotation = rotation + change.getRotation();
+		return ret;
 	}
 
 	@Override
 	public Transformation position() {
-		//TODO compute average position of the composing Shapes (ideally weighted by their area)
-		//TODO how to compute rotation?
-		return members.get(0).position();
+		Position sum = new Position(0, 0);
+		
+		//compute the average position of the sub-shapes
+		for(Shape toSum : members){
+			//TODO weight this by the area of the Shape?
+			//TODO somehow discount overlap?
+			sum = sum.add(toSum.position().getPosition());
+		}
+		
+		return new Transformation(sum.scale(1.0 / members.size()), rotation);
 	}
 	
 	/**
@@ -90,6 +109,7 @@ public strictfp class ShapeAggregate extends Shape {
 
 	@Override
 	public Circle boundingCircle() {
+		//could use some sort of 'gimme the point farthest in this direction' method
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -115,7 +135,11 @@ public strictfp class ShapeAggregate extends Shape {
 
 	@Override
 	public ConfigData getData() {
-		// TODO Auto-generated method stub
-		return null;
+		ConfigData ret = new ConfigData();
+		ret.set(ParserKeys.rotation, rotation);
+		for(Shape toAdd : members){
+			ret.add(ParserKeys.shapes, toAdd.getData());
+		}
+		return ret;
 	}
 }
