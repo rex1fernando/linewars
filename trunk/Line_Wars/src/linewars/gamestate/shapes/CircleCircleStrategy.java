@@ -23,7 +23,7 @@ public strictfp class CircleCircleStrategy extends ShapeCollisionStrategy {
 		Circle f = (Circle) first;
 		Circle s = (Circle) second;
 		double squaredDistance = f.position().getPosition().distanceSquared(s.position().getPosition());
-		return squaredDistance < f.getRadius() * f.getRadius() + s.getRadius() * s.getRadius();
+		return squaredDistance < (f.getRadius() + s.getRadius()) * (f.getRadius() + s.getRadius());
 	}
 
 }

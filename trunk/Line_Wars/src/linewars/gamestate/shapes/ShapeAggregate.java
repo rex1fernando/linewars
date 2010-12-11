@@ -53,20 +53,39 @@ public strictfp class ShapeAggregate extends Shape {
 		}
 	}
 
-	public ShapeAggregate() {
+	private ShapeAggregate() {
 		members = new ArrayList<Shape>();
 		rotation = 0;
 	}
 
-	//TODO document after implementing
+	
 	@Override
 	public Shape stretch(Transformation change) {
-		//TODO make an array(list?) of shapes
-		//TODO for each Shape
-			//TODO shift shape
-			//TODO stretch shape
-			//TODO add shape to array
-		return null;//TODO construct a new ShapeAggregate on that array(list?)
+		//compute destination Shape
+		ShapeAggregate destination = (ShapeAggregate) transform(change);
+		
+		ShapeAggregate ret = new ShapeAggregate();
+		
+		//for each sub-Shape
+		for(int i = 0; i < members.size(); i++){
+			//get the ones we are dealing with
+			Shape source = members.get(i);
+			Shape target = destination.members.get(i);
+			
+			//compute the Transformation that transforms one to the other
+			Position deltaP = target.position().getPosition().subtract(source.position().getPosition());
+			double deltaR = target.position().getRotation() - source.position().getRotation();
+			
+			//stretch from this to target by the computed transformation
+			Shape stretchedSubShape = source.stretch(new Transformation(deltaP, deltaR));
+			
+			//add it to ret
+			ret.members.add(stretchedSubShape);
+		}
+		
+		//set ret's rotation - though this is really kind of meaningless in this case.
+		ret.rotation = destination.rotation;
+		return ret;
 	}
 
 	@Override
