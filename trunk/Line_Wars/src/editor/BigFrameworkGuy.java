@@ -46,7 +46,7 @@ public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
 	
-	private ConfigData masterList; //hi
+	private ConfigData masterList;
 	
 	private JFrame frame;
 	private JTabbedPane tabPanel;
