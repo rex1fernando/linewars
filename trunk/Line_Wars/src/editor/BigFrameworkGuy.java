@@ -34,7 +34,7 @@ import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
- * @author Connor Schenck
+ * @author Connor Schenck not really
  *
  *The purpose of this class is to contain all the panels of the individual
  *editors. It handles knowing all the valid types of units, maps, etc
