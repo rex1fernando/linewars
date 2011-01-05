@@ -58,6 +58,20 @@ public strictfp class ShapeAggregate extends Shape {
 			rotation = 0;//defaults to 0
 		}
 	}
+	
+	public ShapeAggregate(Transformation center, ArrayList<Shape> shapes, ArrayList<Transformation> relativePositions){
+		this();
+		for(int i = 0; i < shapes.size(); i++){
+			Shape currentShape = shapes.get(i);
+			Transformation current = currentShape.position();
+			Transformation target = relativePositions.get(i);
+			
+			//final - initial
+			Transformation change = new Transformation(target.getPosition().subtract(current.getPosition()), target.getRotation() - current.getRotation());
+			members.add(currentShape.transform(change));
+		}
+		this.transform(center);
+	}
 
 	private ShapeAggregate() {
 		center = new Position(0, 0);
