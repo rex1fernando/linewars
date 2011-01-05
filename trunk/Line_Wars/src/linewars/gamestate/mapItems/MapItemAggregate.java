@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import linewars.gamestate.Position;
@@ -11,6 +12,7 @@ import linewars.gamestate.shapes.ShapeAggregate;
 public abstract class MapItemAggregate extends MapItem {
 
 	private List<MapItem> containedItems = new ArrayList<MapItem>();
+	private List<Turret> turrets = new ArrayList<Turret>();
 	private Transformation transform;
 	
 	private ShapeAggregate body = null;
@@ -25,6 +27,23 @@ public abstract class MapItemAggregate extends MapItem {
 		m.setTransformation(new Transformation(this.getPosition().add(t.getPosition()), t.getRotation()));
 		containedItems.add(m);
 		body = null;
+	}
+	
+	public List<Turret> getTurrets()
+	{
+		if(checkForContainedItemsChange(this))
+		{
+			for(MapItem m : containedItems)
+			{
+				if(m instanceof Turret)
+					turrets.add((Turret)m);
+				else if(m instanceof MapItemAggregate)
+					turrets.addAll(((MapItemAggregate)m).getTurrets());
+			}
+		}
+		List<Turret> ret = new ArrayList<Turret>();
+		Collections.copy(ret, turrets);
+		return ret;
 	}
 	
 	public MapItem[] getContainedItems()
@@ -90,7 +109,7 @@ public abstract class MapItemAggregate extends MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		for(MapItem c : containedItems)
-			if(c.getBody().isCollidingWith(m.getBody()))
+			if(c.isCollidingWith(m))
 				return true;
 		
 		return false;
@@ -99,7 +118,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public Shape getBody()
 	{
-		if(body == null)
+		if(checkForContainedItemsChange(this))
 		{
 			ArrayList<Shape> shapes = new ArrayList<Shape>();
 			ArrayList<Transformation> pos = new ArrayList<Transformation>();
@@ -113,6 +132,27 @@ public abstract class MapItemAggregate extends MapItem {
 			body = new ShapeAggregate(transform, shapes, pos);
 		}
 		return body;
+	}
+	
+	@Override
+	public void setState(MapItemState state)
+	{
+		for(MapItem m : containedItems)
+			if(m.getDefinition().isValidState(state))
+				m.setState(state);
+		super.setState(state);
+	}
+	
+	public static boolean checkForContainedItemsChange(MapItemAggregate mia)
+	{
+		if(mia.body == null)
+			return true;
+		
+		for(MapItem m : mia.getContainedItems())
+			if(m instanceof MapItemAggregate && checkForContainedItemsChange((MapItemAggregate)m))
+				return true;
+		
+		return false;
 	}
 	
 	

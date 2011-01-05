@@ -8,10 +8,10 @@ import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.NoCombat;
-import linewars.gamestate.mapItems.strategies.combat.ShootClosestTarget;
 import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 import linewars.gamestate.mapItems.strategies.movement.Straight;
+import linewars.gamestate.mapItems.strategies.turret.ShootClosestTarget;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -77,9 +77,9 @@ public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 		ConfigData cs = super.getParser().getConfig(ParserKeys.combatStrategy);
 		if(cs.getString(ParserKeys.type).equalsIgnoreCase("ShootClosestTarget"))
 		{
-			Double d = cs.getNumber(ParserKeys.shootCoolDown);
-			double dd = d;
-			combatStrat = new ShootClosestTarget(this, ((long)dd));
+//			Double d = cs.getNumber(ParserKeys.shootCoolDown);
+//			double dd = d;
+//			combatStrat = new ShootClosestTarget(this, ((long)dd));
 		}
 		else if(cs.getString(ParserKeys.type).equalsIgnoreCase("NoCombat"))
 		{
