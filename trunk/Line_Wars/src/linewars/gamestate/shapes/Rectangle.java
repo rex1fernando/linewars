@@ -49,7 +49,7 @@ public strictfp class Rectangle extends Shape {
 	}
 
 	@Override
-	public Shape transform(Transformation change) {
+	public Rectangle transform(Transformation change) {
 		Transformation newTransform = new Transformation(position.getPosition().add(change.getPosition()), position.getRotation() + change.getRotation());
 		return new Rectangle(newTransform, width, height);
 	}

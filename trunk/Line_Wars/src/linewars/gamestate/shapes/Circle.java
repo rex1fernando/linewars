@@ -60,7 +60,7 @@ public strictfp class Circle extends Shape {
 	}
 
 	@Override
-	public Shape transform(Transformation change) {
+	public Circle transform(Transformation change) {
 		return new Circle(new Transformation(position.getPosition().add(change.getPosition()), position.getRotation() + change.getRotation()), radius);
 	}
 

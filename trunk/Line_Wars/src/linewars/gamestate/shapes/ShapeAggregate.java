@@ -12,7 +12,6 @@ import linewars.gamestate.Transformation;
 /**
  * Represents a collection of Shapes, each with a specific relative position and orientation.
  * 
- * NYI
  * 
  * @author Taylor Bergquist
  *
@@ -24,8 +23,12 @@ public strictfp class ShapeAggregate extends Shape {
 		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
 	}
 	
+	private Position center;
 	private ArrayList<Shape> members;
 	private double rotation;
+	
+	private Rectangle boundingRectangle = null;
+	private Circle boundingCircle = null;
 
 
 	/**
@@ -41,11 +44,14 @@ public strictfp class ShapeAggregate extends Shape {
 	 * The Parser which defines this ShapeAggregate
 	 */
 	public ShapeAggregate(ConfigData p){
+		center = new Position(0, 0);
+		
 		members = new ArrayList<Shape>();
 		List<ConfigData> list = p.getConfigList(ParserKeys.shapes);
 		for(ConfigData cfg : list){
 			members.add(Shape.buildFromParser(cfg));
 		}
+		
 		try{
 			rotation = p.getNumber(ParserKeys.rotation);			
 		}catch(NoSuchKeyException e){
@@ -54,6 +60,7 @@ public strictfp class ShapeAggregate extends Shape {
 	}
 
 	private ShapeAggregate() {
+		center = new Position(0, 0);
 		members = new ArrayList<Shape>();
 		rotation = 0;
 	}
@@ -65,6 +72,8 @@ public strictfp class ShapeAggregate extends Shape {
 		ShapeAggregate destination = (ShapeAggregate) transform(change);
 		
 		ShapeAggregate ret = new ShapeAggregate();
+		
+		ret.center = center.add(change.getPosition().scale(.5));
 		
 		//for each sub-Shape
 		for(int i = 0; i < members.size(); i++){
@@ -89,8 +98,11 @@ public strictfp class ShapeAggregate extends Shape {
 	}
 
 	@Override
-	public Shape transform(Transformation change) {
+	public ShapeAggregate transform(Transformation change) {
 		ShapeAggregate ret = new ShapeAggregate();
+		
+		ret.center = center.add(change.getPosition());
+		
 		//for each Shape
 		for(int i = 0; i < members.size(); i++){
 			//translate by -1 * this.position
@@ -102,21 +114,20 @@ public strictfp class ShapeAggregate extends Shape {
 			ret.members.add(finalShape);
 		}
 		ret.rotation = rotation + change.getRotation();
+		
+		//performance optimizations
+		if(boundingRectangle != null){
+			ret.boundingRectangle = boundingRectangle.transform(change);
+		}
+		if(boundingCircle != null){
+			ret.boundingCircle = boundingCircle.transform(change);
+		}
 		return ret;
 	}
 
 	@Override
 	public Transformation position() {
-		Position sum = new Position(0, 0);
-		
-		//compute the average position of the sub-shapes
-		for(Shape toSum : members){
-			//TODO weight this by the area of the Shape?
-			//TODO somehow discount overlap?
-			sum = sum.add(toSum.position().getPosition());
-		}
-		
-		return new Transformation(sum.scale(1.0 / members.size()), rotation);
+		return new Transformation(center, rotation);
 	}
 	
 	/**
@@ -128,17 +139,54 @@ public strictfp class ShapeAggregate extends Shape {
 
 	@Override
 	public Circle boundingCircle() {
-		//could use some sort of 'gimme the point farthest in this direction' method
-		// TODO Auto-generated method stub
-		return null;
+		if(boundingCircle != null){
+			return boundingCircle;
+		}
+		
+		return boundingRectangle().boundingCircle();
 	}
 
 	@Override
 	public Rectangle boundingRectangle() {
-		//TODO compute a bounding rectangle for each Shape
-		//TODO take the min and max of their x and y values to compute a bounding rect for all of them
-		// TODO Auto-generated method stub
-		return members.get(0).boundingRectangle();
+		if(boundingRectangle != null){
+			return boundingRectangle;
+		}
+		
+		//unrotate this to ensure that the computed bounding rect is oriented with the ShapeAggregate
+		ShapeAggregate unrotated = this.transform(new Transformation(new Position(0, 0), rotation));
+		
+		//compute the bounds
+		double minX = Double.MAX_VALUE;
+		double minY = minX;
+		double maxX = minX * -1;
+		double maxY = maxX;
+		
+		for(Shape currentShape : unrotated.members){
+			Rectangle subBoundingRect = currentShape.boundingRectangle();
+			Position[] subPositions = subBoundingRect.getVertexPositions();
+			for(Position currentPosition : subPositions){
+				if(currentPosition.getX() < minX){
+					minX = currentPosition.getX();
+				}
+				if(currentPosition.getX() > maxX){
+					maxX = currentPosition.getX();
+				}
+				if(currentPosition.getY() < minY){
+					minY = currentPosition.getY();
+				}
+				if(currentPosition.getY() > maxY){
+					maxY = currentPosition.getY();
+				}
+			}
+		}
+
+		//construct the rectangle from the computed bounds
+		double width = maxX - minX;
+		double height = maxY - minY;
+		Position boundingRectangleCenter = new Position(minX + width / 2, minY + height / 2);
+		
+		Rectangle ret = new Rectangle(new Transformation(boundingRectangleCenter, rotation), width, height);
+		return ret;
 	}
 
 	@Override
