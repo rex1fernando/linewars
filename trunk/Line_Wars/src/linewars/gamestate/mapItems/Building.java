@@ -11,7 +11,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
  * This class represents a building. It is a type of map item.
  * It knows what nodes it is in.
  */
-public strictfp class Building extends MapItem {
+public strictfp class Building extends MapItemAggregate {
 	
 	private BuildingDefinition definition;
 	private Node node;
@@ -24,14 +24,18 @@ public strictfp class Building extends MapItem {
 	 * @param def	the map item definition that created this building
 	 * @param n		the node that contains this building
 	 */
-	public Building(Transformation t, BuildingDefinition def, Node n) {
+	public Building(Transformation t, BuildingDefinition def) {
 		super(t, def);
 		definition = def;
+	}
+	
+	public void setNode(Node n)
+	{
 		node = n;
 	}
 
 	@Override
-	public MapItemDefinition getDefinition() {
+	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
 	}
 	

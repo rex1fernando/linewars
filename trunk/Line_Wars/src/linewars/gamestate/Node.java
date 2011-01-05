@@ -418,6 +418,7 @@ public strictfp class Node {
 				return false;
 			}
 		}
+		b.setNode(this);
 		return containedBuildings.add(b);
 	}
 	

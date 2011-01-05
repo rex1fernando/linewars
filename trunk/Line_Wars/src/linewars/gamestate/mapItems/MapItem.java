@@ -93,7 +93,7 @@ public strictfp abstract class MapItem {
 	 */
 	public Position getPosition()
 	{
-		return body.position().getPosition();
+		return getBody().position().getPosition();
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public strictfp abstract class MapItem {
 	 */
 	public double getRotation()
 	{
-		return body.position().getRotation();
+		return getBody().position().getRotation();
 	}
 	
 	/**
@@ -111,7 +111,7 @@ public strictfp abstract class MapItem {
 	 */
 	public Transformation getTransformation()
 	{
-		return body.position();
+		return getBody().position();
 	}
 	
 	/**
@@ -120,7 +120,7 @@ public strictfp abstract class MapItem {
 	 */
 	public void setPosition(Position p)
 	{
-		body = body.transform(new Transformation(p.subtract(this.getPosition()), 0));
+		body = getBody().transform(new Transformation(p.subtract(this.getPosition()), 0));
 	}
 	
 	/**
@@ -129,7 +129,7 @@ public strictfp abstract class MapItem {
 	 */
 	public void setRotation(double rot)
 	{
-		body = body.transform(new Transformation(new Position(0, 0), rot - body.position().getRotation()));
+		body = getBody().transform(new Transformation(new Position(0, 0), rot - getBody().position().getRotation()));
 	}
 	
 	/**
@@ -138,9 +138,9 @@ public strictfp abstract class MapItem {
 	 */
 	public void setTransformation(Transformation t)
 	{
-		Position current = body.position().getPosition();
-		Transformation change = new Transformation(t.getPosition().subtract(current), t.getRotation() - body.position().getRotation());
-		body = body.transform(change);
+		Position current = getBody().position().getPosition();
+		Transformation change = new Transformation(t.getPosition().subtract(current), t.getRotation() - getBody().position().getRotation());
+		body = getBody().transform(change);
 	}
 	
 	/**
@@ -264,7 +264,7 @@ public strictfp abstract class MapItem {
 	 * @return	the radius of the bounding circle of this unit
 	 */
 	public double getRadius() {
-		return body.boundingCircle().getRadius();
+		return getBody().boundingCircle().getRadius();
 	}
 	
 	/**
@@ -274,6 +274,20 @@ public strictfp abstract class MapItem {
 	public Shape getBody()
 	{
 		return body;
+	}
+	
+	/**
+	 * Sets the shape of this map item. Maintains the transformation
+	 * that this map item was at before setting the shape (ie ignores
+	 * the transformation of s)
+	 * 
+	 * @param s
+	 */
+	public void setBody(Shape s)
+	{
+		Transformation t = getBody().position();
+		body = s;
+		setTransformation(t);
 	}
 	
 	/**

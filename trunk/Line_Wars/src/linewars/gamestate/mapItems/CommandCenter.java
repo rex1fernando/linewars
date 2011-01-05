@@ -15,7 +15,8 @@ import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 public strictfp class CommandCenter extends Building {
 
 	public CommandCenter(Transformation t, CommandCenterDefinition def, Node n) {
-		super(t, def, n);
+		super(t, def);
+		this.setNode(n);
 	}
 
 }

@@ -15,7 +15,7 @@ import linewars.gamestate.shapes.Shape;
  * This class represents a projectile. It knows how the projectile collides
  * with map items and what it should do upon impact. It is a map item.
  */
-public strictfp class Projectile extends MapItem {
+public strictfp class Projectile extends MapItemAggregate {
 
 	private ProjectileDefinition definition;
 	private CollisionStrategy cStrat;
@@ -35,11 +35,15 @@ public strictfp class Projectile extends MapItem {
 	 * @param is	the impact strategy for this projectile
 	 * @param l		the lane that this projectile is in
 	 */
-	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is, Lane l) {
+	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is) {
 		super(t, def);
 		definition = def;
 		cStrat = cs.createInstanceOf(this);
 		iStrat = is.createInstanceOf(this);
+	}
+	
+	public void setLane(Lane l)
+	{
 		lane = l;
 	}
 	
@@ -106,7 +110,7 @@ public strictfp class Projectile extends MapItem {
 	}
 
 	@Override
-	public MapItemDefinition getDefinition() {
+	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
 	}
 

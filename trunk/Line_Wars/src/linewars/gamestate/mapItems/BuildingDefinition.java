@@ -19,7 +19,7 @@ import linewars.gamestate.mapItems.abilities.AbilityDefinition;
  * It knows how much a building costs and how long it takes to
  * build it.
  */
-public strictfp class BuildingDefinition extends MapItemDefinition {
+public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Building> {
 	
 	private double cost;
 	private double buildTime;
@@ -38,7 +38,8 @@ public strictfp class BuildingDefinition extends MapItemDefinition {
 	 * @return	the created building
 	 */
 	public Building createBuilding(Transformation t, Node n) {
-		Building b = new Building(t, this, n);
+		Building b = new Building(t, this);
+		b.setNode(n);
 		for(AbilityDefinition ad : this.getAbilityDefinitions())
 			if(ad.startsActive())
 				b.addActiveAbility(ad.createAbility(b));
@@ -85,6 +86,15 @@ public strictfp class BuildingDefinition extends MapItemDefinition {
 	protected void forceSubclassReloadConfigData() {
 		cost = super.getParser().getNumber(ParserKeys.cost);
 		buildTime = super.getParser().getNumber(ParserKeys.buildTime);		
+	}
+
+	@Override
+	protected Building createMapItemAggregate(Transformation t) {
+		Building b = new Building(t, this);
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				b.addActiveAbility(ad.createAbility(b));
+		return b;
 	}
 
 }

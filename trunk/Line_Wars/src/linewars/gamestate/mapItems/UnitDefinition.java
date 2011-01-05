@@ -25,7 +25,7 @@ import linewars.gamestate.Transformation;
  * creates, what type of combat strategy to use, and what type
  * of movement strategy to use.
  */
-public strictfp class UnitDefinition extends MapItemDefinition {
+public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 	
 	private double maxHp;
 	
@@ -99,6 +99,16 @@ public strictfp class UnitDefinition extends MapItemDefinition {
 		}
 		else
 			throw new IllegalArgumentException("Invalid movement strategy for " + this.getName());		
+	}
+
+	@Override
+	protected Unit createMapItemAggregate(Transformation t) {
+		Unit u = new Unit(t, this, mStrat.copy(), combatStrat.copy());
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				u.addActiveAbility(ad.createAbility(u));
+		
+		return u;
 	}
 
 }

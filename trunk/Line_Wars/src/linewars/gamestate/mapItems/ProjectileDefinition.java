@@ -21,7 +21,7 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
  * knows the velocity of the projectile and a template for its impact
  * strategy.
  */
-public strictfp class ProjectileDefinition extends MapItemDefinition {
+public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Projectile> {
 	
 	private double velocity;
 	private ImpactStrategy iStrat;
@@ -57,7 +57,8 @@ public strictfp class ProjectileDefinition extends MapItemDefinition {
 	 */
 	public Projectile createProjectile(Transformation t, Lane l)
 	{
-		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat, l);
+		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
+		p.setLane(l);
 		for(AbilityDefinition ad : this.getAbilityDefinitions())
 			if(ad.startsActive())
 				p.addActiveAbility(ad.createAbility(p));
@@ -74,6 +75,15 @@ public strictfp class ProjectileDefinition extends MapItemDefinition {
 		}
 		else
 			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());		
+	}
+
+	@Override
+	protected Projectile createMapItemAggregate(Transformation t) {
+		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
+		for(AbilityDefinition ad : this.getAbilityDefinitions())
+			if(ad.startsActive())
+				p.addActiveAbility(ad.createAbility(p));
+		return p;
 	}
 
 }

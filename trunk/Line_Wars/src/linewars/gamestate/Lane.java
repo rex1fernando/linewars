@@ -317,6 +317,7 @@ public strictfp class Lane
 	 */
 	public void addProjectile(Projectile p)
 	{
+		p.setLane(this);
 		projectiles.add(p);
 	}
 	

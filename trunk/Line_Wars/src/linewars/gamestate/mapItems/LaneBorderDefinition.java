@@ -14,7 +14,7 @@ import linewars.gamestate.shapes.Circle;
  * @author Connor Schenck
  *
  */
-public strictfp class LaneBorderDefinition extends MapItemDefinition {
+public strictfp class LaneBorderDefinition extends MapItemDefinition<LaneBorder> {
 
 	public LaneBorderDefinition(GameState gameState, double size) throws FileNotFoundException, InvalidConfigFileException {
 		super(gameState);
@@ -31,6 +31,11 @@ public strictfp class LaneBorderDefinition extends MapItemDefinition {
 	@Override
 	protected void forceSubclassReloadConfigData() {
 				
+	}
+
+	@Override
+	public LaneBorder createMapItem(Transformation t) {
+		return new LaneBorder(t, this);
 	}
 
 }

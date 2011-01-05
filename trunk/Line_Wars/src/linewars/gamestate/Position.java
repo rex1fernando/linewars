@@ -218,6 +218,18 @@ public strictfp class Position {
 		return axisHitler.scale(scalarProjection(axis));
 	}
 	
+	public double getAngle()
+	{
+		return Math.atan2(getY(), getX());
+	}
+	
+	public Position rotateAboutPosition(Position p, double rot)
+	{
+		Position temp = this.subtract(p);
+		double angle = temp.getAngle() + rot;
+		return p.add(Position.getUnitVector(angle).scale(Math.sqrt(temp.dot(temp))));
+	}
+	
 	@Override
 	public int hashCode()
 	{

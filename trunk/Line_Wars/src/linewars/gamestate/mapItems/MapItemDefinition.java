@@ -11,6 +11,7 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
 import linewars.gamestate.mapItems.strategies.collision.AllEnemyUnits;
@@ -33,7 +34,7 @@ import linewars.gamestate.tech.Upgradable;
  * they are allowed to use, who owns them, and what collision strategy
  * they use.
  */
-public strictfp abstract class MapItemDefinition implements Upgradable{
+public strictfp abstract class MapItemDefinition<T extends MapItem> implements Upgradable{
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
@@ -166,6 +167,8 @@ public strictfp abstract class MapItemDefinition implements Upgradable{
 	{
 		return gameState;
 	}
+	
+	public abstract T createMapItem(Transformation t);
 	
 	/**
 	 * Forces this definition to reload itself from its config
