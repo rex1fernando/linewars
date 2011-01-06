@@ -62,6 +62,11 @@ public class MoveToClosestTarget implements CombatStrategy {
 	public void fight(Unit[] availableTargets) {
 		if(availableTargets.length == 0)
 			throw new IllegalArgumentException("Why are you asking me to fight when there is no one to fight?");
+		
+		//first tell the turrets to fight
+		for(Turret t : unit.getTurrets())
+			t.getTurretStrategy().fight(availableTargets);
+		
 		//first get the closest target
 		double dis = unit.getPosition().distanceSquared(availableTargets[0].getPosition());
 		Unit closest = availableTargets[0];

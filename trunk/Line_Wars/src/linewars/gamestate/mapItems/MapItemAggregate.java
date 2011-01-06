@@ -46,9 +46,11 @@ public abstract class MapItemAggregate extends MapItem {
 		return ret;
 	}
 	
-	public MapItem[] getContainedItems()
+	public List<MapItem> getContainedItems()
 	{
-		return containedItems.toArray(new MapItem[0]);
+		List<MapItem> ret = new ArrayList<MapItem>();
+		Collections.copy(ret, containedItems);
+		return ret;
 	}
 	
 	@Override
@@ -109,7 +111,7 @@ public abstract class MapItemAggregate extends MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		for(MapItem c : containedItems)
-			if(c.isCollidingWith(m))
+			if(c.getBody().isCollidingWith(m.getBody()))
 				return true;
 		
 		return false;
