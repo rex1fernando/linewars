@@ -14,7 +14,6 @@ public class WindowManager extends JFrame
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
-		
 	}
 	
 	public void showWindow()
