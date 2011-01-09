@@ -5,6 +5,15 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Set;
 
+/**
+ * This class encapsulates the way in which a configurable game object is configured in a generic way.
+ * It provides methods for Techs to access and modify this configuration.
+ * Subclasses should either directly use their parent's data structure to store the configuration or
+ * observe themselves.
+ * 
+ * @author Knexer
+ *
+ */
 public abstract class Configuration extends Observable implements Serializable {
 	private HashMap<String, Property> props;
 	//generic access methods for techs
@@ -18,19 +27,19 @@ public abstract class Configuration extends Observable implements Serializable {
 	protected Configuration(){
 		props = new HashMap<String, Property>();
 	}
-	
-	protected Set<String> getPropertyNames(){
+
+	public Set<String> getPropertyNames(){
 		return props.keySet();
 	}
 	
-	protected Property getPropertyForName(String name){
+	public Property getPropertyForName(String name){
 		return props.get(name);
 	}
 	
 	//can this throw an exception at all?
-	protected Property setPropertyForName(String name, Property toSet){
+	public Property setPropertyForName(String name, Property toSet){
 		Property ret = props.put(name, toSet);
-		notifyObservers();
+		notifyObservers(name);
 		return ret;
 	}
 }
