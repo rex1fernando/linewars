@@ -19,11 +19,24 @@ public class ToggleableConfiguration extends Configuration implements Observer {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		if(enabledString.equals(arg1)){
-			//TODO get enabled from superclass
+			Property enabledProperty = this.getPropertyForName((String) arg1);
+			enabled = (Boolean) enabledProperty.getValue();
 		}else if(subConfigurationString.equals(arg1)){
-			//TODO get subConfiguration from superclass
+			Property subConfigurationProperty = this.getPropertyForName((String) arg1);
+			subConfiguration = (Configuration) subConfigurationProperty.getValue();
 		}
 	}
 	
-	//TODO more methods
+	public boolean isEnabled(){
+		return enabled;
+	}
+	
+	public void enable(){
+		this.setPropertyForName(enabledString, new Property(Usage.BOOLEAN, true));
+	}
+	
+	public void disable(){
+		this.setPropertyForName(enabledString, new Property(Usage.BOOLEAN, false));
+	}
+
 }
