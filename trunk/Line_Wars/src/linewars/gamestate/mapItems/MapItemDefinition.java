@@ -4,11 +4,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import configuration.Configuration;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
+
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -34,53 +32,20 @@ import linewars.gamestate.tech.Upgradable;
  * they are allowed to use, who owns them, and what collision strategy
  * they use.
  */
-public strictfp abstract class MapItemDefinition<T extends MapItem> implements Upgradable{
+public strictfp abstract class MapItemDefinition<T extends MapItem> extends Configuration {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
-	private ConfigData parser;
 	protected ArrayList<AbilityDefinition> abilities;
-	private Player owner;
 	protected CollisionStrategy cStrat;
 	protected Shape body;
-	private GameState gameState;
 	
 	/**
-	 * Creates a map item definition loaded from the config at the given
-	 * URI with owner owner.
-	 * 
-	 * @param URI			the location of the config that defines this definition
-	 * @param owner			the player that owns this definition
-	 * @param gameState		the game state associated with this definition
-	 * @throws FileNotFoundException
-	 * @throws InvalidConfigFileException
+	 * Creates a map item definition.
 	 */
-	public MapItemDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException
+	public MapItemDefinition()
 	{
-		parser = new ConfigFileReader(URI).read();
-		
-		this.gameState = gameState;
-		
-		this.owner = owner;
 		this.forceReloadConfigData();
-	}
-	
-	/**
-	 * Creates a dummy map item definition.
-	 * 
-	 * @param gameState	the game state associated with this map item definition
-	 */
-	protected MapItemDefinition(GameState gameState)
-	{
-		validStates = new ArrayList<MapItemState>();
-		validStates.add(MapItemState.Idle);
-		this.owner = null;
-		name = "";
-		parser = null;
-		abilities = new ArrayList<AbilityDefinition>();
-		cStrat = null;
-		body = null;
-		this.gameState = gameState;
 	}
 
 	/**
@@ -105,29 +70,11 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> implements U
 	
 	/**
 	 * 
-	 * @return	the parser that defines the map items
-	 */
-	public ConfigData getParser()
-	{
-		return parser;
-	}
-	
-	/**
-	 * 
 	 * @return	the list of availabel ability definitions
 	 */
 	public AbilityDefinition[] getAbilityDefinitions()
 	{
 		return abilities.toArray(new AbilityDefinition[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	the player that owns this mapItemDefinition
-	 */
-	public Player getOwner()
-	{
-		return owner;
 	}
 	
 	/**
@@ -148,32 +95,12 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> implements U
 		return body;
 	}
 	
-	@Override
-	public boolean equals(Object o)
-	{
-		if(o instanceof MapItemDefinition)
-		{
-			return parser.equals(((MapItemDefinition)o).getParser());			
-		}
-		else
-			return false;
-	}
-	
-	/**
-	 * 
-	 * @return	the game state associated with this definition
-	 */
-	public GameState getGameState()
-	{
-		return gameState;
-	}
-	
 	public abstract T createMapItem(Transformation t);
 	
 	/**
 	 * Forces this definition to reload itself from its config
 	 */
-	public void forceReloadConfigData() throws FileNotFoundException, InvalidConfigFileException
+	public void forceReloadConfigData()
 	{
 		validStates = new ArrayList<MapItemState>();
 		List<String> vs = parser.getStringList(ParserKeys.ValidStates);
