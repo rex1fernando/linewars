@@ -80,17 +80,6 @@ public class ExitButtonPanel extends Panel
 		add(exitButton);
 	}
 
-	@Override
-	public void updateLocation()
-	{
-		super.updateLocation();
-
-		// resize the button
-		exitButton.setSize(WIDTH, HEIGHT);
-
-		setLocation(0, 0);
-	}
-
 	/**
 	 * An animation for the exit button
 	 * 

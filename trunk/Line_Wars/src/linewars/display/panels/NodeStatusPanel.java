@@ -78,11 +78,10 @@ public class NodeStatusPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		super.updateLocation();
-
 		scaleFactor = (display.getScreenWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
 
-		setSize((int)(DEFAULT_WIDTH * scaleFactor), (int)(DEFAULT_HEIGHT * scaleFactor));
+		super.updateLocation();
+
 		setLocation(0, getParent().getHeight() - getHeight());
 
 		// resizes the inner panel

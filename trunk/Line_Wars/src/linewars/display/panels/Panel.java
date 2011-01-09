@@ -93,7 +93,7 @@ public abstract class Panel extends JPanel
 	 */
 	public void updateLocation()
 	{
-		setSize(panelWidth, panelHeight);
+		setSize((int)(scaleFactor * panelWidth), (int)(scaleFactor * panelHeight));
 	}
 
 	@Override
@@ -104,6 +104,7 @@ public abstract class Panel extends JPanel
 			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0),
 					new Position(0, 0), scaleFactor);
 		}
+		
 		super.paint(g);
 	}
 }
