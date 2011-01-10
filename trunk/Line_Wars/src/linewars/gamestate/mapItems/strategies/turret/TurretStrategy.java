@@ -1,23 +1,11 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
-import linewars.gamestate.mapItems.Turret;
-import linewars.gamestate.mapItems.Unit;
 
-public interface TurretStrategy {
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.Strategy;
+
+public interface TurretStrategy extends Strategy<TurretStrategyConfiguration> {
 	
-	/**
-	 * Sets the unit this combat strategy is associated with.
-	 * 	
-	 * @param u		the unit this strategy is associated with.
-	 */
-	public void setTurret(Turret t);
-	
-	/**
-	 * Creates a copy of this combat strategy and returns it.
-	 * 
-	 * @return	a copy of this combat strategy
-	 */
-	public TurretStrategy copy();
 	
 	/**
 	 * Returns the maximum range at which this combat would consider
