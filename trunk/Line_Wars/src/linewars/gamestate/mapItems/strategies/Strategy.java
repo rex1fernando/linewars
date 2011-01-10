@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.strategies;
 
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 
 public interface Strategy<T extends StrategyConfiguration<?>> {
 	
