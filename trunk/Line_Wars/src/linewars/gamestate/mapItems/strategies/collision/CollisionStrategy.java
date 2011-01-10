@@ -13,25 +13,6 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 public strictfp interface CollisionStrategy {
 	
 	/**
-	 * Checks to make sure that the given collision strategy is
-	 * valid for the given mapItemDefinition.
-	 * 
-	 * @param m		the mapItemDefinition attempting to use this collision strategy
-	 * @return		whether or not m can use this strategy
-	 */
-	public boolean isValidMapItem(MapItemDefinition m);
-	
-	/**
-	 * Creates an instance of the same type of collision
-	 * strategy with the given map item as the map item
-	 * associated with the strategy.
-	 * 
-	 * @param m		the mapItem that will own the new strategy
-	 * @return		the new strategy
-	 */
-	public CollisionStrategy createInstanceOf(MapItem m);
-	
-	/**
 	 * Checks to see if this mapItem can collide with the given mapItem.
 	 * 
 	 * Here's the call heirarcy for collisions. Strategies must determine
