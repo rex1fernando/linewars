@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.strategies.Strategy;
 
 /**
  * 
@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *This interface specifies how a mapItem can collide with other
  *mapItems. Each mapItem must have one.
  */
-public strictfp interface CollisionStrategy {
+public strictfp interface CollisionStrategy extends Strategy<CollisionStrategyConfiguration> {
 	
 	/**
 	 * Checks to see if this mapItem can collide with the given mapItem.
@@ -29,14 +29,5 @@ public strictfp interface CollisionStrategy {
 	 * @return		whether or not the two mapItems can collide
 	 */
 	public boolean canCollideWith(MapItem m);
-	
-	/**
-	 * Returns the name of this collision strategy
-	 * 
-	 * @return		the name of this collision strategy
-	 */
-	public String name();
-	
-	public CollisionStrategyConfiguration getConfig();
 
 }
