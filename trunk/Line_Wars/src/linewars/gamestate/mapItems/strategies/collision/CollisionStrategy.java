@@ -55,5 +55,7 @@ public strictfp interface CollisionStrategy {
 	 * @return		the name of this collision strategy
 	 */
 	public String name();
+	
+	public CollisionStrategyConfiguration getConfig();
 
 }

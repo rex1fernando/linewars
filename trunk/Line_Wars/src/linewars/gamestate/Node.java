@@ -482,9 +482,9 @@ public strictfp class Node {
 		if(!this.isContested())
 		{
 			for(Building b : containedBuildings)
-				b.update();
+				b.updateMapItem();
 			if(cCenter != null)
-				cCenter.update();
+				cCenter.updateMapItem();
 		}
 		generateWaves();
 		
