@@ -105,7 +105,10 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	@Override
 	public void update(Observable obs, Object o)
 	{
-		this.forceReloadConfigData();
+		if(obs == this)
+			this.forceReloadConfigData();
+		else if(obs instanceof ShapeConfiguration)
+			update(this, "body");
 	}
 	
 	/**
@@ -119,6 +122,9 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 		abilities = ((ListConfiguration<AbilityDefinition>)super.getPropertyForName("abilities").getValue()).getEnabledSubList();
 		cStrat = (CollisionStrategyConfiguration)super.getPropertyForName("cStrat").getValue();
 		body = (ShapeConfiguration)super.getPropertyForName("body").getValue();
+		
+		if(body != null)
+			body.addObserver(this);
 		
 		this.forceSubclassReloadConfigData();
 	}

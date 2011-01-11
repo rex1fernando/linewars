@@ -28,9 +28,9 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 	}
 	
 	@Override
-	public MapItemAggregate createMapItem(Transformation t, Player owner, GameState gameState)
+	public T createMapItem(Transformation t, Player owner, GameState gameState)
 	{
-		MapItemAggregate mia = createMapItemAggregate(t, owner, gameState);
+		T mia = createMapItemAggregate(t, owner, gameState);
 		for(int i = 0; i < containedItems.size(); i++)
 			mia.addMapItem(containedItems.get(i).createMapItem(new Transformation(new Position(0, 0), 0), owner, gameState), relativeTrans.get(i));
 		return mia;
