@@ -1,27 +1,22 @@
 package linewars.gamestate.mapItems;
 
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
 public class Part extends MapItem {
 
 	private PartDefinition def;
-	private CollisionStrategy colStrat;
 	
-	public Part(Transformation trans, PartDefinition def) {
-		super(trans, def);
+	public Part(Transformation trans, PartDefinition def, Player owner, GameState gameState) {
+		super(trans, def, owner, gameState);
 		this.def = def;
-		colStrat = def.getCollisionStrategy().createInstanceOf(this);
 	}
 
 	@Override
 	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return def;
-	}
-
-	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return colStrat;
 	}
 
 }

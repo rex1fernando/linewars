@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
-import linewars.gamestate.mapItems.LaneBorder;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration.AllEnemies;
@@ -30,7 +29,7 @@ public strictfp class AllEnemyUnitsConfiguration extends CollisionStrategyConfig
 			if(m.getCollisionStrategy() instanceof AllEnemyUnits ||
 					m.getCollisionStrategy() instanceof AllEnemies ||
 					m.getCollisionStrategy() instanceof Ground)
-				return !mapItem.getOwner().equals(m.getOwner()) && (m instanceof Unit || m instanceof LaneBorder);
+				return !mapItem.getOwner().equals(m.getOwner()) && (m instanceof Unit);
 			else
 				return m.getCollisionStrategy().canCollideWith(mapItem);
 		}

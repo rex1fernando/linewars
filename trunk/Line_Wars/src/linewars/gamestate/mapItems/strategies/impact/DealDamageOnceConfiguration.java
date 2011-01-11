@@ -3,16 +3,13 @@ package linewars.gamestate.mapItems.strategies.impact;
 import java.util.Observable;
 import java.util.Observer;
 
-import configuration.Usage;
-
-import editor.abilities.EditorProperty;
-import editor.abilities.EditorUsage;
-
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import configuration.Usage;
+import editor.abilities.*;
 
 /**
  * 

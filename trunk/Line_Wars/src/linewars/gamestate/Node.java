@@ -501,6 +501,7 @@ public strictfp class Node {
 	{
 		owner = p;
 		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform.getTrans(), this);
+		cCenter.setNode(this);
 		containedBuildings.clear();
 		for(Lane l : attachedLanes)
 		{

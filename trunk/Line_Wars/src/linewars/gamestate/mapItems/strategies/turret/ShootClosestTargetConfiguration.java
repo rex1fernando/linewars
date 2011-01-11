@@ -2,10 +2,7 @@ package linewars.gamestate.mapItems.strategies.turret;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Queue;
-
 import configuration.Usage;
-
 import editor.abilities.EditorProperty;
 import editor.abilities.EditorUsage;
 
@@ -13,7 +10,6 @@ import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
-import linewars.gamestate.mapItems.TurretDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ShootDefinition;

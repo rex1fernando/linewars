@@ -2,11 +2,10 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
+import configuration.Property;
+import configuration.Usage;
+
 import linewars.gamestate.GameState;
-import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
@@ -24,26 +23,11 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	private double cost;
 	private double buildTime;
 
-	public BuildingDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);
-	}
-
-	/**
-	 * Creates a building at the given transformation and in the
-	 * given node.
-	 * 
-	 * @param t	the transformation to place the building at
-	 * @param n	the node that contains this building
-	 * @return	the created building
-	 */
-	public Building createBuilding(Transformation t, Node n) {
-		Building b = new Building(t, this);
-		b.setNode(n);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				b.addActiveAbility(ad.createAbility(b));
-		return b;
+	public BuildingDefinition() {
+		super();
+		
+		super.setPropertyForName("cost", new Property(Usage.NUMERIC_FLOATING_POINT, null));
+		super.setPropertyForName("buildTime", new Property(Usage.NUMERIC_FLOATING_POINT, null));
 	}
 	
 	/**
@@ -83,18 +67,15 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
-		cost = super.getParser().getNumber(ParserKeys.cost);
-		buildTime = super.getParser().getNumber(ParserKeys.buildTime);		
+	protected Building createMapItemAggregate(Transformation t, Player owner, GameState gameState) {
+		Building b = new Building(t, this, owner, gameState);
+		return b;
 	}
 
 	@Override
-	protected Building createMapItemAggregate(Transformation t) {
-		Building b = new Building(t, this);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				b.addActiveAbility(ad.createAbility(b));
-		return b;
+	protected void forceAggregateSubReloadConfigData() {
+		cost = (Double)super.getPropertyForName("cost").getValue();
+		buildTime = (Double)super.getPropertyForName("buildTime").getValue();
 	}
 
 }

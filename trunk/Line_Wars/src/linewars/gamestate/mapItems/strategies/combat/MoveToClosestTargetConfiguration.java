@@ -37,7 +37,7 @@ public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguratio
 		 * 
 		 * @param ud	the UnitDefinition that owns the unit that owns this strategy.
 		 */
-		public MoveToClosestTarget(Unit u) 
+		private MoveToClosestTarget(Unit u) 
 		{
 			unit = u;
 		}

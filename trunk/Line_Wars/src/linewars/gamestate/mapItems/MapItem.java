@@ -52,6 +52,10 @@ public strictfp abstract class MapItem implements Observer {
 		this.owner = owner;
 		this.gameState = gameState;
 		
+		for(AbilityDefinition ad : def.getAbilityDefinitions())
+			if(ad.startsActive())
+				this.addActiveAbility(ad.createAbility(this));
+		
 	}
 	
 	public abstract MapItemDefinition<? extends MapItem> getDefinition();
@@ -224,7 +228,10 @@ public strictfp abstract class MapItem implements Observer {
 	 * 
 	 * @return	the collision strategy associated with this map item
 	 */
-	public abstract CollisionStrategy getCollisionStrategy();
+	public final CollisionStrategy getCollisionStrategy()
+	{
+		return cStrat;
+	}
 	
 	/**
 	 * 

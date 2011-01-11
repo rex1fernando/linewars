@@ -1,19 +1,14 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Observable;
 import java.util.Observer;
 
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemyUnits;
-import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.Ground;
-import linewars.gamestate.mapItems.strategies.collision.NoCollision;
-import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
 import configuration.ListConfiguration;
@@ -55,7 +50,6 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("cStrat", new Property(Usage.CONFIGURATION, null));
 		super.setPropertyForName("body", new Property(Usage.CONFIGURATION, null));
-		this.forceReloadConfigData();
 		this.addObserver(this);
 	}
 
@@ -106,7 +100,13 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 		return body;
 	}
 	
-	public abstract T createMapItem(Transformation t);
+	public abstract T createMapItem(Transformation t, Player owner, GameState gameState);
+	
+	@Override
+	public void update(Observable obs, Object o)
+	{
+		this.forceReloadConfigData();
+	}
 	
 	/**
 	 * Forces this definition to reload itself from its config
