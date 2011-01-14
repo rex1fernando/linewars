@@ -72,4 +72,15 @@ public strictfp class Transformation {
 		return pos.toString() + " @ " + rotation + " radians";
 	}
 
+	/**
+	 * Returns a new Transformation that is the sum of this and position.  Both the translation vectors and the rotation deltas are added together.
+	 * @param position
+	 * @return A new Transformation that is the sum of this and position.
+	 */
+	public Transformation add(Transformation position) {
+		double newAngle = position.rotation + rotation;
+		Position newPosition = this.pos.add(position.pos);
+		return new Transformation(newPosition, newAngle);
+	}
+
 }
