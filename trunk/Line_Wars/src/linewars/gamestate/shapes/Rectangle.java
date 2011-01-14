@@ -1,8 +1,5 @@
 package linewars.gamestate.shapes;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -13,28 +10,10 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class Rectangle extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("rectangle", Rectangle.class);
-	}
-	
 	//the width and height of the Rectangle
 	private double width, height;
 	//the center and rotation of the Rectangle
 	private Transformation position;
-	
-	public Rectangle(ConfigData config){
-		width = config.getNumber(ParserKeys.width);
-		height = config.getNumber(ParserKeys.height);
-		double rotation = 0;
-		try{
-			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
-		}catch(NoSuchKeyException e){
-			//Just means rotation wasn't set, so it defaults to 0
-		}
-		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
-	}
-	
 	
 	public Rectangle(Transformation position, double width, double height){
 		this.position = position;
@@ -174,17 +153,5 @@ public strictfp class Rectangle extends Shape {
 		if(height != otherRect.height) return false;
 		if(!position.equals(otherRect.position)) return false;
 		return true;
-	}
-
-	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		cd.set(ParserKeys.shapetype, "rectangle");
-		cd.set(ParserKeys.width, width);
-		cd.set(ParserKeys.height, height);
-		cd.set(ParserKeys.rotation, position.getRotation());
-		cd.set(ParserKeys.x, position.getPosition().getX());
-		cd.set(ParserKeys.y, position.getPosition().getY());
-		return cd;
 	}
 }
