@@ -7,8 +7,10 @@ import java.util.List;
 
 public class TechGraph
 {
-	List<TechNode> roots;
-	Iterator<TechNode> rootIterator;
+	private List<TechNode> roots;
+	private Iterator<TechNode> rootIterator;
+	private int maxX;
+	private int maxY;
 	
 	public TechGraph()
 	{
@@ -38,7 +40,17 @@ public class TechGraph
 		return null;		
 	}
 	
-	class TechNode
+	public int getMaxX()
+	{
+		return maxX;
+	}
+	
+	public int getMaxY()
+	{
+		return maxY;
+	}
+	
+	public class TechNode
 	{
 		private Tech tech;
 		private UnlockStrategy strat;
@@ -69,6 +81,11 @@ public class TechGraph
 			this();
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
 		private TechNode(Tech tech, UnlockStrategy strat)
@@ -90,6 +107,11 @@ public class TechGraph
 		{
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
 		public void setTech(Tech tech)

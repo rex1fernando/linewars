@@ -8,6 +8,9 @@ import javax.swing.JTabbedPane;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.tech.CycleException;
+import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 
 public class TechPanel extends Panel
 {
@@ -26,6 +29,25 @@ public class TechPanel extends Panel
 		
 		this.display = display;
 		this.tabPanel = new JTabbedPane();
+		add(tabPanel);
+		
+		//TEST CODE
+		TechGraph tech = new TechGraph();
+		TechNode parent = tech.addNode();
+		TechNode child = tech.addNode();
+		
+		parent.setPosition(1, 1);
+		child.setPosition(15, 5);
+		
+		try {
+			parent.addChild(child);
+		} catch (CycleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		tabPanel.add(new TechDisplay(tech));
+		//END TEST CODE
 	}
 	
 	@Override
