@@ -5,24 +5,29 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import menu.creategame.CreateGamePanel;
 
 public class WindowManager extends JFrame
 {
 	private TitlePanel titleMenu;
+	private CreateGamePanel createMenu;
 	
 	public WindowManager()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
+		
+		titleMenu = new TitlePanel(this);
+		createMenu = new CreateGamePanel(this);
 	}
 	
 	public void showWindow()
 	{
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		titleMenu = new TitlePanel(this);
-		
-		setContentPane(titleMenu);
+		changeContentPane(titleMenu);
 	}
 	
 	public Dimension getPanelSize()
@@ -32,12 +37,12 @@ public class WindowManager extends JFrame
 	
 	public void gotoTitleMenu()
 	{
-		setContentPane(titleMenu);
+		changeContentPane(titleMenu);
 	}
 	
 	public void gotoCreateGame()
 	{
-		// TODO implement
+		changeContentPane(createMenu);
 	}
 	
 	public void gotoJoinGame()
@@ -58,6 +63,12 @@ public class WindowManager extends JFrame
 	public void exitGame()
 	{
 		dispose();
+	}
+	
+	private void changeContentPane(JPanel pane)
+	{
+		setContentPane(pane);
+		validate();
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)

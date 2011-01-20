@@ -21,13 +21,11 @@ public class TitlePanel extends JPanel
 	private static final int HSPACE = 200;
 	private static final int VGAP = 25;
 	
-	private long gameStartTime;
 	private WindowManager parent;
 	
 	public TitlePanel(WindowManager parent)
 	{
 		this.parent = parent;
-		gameStartTime = System.currentTimeMillis();
 		setSize(parent.getPanelSize());
 		
 		GridLayout mgr = new GridLayout(7, 1);
@@ -74,11 +72,6 @@ public class TitlePanel extends JPanel
 		panel.add(button);
 		panel.add(Box.createRigidArea(new Dimension(HSPACE, 0)));
 		add(panel);
-	}
-	
-	private double getTime()
-	{
-		return (System.currentTimeMillis() - gameStartTime) * 1000;
 	}
 	
 	private class ButtonListener implements ActionListener
