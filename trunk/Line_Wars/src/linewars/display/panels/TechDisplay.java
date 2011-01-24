@@ -1,6 +1,10 @@
 package linewars.display.panels;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.DefaultButtonModel;
@@ -20,28 +24,43 @@ public class TechDisplay extends JPanel
 	{
 		this.tech = tech;
 		
-		JScrollPane scrollPane = new JScrollPane();
-		add(scrollPane);
+		setLayout(new GridLayout());
 		
-		treeDisplay = new JPanel(new GridLayout(tech.getMaxX(), tech.getMaxY()));
-		scrollPane.add(treeDisplay);
+		GridBagLayout treeLayout = new GridBagLayout();
+		GridBagConstraints treeConstraints = new GridBagConstraints();
+		treeDisplay = new JPanel(treeLayout);
 		
-		buttons = new TechButton[tech.getMaxX()][tech.getMaxY()];
+		treeConstraints.gridwidth = 1;
+		treeConstraints.gridheight = 1;
+		treeConstraints.gridy = 0;
+		buttons = new TechButton[tech.getMaxY()][tech.getMaxX()];
 		for(int r = 0; r < buttons.length; ++r)
 		{
+			treeConstraints.gridx = 0;
 			for(int c = 0; c < buttons[r].length; ++c)
 			{
 				buttons[r][c] = new TechButton();
 //				buttons[r][c].setOpaque(false);
 //				buttons[r][c].setVisible(false);
 				treeDisplay.add(buttons[r][c]);
+				treeLayout.addLayoutComponent(buttons[r][c], treeConstraints);
+				
+				++treeConstraints.gridx;
 			}
+
+			++treeConstraints.gridy;
 		}
+		
+		JScrollPane scrollPane = new JScrollPane(treeDisplay);
+		add(scrollPane);
 	}
 	
 	@Override
 	public void paint(Graphics g)
 	{
+		g.setColor(Color.blue);
+		g.fillRect(0, 0, getWidth(), getHeight());		
+		
 		super.paint(g);
 	}
 	
@@ -53,18 +72,27 @@ public class TechDisplay extends JPanel
 	 */
 	private class TechButton extends JButton
 	{
+		public TechButton()
+		{
+			Dimension size = new Dimension(50, 50);
+			
+			setPreferredSize(size);
+		}
+		
 		@Override
 		public void paint(Graphics g)
 		{
-			DefaultButtonModel model = (DefaultButtonModel)getModel();
-			if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
-			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
-			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
-			else
-				getIcon().paintIcon(this, g, 0, 0);
+			super.paint(g);
+			
+//			DefaultButtonModel model = (DefaultButtonModel)getModel();
+//			if(model.isPressed())
+//				getPressedIcon().paintIcon(this, g, 0, 0);
+//			else if(model.isSelected())
+//				getSelectedIcon().paintIcon(this, g, 0, 0);
+//			else if(model.isRollover())
+//				getRolloverIcon().paintIcon(this, g, 0, 0);
+//			else
+//				getIcon().paintIcon(this, g, 0, 0);
 		}
 	}
 }

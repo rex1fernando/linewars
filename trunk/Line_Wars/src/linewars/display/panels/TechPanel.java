@@ -1,10 +1,10 @@
 package linewars.display.panels;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.GridLayout;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
@@ -21,17 +21,19 @@ public class TechPanel extends Panel
 	
 	private Display display;
 	
-	private JTabbedPane tabPanel;
+	private JButton[] tabs;
+	private TechDisplay[] techs;
 	
 	public TechPanel(Display display, GameStateProvider stateManager)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
 		this.display = display;
-		this.tabPanel = new JTabbedPane();
-		add(tabPanel);
 		
 		//TEST CODE
+		this.tabs = new JButton[1];
+		this.techs = new TechDisplay[1];
+		
 		TechGraph tech = new TechGraph();
 		TechNode parent = tech.addNode();
 		TechNode child = tech.addNode();
@@ -46,8 +48,28 @@ public class TechPanel extends Panel
 			e.printStackTrace();
 		}
 		
-		tabPanel.add(new TechDisplay(tech));
+		this.tabs[0] = new JButton();
+		this.techs[0] = new TechDisplay(tech);
 		//END TEST CODE
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		JPanel buttonPanel = new JPanel(new GridLayout());
+		add(buttonPanel);
+		for(int i = 0; i < tabs.length; ++i)
+		{
+			buttonPanel.add(tabs[i]);
+		}
+		
+		JPanel techPanel = new JPanel(new GridLayout());
+		add(techPanel);
+		for(int i = 0; i < techs.length; ++i)
+		{
+			techs[i].setVisible(false);
+			techPanel.add(techs[i]);
+		}
+		
+		techs[0].setVisible(true);
 	}
 	
 	@Override
@@ -58,14 +80,5 @@ public class TechPanel extends Panel
 		super.updateLocation();
 		
 		setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
-	}
-	
-	@Override
-	public void paint(Graphics g)
-	{
-		g.setColor(Color.pink);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		
-		super.paint(g);
 	}
 }

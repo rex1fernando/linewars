@@ -54,7 +54,7 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
 @SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
-	private static final boolean DEBUG_MODE = false;
+	private static final boolean DEBUG_MODE = true;
 
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
@@ -99,7 +99,7 @@ public class Display extends JFrame implements Runnable
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(gamePanel);
 		setSize(new Dimension(800, 600));
-		setUndecorated(true);
+		setUndecorated(!DEBUG_MODE);
 	}
 
 	@Override
