@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
+import configuration.Configuration;
 
 /**
  * 
@@ -28,7 +29,7 @@ public strictfp class PathFinding {
 		
 	}
 	
-	private HashMap<String, HashMap<Position, Node>> hashOfMaps = new HashMap<String, HashMap<Position, Node>>();
+	private HashMap<Configuration, HashMap<Position, Node>> hashOfMaps = new HashMap<Configuration, HashMap<Position, Node>>();
 	private int currentTick = -1;
 	
 	private double currentVisitedID;
@@ -73,14 +74,14 @@ public strictfp class PathFinding {
 		if(currentTick != gameState.getTimerTick())
 		{
 			currentTick = gameState.getTimerTick();
-			hashOfMaps = new HashMap<String, HashMap<Position, Node>>();
+			hashOfMaps = new HashMap<Configuration, HashMap<Position, Node>>();
 		}
 		
-		nodeMap = hashOfMaps.get(unit.getURI());
+		nodeMap = hashOfMaps.get(unit.getDefinition());
 		if(nodeMap == null)
 		{
 			nodeMap = new HashMap<Position, PathFinding.Node>();
-			hashOfMaps.put(unit.getURI(), nodeMap);
+			hashOfMaps.put(unit.getDefinition(), nodeMap);
 		}
 		
 		currentVisitedID = Math.random();

@@ -37,7 +37,7 @@ public strictfp class Node {
 	private long occupationStartTime;
 	
 	private ArrayList<Building> containedBuildings;
-	private CommandCenter cCenter;
+	private Building cCenter;
 	private ArrayList<Unit> containedUnits;
 	private long lastSpawnTime;
 	

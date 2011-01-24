@@ -2,7 +2,6 @@ package linewars.gamestate.tech;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Function;
 
 /**
  * Modifies a numeric attribute in an exponential or polynomial way

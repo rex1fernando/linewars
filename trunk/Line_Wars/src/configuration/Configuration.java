@@ -42,4 +42,13 @@ public abstract class Configuration extends Observable implements Serializable {
 		notifyObservers(name);
 		return ret;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o instanceof Configuration)
+			return props.equals(((Configuration)o).props);
+		else
+			return false;
+	}
 }

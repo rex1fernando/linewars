@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import linewars.gamestate.Function;
 import linewars.gamestate.Player;
 import linewars.configfilehandler.*;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
