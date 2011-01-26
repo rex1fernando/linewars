@@ -709,7 +709,6 @@ public strictfp class Lane
 			
 			for(MapItem second : allUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
-				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
 						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
 						
@@ -771,8 +770,7 @@ public strictfp class Lane
 						}
 					}
 				}
-			}
-		}		
+			}		
 
 		Random rand = new Random(gameState.getTimerTick());
 		//Then resolve them by shifting stuff around
