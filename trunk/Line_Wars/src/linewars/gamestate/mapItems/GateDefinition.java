@@ -2,6 +2,9 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration;
@@ -44,6 +47,11 @@ public strictfp class GateDefinition extends UnitDefinition {
 	public CombatStrategyConfiguration getCombatStratConfig()
 	{
 		return combatStrat;
+	}
+	
+	public Gate createGate(Transformation t, Player owner, GameState gameState)
+	{
+		return (Gate)super.createMapItem(t, owner, gameState);
 	}
 
 }

@@ -1,5 +1,6 @@
 package linewars.gamestate;
 
+import java.io.Serializable;
 import java.util.Scanner;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Scanner;
  * immutable.
  *
  */
-public strictfp class Position {
+public strictfp class Position implements Serializable {
 	
 	public static final Position ORIGIN = new Position(0, 0);
 	

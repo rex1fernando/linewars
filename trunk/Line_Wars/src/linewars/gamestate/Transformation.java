@@ -1,5 +1,7 @@
 package linewars.gamestate;
 
+import java.io.Serializable;
+
 
 /**
  * 
@@ -9,7 +11,7 @@ package linewars.gamestate;
  * and a direction. It is immutable.
  *
  */
-public strictfp class Transformation {
+public strictfp class Transformation implements Serializable {
 	
 	public static final Transformation ORIGIN = new Transformation(Position.ORIGIN, 0);
 	
