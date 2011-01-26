@@ -1,5 +1,7 @@
 package linewars.display.panels;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
@@ -55,6 +57,7 @@ public class TechPanel extends Panel
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		JPanel buttonPanel = new JPanel(new GridLayout());
+		buttonPanel.setOpaque(false);
 		add(buttonPanel);
 		for(int i = 0; i < tabs.length; ++i)
 		{
@@ -62,6 +65,7 @@ public class TechPanel extends Panel
 		}
 		
 		JPanel techPanel = new JPanel(new GridLayout());
+		techPanel.setOpaque(false);
 		add(techPanel);
 		for(int i = 0; i < techs.length; ++i)
 		{
@@ -80,5 +84,14 @@ public class TechPanel extends Panel
 		super.updateLocation();
 		
 		setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
+	}
+	
+	@Override
+	public void paint(Graphics g)
+	{
+		g.setColor(Color.pink);
+		g.fillRect(0, 0, getWidth(), getHeight());		
+		
+		super.paint(g);
 	}
 }

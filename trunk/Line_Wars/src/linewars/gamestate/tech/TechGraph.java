@@ -40,6 +40,16 @@ public class TechGraph
 		return null;		
 	}
 	
+	public void unmarkAll()
+	{
+		TechNode root = getRoot();
+		while(root != null)
+		{
+			root.unmarkAll();
+			root = getNextRoot();
+		}
+	}
+	
 	public int getMaxX()
 	{
 		return maxX;
@@ -60,6 +70,8 @@ public class TechGraph
 		
 		private Iterator<TechNode> parentIterator;
 		private Iterator<TechNode> childIterator;
+		
+		private boolean marked;
 		
 		private int x;
 		private int y;
@@ -101,6 +113,31 @@ public class TechGraph
 			this.tech = tech;
 			this.strat = strat;
 			this.parents = parents;
+		}
+		
+		public void mark()
+		{
+			marked = true;
+		}
+		
+		public boolean isMarked()
+		{
+			return marked;
+		}
+		
+		private void unmarkAll()
+		{
+			if(!marked)
+				return;
+			
+			marked = false;
+			
+			TechNode child = getChild();
+			while(child != null)
+			{
+				child.unmarkAll();
+				child = getNextChild();
+			}
 		}
 		
 		public void setPosition(int x, int y)
