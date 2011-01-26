@@ -34,6 +34,8 @@ public strictfp abstract class Shape {
 		}
 	}
 	
+	private AABB aabb;
+	
 	/**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      *
@@ -218,4 +220,9 @@ public strictfp abstract class Shape {
 	 * @return true if the Position is contained within the Shape, false otherwise.
 	 */
 	public abstract boolean positionIsInShape(Position toTest);
+	
+	public AABB getAABB()
+	{
+		return aabb;
+	}
 }
