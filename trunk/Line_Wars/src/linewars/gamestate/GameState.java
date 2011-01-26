@@ -142,19 +142,34 @@ public strictfp class GameState
 	 */
 	public List<? extends MapItem> getMapItemsOfType(MapItemType type)
 	{
+		List<? extends MapItem> list = null;
 		switch (type)
 		{
-		case UNIT:
-			return getUnits();
-		case PROJECTILE:
-			return getProjectiles();
-		case BUILDING:
-			return getBuildings();
-		case LANEBORDER:
-			return getLaneBorders();
-		default:
-			return new ArrayList<MapItem>(0);
+			case UNIT:
+				list = getUnits();
+			case PROJECTILE:
+				list = getProjectiles();
+			case BUILDING:
+				list = getBuildings();
+			case LANEBORDER:
+				list = getLaneBorders();
+			default:
+				list = new ArrayList<MapItem>(0);
 		}
+		
+		List<MapItem> ret = new ArrayList<MapItem>();
+		for(MapItem m : list)
+			ret.add(m);
+		
+		for(int i = 0; i < ret.size(); i++)
+		{
+			if(ret.get(i) instanceof MapItemAggregate)
+			{
+				ret.addAll(((MapItemAggregate)ret.get(i)).getContainedItems());
+				ret.remove(i);
+			}
+		}
+		return ret;
 	}
 	
 	/**

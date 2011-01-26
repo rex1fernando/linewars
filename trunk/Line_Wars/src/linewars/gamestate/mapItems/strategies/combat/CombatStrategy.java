@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.Strategy;
 
 /**
  * 
@@ -9,21 +10,8 @@ import linewars.gamestate.mapItems.Unit;
  *This interface represents a combat strategy for a unit. It decides,
  *when in combat, how a unit should move and use its abilities.
  */
-public strictfp interface CombatStrategy {
+public strictfp interface CombatStrategy extends Strategy<CombatStrategyConfiguration> {
 	
-	/**
-	 * Sets the unit this combat strategy is associated with.
-	 * 	
-	 * @param u		the unit this strategy is associated with.
-	 */
-	public void setUnit(Unit u);
-	
-	/**
-	 * Creates a copy of this combat strategy and returns it.
-	 * 
-	 * @return	a copy of this combat strategy
-	 */
-	public CombatStrategy copy();
 	
 	/**
 	 * Returns the maximum range at which this combat would consider

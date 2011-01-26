@@ -317,6 +317,7 @@ public strictfp class Lane
 	 */
 	public void addProjectile(Projectile p)
 	{
+		p.setLane(this);
 		projectiles.add(p);
 	}
 	
@@ -682,7 +683,7 @@ public strictfp class Lane
 		{
 			Projectile p = projectiles.get(i);
 			p.move();
-			p.update();
+			p.updateMapItem();
 			//get rid of dead projectiles
 			if(p.getState() == MapItemState.Dead && p.finished())
 				projectiles.remove(i);

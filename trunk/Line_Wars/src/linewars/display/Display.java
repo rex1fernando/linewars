@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -30,6 +32,7 @@ import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
+import linewars.display.panels.TechPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
@@ -179,6 +182,12 @@ public class Display extends JFrame implements Runnable
 		private ExitButtonPanel exitButtonPanel;
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
+		private TechPanel techPanel;
+		
+		private boolean panLeft;
+		private boolean panRight;
+		private boolean panUp;
+		private boolean panDown;
 
 		private long lastTime;
 
@@ -194,6 +203,11 @@ public class Display extends JFrame implements Runnable
 
 			mousePosition = null;
 			lastClickPosition = null;
+			
+			panLeft = false;
+			panRight = false;
+			panUp = false;
+			panDown = false;
 
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
@@ -260,6 +274,8 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
+			techPanel = new TechPanel(Display.this, gameStateProvider);
+			add(techPanel);
 
 			addComponentListener(new ResizeListener());
 
@@ -268,6 +284,9 @@ public class Display extends JFrame implements Runnable
 			addMouseWheelListener(ih);
 			addMouseMotionListener(ih);
 			addMouseListener(ih);
+			
+			KeyboardHandler keyListener = new KeyboardHandler();
+			addKeyListener(keyListener);
 		}
 
 		/**
@@ -432,20 +451,20 @@ public class Display extends JFrame implements Runnable
 			double moveX = 0.0;
 			double moveY = 0.0;
 
-			if(mousePosition.getX() < 25)
+			if(mousePosition.getX() < 25 || panLeft)
 			{
 				moveX = (-1000 / fps) / scale;
 			}
-			else if(mousePosition.getX() > getWidth() - 25)
+			else if(mousePosition.getX() > getWidth() - 25 || panRight)
 			{
 				moveX = (1000 / fps) / scale;
 			}
 
-			if(mousePosition.getY() < 25)
+			if(mousePosition.getY() < 25 || panUp)
 			{
 				moveY = (-1000 / fps) / scale;
 			}
-			else if(mousePosition.getY() > getHeight() - 25)
+			else if(mousePosition.getY() > getHeight() - 25 || panDown)
 			{
 				moveY = (1000 / fps) / scale;
 			}
@@ -648,6 +667,7 @@ public class Display extends JFrame implements Runnable
 				nodeStatusPanel.updateLocation();
 				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
+				techPanel.updateLocation();
 			}
 		}
 
@@ -717,6 +737,51 @@ public class Display extends JFrame implements Runnable
 
 				updateViewPort(viewX, viewY, newW, newH);
 				zoomLevel = newZoom;
+			}
+		}
+		
+		private class KeyboardHandler extends KeyAdapter
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				int code = e.getKeyCode();
+				switch(code)
+				{
+				case KeyEvent.VK_LEFT:
+					panLeft = true;
+					break;
+				case KeyEvent.VK_RIGHT:
+					panRight = true;
+					break;
+				case KeyEvent.VK_UP:
+					panUp = true;
+					break;
+				case KeyEvent.VK_DOWN:
+					panDown = true;
+					break;
+				}
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				int code = e.getKeyCode();
+				switch(code)
+				{
+				case KeyEvent.VK_LEFT:
+					panLeft = false;
+					break;
+				case KeyEvent.VK_RIGHT:
+					panRight = false;
+					break;
+				case KeyEvent.VK_UP:
+					panUp = false;
+					break;
+				case KeyEvent.VK_DOWN:
+					panDown = false;
+					break;
+				}
 			}
 		}
 	}

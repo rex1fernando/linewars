@@ -21,23 +21,13 @@ public strictfp class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
 	private Dimension2D dimensions;
-	private ConfigData parser;
+	private MapConfiguration config;
 	
 	
-	public Map(GameState gameState, ConfigData mapParser)
+	public Map(GameState gameState, MapConfiguration config)
 	{
-		dimensions = new Dimension((int)(double)mapParser.getNumber(ParserKeys.imageWidth), (int)(double)mapParser.getNumber(ParserKeys.imageHeight));
-		parser = mapParser;
+		this.config = config;
 		
-		lanes = new ArrayList<Lane>();
-		List<ConfigData> ls = mapParser.getConfigList(ParserKeys.lanes);
-		for(ConfigData l : ls)
-			lanes.add(new Lane(gameState, l));
-		
-		nodes = new ArrayList<Node>();
-		List<ConfigData> ns = mapParser.getConfigList(ParserKeys.nodes);
-		for(ConfigData n : ns)
-			nodes.add(new Node(n, gameState, lanes.toArray(new Lane[0]), nodes.size()));
 	}
 	/**
 	 * This method gets a list of the lanes attached to the Node n

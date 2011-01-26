@@ -2,8 +2,6 @@ package linewars.gamestate;
 
 import java.awt.Dimension;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.shapes.Rectangle;
 
 public class BuildingSpot

@@ -142,14 +142,14 @@ public class CommandCardPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
-		super.updateLocation();
-
 		scaleFactor = (display.getScreenWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
 
-		setSize((int)(DEFAULT_WIDTH * scaleFactor), (int)(DEFAULT_HEIGHT * scaleFactor));
+		super.updateLocation();
+
 		setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
 
 		// resizes the inner panel
+		buttonPanel.setLayout(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor), (int)(BTN_PANEL_V_GAP * scaleFactor)));
 		buttonPanel.setLocation((int)(BTN_PANEL_X * scaleFactor), (int)(BTN_PANEL_Y * scaleFactor));
 		buttonPanel.setSize((int)(BTN_PANEL_WIDTH * scaleFactor), (int)(BTN_PANEL_HEIGHT * scaleFactor));
 	}

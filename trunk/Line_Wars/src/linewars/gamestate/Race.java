@@ -3,8 +3,14 @@ package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.GateDefinition;
+import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.tech.Tech;
+import configuration.Configuration;
+import configuration.ListConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 
 /**
@@ -14,28 +20,27 @@ import linewars.configfilehandler.ParserKeys;
  *	This class represents a race, of which each player has one. Races know what units and buildings are available to be 
  *  created by itself.
  */
-public strictfp class Race {
-	
-	private String name;
-	private List<String> unitURIs;
-	private List<String> techURIs;
-	private List<String> buildingURIs;
-	private String commandCenterURI;
-	private String gateURI;
+public strictfp class Race extends Configuration {
 	
 	/**
 	 * Creates a new Race object based on the information in the given ConfigData.
 	 * @param p
 	 * 		The ConfigData object to be used to create this Race.
 	 */
-	public Race(ConfigData p)
+	public Race()
 	{
-		name = p.getString(ParserKeys.name);
-		unitURIs = p.getStringList(ParserKeys.unitURI);
-		techURIs = p.getStringList(ParserKeys.techURI);
-		buildingURIs = p.getStringList(ParserKeys.buildingURI);
-		commandCenterURI = p.getString(ParserKeys.commandCenterURI);
-		gateURI = p.getString(ParserKeys.gateURI);
+		super.setPropertyForName("name", new Property(Usage.STRING));
+		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<UnitDefinition>(new ArrayList<UnitDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<Tech>(new ArrayList<Tech>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<BuildingDefinition>(new ArrayList<BuildingDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("commandCenter", new Property(Usage.CONFIGURATION));
+		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION));
 	}
 	
 	/**
@@ -43,14 +48,9 @@ public strictfp class Race {
 	 * @return
 	 * 		A List containing all of the BuildingURIs associated with this Race.
 	 */
-	public List<String> getBuildingURIs()
+	public List<BuildingDefinition> getBuildings()
 	{
-		ArrayList<String> ret = new ArrayList<String>();
-		for(int i = 0; i < buildingURIs.size(); i++)
-		{
-			ret.add(buildingURIs.get(i));
-		}
-		return ret;
+		return (List<BuildingDefinition>) super.getPropertyForName("buildings").getValue();
 	}
 
 	/**
@@ -58,14 +58,9 @@ public strictfp class Race {
 	 * @return
 	 * 		A List containing all of the UnitURIs associated with this Race.
 	 */
-	public List<String> getUnitURIs()
+	public List<UnitDefinition> getUnits()
 	{
-		ArrayList<String> ret = new ArrayList<String>();
-		for(int i = 0; i < unitURIs.size(); i++)
-		{
-			ret.add(unitURIs.get(i));
-		}
-		return ret;
+		return (List<UnitDefinition>) super.getPropertyForName("units").getValue();
 	}
 	
 	/**
@@ -73,14 +68,9 @@ public strictfp class Race {
 	 * @return
 	 * 		A List containing all of the TechURIs associated with this Race.
 	 */
-	public List<String> getTechURIs()
+	public List<Tech> getTechs()
 	{
-		ArrayList<String> ret = new ArrayList<String>();
-		for(int i = 0; i < techURIs.size(); i++)
-		{
-			ret.add(techURIs.get(i));
-		}
-		return ret;
+		return (List<Tech>) super.getPropertyForName("techs").getValue();
 	}
 	
 	/**
@@ -88,9 +78,9 @@ public strictfp class Race {
 	 * @return
 	 * 		The CommandCenterURI associated with this Race.
 	 */
-	public String getCommandCenterURI()
+	public BuildingDefinition getCommandCenter()
 	{
-		return commandCenterURI;
+		return (BuildingDefinition) super.getPropertyForName("commandCenter").getValue();
 	}
 	
 	/**
@@ -100,7 +90,7 @@ public strictfp class Race {
 	 */
 	public String getName()
 	{
-		return name;
+		return (String)super.getPropertyForName("name").getValue();
 	}
 	
 	/**
@@ -108,24 +98,9 @@ public strictfp class Race {
 	 * @return
 	 * 		The GateURI associated with this Race.
 	 */
-	public String getGateURI()
+	public GateDefinition getGate()
 	{
-		return gateURI;
-	}
-	
-	@Override
-	public boolean equals(Object o)
-	{
-		if(o == null || o.getClass() != this.getClass()){
-			return false;
-		}
-		
-		if(((Race)o).getName() == this.name)
-		{
-			return true;
-		}
-		
-		return false;
+		return (GateDefinition) super.getPropertyForName("gate").getValue();
 	}
 
 }

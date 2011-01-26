@@ -3,57 +3,41 @@ package linewars.gamestate.shapes;
 import java.util.ArrayList;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
 /**
  * Represents a collection of Shapes, each with a specific relative position and orientation.
  * 
- * NYI
  * 
  * @author Taylor Bergquist
  *
  */
 public strictfp class ShapeAggregate extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
-	}
-	
+	private Position center;
 	private ArrayList<Shape> members;
 	private double rotation;
-
-
-	/**
-	 * Constructs a ShapeAggregate on the given Parser.
-	 * This constructor expects to see a list of shape names mapped to
-	 * the ParserKeys.shapes key which each have a Parser mapped to them.
-	 * 
-	 * If the ParserKeys.rotation key is specified, that value will be the
-	 * default rotation of the ShapeAggregate; if it is not specified, it
-	 * to 0 (facing to the right).
-	 * 
-	 * @param p
-	 * The Parser which defines this ShapeAggregate
-	 */
-	public ShapeAggregate(ConfigData p){
-		members = new ArrayList<Shape>();
-		List<ConfigData> list = p.getConfigList(ParserKeys.shapes);
-		for(ConfigData cfg : list){
-			members.add(Shape.buildFromParser(cfg));
+	
+	private Rectangle boundingRectangle = null;
+	private Circle boundingCircle = null;
+	
+	public ShapeAggregate(Transformation center, ArrayList<Shape> shapes, ArrayList<Transformation> relativePositions){
+		this();
+		for(int i = 0; i < shapes.size(); i++){
+			Shape currentShape = shapes.get(i);
+			Transformation current = currentShape.position();
+			Transformation target = relativePositions.get(i);
+			
+			//final - initial
+			Transformation change = new Transformation(target.getPosition().subtract(current.getPosition()), target.getRotation() - current.getRotation());
+			members.add(currentShape.transform(change));
 		}
-		try{
-			rotation = p.getNumber(ParserKeys.rotation);			
-		}catch(NoSuchKeyException e){
-			rotation = 0;//defaults to 0
-		}
+		this.transform(center);
 	}
 
 	private ShapeAggregate() {
+		center = new Position(0, 0);
 		members = new ArrayList<Shape>();
 		rotation = 0;
 	}
@@ -65,6 +49,8 @@ public strictfp class ShapeAggregate extends Shape {
 		ShapeAggregate destination = (ShapeAggregate) transform(change);
 		
 		ShapeAggregate ret = new ShapeAggregate();
+		
+		ret.center = center.add(change.getPosition().scale(.5));
 		
 		//for each sub-Shape
 		for(int i = 0; i < members.size(); i++){
@@ -89,8 +75,11 @@ public strictfp class ShapeAggregate extends Shape {
 	}
 
 	@Override
-	public Shape transform(Transformation change) {
+	public ShapeAggregate transform(Transformation change) {
 		ShapeAggregate ret = new ShapeAggregate();
+		
+		ret.center = center.add(change.getPosition());
+		
 		//for each Shape
 		for(int i = 0; i < members.size(); i++){
 			//translate by -1 * this.position
@@ -102,21 +91,20 @@ public strictfp class ShapeAggregate extends Shape {
 			ret.members.add(finalShape);
 		}
 		ret.rotation = rotation + change.getRotation();
+		
+		//performance optimizations
+		if(boundingRectangle != null){
+			ret.boundingRectangle = boundingRectangle.transform(change);
+		}
+		if(boundingCircle != null){
+			ret.boundingCircle = boundingCircle.transform(change);
+		}
 		return ret;
 	}
 
 	@Override
 	public Transformation position() {
-		Position sum = new Position(0, 0);
-		
-		//compute the average position of the sub-shapes
-		for(Shape toSum : members){
-			//TODO weight this by the area of the Shape?
-			//TODO somehow discount overlap?
-			sum = sum.add(toSum.position().getPosition());
-		}
-		
-		return new Transformation(sum.scale(1.0 / members.size()), rotation);
+		return new Transformation(center, rotation);
 	}
 	
 	/**
@@ -128,17 +116,54 @@ public strictfp class ShapeAggregate extends Shape {
 
 	@Override
 	public Circle boundingCircle() {
-		//could use some sort of 'gimme the point farthest in this direction' method
-		// TODO Auto-generated method stub
-		return null;
+		if(boundingCircle != null){
+			return boundingCircle;
+		}
+		
+		return boundingRectangle().boundingCircle();
 	}
 
 	@Override
 	public Rectangle boundingRectangle() {
-		//TODO compute a bounding rectangle for each Shape
-		//TODO take the min and max of their x and y values to compute a bounding rect for all of them
-		// TODO Auto-generated method stub
-		return members.get(0).boundingRectangle();
+		if(boundingRectangle != null){
+			return boundingRectangle;
+		}
+		
+		//unrotate this to ensure that the computed bounding rect is oriented with the ShapeAggregate
+		ShapeAggregate unrotated = this.transform(new Transformation(new Position(0, 0), rotation));
+		
+		//compute the bounds
+		double minX = Double.MAX_VALUE;
+		double minY = minX;
+		double maxX = minX * -1;
+		double maxY = maxX;
+		
+		for(Shape currentShape : unrotated.members){
+			Rectangle subBoundingRect = currentShape.boundingRectangle();
+			Position[] subPositions = subBoundingRect.getVertexPositions();
+			for(Position currentPosition : subPositions){
+				if(currentPosition.getX() < minX){
+					minX = currentPosition.getX();
+				}
+				if(currentPosition.getX() > maxX){
+					maxX = currentPosition.getX();
+				}
+				if(currentPosition.getY() < minY){
+					minY = currentPosition.getY();
+				}
+				if(currentPosition.getY() > maxY){
+					maxY = currentPosition.getY();
+				}
+			}
+		}
+
+		//construct the rectangle from the computed bounds
+		double width = maxX - minX;
+		double height = maxY - minY;
+		Position boundingRectangleCenter = new Position(minX + width / 2, minY + height / 2);
+		
+		Rectangle ret = new Rectangle(new Transformation(boundingRectangleCenter, rotation), width, height);
+		return ret;
 	}
 
 	@Override
@@ -150,15 +175,5 @@ public strictfp class ShapeAggregate extends Shape {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public ConfigData getData() {
-		ConfigData ret = new ConfigData();
-		ret.set(ParserKeys.rotation, rotation);
-		for(Shape toAdd : members){
-			ret.add(ParserKeys.shapes, toAdd.getData());
-		}
-		return ret;
 	}
 }

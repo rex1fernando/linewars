@@ -37,7 +37,7 @@ public strictfp class Node {
 	private long occupationStartTime;
 	
 	private ArrayList<Building> containedBuildings;
-	private CommandCenter cCenter;
+	private Building cCenter;
 	private ArrayList<Unit> containedUnits;
 	private long lastSpawnTime;
 	
@@ -418,6 +418,7 @@ public strictfp class Node {
 				return false;
 			}
 		}
+		b.setNode(this);
 		return containedBuildings.add(b);
 	}
 	
@@ -481,9 +482,9 @@ public strictfp class Node {
 		if(!this.isContested())
 		{
 			for(Building b : containedBuildings)
-				b.update();
+				b.updateMapItem();
 			if(cCenter != null)
-				cCenter.update();
+				cCenter.updateMapItem();
 		}
 		generateWaves();
 		
@@ -500,6 +501,7 @@ public strictfp class Node {
 	{
 		owner = p;
 		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform.getTrans(), this);
+		cCenter.setNode(this);
 		containedBuildings.clear();
 		for(Lane l : attachedLanes)
 		{

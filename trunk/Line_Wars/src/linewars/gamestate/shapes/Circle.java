@@ -1,8 +1,5 @@
 package linewars.gamestate.shapes;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -13,10 +10,6 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class Circle extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("circle", Circle.class);
-	}
 	
 	//the position of the Circle's center
 	private final Transformation position;
@@ -35,21 +28,6 @@ public strictfp class Circle extends Shape {
 		this.radius = radius;
 		position = pos;
 	}
-	
-	/**
-	 * Constructs a Circle from the data in the ConfigData object
-	 * @param config
-	 */
-	public Circle(ConfigData config){
-		radius = config.getNumber(ParserKeys.radius);
-		double rotation = 0;
-		try{
-			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
-		}catch(NoSuchKeyException e){
-			//just means rotation wasn't set, so it is 0 by default
-		}
-		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
-	}
 
 	@Override
 	public Shape stretch(Transformation change) {
@@ -60,7 +38,7 @@ public strictfp class Circle extends Shape {
 	}
 
 	@Override
-	public Shape transform(Transformation change) {
+	public Circle transform(Transformation change) {
 		return new Circle(new Transformation(position.getPosition().add(change.getPosition()), position.getRotation() + change.getRotation()), radius);
 	}
 
@@ -105,16 +83,5 @@ public strictfp class Circle extends Shape {
 		if(!otherCircle.position.equals(position)) return false;
 		if(!(otherCircle.radius == radius)) return false;
 		return true;
-	}
-
-	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		cd.set(ParserKeys.shapetype, "circle");
-		cd.set(ParserKeys.radius, radius);
-		cd.set(ParserKeys.rotation, position.getRotation());
-		cd.set(ParserKeys.x, position.getPosition().getX());
-		cd.set(ParserKeys.y, position.getPosition().getY());
-		return cd;
 	}
 }

@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Function;
+import linewars.gamestate.tech.Function;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 

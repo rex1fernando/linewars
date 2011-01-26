@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.Strategy;
 
 /**
  * 
@@ -11,21 +11,8 @@ import linewars.gamestate.mapItems.Unit;
  * the map. Before it can be told to move, the target
  * must be set and whether or not to ignore collision.
  */
-public strictfp interface MovementStrategy {
+public strictfp interface MovementStrategy extends Strategy<MovementStrategyConfiguration> {
 	
-	/**
-	 * Sets the unit associated with this movement strategy
-	 * 
-	 * @param u		the unit that owns this strategy
-	 */
-	public void setUnit(Unit u);
-	
-	/**
-	 * creates a copy of this movement strategy
-	 * 
-	 * @return	a copy of this movement strategy
-	 */
-	public MovementStrategy copy();
 	
 	/**
 	 * Sets the target for this unit to move to. Returns on average

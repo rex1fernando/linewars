@@ -1,8 +1,10 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -20,7 +22,7 @@ import linewars.gamestate.shapes.Shape;
  * in that state, and it knows what abilities are currently active
  * on itself.
  */
-public strictfp abstract class MapItem {
+public strictfp abstract class MapItem implements Observer {
 	
 	//the position of this map item in map coordinates
 	//and the rotation of this map item where 0 radians is facing directly right
@@ -32,25 +34,43 @@ public strictfp abstract class MapItem {
 	//the time at which the map item entered its state
 	private long stateStart;
 	
+	private CollisionStrategy cStrat;
+	
 	//all the current abilities active on this map item
 	private ArrayList<Ability> activeAbilities;
 	
-	public MapItem(Transformation trans, MapItemDefinition def)
+	private Player owner;
+	private GameState gameState;
+	
+	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
-		body = def.getBody().transform(trans);
+		body = def.getBodyConfig().construct(trans);
 		state = MapItemState.Idle;
-		stateStart = (long) (def.getGameState().getTime()*1000);
+		stateStart = (long) (gameState.getTime()*1000);
 		activeAbilities = new ArrayList<Ability>();
+		cStrat = def.getCollisionStrategyConfig().createStrategy(this);
+		this.owner = owner;
+		this.gameState = gameState;
+		
+		for(AbilityDefinition ad : def.getAbilityDefinitions())
+			if(ad.startsActive())
+				this.addActiveAbility(ad.createAbility(this));
+		
 	}
 	
-	public abstract MapItemDefinition getDefinition();
+	public abstract MapItemDefinition<? extends MapItem> getDefinition();
+	
+	public GameState getGameState()
+	{
+		return gameState;
+	}
 	
 	/**
 	 * This method updates all the map item's currently active abilities
 	 * and handles any other tasks that need to be accomplished by the map
 	 * item in one loop of the game thread and are not handles elsewhere.
 	 */
-	public void update()
+	public void updateMapItem()
 	{
 		for(int i = 0; i < activeAbilities.size();)
 		{
@@ -66,6 +86,16 @@ public strictfp abstract class MapItem {
 				i++;
 					
 		}
+	}
+	
+	@Override
+	public void update(Observable o, Object obj)
+	{
+		String name = (String)obj;
+		if(name.equals("cStrat"))
+			cStrat = getDefinition().getCollisionStrategyConfig().createStrategy(this);
+		else if(name.equals("body"))
+			body = getDefinition().getBodyConfig().construct(body.position());
 	}
 	
 	/**
@@ -93,7 +123,7 @@ public strictfp abstract class MapItem {
 	 */
 	public Position getPosition()
 	{
-		return body.position().getPosition();
+		return getBody().position().getPosition();
 	}
 	
 	/**
@@ -102,7 +132,7 @@ public strictfp abstract class MapItem {
 	 */
 	public double getRotation()
 	{
-		return body.position().getRotation();
+		return getBody().position().getRotation();
 	}
 	
 	/**
@@ -111,7 +141,7 @@ public strictfp abstract class MapItem {
 	 */
 	public Transformation getTransformation()
 	{
-		return body.position();
+		return getBody().position();
 	}
 	
 	/**
@@ -120,7 +150,7 @@ public strictfp abstract class MapItem {
 	 */
 	public void setPosition(Position p)
 	{
-		body = body.transform(new Transformation(p.subtract(this.getPosition()), 0));
+		body = getBody().transform(new Transformation(p.subtract(this.getPosition()), 0));
 	}
 	
 	/**
@@ -129,7 +159,7 @@ public strictfp abstract class MapItem {
 	 */
 	public void setRotation(double rot)
 	{
-		body = body.transform(new Transformation(new Position(0, 0), rot - body.position().getRotation()));
+		body = getBody().transform(new Transformation(new Position(0, 0), rot - getBody().position().getRotation()));
 	}
 	
 	/**
@@ -138,9 +168,9 @@ public strictfp abstract class MapItem {
 	 */
 	public void setTransformation(Transformation t)
 	{
-		Position current = body.position().getPosition();
-		Transformation change = new Transformation(t.getPosition().subtract(current), t.getRotation() - body.position().getRotation());
-		body = body.transform(change);
+		Position current = getBody().position().getPosition();
+		Transformation change = new Transformation(t.getPosition().subtract(current), t.getRotation() - getBody().position().getRotation());
+		body = getBody().transform(change);
 	}
 	
 	/**
@@ -161,7 +191,7 @@ public strictfp abstract class MapItem {
 		if(this.getDefinition().isValidState(m))
 		{
 			state = m;
-			stateStart = (long) (this.getDefinition().getGameState().getTime()*1000);
+			stateStart = (long) (this.getGameState().getTime()*1000);
 		}
 		else
 			throw new IllegalStateException(m.toString() + " is not a valid state for a " + this.getDefinition().getName());
@@ -174,15 +204,6 @@ public strictfp abstract class MapItem {
 	public double getStateStartTime()
 	{
 		return stateStart;
-	}
-	
-	/**
-	 * 
-	 * @return	the parser associated with this map item
-	 */
-	public ConfigData getParser()
-	{
-		return this.getDefinition().getParser();
 	}
 	
 	/**
@@ -200,14 +221,17 @@ public strictfp abstract class MapItem {
 	 */
 	public Player getOwner()
 	{
-		return this.getDefinition().getOwner();
+		return owner;
 	}
 	
 	/**
 	 * 
 	 * @return	the collision strategy associated with this map item
 	 */
-	public abstract CollisionStrategy getCollisionStrategy();
+	public final CollisionStrategy getCollisionStrategy()
+	{
+		return cStrat;
+	}
 	
 	/**
 	 * 
@@ -233,22 +257,13 @@ public strictfp abstract class MapItem {
 		
 		return this.getBody().isCollidingWith(m.body);
 	}
-	
-	/**
-	 * 
-	 * @return	the URI associated with the parser associated with this map item
-	 */
-	public String getURI()
-	{
-		return this.getDefinition().getParser().getURI();
-	}
 
 	/**
 	 * 
 	 * @return	the width of the bounding rectangle for this map item
 	 */
 	public double getWidth() {
-		return this.getDefinition().getBody().boundingRectangle().getWidth();
+		return this.getBody().boundingRectangle().getWidth();
 	}
 
 	/**
@@ -256,7 +271,7 @@ public strictfp abstract class MapItem {
 	 * @return	the height of the bounding rectangle for this map item
 	 */
 	public double getHeight() {
-		return this.getDefinition().getBody().boundingRectangle().getHeight();
+		return this.getBody().boundingRectangle().getHeight();
 	}
 		
 	/**
@@ -264,7 +279,7 @@ public strictfp abstract class MapItem {
 	 * @return	the radius of the bounding circle of this unit
 	 */
 	public double getRadius() {
-		return body.boundingCircle().getRadius();
+		return getBody().boundingCircle().getRadius();
 	}
 	
 	/**
@@ -274,6 +289,20 @@ public strictfp abstract class MapItem {
 	public Shape getBody()
 	{
 		return body;
+	}
+	
+	/**
+	 * Sets the shape of this map item. Maintains the transformation
+	 * that this map item was at before setting the shape (ie ignores
+	 * the transformation of s)
+	 * 
+	 * @param s
+	 */
+	public void setBody(Shape s)
+	{
+		Transformation t = getBody().position();
+		body = s;
+		setTransformation(t);
 	}
 	
 	/**

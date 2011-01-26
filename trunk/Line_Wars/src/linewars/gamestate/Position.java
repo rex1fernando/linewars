@@ -2,9 +2,6 @@ package linewars.gamestate;
 
 import java.util.Scanner;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
-
 /**
  * 
  * @author Connor Schenck, Taylor Bergquist
@@ -14,6 +11,8 @@ import linewars.configfilehandler.ParserKeys;
  *
  */
 public strictfp class Position {
+	
+	public static final Position ORIGIN = new Position(0, 0);
 	
 	private double x;
 	private double y;
@@ -46,16 +45,6 @@ public strictfp class Position {
 		Scanner s = new Scanner(toParse);
 		x = s.nextDouble();
 		y = s.nextDouble();
-	}
-	
-	/**
-	 * Parses a position from a config data.
-	 * 
-	 * @param toParse
-	 */
-	public Position(ConfigData toParse) {
-		x = toParse.getNumber(ParserKeys.x);
-		y = toParse.getNumber(ParserKeys.y);
 	}
 
 	/**
@@ -216,6 +205,18 @@ public strictfp class Position {
 	public Position vectorProjection(Position axis){
 		Position axisHitler = axis.normalize();
 		return axisHitler.scale(scalarProjection(axis));
+	}
+	
+	public double getAngle()
+	{
+		return Math.atan2(getY(), getX());
+	}
+	
+	public Position rotateAboutPosition(Position p, double rot)
+	{
+		Position temp = this.subtract(p);
+		double angle = temp.getAngle() + rot;
+		return p.add(Position.getUnitVector(angle).scale(Math.sqrt(temp.dot(temp))));
 	}
 	
 	@Override

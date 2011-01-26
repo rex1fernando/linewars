@@ -282,7 +282,7 @@ public strictfp class Wave {
 		for(Unit u : units)
 		{
 			u.getMovementStrategy().move();
-			u.update();
+			u.updateMapItem();
 		}
 	}
 	
