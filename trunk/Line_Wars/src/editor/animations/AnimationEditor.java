@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 import linewars.configfilehandler.ConfigData;
@@ -384,7 +385,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -434,7 +435,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		File dir = new File(animationFolder);
 		for(Frame f : list)
@@ -471,7 +472,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.animationURI;
 	}
 

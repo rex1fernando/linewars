@@ -2,27 +2,18 @@ package editor;
 
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
 
 public interface ConfigurationEditor {
 
 	/**
-	 * Attempts to load the config data object cd. Throws an exception
+	 * Attempts to load the config object cd. Throws an exception
 	 * if the data is corrupted and cannot be loaded.
 	 * 
 	 * @param cd
 	 */
-	public void setData(ConfigData cd);
-	
-	/**
-	 * Forces the editor to load the config data object even if it
-	 * is corrupted. The editor will ignore corrupted data and
-	 * only load valid data.
-	 * 
-	 * @param cd
-	 */
-	public void forceSetData(ConfigData cd);
+	public void setData(Configuration cd);
 	
 	/**
 	 * Resets the editor to an empty configuration
@@ -31,23 +22,16 @@ public interface ConfigurationEditor {
 	
 	/**
 	 * 
-	 * @return	the ConfigData object associated with the data in the editor
+	 * @return	the config object associated with the data in the editor
 	 */
-	public ConfigData getData();
+	public Configuration getData();
 	
 	/**
 	 * 
-	 * @return	true if the data in the editor is valid for the configData being specified,
-	 * false otherwise
-	 */
-	public boolean isValidConfig();
-	
-	/**
-	 * 
-	 * @return	the parserKey that represents the configData object configured
+	 * @return	the ConfigType that represents the config object configured
 	 * in this editor
 	 */
-	public ParserKeys getType();
+	public ConfigType getType();
 	
 	/**
 	 * 

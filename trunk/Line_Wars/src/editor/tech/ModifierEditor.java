@@ -17,6 +17,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 /**
@@ -86,7 +87,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		reset();
 
 		//figure out which editor should be used
@@ -164,7 +165,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		if(currentModifierTypeEditor == null){
 			return new ConfigData();
 		}
@@ -182,7 +183,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.modifier;
 	}
 

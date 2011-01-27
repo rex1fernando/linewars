@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.tech.Function;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 
@@ -72,7 +73,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	}
 	
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		reset();
 		if(isValid(cd)){
 			forceSetData(cd);
@@ -111,7 +112,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData ret = new ConfigData();
 		ret.add(ParserKeys.name, name);
 		ret.add(ParserKeys.tooltip, tooltip);
@@ -159,7 +160,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.name;
 	}
 

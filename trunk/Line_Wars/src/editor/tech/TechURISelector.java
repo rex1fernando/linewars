@@ -13,6 +13,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
@@ -202,7 +203,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		reset();
 		List<ConfigData> modifiedUpgradables = cd.getConfigList(ParserKeys.modifiedURI);
 		//for each modified uri
@@ -253,7 +254,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		//save data currently in the keySelector
 		saveKeyData();
 		ConfigData ret = new ConfigData();
@@ -276,7 +277,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.modifiedURI;
 	}
 

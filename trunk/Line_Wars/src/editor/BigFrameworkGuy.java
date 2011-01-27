@@ -8,12 +8,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
+import configuration.Configuration;
 
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
@@ -45,6 +48,16 @@ import linewars.configfilehandler.ParserKeys;
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
+	
+	public enum ConfigType {
+		race, animation, ability, gate, tech, map, unit,
+		projectile, building
+	}
+	
+	private class MasterList implements Serializable
+	{
+		private HashMap<ConfigType, V>
+	}
 	
 	private ConfigData masterList;
 	

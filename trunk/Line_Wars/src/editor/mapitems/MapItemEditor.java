@@ -19,6 +19,7 @@ import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.mapItems.MapItemState;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
@@ -147,7 +148,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	private static final long serialVersionUID = -2434216613579213750L;
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -292,7 +293,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		
 		//if the type is specified, then use the parser from that
@@ -332,7 +333,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		if(mapItemTypeInfo != null)
 			return mapItemTypeInfo.getType();
 		else //use unit as default type

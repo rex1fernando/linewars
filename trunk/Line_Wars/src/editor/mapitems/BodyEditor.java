@@ -27,6 +27,7 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItemState;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.URISelector;
@@ -228,7 +229,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		String type = cd.getString(ParserKeys.shapetype);
 
 		if(type.equalsIgnoreCase("Circle"))
@@ -262,7 +263,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		String type = shapeType.getSelectedURI();
 		ConfigData cd = new ConfigData();
 		if(type.equalsIgnoreCase("Circle"))
@@ -289,7 +290,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		throw new UnsupportedOperationException();
 	}
 

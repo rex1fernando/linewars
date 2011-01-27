@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
@@ -197,7 +198,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		type.setSelectedURI(cd.getString(ParserKeys.type));
 		this.uriSelected(type.getSelectedURI());
 		for(Entry<ParserKeys, JTextField> e : fields.entrySet())
@@ -232,7 +233,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		
 		if(!isValidConfig())
@@ -254,7 +255,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		throw new UnsupportedOperationException();
 	}
 

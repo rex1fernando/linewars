@@ -5,12 +5,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapConfiguration implements Serializable {
+import configuration.Configuration;
+import configuration.Property;
+
+public class MapConfiguration extends Configuration {
 	
 	private Position imageSize;
 	private String imageURI;
 	private List<NodeConfiguration> nodes = new ArrayList<NodeConfiguration>();
 	private List<LaneConfiguration> lanes = new ArrayList<LaneConfiguration>();
+	
+	@Override
+	public Property getPropertyForName(String name)
+	{
+		throw new UnsupportedOperationException();
+	}
 	
 	
 	public Position getImageSize() {

@@ -11,6 +11,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
@@ -56,7 +57,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -144,7 +145,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		if(selectedAbility < 0)
 			return cd;
@@ -211,7 +212,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.abilityURI;
 	}
 

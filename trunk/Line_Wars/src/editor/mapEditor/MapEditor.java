@@ -39,6 +39,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.BuildingSpot;
 import linewars.gamestate.Node;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.animations.FileCopy;
 
@@ -552,7 +553,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	}
 
 	@Override
-	public void setData(ConfigData cd)
+	public void setData(Configuration cd)
 	{
 		editingPanelLoaded = false;
 		map.loadConfigFile(cd, false);
@@ -573,13 +574,13 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	}
 
 	@Override
-	public ConfigData getData()
+	public Configuration getData()
 	{
 		return map.getData();
 	}
 
 	@Override
-	public ParserKeys getType()
+	public ConfigType getType()
 	{
 		return ParserKeys.mapURI;
 	}

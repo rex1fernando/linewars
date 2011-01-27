@@ -12,6 +12,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.mapitems.StrategySelector.StrategySelectorCallback;
 import editor.mapitems.StrategySelector.StrategySelectorFieldType;
@@ -82,7 +83,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -160,7 +161,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
@@ -175,7 +176,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.unitURI;
 	}
 

@@ -10,6 +10,7 @@ import javax.swing.JSeparator;
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 /**
@@ -83,7 +84,7 @@ public class TechEditor implements ConfigurationEditor {
 	 * @param cd
 	 */
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		ntcf.setData(cd);
 		modifiedURIs.setData(cd);
 	}
@@ -93,7 +94,7 @@ public class TechEditor implements ConfigurationEditor {
 	 * @return	the ConfigData object associated with the data in the editor
 	 */
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData ntcfData = ntcf.getData();
 		ConfigData modifiedURIsData = modifiedURIs.getData();
 		ConfigData ret = new ConfigData();
@@ -118,7 +119,7 @@ public class TechEditor implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.techURI;
 	}
 

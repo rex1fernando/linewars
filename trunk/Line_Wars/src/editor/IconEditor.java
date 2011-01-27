@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.animations.FileCopy;
 
 import linewars.configfilehandler.ConfigData;
@@ -72,7 +73,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -140,7 +141,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		for(ParserKeys key : icons)
 			cd.set(key, panels.get(key).getURI());
@@ -148,7 +149,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		throw new UnsupportedOperationException("Get type doesn't make sense for the icon editor");
 	}
 

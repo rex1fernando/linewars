@@ -9,6 +9,7 @@ import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 
@@ -70,7 +71,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -125,7 +126,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = icons.getData();
 		
 		Scanner s = new Scanner(cost.getText());
@@ -142,7 +143,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		return ParserKeys.buildingURI;
 	}
 

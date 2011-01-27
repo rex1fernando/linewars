@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
@@ -28,7 +29,7 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		forceSetData(cd);
 	}
 	
@@ -60,7 +61,7 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData ret = new ConfigData();
 		if(modifiedKey == null){
 			throw new IllegalStateException("Call setModifiedKey before getData!");
@@ -79,7 +80,7 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		throw new UnsupportedOperationException();
 	}
 

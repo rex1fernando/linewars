@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 
@@ -45,7 +46,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public void setData(ConfigData cd)
+	public void setData(Configuration cd)
 	{
 		if (isValid(cd))
 		{
@@ -67,7 +68,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public ConfigData getData()
+	public Configuration getData()
 	{
 		return createConfigData(racePanel);
 	}
@@ -79,7 +80,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public ParserKeys getType()
+	public ConfigType getType()
 	{
 		return ParserKeys.raceURI;
 	}

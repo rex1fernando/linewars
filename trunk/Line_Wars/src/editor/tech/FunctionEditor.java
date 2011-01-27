@@ -14,6 +14,7 @@ import java.util.Scanner;
 import javax.swing.*;
 
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
@@ -44,7 +45,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -117,7 +118,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public ConfigData getData() {
+	public Configuration getData() {
 		ConfigData cd = new ConfigData();
 		cd.set(ParserKeys.functionType, type.getSelectedURI());
 		for(CoefficientFrame f : frames)
@@ -136,7 +137,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public ConfigType getType() {
 		throw new UnsupportedOperationException();
 	}
 
