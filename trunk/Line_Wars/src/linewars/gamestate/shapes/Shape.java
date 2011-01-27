@@ -11,8 +11,8 @@ import linewars.gamestate.Transformation;
  */
 public strictfp abstract class Shape {
 	
-	private AABB aabb;
-
+	private AABB aabb = null;
+	
 	/**
 	 * Computes whether this Shape and the given Shape intersect.  Two Shapes are defined to intersect if the area of their intersection is nonzero.
 	 * @param other
@@ -83,8 +83,13 @@ public strictfp abstract class Shape {
 	 */
 	public abstract boolean positionIsInShape(Position toTest);
 	
+	public abstract AABB calculateAABB();
+	
 	public AABB getAABB()
 	{
+		if (aabb == null) aabb = calculateAABB();
+		
 		return aabb;
 	}
+
 }

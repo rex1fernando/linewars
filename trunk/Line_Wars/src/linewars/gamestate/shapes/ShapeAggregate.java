@@ -176,4 +176,9 @@ public strictfp class ShapeAggregate extends Shape {
 		}
 		return false;
 	}
+	
+	public AABB calculateAABB()
+	{
+		return boundingRectangle().calculateAABB();
+	}
 }

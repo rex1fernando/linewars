@@ -15,6 +15,7 @@ public strictfp class Rectangle extends Shape {
 	//the center and rotation of the Rectangle
 	private Transformation position;
 	
+	
 	public Rectangle(Transformation position, double width, double height){
 		this.position = position;
 		this.width = width;
@@ -153,5 +154,28 @@ public strictfp class Rectangle extends Shape {
 		if(height != otherRect.height) return false;
 		if(!position.equals(otherRect.position)) return false;
 		return true;
+	}
+	
+	@Override
+	public AABB calculateAABB()
+	{
+		Position[] vertexPositions = getVertexPositions();
+			
+		double xmin = vertexPositions[0].getX();
+		double xmax = vertexPositions[0].getX();
+		double ymin = vertexPositions[0].getY();
+		double ymax = vertexPositions[0].getY();
+		
+		for (int i = 1; i < vertexPositions.length; i++)
+		{
+			Position v = vertexPositions[i];
+			
+			if (v.getX() > xmax) xmax = v.getX();
+			else if (v.getX() < xmin) xmin = v.getX();
+			if (v.getY() > ymax) ymax = v.getY();
+			else if (v.getY() < ymin) ymin = v.getY();
+		}
+		
+		return new AABB(xmin, ymin, xmax, ymax);
 	}
 }
