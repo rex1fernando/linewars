@@ -9,6 +9,8 @@ import linewars.gamestate.Transformation;
 
 public class RectangleConfiguration extends ShapeConfiguration implements Observer {
 	
+	private static final long serialVersionUID = -2133103860808971483L;
+	
 	private double width;
 	private String widthKey = "width";
 	private Usage widthUsage = Usage.NUMERIC_FLOATING_POINT;
