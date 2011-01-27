@@ -2,6 +2,8 @@ package linewars.display.panels;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
@@ -19,7 +21,7 @@ public class TechPanel extends Panel
 	private static final double ASPECT_RATIO = 0.75;
 
 	private static final int DEFAULT_WIDTH = 1500;
-	private static final int DEFAULT_HEIGHT = 250;
+	private static final int DEFAULT_HEIGHT = 750;
 	
 	private Display display;
 	
@@ -50,7 +52,7 @@ public class TechPanel extends Panel
 			e.printStackTrace();
 		}
 		
-		this.tabs[0] = new JButton();
+		this.tabs[0] = new JButton("TECH");
 		this.techs[0] = new TechDisplay(tech);
 		//END TEST CODE
 		
@@ -64,13 +66,16 @@ public class TechPanel extends Panel
 			buttonPanel.add(tabs[i]);
 		}
 		
-		JPanel techPanel = new JPanel(new GridLayout());
+		GridBagLayout techLayout = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		JPanel techPanel = new JPanel(techLayout);
 		techPanel.setOpaque(false);
 		add(techPanel);
 		for(int i = 0; i < techs.length; ++i)
 		{
 			techs[i].setVisible(false);
 			techPanel.add(techs[i]);
+			techLayout.addLayoutComponent(techs[i], c);
 		}
 		
 		techs[0].setVisible(true);

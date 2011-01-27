@@ -1,29 +1,28 @@
 package linewars.display.panels;
 
+import java.awt.BasicStroke;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Iterator;
+import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
-import linewars.gamestate.Node;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
-import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
+import linewars.gamestate.Position;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
-import linewars.network.messages.BuildMessage;
-import linewars.network.messages.Message;
-import linewars.network.messages.UpgradeMessage;
 
 public class TechDisplay extends JViewport
 {
@@ -31,14 +30,13 @@ public class TechDisplay extends JViewport
 	
 	private TechGraph tech;
 	private JPanel treeDisplay;
-	private TechButton[][] buttons;
+	private TechButton[] buttons;
 	
 	public TechDisplay(TechGraph tech)
 	{
 		this.tech = tech;
 		
 		initializeDisplay();
-		displayGraph();
 		
 		ViewportDragger dragger = new ViewportDragger();
 		addMouseListener(dragger);
@@ -49,54 +47,105 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = tech.getMaxX();
-		int ySize = tech.getMaxY();
+		int xSize = tech.getMaxX() + 1;
+		int ySize = tech.getMaxY() + 1;
 		
-		treeDisplay = new JPanel();
+		GridBagLayout treeLayout = new GridBagLayout();
+		GridBagConstraints treeConstraints = new GridBagConstraints();
+		treeDisplay = new JPanel(treeLayout);
 		treeDisplay.setOpaque(false);
-		treeDisplay.setSize(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE);
 		add(treeDisplay);
 		
-		buttons = new TechButton[ySize][xSize];
-		for(int r = 0; r < buttons.length; ++r)
+		List<TechNode> orderedTechList = tech.getOrderedList();
+		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
+		buttons = new TechButton[orderedTechList.size()];
+		
+		TechNode current = null;
+		if(orderedListIterator.hasNext())
+			current = orderedListIterator.next();
+
+		treeConstraints.gridwidth = 1;
+		treeConstraints.gridheight = 1;
+		treeConstraints.gridy = 0;
+		int i = 0;
+		for(int r = 0; r < ySize; ++r)
 		{
-			for(int c = 0; c < buttons[r].length; ++c)
+			treeConstraints.gridx = 0;
+			for(int c = 0; c < xSize; ++c)
 			{
-				buttons[r][c] = new TechButton();
-//				buttons[r][c].setOpaque(false);
-				buttons[r][c].setVisible(false);
-				buttons[r][c].setLocation(c * TECH_BUTTON_SIZE, r * TECH_BUTTON_SIZE);
-				buttons[r][c].addActionListener(new ButtonHandler(r, c));
-				treeDisplay.add(buttons[r][c]);
+				if(current.getX() == c && current.getY() == r)
+				{
+					buttons[i] = new TechButton();
+//					buttons[i].setOpaque(false);
+					buttons[i].addActionListener(new ButtonHandler(i));
+					treeDisplay.add(buttons[i]);
+					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
+					
+					++i;
+					if(orderedListIterator.hasNext())
+						current = orderedListIterator.next();
+					else
+						current = null;
+				}
+				else
+				{
+					Component box = Box.createRigidArea(new Dimension(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
+					treeDisplay.add(box);
+					treeLayout.addLayoutComponent(box, treeConstraints);
+				}
+				
+				++treeConstraints.gridx;
 			}
+
+			++treeConstraints.gridy;
 		}
 	}
 	
-	private void displayGraph()
+	@Override
+	public void paint(Graphics g)
 	{
-		tech.unmarkAll();
+		super.paint(g);
+		((Graphics2D)g).setStroke(new BasicStroke(5));
 		
+		tech.unmarkAll();
 		TechNode root = tech.getRoot();
 		while(root != null)
 		{
-			displayTechNode(root);
+			drawDependencyLines(g, root);
 			root = tech.getNextRoot();
 		}
 		
 		tech.unmarkAll();
+		
 	}
 	
-	private void displayTechNode(TechNode node)
+	private void drawDependencyLines(Graphics g, TechNode node)
 	{
-		node.mark();
+		if(node.isMarked())
+			return;
 		
-		Point p = buttons[node.getY() - 1][node.getX() - 1].getLocation();
-		buttons[node.getY() - 1][node.getX() - 1].setVisible(true);
+		node.mark();
 		
 		TechNode child = node.getChild();
 		while(child != null)
 		{
-			displayTechNode(child);
+			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE;
+			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
+			int endX = child.getX() * TECH_BUTTON_SIZE;
+			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
+			
+			Position vector = new Position(startX - endX, startY - endY);
+			vector = vector.normalize().scale(15);
+			
+			g.drawLine(startX, startY, endX, endY);	
+
+			vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
+			g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
+
+			vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
+			g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
+			
+			drawDependencyLines(g, child);
 			child = node.getNextChild();
 		}
 	}
@@ -166,24 +215,23 @@ public class TechDisplay extends JViewport
 				p.setLocation(p.x, treeDisplay.getHeight() - getHeight());
 			
 			setViewPosition(p);
+			lastPoint = e.getPoint();
 		}
 	}
 	
 	private class ButtonHandler implements ActionListener
 	{
-		private int row;
-		private int col;
+		private int index;
 		
-		public ButtonHandler(int row, int col)
+		public ButtonHandler(int index)
 		{
-			this.row = row;
-			this.col = col;
+			this.index = index;
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Point p = buttons[row][col].getLocation();
+			Point p = buttons[index].getLocation();
 		}
 	}
 }

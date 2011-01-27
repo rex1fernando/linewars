@@ -1,6 +1,7 @@
 package linewars.gamestate.tech;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,6 +51,31 @@ public class TechGraph
 		}
 	}
 	
+	public List<TechNode> getOrderedList()
+	{
+		List<TechNode> orderedList = roots;
+		
+		if(orderedList.isEmpty())
+			return orderedList;
+		
+		unmarkAll();
+		int i = 0;
+		while(i < orderedList.size())
+		{
+			TechNode current = orderedList.get(i++);
+			if(!current.isMarked())
+			{
+				current.mark();
+				orderedList.addAll(current.children);
+			}
+		}
+		
+		unmarkAll();
+		
+		Collections.sort(orderedList);
+		return orderedList;
+	}
+	
 	public int getMaxX()
 	{
 		return maxX;
@@ -60,7 +86,7 @@ public class TechGraph
 		return maxY;
 	}
 	
-	public class TechNode
+	public class TechNode implements Comparable<TechNode>
 	{
 		private Tech tech;
 		private UnlockStrategy strat;
@@ -115,6 +141,15 @@ public class TechGraph
 			this.parents = parents;
 		}
 		
+		@Override
+		public int compareTo(TechNode o)
+		{
+			if(this.y - o.y != 0)
+				return this.y - o.y;
+			
+			return this.x - o.x;
+		}
+
 		public void mark()
 		{
 			marked = true;
