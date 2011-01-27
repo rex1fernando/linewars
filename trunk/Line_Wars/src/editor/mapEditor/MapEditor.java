@@ -35,6 +35,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.BuildingSpot;
@@ -567,20 +569,20 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	}
 
 	@Override
-	public void reset()
+	public Configuration instantiateNewConfiguration()
 	{
 		editingPanelLoaded = false;
 		forceSetData(new ConfigData());
 	}
 
 	@Override
-	public Configuration getData()
+	public ConfigType getData(Configuration toSet)
 	{
 		return map.getData();
 	}
 
 	@Override
-	public ConfigType getType()
+	public List<ConfigType> getAllLoadableTypes()
 	{
 		return ParserKeys.mapURI;
 	}

@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy.ConfigType;
@@ -42,7 +44,7 @@ public class RaceEditor implements ConfigurationEditor
 	{
 		superEditor = bfg;
 		racePanel = new RacePanel();
-		reset();	// creates a configData object and updates the GUI
+		instantiateNewConfiguration();	// creates a configData object and updates the GUI
 	}
 
 	@Override
@@ -62,13 +64,13 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public void reset()
+	public Configuration instantiateNewConfiguration()
 	{
 		updatePanel(new ConfigData());
 	}
 
 	@Override
-	public Configuration getData()
+	public ConfigType getData(Configuration toSet)
 	{
 		return createConfigData(racePanel);
 	}
@@ -80,7 +82,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public ConfigType getType()
+	public List<ConfigType> getAllLoadableTypes()
 	{
 		return ParserKeys.raceURI;
 	}

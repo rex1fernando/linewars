@@ -1,5 +1,7 @@
 package editor;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import configuration.Configuration;
@@ -16,22 +18,32 @@ public interface ConfigurationEditor {
 	public void setData(Configuration cd);
 	
 	/**
-	 * Resets the editor to an empty configuration
+	 * Instantiates a new configuration object (asking the user if the
+	 * specific type is not immediately known) and returns that object.
+	 * Also resets all the fields in the editor for the type of configuration
+	 * that was returned.
+	 * @return 
 	 */
-	public void reset();
+	public Configuration instantiateNewConfiguration();
 	
 	/**
+	 * Takes in a configuration object and puts all of the data currently in
+	 * the fields in the editor into the configuration object. Returns the
+	 * type of the configuration object. If the configuration object does not
+	 * match the type of configuration being edited in the editor, this method
+	 * will throw an exception.
 	 * 
+	 * @param toSet TODO
 	 * @return	the config object associated with the data in the editor
 	 */
-	public Configuration getData();
+	public ConfigType getData(Configuration toSet);
 	
 	/**
 	 * 
 	 * @return	the ConfigType that represents the config object configured
 	 * in this editor
 	 */
-	public ConfigType getType();
+	public List<ConfigType> getAllLoadableTypes();
 	
 	/**
 	 * 

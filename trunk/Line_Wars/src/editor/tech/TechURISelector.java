@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
@@ -204,7 +206,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
-		reset();
+		instantiateNewConfiguration();
 		List<ConfigData> modifiedUpgradables = cd.getConfigList(ParserKeys.modifiedURI);
 		//for each modified uri
 		for(ConfigData modifiedUpgradable : modifiedUpgradables){
@@ -222,7 +224,7 @@ public class TechURISelector implements ConfigurationEditor {
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		reset();
+		instantiateNewConfiguration();
 		List<ConfigData> modifiedUpgradables = null;
 		try{
 			modifiedUpgradables = cd.getConfigList(ParserKeys.modifiedURI);
@@ -244,8 +246,8 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public void reset() {
-		keySelector.reset();
+	public Configuration instantiateNewConfiguration() {
+		keySelector.instantiateNewConfiguration();
 		modifiedURIs = new HashMap<String, ConfigData>();
 		unitSelector.setSelectedURIs(new String[0]);
 		buildingSelector.setSelectedURIs(new String[0]);
@@ -254,7 +256,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		//save data currently in the keySelector
 		saveKeyData();
 		ConfigData ret = new ConfigData();
@@ -277,7 +279,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.modifiedURI;
 	}
 
@@ -307,7 +309,7 @@ public class TechURISelector implements ConfigurationEditor {
 	private void updateCurrentlyHighlighted(String onlyHighlightedURI){
 		//make sure this isn't getting double-called
 
-		ConfigData currentData = keySelector.getData();
+		ConfigData currentData = keySelector.getData(null);
 		try{
 			String currentModifiedURI = currentData.getString(ParserKeys.URI);
 			if(currentModifiedURI != null && currentModifiedURI.equals(onlyHighlightedURI)){
@@ -323,7 +325,7 @@ public class TechURISelector implements ConfigurationEditor {
 			saveKeyData();
 		}
 		
-		keySelector.reset();
+		keySelector.instantiateNewConfiguration();
 		
 		//set its visibility
 		if(onlyHighlightedURI == null){
@@ -336,7 +338,7 @@ public class TechURISelector implements ConfigurationEditor {
 	}
 
 	private void saveKeyData() {
-		ConfigData currentData = keySelector.getData();
+		ConfigData currentData = keySelector.getData(null);
 		try{
 			String currentModifiedURI = currentData.getString(ParserKeys.URI);
 			if(currentModifiedURI == null){

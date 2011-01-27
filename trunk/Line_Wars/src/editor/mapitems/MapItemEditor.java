@@ -14,6 +14,8 @@ import java.util.Set;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ParserKeys;
@@ -113,7 +115,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		this.add(bodyPanel);
 		this.add(mapItemType);
 		
-		this.reset();
+		this.instantiateNewConfiguration();
 		
 		this.setPreferredSize(new Dimension(800, 600));
 	}
@@ -269,7 +271,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		//reset the name
 		name.setText("");
 		
@@ -293,12 +295,12 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		
 		//if the type is specified, then use the parser from that
 		if(mapItemTypeInfo != null)
-			cd = mapItemTypeInfo.getData();
+			cd = mapItemTypeInfo.getData(null);
 		
 		//add the name
 		if(!name.getText().equals(""))
@@ -333,9 +335,9 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		if(mapItemTypeInfo != null)
-			return mapItemTypeInfo.getType();
+			return mapItemTypeInfo.getAllLoadableTypes();
 		else //use unit as default type
 			return ParserKeys.unitURI;
 	}

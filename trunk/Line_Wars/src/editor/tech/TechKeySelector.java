@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -89,12 +91,12 @@ public class TechKeySelector implements ConfigurationEditor {
 		panel.add(modEditor.getPanel());
 		modEditor.getPanel().setVisible(false);
 		
-		reset();
+		instantiateNewConfiguration();
 	}
 
 	protected void updateCurrentlyHighlighted() {
 		if(currentlyHighlightedKeys.length != 1){
-			modEditor.reset();
+			modEditor.instantiateNewConfiguration();
 			modEditor.getPanel().setVisible(false);
 		}else{
 			//save data currently in the modEditor
@@ -111,7 +113,7 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
-		reset();
+		instantiateNewConfiguration();
 		//get the uri; if this fails, fail
 		URI = cd.getString(ParserKeys.URI);
 
@@ -134,7 +136,7 @@ public class TechKeySelector implements ConfigurationEditor {
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		reset();
+		instantiateNewConfiguration();
 		//get the uri; if this fails, fail
 		URI = cd.getString(ParserKeys.URI);
 
@@ -162,7 +164,7 @@ public class TechKeySelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		//reset state
 		modifiers = new HashMap<ParserKeys, ConfigData>();
 		URI = null;
@@ -172,13 +174,13 @@ public class TechKeySelector implements ConfigurationEditor {
 		keySelector.setSelectedURIs(new String[0]);
 		
 		//reset child panel
-		modEditor.reset();
+		modEditor.instantiateNewConfiguration();
 		
 		modEditor.getPanel().setVisible(false);
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		//save data currently in the ModifierEditor
 		saveModData();
 		
@@ -229,7 +231,7 @@ public class TechKeySelector implements ConfigurationEditor {
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.modifiedKey;
 	}
 
@@ -311,7 +313,7 @@ public class TechKeySelector implements ConfigurationEditor {
 	}
 	
 	private void saveModData() {
-		ConfigData currentData = modEditor.getData();
+		ConfigData currentData = modEditor.getData(null);
 		try{
 			ParserKeys currentModifiedKey = ParserKeys.getKey(currentData.getString(ParserKeys.key));
 			modifiers.put(currentModifiedKey, currentData);

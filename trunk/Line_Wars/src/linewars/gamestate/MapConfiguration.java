@@ -15,12 +15,6 @@ public class MapConfiguration extends Configuration {
 	private List<NodeConfiguration> nodes = new ArrayList<NodeConfiguration>();
 	private List<LaneConfiguration> lanes = new ArrayList<LaneConfiguration>();
 	
-	@Override
-	public Property getPropertyForName(String name)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
 	
 	public Position getImageSize() {
 		return imageSize;

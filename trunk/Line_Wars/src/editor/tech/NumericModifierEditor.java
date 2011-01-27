@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import configuration.Configuration;
+
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 
@@ -44,7 +46,7 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		reset();
+		instantiateNewConfiguration();
 		String strKey = cd.getString(ParserKeys.key);
 		modifiedKey = ParserKeys.getKey(strKey);
 		ConfigData modifier = cd.getConfig(ParserKeys.modifier);
@@ -55,13 +57,13 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		modifiedKey = null;
-		fEditor.reset();
+		fEditor.instantiateNewConfiguration();
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData ret = new ConfigData();
 		if(modifiedKey == null){
 			throw new IllegalStateException("Call setModifiedKey before getData!");
@@ -70,17 +72,17 @@ public class NumericModifierEditor implements ModifierConfigurationEditor {
 		ConfigData modifier = new ConfigData();
 		ret.set(ParserKeys.modifier, modifier);
 		modifier.set(ParserKeys.modifiertype, getName());
-		modifier.set(ParserKeys.valueFunction, fEditor.getData());
+		modifier.set(ParserKeys.valueFunction, fEditor.getData(null));
 		return ret;
 	}
 
 	@Override
 	public boolean isValidConfig() {
-		return isValid(getData());
+		return isValid(getData(null));
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		throw new UnsupportedOperationException();
 	}
 

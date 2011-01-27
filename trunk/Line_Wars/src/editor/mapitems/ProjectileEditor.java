@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -119,14 +121,14 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		velocity.setText("");
 		impactData = null;
 		impactStatus.setText("Not Set");
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		
 		Scanner s = new Scanner(velocity.getText());
@@ -142,7 +144,7 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.projectileURI;
 	}
 

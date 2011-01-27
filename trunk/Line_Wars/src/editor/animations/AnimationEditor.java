@@ -28,6 +28,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
+import configuration.Configuration;
+
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
@@ -428,14 +430,14 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
         newList = new ArrayList<Frame>();		
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		File dir = new File(animationFolder);
 		for(Frame f : list)
@@ -457,7 +459,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 
 	@Override
 	public boolean isValidConfig() {
-		ConfigData cd = this.getData();
+		ConfigData cd = this.getData(null);
 		return isValid(cd);
 	}
 	
@@ -472,7 +474,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.animationURI;
 	}
 

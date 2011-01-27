@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
@@ -152,7 +154,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		maxHP.setText("");
 		combatConfig = null;
 		combatStatus.setText("Not Set");
@@ -161,7 +163,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
@@ -176,7 +178,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.unitURI;
 	}
 

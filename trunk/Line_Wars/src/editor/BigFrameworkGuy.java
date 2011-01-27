@@ -5,9 +5,11 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,12 +56,8 @@ public class BigFrameworkGuy
 		projectile, building
 	}
 	
-	private class MasterList implements Serializable
-	{
-		private HashMap<ConfigType, V>
-	}
-	
-	private ConfigData masterList;
+	private HashMap<ConfigType, List<Configuration>> masterList;
+
 	
 	private JFrame frame;
 	private JTabbedPane tabPanel;
@@ -75,9 +73,20 @@ public class BigFrameworkGuy
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public BigFrameworkGuy() throws FileNotFoundException, InvalidConfigFileException
+	@SuppressWarnings("unchecked")
+	public BigFrameworkGuy()
 	{
-		masterList = new ConfigFileReader(MASTER_LIST_URI).read();
+		try {
+			masterList = (HashMap<ConfigType, List<Configuration>>) new ObjectInputStream(
+					new FileInputStream(new File(MASTER_LIST_URI)))
+					.readObject();
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(frame,
+				    "Error:" + e.getMessage() +"\nCreating empty master list.",
+				    "Error finding the master list.",
+				    JOptionPane.ERROR_MESSAGE);
+			masterList = new HashMap<BigFrameworkGuy.ConfigType, List<Configuration>>();
+		}
 		
 		tabPanel = new JTabbedPane();
 		frame = new JFrame("Line Wars Data Editor");
@@ -161,91 +170,27 @@ public class BigFrameworkGuy
 		
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete command centers (just
-	 * 			returns the list of buildings).
-	 */
-	public String[] getCommandCenterURIs()
+	public List<Configuration> getConfigurationsByType(List<ConfigType> types)
 	{
-		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
+		List<Configuration> ret = new ArrayList<Configuration>();
+		for(ConfigType t : types)
+			ret.addAll(masterList.get(t));
+		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete units.
-	 */
-	public String[] getUnitURIs()
+	public List<Configuration> getConfigurationsByType(ConfigType type)
 	{
-		return masterList.getStringList(ParserKeys.unitURI).toArray(new String[0]);
+		List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+		types.add(type);
+		return getConfigurationsByType(types);
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete buildings.
-	 */
-	public String[] getBuildingURIs()
+	public List<Configuration> getAllConfigurations()
 	{
-		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete techs.
-	 */
-	public String[] getTechURIs()
-	{
-		System.out.println(masterList.getStringList(ParserKeys.techURI));
-		return masterList.getStringList(ParserKeys.techURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete gates.
-	 */
-	public String[] getGateURIs()
-	{
-		return masterList.getStringList(ParserKeys.gateURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete projectiles.
-	 */
-	public String[] getProjectileURIs() {
-		return masterList.getStringList(ParserKeys.projectileURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete animations.
-	 */
-	public String[] getAnimationURIs() {
-		return masterList.getStringList(ParserKeys.animationURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete abilities.
-	 */
-	public String[] getAbilityURIs() {
-		return masterList.getStringList(ParserKeys.abilityURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete maps.
-	 */
-	public String[] getMapURIs() {
-		return masterList.getStringList(ParserKeys.mapURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete races.
-	 */
-	public String[] getRaceURIs() {
-		return masterList.getStringList(ParserKeys.raceURI).toArray(new String[0]);
+		List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+		for(ConfigType t : ConfigType.values())
+			types.add(t);
+		return getConfigurationsByType(types);
 	}
 	
 	/**
@@ -255,7 +200,7 @@ public class BigFrameworkGuy
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public static void main(String[] args) throws FileNotFoundException, InvalidConfigFileException {
+	public static void main(String[] args) {
 		new BigFrameworkGuy();
 	}
 	
@@ -263,7 +208,7 @@ public class BigFrameworkGuy
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
-			editors.get(i).reset();
+			editors.get(i).instantiateNewConfiguration();
 			editors.get(i).getPanel().validate();
 			editors.get(i).getPanel().updateUI();
 			if(loadedURIs.get(editors.get(i)) != null)
@@ -274,36 +219,16 @@ public class BigFrameworkGuy
 	private class LoadButtonListener implements ActionListener {
 		
 		private int selected;
-		private String[] list;
+		private List<Configuration> list;
 		private JFrame loadFrame;
 		
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			selected = tabPanel.getSelectedIndex();
-			List<String> uris = new ArrayList<String>();
-			//map item editor is a special case
-			if(editors.get(selected) instanceof MapItemEditor)
-			{
-				ParserKeys[] keyList = {ParserKeys.unitURI, ParserKeys.buildingURI, ParserKeys.projectileURI, ParserKeys.gateURI};
-				
-				for(ParserKeys key : keyList)
-				{
-					if(masterList.getDefinedKeys().contains(key))
-						uris.addAll(masterList.getStringList(key));
-					if(masterList.getConfig(ParserKeys.incomplete).getDefinedKeys().contains(key))
-						uris.addAll(masterList.getConfig(ParserKeys.incomplete).getStringList(key));
-				}
-			}
-			else
-			{
-				ParserKeys key = editors.get(selected).getType();
-				if(masterList.getDefinedKeys().contains(key))
-					uris.addAll(masterList.getStringList(key));
-				if(masterList.getConfig(ParserKeys.incomplete).getDefinedKeys().contains(key))
-					uris.addAll(masterList.getConfig(ParserKeys.incomplete).getStringList(key));
-			}
 			
-			list = uris.toArray(new String[0]);
+			list = new ArrayList<Configuration>();
+			list.addAll(getConfigurationsByType(editors.get(selected).getAllLoadableTypes()));
+			
 			loadFrame = new JFrame("Load");
 			loadFrame.setContentPane(new URISelector("URI to load", new LoadURICallback()));
 			loadFrame.pack();
@@ -349,9 +274,9 @@ public class BigFrameworkGuy
 		
 		public void save(ConfigurationEditor ce, String uri)
 		{
-			ConfigData cd = ce.getData();
+			ConfigData cd = ce.getData(null);
 			boolean valid = ce.isValidConfig();
-			ParserKeys key = ce.getType();
+			ParserKeys key = ce.getAllLoadableTypes();
 			
 			if(!valid)
 			{
@@ -420,7 +345,7 @@ public class BigFrameworkGuy
 			if(s == null || s.length() <= 0)
 				return;
 			
-			ParserKeys key = ce.getType();
+			ParserKeys key = ce.getAllLoadableTypes();
 			
 			//no other way to do this reall
 			String path = "resources/";

@@ -12,6 +12,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.URISelector;
@@ -88,7 +90,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 		this.availableStrategies = strats.toArray(new String[0]);
 		type = new URISelector("Type", this);
 		
-		this.reset();
+		this.instantiateNewConfiguration();
 		this.setPreferredSize(new Dimension(800, 600));
 		
 		//set up the frame
@@ -155,7 +157,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 			}
 			else
 			{
-				callBack.setConfigForStrategy(this, this.getData());
+				callBack.setConfigForStrategy(this, this.getData(null));
 				frame.dispose();
 			}
 		}
@@ -211,7 +213,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		this.removeAll();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
@@ -233,7 +235,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		
 		if(!isValidConfig())
@@ -255,7 +257,7 @@ public class StrategySelector extends JPanel implements SelectorOptions, ActionL
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		throw new UnsupportedOperationException();
 	}
 

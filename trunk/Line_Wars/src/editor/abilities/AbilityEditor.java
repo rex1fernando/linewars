@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
@@ -136,7 +138,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		abilityType.setSelectedURI("");
 		subPanel.removeAll();
 		uriSelector = null;
@@ -145,7 +147,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		if(selectedAbility < 0)
 			return cd;
@@ -212,7 +214,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor, Select
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.abilityURI;
 	}
 

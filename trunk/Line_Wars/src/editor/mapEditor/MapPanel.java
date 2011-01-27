@@ -327,12 +327,12 @@ public class MapPanel extends JPanel
 
 		for(Lane l : lanes)
 		{
-			data.add(ParserKeys.lanes, l.getData());
+			data.add(ParserKeys.lanes, l.getData(null));
 		}
 
 		for(Node n : nodes)
 		{
-			data.add(ParserKeys.nodes, n.getData());
+			data.add(ParserKeys.nodes, n.getData(null));
 		}
 
 		data.set(ParserKeys.valid, Boolean.toString(isValidConfig()));

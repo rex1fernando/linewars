@@ -16,6 +16,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.tech.Function;
@@ -74,7 +76,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	
 	@Override
 	public void setData(Configuration cd) {
-		reset();
+		instantiateNewConfiguration();
 		if(isValid(cd)){
 			forceSetData(cd);
 		}else{
@@ -102,22 +104,22 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		name = null;
 		tooltip = null;
 		nameField.setText(null);
 		tooltipArea.setText(null);
-		costFunctionEditor.reset();
-		iconEditor.reset();
+		costFunctionEditor.instantiateNewConfiguration();
+		iconEditor.instantiateNewConfiguration();
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData ret = new ConfigData();
 		ret.add(ParserKeys.name, name);
 		ret.add(ParserKeys.tooltip, tooltip);
-		ret.add(ParserKeys.costFunction, costFunctionEditor.getData());
-		ConfigData iconData = iconEditor.getData();
+		ret.add(ParserKeys.costFunction, costFunctionEditor.getData(null));
+		ConfigData iconData = iconEditor.getData(null);
 		for(ParserKeys toAdd : iconData.getDefinedKeys()){
 			ret.add(toAdd, iconData.getStringList(toAdd).toArray(new String[0]));
 			ret.add(toAdd, iconData.getConfigList(toAdd).toArray(new ConfigData[0]));
@@ -127,7 +129,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 
 	@Override
 	public boolean isValidConfig() {
-		return isValid(getData());
+		return isValid(getData(null));
 	}
 	
 	private boolean isValid(ConfigData cd)
@@ -160,7 +162,7 @@ public class NTCFEditor implements ConfigurationEditor, FocusListener {
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.name;
 	}
 

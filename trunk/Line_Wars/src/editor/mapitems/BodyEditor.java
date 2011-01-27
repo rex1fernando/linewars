@@ -19,6 +19,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -123,7 +125,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 		
 		running = true;
 		
-		this.reset();
+		this.instantiateNewConfiguration();
 		
 		new Thread(this).start();
 	}
@@ -253,7 +255,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		shapeType.setSelectedURI("");
 		scale.setText("100");
 		if(images != null && images.length > 0)
@@ -263,7 +265,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public Configuration getData() {
+	public ConfigType getData(Configuration toSet) {
 		String type = shapeType.getSelectedURI();
 		ConfigData cd = new ConfigData();
 		if(type.equalsIgnoreCase("Circle"))
@@ -290,7 +292,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public ConfigType getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -342,7 +344,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 		{
 			if(this.isValidConfig()) 
 			{
-				ConfigData cd = this.getData();
+				ConfigData cd = this.getData(null);
 				mie.setBody(cd);
 				running = false;
 			}
