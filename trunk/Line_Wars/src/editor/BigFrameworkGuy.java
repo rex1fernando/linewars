@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -50,20 +51,62 @@ import linewars.configfilehandler.ParserKeys;
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
+	private static final String AMIMATION_FOLDER = "resources/animations";
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,
 		projectile, building
 	}
 	
-	private HashMap<ConfigType, List<Configuration>> masterList;
-
-	
 	private JFrame frame;
 	private JTabbedPane tabPanel;
 	
 	private List<ConfigurationEditor> editors;
-	private HashMap<ConfigurationEditor, String> loadedURIs = new HashMap<ConfigurationEditor, String>();
+	
+	public static class BFGSavedData implements Serializable {
+		private HashMap<ConfigType, List<Configuration>> masterList = new HashMap<BigFrameworkGuy.ConfigType, List<Configuration>>();
+		private HashMap<Integer, Configuration> loadedConfigs = new HashMap<Integer, Configuration>();
+		private String saveFile;
+		
+		public void addConfigToList(ConfigType t, Configuration c)
+		{
+			this.saveData();
+			masterList.get(t).add(c);
+		}
+		
+		public List<Configuration> getConfigsOfType(ConfigType t)
+		{
+			return masterList.get(t);
+		}
+		
+		public void setConfigForEditor(ConfigurationEditor ce, Configuration c)
+		{
+			this.saveData();
+			loadedConfigs.put(ce.hashCode(), c);
+		}
+		
+		public Configuration getConfigForEditor(ConfigurationEditor ce)
+		{
+			return loadedConfigs.get(ce.hashCode());
+		}
+		
+		private void saveData()
+		{
+			if(saveFile != null)
+			{
+				
+			}
+		}
+		
+		public static BFGSavedData getSavedData(String file)
+		{
+			return (BFGSavedData) new ObjectInputStream(
+					new FileInputStream(new File(file)))
+					.readObject();
+		}
+	}
+	
+	private BFGSavedData  saveData;
 	
 	/**
 	 * Constructs the entire editor. Creating an instance of BigFrameworkGuy
@@ -77,15 +120,14 @@ public class BigFrameworkGuy
 	public BigFrameworkGuy()
 	{
 		try {
-			masterList = (HashMap<ConfigType, List<Configuration>>) new ObjectInputStream(
-					new FileInputStream(new File(MASTER_LIST_URI)))
-					.readObject();
+			saveData = BFGSavedData.getSavedData(MASTER_LIST_URI);
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(frame,
 				    "Error:" + e.getMessage() +"\nCreating empty master list.",
 				    "Error finding the master list.",
 				    JOptionPane.ERROR_MESSAGE);
-			masterList = new HashMap<BigFrameworkGuy.ConfigType, List<Configuration>>();
+			saveData = new BFGSavedData();
+			saveData.saveFile = MASTER_LIST_URI;
 		}
 		
 		tabPanel = new JTabbedPane();
@@ -95,8 +137,7 @@ public class BigFrameworkGuy
 		
 		//add each editor
 		
-		String imagesFolder = new File(this.getAnimationURIs()[0]).getParentFile().getAbsolutePath();
-		AnimationEditor toStart = new AnimationEditor(imagesFolder); 
+		AnimationEditor toStart = new AnimationEditor(AMIMATION_FOLDER); 
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
@@ -122,6 +163,10 @@ public class BigFrameworkGuy
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
 			this.editors.add(ce);
+			
+			//make sure a config is loaded for this editor
+			if(loadedConfigs.get(ce) == null)
+				loadedConfigs.put(ce, ce.instantiateNewConfiguration());
 			
 			if(ce.getPanel().getPreferredSize().getWidth() > prefferedSize.getWidth())
 				prefferedSize.setSize(ce.getPanel().getPreferredSize().getWidth(), prefferedSize.getHeight());
