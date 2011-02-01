@@ -16,8 +16,9 @@ import linewars.configfilehandler.ParserKeys;
 
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
-import editor.mapitems.StrategySelector.StrategySelectorCallback;
-import editor.mapitems.StrategySelector.StrategySelectorFieldType;
+import editor.abilities.StrategySelector;
+import editor.abilities.StrategySelector.StrategySelectorCallback;
+import editor.abilities.StrategySelector.StrategySelectorFieldType;
 
 /**
  * 

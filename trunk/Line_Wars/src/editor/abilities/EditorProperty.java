@@ -23,5 +23,10 @@ public class EditorProperty extends Property {
 	{
 		return description;
 	}
+	
+	public EditorProperty makeCopy(Object value)
+	{
+		return new EditorProperty(this.getUsage(), value, eUsage, description);
+	}
 
 }

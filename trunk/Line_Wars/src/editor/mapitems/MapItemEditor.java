@@ -27,7 +27,7 @@ import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
-import editor.mapitems.StrategySelector.StrategySelectorCallback;
+import editor.abilities.StrategySelector.StrategySelectorCallback;
 
 /**
  * 
