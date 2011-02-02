@@ -16,11 +16,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
+import linewars.gamestate.tech.Tech;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
 
@@ -28,13 +32,13 @@ public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;
 	
-	private TechGraph tech;
+	private TechGraph techGraph;
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
 	
-	public TechDisplay(TechGraph tech)
+	public TechDisplay(TechGraph techGraph)
 	{
-		this.tech = tech;
+		this.techGraph = techGraph;
 		
 		initializeDisplay();
 		
@@ -47,8 +51,8 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = tech.getMaxX() + 1;
-		int ySize = tech.getMaxY() + 1;
+		int xSize = techGraph.getMaxX() + 1;
+		int ySize = techGraph.getMaxY() + 1;
 		
 		GridBagLayout treeLayout = new GridBagLayout();
 		GridBagConstraints treeConstraints = new GridBagConstraints();
@@ -56,7 +60,7 @@ public class TechDisplay extends JViewport
 		treeDisplay.setOpaque(false);
 		add(treeDisplay);
 		
-		List<TechNode> orderedTechList = tech.getOrderedList();
+		List<TechNode> orderedTechList = techGraph.getOrderedList();
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
 		buttons = new TechButton[orderedTechList.size()];
 		
@@ -73,10 +77,16 @@ public class TechDisplay extends JViewport
 			treeConstraints.gridx = 0;
 			for(int c = 0; c < xSize; ++c)
 			{
-				if(current.getX() == c && current.getY() == r)
+				if(current != null && current.getX() == c && current.getY() == r)
 				{
+					Tech tech = current.getTech();
+					
 					buttons[i] = new TechButton();
-//					buttons[i].setOpaque(false);
+					buttons[i].setOpaque(false);
+					buttons[i].setIcon(new ButtonIcon(buttons[i], tech.getIconURI()));
+					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], tech.getPressedIconURI()));
+					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], tech.getRolloverIconURI()));
+					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], tech.getSelectedIconURI()));
 					buttons[i].addActionListener(new ButtonHandler(i));
 					treeDisplay.add(buttons[i]);
 					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
@@ -107,15 +117,15 @@ public class TechDisplay extends JViewport
 		super.paint(g);
 		((Graphics2D)g).setStroke(new BasicStroke(5));
 		
-		tech.unmarkAll();
-		TechNode root = tech.getRoot();
+		techGraph.unmarkAll();
+		TechNode root = techGraph.getRoot();
 		while(root != null)
 		{
 			drawDependencyLines(g, root);
-			root = tech.getNextRoot();
+			root = techGraph.getNextRoot();
 		}
 		
-		tech.unmarkAll();
+		techGraph.unmarkAll();
 		
 	}
 	
@@ -171,20 +181,60 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-			super.paint(g);
-			
-//			DefaultButtonModel model = (DefaultButtonModel)getModel();
-//			if(model.isPressed())
-//				getPressedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isSelected())
-//				getSelectedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isRollover())
-//				getRolloverIcon().paintIcon(this, g, 0, 0);
-//			else
-//				getIcon().paintIcon(this, g, 0, 0);
+			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			if(model.isPressed())
+				getPressedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isSelected())
+				getSelectedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isRollover())
+				getRolloverIcon().paintIcon(this, g, 0, 0);
+			else
+				getIcon().paintIcon(this, g, 0, 0);
 		}
 	}
 	
+	/**
+	 * An icon for a Command Button
+	 * 
+	 * @author Ryan Tew
+	 * 
+	 */
+	private class ButtonIcon implements Icon
+	{
+		private JButton button;
+		private String uri;
+
+		/**
+		 * Constructs the icon.
+		 * 
+		 * @param b
+		 *            The button this icon is on.
+		 */
+		public ButtonIcon(JButton b, String uri)
+		{
+			this.button = b;
+			this.uri = uri;
+		}
+
+		@Override
+		public int getIconHeight()
+		{
+			return getHeight();
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+			return getWidth();
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+			ImageDrawer.getInstance().draw(g, uri + button.getWidth() + button.getHeight(), new Position(x, y), 1);
+		}
+	}
+
 	private class ViewportDragger extends MouseAdapter
 	{
 		private Point lastPoint;
