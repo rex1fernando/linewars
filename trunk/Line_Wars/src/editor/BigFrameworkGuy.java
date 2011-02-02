@@ -31,6 +31,7 @@ import editor.abilities.AbilityStrategyEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
+import editor.race.RaceEditor;
 import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 

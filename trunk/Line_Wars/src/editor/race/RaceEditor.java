@@ -1,4 +1,4 @@
-package editor;
+package editor.race;
 
 import java.awt.Dimension;
 
@@ -9,11 +9,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import configuration.Configuration;
-
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
-import editor.BigFrameworkGuy.ConfigType;
+import editor.BigFrameworkGuy;
+import editor.ConfigurationEditor;
+import editor.ListURISelector;
+import editor.URISelector;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 
@@ -44,11 +45,11 @@ public class RaceEditor implements ConfigurationEditor
 	{
 		superEditor = bfg;
 		racePanel = new RacePanel();
-		instantiateNewConfiguration();	// creates a configData object and updates the GUI
+		reset();	// creates a configData object and updates the GUI
 	}
 
 	@Override
-	public void setData(Configuration cd)
+	public void setData(ConfigData cd)
 	{
 		if (isValid(cd))
 		{
@@ -64,13 +65,13 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public Configuration instantiateNewConfiguration()
+	public void reset()
 	{
 		updatePanel(new ConfigData());
 	}
 
 	@Override
-	public ConfigType getData(Configuration toSet)
+	public ConfigData getData()
 	{
 		return createConfigData(racePanel);
 	}
@@ -82,7 +83,7 @@ public class RaceEditor implements ConfigurationEditor
 	}
 
 	@Override
-	public List<ConfigType> getAllLoadableTypes()
+	public ParserKeys getType()
 	{
 		return ParserKeys.raceURI;
 	}

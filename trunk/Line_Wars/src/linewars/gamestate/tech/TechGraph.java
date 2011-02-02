@@ -1,14 +1,17 @@
 package linewars.gamestate.tech;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 
 public class TechGraph
 {
-	List<TechNode> roots;
-	Iterator<TechNode> rootIterator;
+	private List<TechNode> roots;
+	private Iterator<TechNode> rootIterator;
+	private int maxX;
+	private int maxY;
 	
 	public TechGraph()
 	{
@@ -38,7 +41,52 @@ public class TechGraph
 		return null;		
 	}
 	
-	class TechNode
+	public void unmarkAll()
+	{
+		TechNode root = getRoot();
+		while(root != null)
+		{
+			root.unmarkAll();
+			root = getNextRoot();
+		}
+	}
+	
+	public List<TechNode> getOrderedList()
+	{
+		List<TechNode> orderedList = roots;
+		
+		if(orderedList.isEmpty())
+			return orderedList;
+		
+		unmarkAll();
+		int i = 0;
+		while(i < orderedList.size())
+		{
+			TechNode current = orderedList.get(i++);
+			if(!current.isMarked())
+			{
+				current.mark();
+				orderedList.addAll(current.children);
+			}
+		}
+		
+		unmarkAll();
+		
+		Collections.sort(orderedList);
+		return orderedList;
+	}
+	
+	public int getMaxX()
+	{
+		return maxX;
+	}
+	
+	public int getMaxY()
+	{
+		return maxY;
+	}
+	
+	public class TechNode implements Comparable<TechNode>
 	{
 		private Tech tech;
 		private UnlockStrategy strat;
@@ -48,6 +96,8 @@ public class TechGraph
 		
 		private Iterator<TechNode> parentIterator;
 		private Iterator<TechNode> childIterator;
+		
+		private boolean marked;
 		
 		private int x;
 		private int y;
@@ -69,6 +119,11 @@ public class TechGraph
 			this();
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
 		private TechNode(Tech tech, UnlockStrategy strat)
@@ -86,10 +141,49 @@ public class TechGraph
 			this.parents = parents;
 		}
 		
+		@Override
+		public int compareTo(TechNode o)
+		{
+			if(this.y - o.y != 0)
+				return this.y - o.y;
+			
+			return this.x - o.x;
+		}
+
+		public void mark()
+		{
+			marked = true;
+		}
+		
+		public boolean isMarked()
+		{
+			return marked;
+		}
+		
+		private void unmarkAll()
+		{
+			if(!marked)
+				return;
+			
+			marked = false;
+			
+			TechNode child = getChild();
+			while(child != null)
+			{
+				child.unmarkAll();
+				child = getNextChild();
+			}
+		}
+		
 		public void setPosition(int x, int y)
 		{
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
 		public void setTech(Tech tech)
@@ -100,6 +194,11 @@ public class TechGraph
 		public void setUnlockStrategy(UnlockStrategy strat)
 		{
 			this.strat = strat;
+		}
+		
+		public boolean isUnlocked()
+		{
+			return true; //getUnlockStrategy().isUnlocked(this);
 		}
 
 		public void addChild(TechNode node) throws CycleException
