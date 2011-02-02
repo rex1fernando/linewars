@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,25 +40,42 @@ public class TechPanel extends Panel
 		this.displayed = false;
 		
 		//TEST CODE
-		this.tabs = new JButton[1];
-		this.techs = new TechDisplay[1];
+		this.tabs = new JButton[2];
+		this.techs = new TechDisplay[2];
 		
-		TechGraph tech = new TechGraph();
-		TechNode parent = tech.addNode();
-		TechNode child = tech.addNode();
+		TechGraph tech1 = new TechGraph();
+		TechNode parent1 = tech1.addNode();
+		TechNode child1 = tech1.addNode();
 		
-		parent.setPosition(1, 1);
-		child.setPosition(15, 5);
+		parent1.setPosition(1, 1);
+		child1.setPosition(15, 5);
 		
 		try {
-			parent.addChild(child);
+			parent1.addChild(child1);
 		} catch (CycleException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		this.tabs[0] = new JButton("TECH");
-		this.techs[0] = new TechDisplay(pID,tech);
+		TechGraph tech2 = new TechGraph();
+		TechNode parent2 = tech2.addNode();
+		TechNode child2 = tech2.addNode();
+		
+		parent2.setPosition(1, 5);
+		child2.setPosition(15, 1);
+		
+		try {
+			parent2.addChild(child2);
+		} catch (CycleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		this.tabs[0] = new JButton("TECH1");
+		this.techs[0] = new TechDisplay(pID,tech1);
+		
+		this.tabs[1] = new JButton("TECH2");
+		this.techs[1] = new TechDisplay(pID,tech2);
 		//END TEST CODE
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -66,6 +85,7 @@ public class TechPanel extends Panel
 		add(buttonPanel);
 		for(int i = 0; i < tabs.length; ++i)
 		{
+			tabs[i].addActionListener(new TabButtonHandler(i));
 			buttonPanel.add(tabs[i]);
 		}
 		
@@ -94,6 +114,15 @@ public class TechPanel extends Panel
 		displayed = !displayed;
 	}
 	
+	private void displayTechGraph(int index)
+	{
+		for(int i = 0; i < techs.length; ++i)
+		{
+			
+			techs[i].setVisible(i == index);
+		}
+	}
+	
 	@Override
 	public void updateLocation()
 	{
@@ -114,5 +143,21 @@ public class TechPanel extends Panel
 		g.fillRect(0, 0, getWidth(), getHeight());		
 		
 		super.paint(g);
+	}
+	
+	private class TabButtonHandler implements ActionListener
+	{
+		private int index;
+		
+		public TabButtonHandler(int i)
+		{
+			index = i;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			displayTechGraph(index);
+		}	
 	}
 }

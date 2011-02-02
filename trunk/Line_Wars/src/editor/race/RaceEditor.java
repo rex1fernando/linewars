@@ -1,4 +1,4 @@
-package editor;
+package editor.race;
 
 import java.awt.Dimension;
 
@@ -11,6 +11,10 @@ import javax.swing.JTextField;
 
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
+import editor.BigFrameworkGuy;
+import editor.ConfigurationEditor;
+import editor.ListURISelector;
+import editor.URISelector;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
 

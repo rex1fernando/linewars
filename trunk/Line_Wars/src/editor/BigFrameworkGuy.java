@@ -22,6 +22,7 @@ import editor.animations.AnimationEditor;
 import editor.animations.FileCopy;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
+import editor.race.RaceEditor;
 import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 
