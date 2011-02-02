@@ -29,6 +29,7 @@ public strictfp class Tech {
 	private String pressedIconURI;
 	private String rolloverIconURI;
 	private String selectedIconURI;
+	private String disabledIconURI;
 
 	private HashMap<String, HashMap<ParserKeys, Modifier>> modificationChain;
 	
@@ -159,4 +160,8 @@ public strictfp class Tech {
 		return selectedIconURI;
 	}
 
+	public String getDisabledIconURI()
+	{
+		return disabledIconURI;
+	}
 }

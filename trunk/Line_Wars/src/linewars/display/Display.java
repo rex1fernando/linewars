@@ -274,7 +274,7 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
 			add(techPanel);
 
 			addComponentListener(new ResizeListener());

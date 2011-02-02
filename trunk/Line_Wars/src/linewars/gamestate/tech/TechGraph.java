@@ -195,6 +195,11 @@ public class TechGraph
 		{
 			this.strat = strat;
 		}
+		
+		public boolean isUnlocked()
+		{
+			return getUnlockStrategy().isUnlocked(this);
+		}
 
 		public void addChild(TechNode node) throws CycleException
 		{ 

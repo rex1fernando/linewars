@@ -28,7 +28,7 @@ public class TechPanel extends Panel
 	private JButton[] tabs;
 	private TechDisplay[] techs;
 	
-	public TechPanel(Display display, GameStateProvider stateManager)
+	public TechPanel(Display display, GameStateProvider stateManager, int pID)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
@@ -53,7 +53,7 @@ public class TechPanel extends Panel
 		}
 		
 		this.tabs[0] = new JButton("TECH");
-		this.techs[0] = new TechDisplay(tech);
+		this.techs[0] = new TechDisplay(pID,tech);
 		//END TEST CODE
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
