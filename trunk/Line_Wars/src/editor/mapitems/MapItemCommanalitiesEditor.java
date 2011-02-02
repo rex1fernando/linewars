@@ -37,7 +37,7 @@ import editor.abilities.StrategySelector.StrategySelectorCallback;
  * edit map items. 
  *
  */
-public class MapItemEditor extends JPanel implements ConfigurationEditor, ActionListener {
+public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationEditor, ActionListener {
 	
 	//variable for the name
 	private JTextField name;
@@ -69,7 +69,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 	 * 
 	 * @param guy	the big framework guy with a list of all relevant URIs
 	 */
-	public MapItemEditor(BigFrameworkGuy guy)
+	public MapItemCommanalitiesEditor(BigFrameworkGuy guy)
 	{
 		bfg = guy;
 		
@@ -515,7 +515,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 		@Override
 		public void uriSelected(String uri) {
 			if(mapItemTypeInfo != null)
-				MapItemEditor.this.remove(mapItemTypeInfo.getPanel());
+				MapItemCommanalitiesEditor.this.remove(mapItemTypeInfo.getPanel());
 			
 			if(uri.equalsIgnoreCase("Unit"))
 				mapItemTypeInfo = new UnitEditorPanel();
@@ -545,9 +545,9 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor, Action
 			}
 			
 			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
-			MapItemEditor.this.add(mapItemTypeInfo.getPanel());
-			MapItemEditor.this.validate();
-			MapItemEditor.this.updateUI();
+			MapItemCommanalitiesEditor.this.add(mapItemTypeInfo.getPanel());
+			MapItemCommanalitiesEditor.this.validate();
+			MapItemCommanalitiesEditor.this.updateUI();
 		}
 		
 	}
