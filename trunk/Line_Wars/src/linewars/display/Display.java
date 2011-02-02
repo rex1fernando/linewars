@@ -32,6 +32,7 @@ import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
+import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
@@ -183,6 +184,7 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		private TechPanel techPanel;
+		private TechButtonPanel techButtonPanel;
 		
 		private boolean panLeft;
 		private boolean panRight;
@@ -276,6 +278,9 @@ public class Display extends JFrame implements Runnable
 			add(exitButtonPanel);
 			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
 			add(techPanel);
+			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
+			add(techButtonPanel);
+			
 
 			addComponentListener(new ResizeListener());
 
@@ -668,6 +673,7 @@ public class Display extends JFrame implements Runnable
 				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
 				techPanel.updateLocation();
+				techButtonPanel.updateLocation();
 			}
 		}
 

@@ -85,11 +85,11 @@ public class TechDisplay extends JViewport
 					
 					buttons[i] = new TechButton(current);
 					buttons[i].setOpaque(false);
-					buttons[i].setIcon(new ButtonIcon(buttons[i], tech.getIconURI()));
-					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], tech.getPressedIconURI()));
-					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], tech.getRolloverIconURI()));
-					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], tech.getSelectedIconURI()));
-					buttons[i].setDisabledIcon(new ButtonIcon(buttons[i], tech.getDisabledIconURI()));
+//					buttons[i].setIcon(new ButtonIcon(buttons[i], tech.getIconURI()));
+//					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], tech.getPressedIconURI()));
+//					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], tech.getRolloverIconURI()));
+//					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], tech.getSelectedIconURI()));
+//					buttons[i].setDisabledIcon(new ButtonIcon(buttons[i], tech.getDisabledIconURI()));
 					buttons[i].addActionListener(new ButtonHandler(i));
 					treeDisplay.add(buttons[i]);
 					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
@@ -188,17 +188,18 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-			DefaultButtonModel model = (DefaultButtonModel)getModel();
-			if(!tech.isUnlocked())
-				getDisabledIcon().paintIcon(this, g, 0, 0);
-			else if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
-			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
-			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
-			else
-				getIcon().paintIcon(this, g, 0, 0);
+			super.paint(g);
+//			DefaultButtonModel model = (DefaultButtonModel)getModel();
+//			if(!tech.isUnlocked())
+//				getDisabledIcon().paintIcon(this, g, 0, 0);
+//			else if(model.isPressed())
+//				getPressedIcon().paintIcon(this, g, 0, 0);
+//			else if(model.isSelected())
+//				getSelectedIcon().paintIcon(this, g, 0, 0);
+//			else if(model.isRollover())
+//				getRolloverIcon().paintIcon(this, g, 0, 0);
+//			else
+//				getIcon().paintIcon(this, g, 0, 0);
 		}
 	}
 	

@@ -198,7 +198,7 @@ public class TechGraph
 		
 		public boolean isUnlocked()
 		{
-			return getUnlockStrategy().isUnlocked(this);
+			return true; //getUnlockStrategy().isUnlocked(this);
 		}
 
 		public void addChild(TechNode node) throws CycleException

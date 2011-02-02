@@ -21,18 +21,21 @@ public class TechPanel extends Panel
 	private static final double ASPECT_RATIO = 0.75;
 
 	private static final int DEFAULT_WIDTH = 1500;
-	private static final int DEFAULT_HEIGHT = 750;
+	static final int DEFAULT_HEIGHT = 750;
 	
 	private Display display;
 	
 	private JButton[] tabs;
 	private TechDisplay[] techs;
 	
+	private boolean displayed;
+	
 	public TechPanel(Display display, GameStateProvider stateManager, int pID)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
 		this.display = display;
+		this.displayed = false;
 		
 		//TEST CODE
 		this.tabs = new JButton[1];
@@ -81,6 +84,16 @@ public class TechPanel extends Panel
 		techs[0].setVisible(true);
 	}
 	
+	boolean isDisplayed()
+	{
+		return displayed;
+	}
+	
+	void toggleDisplayed()
+	{
+		displayed = !displayed;
+	}
+	
 	@Override
 	public void updateLocation()
 	{
@@ -88,7 +101,10 @@ public class TechPanel extends Panel
 
 		super.updateLocation();
 		
-		setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
+		if(isDisplayed())
+			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
+		else
+			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), (int)(scaleFactor * -DEFAULT_HEIGHT));
 	}
 	
 	@Override
