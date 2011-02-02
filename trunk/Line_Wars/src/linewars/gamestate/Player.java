@@ -1,23 +1,15 @@
 package linewars.gamestate;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.Projectile;
-import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.tech.Tech;
-import linewars.gamestate.tech.Upgradable;
+import linewars.gamestate.tech.TechConfiguration;
 
 
 /**
@@ -182,9 +174,9 @@ public strictfp class Player {
 	 * @return
 	 * 		An array containing all of the Tech owned by this Player.
 	 */
-	public Tech[] getTech()
+	public TechConfiguration[] getTech()
 	{
-		return race.getTechs().toArray(new Tech[0]);
+		return race.getTechs().toArray(new TechConfiguration[0]);
 	}
 	
 	/**

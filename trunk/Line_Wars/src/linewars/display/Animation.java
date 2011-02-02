@@ -3,13 +3,15 @@ package linewars.display;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import configuration.Configuration;
+
 /**
  * Encapsulates animation information.
  * 
  * @author Titus Klinge
  * @author Ryan Tew
  */
-public class Animation implements Serializable
+public class Animation extends Configuration
 {
 	/**
 	 * 
@@ -103,5 +105,20 @@ public class Animation implements Serializable
 
 		// this should never happen...but........
 		return imageURIs.get(i);
+	}
+	
+	public String getImage(int index)
+	{
+		return imageURIs.get(index);
+	}
+	
+	public double getImageTime(int index)
+	{
+		return displayTimes.get(index);
+	}
+	
+	public int getNumImages()
+	{
+		return imageURIs.size();
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.tech.Tech;
+import linewars.gamestate.tech.TechConfiguration;
 import configuration.Configuration;
 import configuration.ListConfiguration;
 import configuration.Property;
@@ -34,7 +34,7 @@ public strictfp class Race extends Configuration {
 				new ListConfiguration<UnitDefinition>(new ArrayList<UnitDefinition>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
-				new ListConfiguration<Tech>(new ArrayList<Tech>(), 
+				new ListConfiguration<TechConfiguration>(new ArrayList<TechConfiguration>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<BuildingDefinition>(new ArrayList<BuildingDefinition>(), 
@@ -68,9 +68,9 @@ public strictfp class Race extends Configuration {
 	 * @return
 	 * 		A List containing all of the TechURIs associated with this Race.
 	 */
-	public List<Tech> getTechs()
+	public List<TechConfiguration> getTechs()
 	{
-		return (List<Tech>) super.getPropertyForName("techs").getValue();
+		return (List<TechConfiguration>) super.getPropertyForName("techs").getValue();
 	}
 	
 	/**

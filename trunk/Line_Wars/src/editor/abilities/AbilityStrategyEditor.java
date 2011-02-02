@@ -14,16 +14,16 @@ import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
-public class AbilityStrategyPanel extends JPanel implements ConfigurationEditor {
+public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor {
 	
 	private Map<String, Field> fields = new HashMap<String, Field>();
 	private BigFrameworkGuy bfg;
 	private ConfigType workingType;
 	
-	public AbilityStrategyPanel(BigFrameworkGuy bfg, ConfigType type)
+	public AbilityStrategyEditor(BigFrameworkGuy bfg)
 	{
 		this.bfg = bfg;
-		workingType = type;
+		workingType = ConfigType.ability;
 	}
 
 	@Override
