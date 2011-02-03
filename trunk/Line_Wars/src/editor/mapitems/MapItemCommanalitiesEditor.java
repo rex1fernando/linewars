@@ -237,7 +237,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		}
 		else if(cd.getDefinedKeys().contains(ParserKeys.maxHP)) //we're a unit!
 		{
-			mapItemTypeInfo = new UnitEditorPanel();
+			mapItemTypeInfo = new UnitEditor();
 			mapItemType.setSelectedURI("Unit");
 		}
 		else if(cd.getDefinedKeys().contains(ParserKeys.cost)) //we're a building!
@@ -518,7 +518,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 				MapItemCommanalitiesEditor.this.remove(mapItemTypeInfo.getPanel());
 			
 			if(uri.equalsIgnoreCase("Unit"))
-				mapItemTypeInfo = new UnitEditorPanel();
+				mapItemTypeInfo = new UnitEditor();
 			else if(uri.equalsIgnoreCase("Building"))
 				mapItemTypeInfo = new BuildingEditor();
 			else if(uri.equalsIgnoreCase("Projectile"))
