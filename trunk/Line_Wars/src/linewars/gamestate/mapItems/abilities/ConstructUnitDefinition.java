@@ -9,6 +9,7 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
 import configuration.*;
+import editor.abilities.AbilityStrategyEditor;
 import editor.abilities.EditorProperty;
 import editor.abilities.EditorUsage;
 
@@ -21,6 +22,10 @@ import editor.abilities.EditorUsage;
  * what UnitDefinition to create from and the build time of that unit.
  */
 public strictfp class ConstructUnitDefinition extends AbilityDefinition implements Observer {
+	
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Construct Unit", ConstructUnitDefinition.class, AbilityStrategyEditor.class);
+	}
 	
 	private UnitDefinition unitDefinition = null;
 	private long buildtime;

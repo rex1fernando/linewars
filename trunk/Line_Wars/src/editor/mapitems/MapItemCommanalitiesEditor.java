@@ -1,25 +1,25 @@
 package editor.mapitems;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileWriter;
-import linewars.configfilehandler.ParserKeys;
+import linewars.display.Animation;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.shapes.ShapeConfiguration;
+import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
@@ -27,7 +27,6 @@ import editor.ListURISelector;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
-import editor.abilities.StrategySelector.StrategySelectorCallback;
 
 /**
  * 
@@ -45,7 +44,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	//variables for the states and corresponding animations
 	private ListURISelector validStates;
 	private URISelector animations;
-	private HashMap<MapItemState, String> animationMap = new HashMap<MapItemState, String>();
+	private HashMap<MapItemState, Animation> animationMap = new HashMap<MapItemState, Animation>();
 	
 	//variable for the abilities and collision strategies
 	private ListURISelector abilities;
@@ -54,11 +53,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	//variables for setting the body
 	private JButton bodyButton;
 	private JLabel bodyStatus;
-	private ConfigData bodyConfig;
-	
-	//variables related to the specific type
-	private URISelector mapItemType;
-	private ConfigurationEditor mapItemTypeInfo;
+	private ShapeConfiguration bodyConfig;
 	
 	private BigFrameworkGuy bfg;
 	

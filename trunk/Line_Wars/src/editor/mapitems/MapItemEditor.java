@@ -36,7 +36,16 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
-		
+		commanalities = new MapItemCommanalitiesEditor(bfg);
+		commanalities.setData(cd);
+		variabilities = getConfigEditor(getType(cd));
+		variabilities.setData(cd);
+
+		this.removeAll();
+		this.add(commanalities.getPanel());
+		this.add(variabilities.getPanel());
+		this.validate();
+		this.updateUI();
 	}
 
 	@Override
