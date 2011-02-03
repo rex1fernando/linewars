@@ -1,13 +1,19 @@
 package linewars.gamestate.tech;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 
-public class TechGraph
+public class TechGraph implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1615922455457654069L;
+	
 	private List<TechNode> roots;
 	private Iterator<TechNode> rootIterator;
 	private int maxX;
@@ -88,7 +94,7 @@ public class TechGraph
 	
 	public class TechNode implements Comparable<TechNode>
 	{
-		private Tech tech;
+		private TechConfiguration techConfig;
 		private UnlockStrategy strat;
 		
 		private List<TechNode> parents;
@@ -106,7 +112,7 @@ public class TechGraph
 		{
 			this.x = -1;
 			this.y = -1;
-			this.tech = null;
+			this.techConfig = null;
 			this.strat = null;
 			this.parents = new ArrayList<TechNode>();
 			this.children = new ArrayList<TechNode>();
@@ -126,17 +132,17 @@ public class TechGraph
 				maxY = y;
 		}
 		
-		private TechNode(Tech tech, UnlockStrategy strat)
+		private TechNode(TechConfiguration techConfig, UnlockStrategy strat)
 		{
 			this();
-			this.tech = tech;
+			this.techConfig = techConfig;
 			this.strat = strat;
 		}
 		
-		private TechNode(Tech tech, UnlockStrategy strat, List<TechNode> parents)
+		private TechNode(TechConfiguration techConfig, UnlockStrategy strat, List<TechNode> parents)
 		{
 			this();
-			this.tech = tech;
+			this.techConfig = techConfig;
 			this.strat = strat;
 			this.parents = parents;
 		}
@@ -186,9 +192,9 @@ public class TechGraph
 				maxY = y;
 		}
 		
-		public void setTech(Tech tech)
+		public void setTech(TechConfiguration techConfig)
 		{
-			this.tech = tech;
+			this.techConfig = techConfig;
 		}
 		
 		public void setUnlockStrategy(UnlockStrategy strat)
@@ -221,9 +227,9 @@ public class TechGraph
 			return y;
 		}
 		
-		public Tech getTech()
+		public TechConfiguration getTechConfig()
 		{
-			return tech;
+			return techConfig;
 		}
 		
 		public UnlockStrategy getUnlockStrategy()

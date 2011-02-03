@@ -7,10 +7,17 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
+
+import editor.BigFrameworkGuy;
+import editor.URISelector;
+import editor.URISelector.SelectorOptions;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
@@ -26,12 +33,35 @@ public class TechPanel extends Panel
 	static final int DEFAULT_HEIGHT = 750;
 	
 	private Display display;
+	private BigFrameworkGuy bfg;
 	
-	private JButton[] tabs;
-	private TechDisplay[] techs;
+	private GridBagLayout techLayout;
+	private GridBagConstraints c;
+	
+	private JPanel tabPanel;
+	private JPanel techPanel;
+	
+	private ArrayList<JButton> tabs;
+	private ArrayList<TechDisplay> techs;
+	
+	private TechDisplay activeTech;
+	
+	private URISelector techSelector;
+	private URISelector unlockStrategySelector;
 	
 	private boolean displayed;
 	
+	public TechPanel(BigFrameworkGuy bfg)
+	{
+		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		
+		this.bfg = bfg;
+
+		initialize();
+		
+		addEditorElements();
+	}
+
 	public TechPanel(Display display, GameStateProvider stateManager, int pID)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -39,10 +69,7 @@ public class TechPanel extends Panel
 		this.display = display;
 		this.displayed = false;
 		
-		//TEST CODE
-		this.tabs = new JButton[2];
-		this.techs = new TechDisplay[2];
-		
+//TEST CODE
 		TechGraph tech1 = new TechGraph();
 		TechNode parent1 = tech1.addNode();
 		TechNode child1 = tech1.addNode();
@@ -71,39 +98,65 @@ public class TechPanel extends Panel
 			e.printStackTrace();
 		}
 
-		this.tabs[0] = new JButton("TECH1");
-		this.techs[0] = new TechDisplay(pID,tech1);
+		this.tabs.add(new JButton("TECH1"));
+		this.techs.add(new TechDisplay(pID, tech1));
 		
-		this.tabs[1] = new JButton("TECH2");
-		this.techs[1] = new TechDisplay(pID,tech2);
-		//END TEST CODE
+		this.tabs.add(new JButton("TECH2"));
+		this.techs.add(new TechDisplay(pID ,tech2));
+//END TEST CODE
 		
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
-		JPanel buttonPanel = new JPanel(new GridLayout());
-		buttonPanel.setOpaque(false);
-		add(buttonPanel);
-		for(int i = 0; i < tabs.length; ++i)
-		{
-			tabs[i].addActionListener(new TabButtonHandler(i));
-			buttonPanel.add(tabs[i]);
-		}
-		
-		GridBagLayout techLayout = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		JPanel techPanel = new JPanel(techLayout);
-		techPanel.setOpaque(false);
-		add(techPanel);
-		for(int i = 0; i < techs.length; ++i)
-		{
-			techs[i].setVisible(false);
-			techPanel.add(techs[i]);
-			techLayout.addLayoutComponent(techs[i], c);
-		}
-		
-		techs[0].setVisible(true);
+		initialize();
 	}
 	
+	private void initialize()
+	{
+		this.tabs = new ArrayList<JButton>();
+		this.techs = new ArrayList<TechDisplay>();
+	
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		techLayout = new GridBagLayout();
+		c = new GridBagConstraints();
+		techPanel = new JPanel(techLayout);
+		techPanel.setOpaque(false);
+		for(int i = 0; i < techs.size(); ++i)
+		{
+			techs.get(i).setVisible(false);
+			techPanel.add(techs.get(i));
+			techLayout.addLayoutComponent(techs.get(i), c);
+		}
+		
+		tabPanel = new JPanel(new GridLayout());
+		tabPanel.setOpaque(false);
+		for(int i = 0; i < tabs.size(); ++i)
+		{
+			tabs.get(i).addActionListener(new TabButtonHandler(techs.get(i)));
+			tabPanel.add(tabs.get(i));
+		}
+		
+		add(tabPanel);
+		add(techPanel);
+		
+		if(!techs.isEmpty())
+			techs.get(0).setVisible(true);
+	}
+	
+	private void addEditorElements()
+	{
+		JPanel editorComponents = new JPanel();
+		editorComponents.setLayout(new BoxLayout(editorComponents, BoxLayout.X_AXIS));
+		add(editorComponents);
+		
+		JButton addTechGraph = new JButton("Add Tech Graph");
+		addTechGraph.addActionListener(new AddTechGraphHandler());
+		editorComponents.add(addTechGraph);
+		
+		techSelector = new URISelector("Tech", new TechSelector());
+		editorComponents.add(techSelector);
+		
+		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
+	}
+
 	boolean isDisplayed()
 	{
 		return displayed;
@@ -114,13 +167,14 @@ public class TechPanel extends Panel
 		displayed = !displayed;
 	}
 	
-	private void displayTechGraph(int index)
+	private void setAllTechGraphsInvisible()
 	{
-		for(int i = 0; i < techs.length; ++i)
+		for(int i = 0; i < techs.size(); ++i)
 		{
-			
-			techs[i].setVisible(i == index);
+			techs.get(i).setVisible(false);
 		}
+		
+		activeTech.setVisible(true);
 	}
 	
 	@Override
@@ -147,17 +201,82 @@ public class TechPanel extends Panel
 	
 	private class TabButtonHandler implements ActionListener
 	{
-		private int index;
+		private TechDisplay tech;
 		
-		public TabButtonHandler(int i)
+		public TabButtonHandler(TechDisplay tech)
 		{
-			index = i;
+			this.tech = tech;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
-			displayTechGraph(index);
+			activeTech = tech;
+			setAllTechGraphsInvisible();
 		}	
+	}
+	
+	private class AddTechGraphHandler implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			String s = (String)JOptionPane.showInputDialog(
+					getParent(),
+                    "Name the new tech graph",
+                    "Tech Graph",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    "Tech");
+			
+			if(s == null)
+				return;
+			
+			s.trim();
+			if(s.equals(""))
+				return;
+			
+			TechDisplay tech = new TechDisplay(new TechGraph());
+			techs.add(tech);
+			techPanel.add(tech);
+			techLayout.addLayoutComponent(tech, c);
+			
+			JButton tab = new JButton(s);
+			tab.addActionListener(new TabButtonHandler(tech));
+			tabs.add(tab);
+			tabPanel.add(tab);
+		}
+	}
+	
+	private class TechSelector implements SelectorOptions
+	{
+		
+		@Override
+		public void uriSelected(String uri)
+		{
+			//TODO set the tech on the active tech button
+		}
+		
+		@Override
+		public String[] getOptions()
+		{
+			return bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech).toArray(new String[0]);
+		}
+	}
+	
+	private class UnlockStrategySelector implements SelectorOptions
+	{
+		@Override
+		public String[] getOptions()
+		{
+			return new String[]{"All", "One", "No Syblings"};
+		}
+
+		@Override
+		public void uriSelected(String uri)
+		{
+			//TODO set the correct UnlockStrategy to the active tech button for the selection
+		}
 	}
 }

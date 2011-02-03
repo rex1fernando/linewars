@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -24,7 +23,7 @@ import javax.swing.JViewport;
 
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
-import linewars.gamestate.tech.Tech;
+import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
 
@@ -36,6 +35,13 @@ public class TechDisplay extends JViewport
 	private TechGraph techGraph;
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
+	
+	private TechConfiguration activeTech;
+	
+	public TechDisplay(TechGraph techGraph)
+	{
+		
+	}
 	
 	public TechDisplay(int pID, TechGraph techGraph)
 	{
@@ -81,15 +87,15 @@ public class TechDisplay extends JViewport
 			{
 				if(current != null && current.getX() == c && current.getY() == r)
 				{
-					Tech tech = current.getTech();
+					TechConfiguration techConfig = current.getTechConfig();
 					
 					buttons[i] = new TechButton(current);
 					buttons[i].setOpaque(false);
-//					buttons[i].setIcon(new ButtonIcon(buttons[i], tech.getIconURI()));
-//					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], tech.getPressedIconURI()));
-//					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], tech.getRolloverIconURI()));
-//					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], tech.getSelectedIconURI()));
-//					buttons[i].setDisabledIcon(new ButtonIcon(buttons[i], tech.getDisabledIconURI()));
+//					buttons[i].setIcon(new ButtonIcon(buttons[i], techConfig.getIconURI()));
+//					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], techConfig.getPressedIconURI()));
+//					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], techConfig.getRolloverIconURI()));
+//					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], techConfig.getSelectedIconURI()));
+//					buttons[i].setDisabledIcon(new ButtonIcon(buttons[i], techConfig.getDisabledIconURI()));
 					buttons[i].addActionListener(new ButtonHandler(i));
 					treeDisplay.add(buttons[i]);
 					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
@@ -112,6 +118,11 @@ public class TechDisplay extends JViewport
 
 			++treeConstraints.gridy;
 		}
+	}
+	
+	public TechGraph getTechGraph()
+	{
+		return techGraph;
 	}
 	
 	@Override
