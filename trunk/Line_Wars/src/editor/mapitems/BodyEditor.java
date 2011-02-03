@@ -46,7 +46,7 @@ import editor.animations.Sprite;
  */
 public class BodyEditor extends JPanel implements ConfigurationEditor, ActionListener, Runnable, MouseListener, WindowListener {
 	
-	private MapItemEditor mie;
+	private MapItemCommanalitiesEditor mie;
 	
 	//variable for selecting the shape type, at the moment only circle supported
 	private URISelector shapeType;
@@ -80,7 +80,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	 * 
 	 * @param m	the calling map item editor
 	 */
-	public BodyEditor(MapItemEditor m)
+	public BodyEditor(MapItemCommanalitiesEditor m)
 	{
 		mie = m;
 		
