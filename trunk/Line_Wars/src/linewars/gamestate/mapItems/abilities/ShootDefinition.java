@@ -9,6 +9,7 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import configuration.Usage;
+import editor.abilities.AbilityStrategyEditor;
 import editor.abilities.EditorProperty;
 import editor.abilities.EditorUsage;
 
@@ -21,6 +22,10 @@ import editor.abilities.EditorUsage;
  * range away this ability can be used.
  */
 public strictfp class ShootDefinition extends AbilityDefinition implements Observer {
+	
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Shoot", ShootDefinition.class, AbilityStrategyEditor.class);
+	}
 	
 	private ProjectileDefinition ammo = null;
 	private double range;
