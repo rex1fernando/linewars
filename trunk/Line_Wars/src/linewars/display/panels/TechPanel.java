@@ -1,12 +1,17 @@
 package linewars.display.panels;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -40,6 +45,7 @@ public class TechPanel extends Panel
 	
 	private JPanel tabPanel;
 	private JPanel techPanel;
+	private JPanel editorComponents;
 	
 	private ArrayList<JButton> tabs;
 	private ArrayList<TechDisplay> techs;
@@ -51,6 +57,10 @@ public class TechPanel extends Panel
 	
 	private boolean displayed;
 	
+	/**
+	 * Constructs the TechPanel for the editors, allows all elements to be edited.
+	 * @param bfg The BigFrameworkGuy that contains this panel.
+	 */
 	public TechPanel(BigFrameworkGuy bfg)
 	{
 		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -60,8 +70,16 @@ public class TechPanel extends Panel
 		initialize();
 		
 		addEditorElements();
+		
+		addComponentListener(new ResizeListener());
 	}
 
+	/**
+	 * Constructs the TechPanel for use in the game, does not allow editing, displays the state of techs, and researches them.
+	 * @param display The Display that contains this panel.
+	 * @param stateManager The GameStateProvider for the current session of the game.
+	 * @param pID The ID of the player this TechPanel is displayed for.
+	 */
 	public TechPanel(Display display, GameStateProvider stateManager, int pID)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -143,7 +161,7 @@ public class TechPanel extends Panel
 	
 	private void addEditorElements()
 	{
-		JPanel editorComponents = new JPanel();
+		editorComponents = new JPanel();
 		editorComponents.setLayout(new BoxLayout(editorComponents, BoxLayout.X_AXIS));
 		add(editorComponents);
 		
@@ -151,10 +169,11 @@ public class TechPanel extends Panel
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
 		
-		techSelector = new URISelector("Tech", new TechSelector());
-		editorComponents.add(techSelector);
+//		techSelector = new URISelector("Tech", new TechSelector());
+//		editorComponents.add(techSelector);
 		
 		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
+		editorComponents.add(unlockStrategySelector);
 	}
 
 	boolean isDisplayed()
@@ -197,6 +216,26 @@ public class TechPanel extends Panel
 		g.fillRect(0, 0, getWidth(), getHeight());		
 		
 		super.paint(g);
+	}
+	
+	private class ResizeListener extends ComponentAdapter
+	{
+		@Override
+		public void componentResized(ComponentEvent e)
+		{
+			int width = getWidth();
+			int height = getHeight();
+			
+			height -= tabPanel.getHeight();
+			
+			if(editorComponents != null)
+				height -= editorComponents.getHeight();
+			
+			for(TechDisplay td : techs)
+			{
+				td.setPreferredSize(new Dimension(width, height));
+			}
+		}
 	}
 	
 	private class TabButtonHandler implements ActionListener
@@ -246,22 +285,23 @@ public class TechPanel extends Panel
 			tab.addActionListener(new TabButtonHandler(tech));
 			tabs.add(tab);
 			tabPanel.add(tab);
+			
+			TechPanel.this.validate();
 		}
 	}
 	
 	private class TechSelector implements SelectorOptions
 	{
+		@Override
+		public String[] getOptions()
+		{
+			return bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech).toArray(new String[0]);
+		}
 		
 		@Override
 		public void uriSelected(String uri)
 		{
 			//TODO set the tech on the active tech button
-		}
-		
-		@Override
-		public String[] getOptions()
-		{
-			return bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech).toArray(new String[0]);
 		}
 	}
 	

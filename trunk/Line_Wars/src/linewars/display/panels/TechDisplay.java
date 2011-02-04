@@ -1,6 +1,7 @@
 package linewars.display.panels;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -23,6 +24,7 @@ import javax.swing.JViewport;
 
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
+import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -36,15 +38,34 @@ public class TechDisplay extends JViewport
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
 	
+	private boolean editorNOTgame;
+	
 	private TechConfiguration activeTech;
 	
+	/**
+	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
+	 * @param techGraph The TechGraph this TechDisplay will show and edit.
+	 */
 	public TechDisplay(TechGraph techGraph)
 	{
+		this.editorNOTgame = true;
+		this.techGraph = techGraph;
 		
+		initializeDisplay();
+		
+		ViewportDragger dragger = new ViewportDragger();
+		addMouseListener(dragger);
+		addMouseMotionListener(dragger);
 	}
 	
+	/**
+	 * Constructs the TechDisplay for use in the game, does not allow editing, displays the state of techs, and researches them.
+	 * @param pID The ID of the player this TechPanel is displayed for.
+	 * @param techGraph The TechGraph this TechDisplay will show.
+	 */
 	public TechDisplay(int pID, TechGraph techGraph)
 	{
+		this.editorNOTgame = false;
 		this.pID = pID;
 		this.techGraph = techGraph;
 		
@@ -59,18 +80,23 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = techGraph.getMaxX() + 1;
-		int ySize = techGraph.getMaxY() + 1;
+		int xSize = techGraph.getMaxX() + 3;
+		int ySize = techGraph.getMaxY() + 3;
 		
 		GridBagLayout treeLayout = new GridBagLayout();
 		GridBagConstraints treeConstraints = new GridBagConstraints();
 		treeDisplay = new JPanel(treeLayout);
+		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
 		treeDisplay.setOpaque(false);
 		add(treeDisplay);
 		
 		List<TechNode> orderedTechList = techGraph.getOrderedList();
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
-		buttons = new TechButton[orderedTechList.size()];
+		
+		if(editorNOTgame)
+			buttons = new TechButton[xSize * ySize];
+		else
+			buttons = new TechButton[orderedTechList.size()];
 		
 		TechNode current = null;
 		if(orderedListIterator.hasNext())
@@ -87,16 +113,18 @@ public class TechDisplay extends JViewport
 			{
 				if(current != null && current.getX() == c && current.getY() == r)
 				{
-					TechConfiguration techConfig = current.getTechConfig();
-					
-					buttons[i] = new TechButton(current);
+					buttons[i] = new TechButton(current, r, c);
 					buttons[i].setOpaque(false);
-//					buttons[i].setIcon(new ButtonIcon(buttons[i], techConfig.getIconURI()));
-//					buttons[i].setPressedIcon(new ButtonIcon(buttons[i], techConfig.getPressedIconURI()));
-//					buttons[i].setRolloverIcon(new ButtonIcon(buttons[i], techConfig.getRolloverIconURI()));
-//					buttons[i].setSelectedIcon(new ButtonIcon(buttons[i], techConfig.getSelectedIconURI()));
-//					buttons[i].setDisabledIcon(new ButtonIcon(buttons[i], techConfig.getDisabledIconURI()));
-					buttons[i].addActionListener(new ButtonHandler(i));
+					
+					if(editorNOTgame)
+					{
+						EditorButtonListener dragger = new EditorButtonListener(buttons[i]);
+						buttons[i].addMouseListener(dragger);
+						buttons[i].addMouseMotionListener(dragger);
+					}
+					else
+						buttons[i].addActionListener(new ResearchTechHandler(i));
+					
 					treeDisplay.add(buttons[i]);
 					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
 					
@@ -105,6 +133,20 @@ public class TechDisplay extends JViewport
 						current = orderedListIterator.next();
 					else
 						current = null;
+				}
+				else if(editorNOTgame)
+				{
+					buttons[i] = new TechButton(null, r, c);
+					buttons[i].setOpaque(false);
+					
+					EditorButtonListener dragger = new EditorButtonListener(buttons[i]);
+					buttons[i].addMouseListener(dragger);
+					buttons[i].addMouseMotionListener(dragger);
+					
+					treeDisplay.add(buttons[i]);
+					treeLayout.addLayoutComponent(buttons[i], treeConstraints);
+					
+					++i;
 				}
 				else
 				{
@@ -129,6 +171,7 @@ public class TechDisplay extends JViewport
 	public void paint(Graphics g)
 	{
 		super.paint(g);
+		
 		((Graphics2D)g).setStroke(new BasicStroke(5));
 		
 		techGraph.unmarkAll();
@@ -174,6 +217,24 @@ public class TechDisplay extends JViewport
 		}
 	}
 	
+	private void moveViewport(Point vector)
+	{
+		Point p = getViewPosition();
+		p.translate(-vector.x, -vector.y);
+		
+		if(p.x < 0)
+			p.setLocation(0, p.y);
+		else if(p.x > treeDisplay.getWidth() - getWidth())
+			p.setLocation(treeDisplay.getWidth() - getWidth(), p.y);
+		
+		if(p.y < 0)
+			p.setLocation(p.x, 0);
+		else if(p.y > treeDisplay.getHeight() - getHeight())
+			p.setLocation(p.x, treeDisplay.getHeight() - getHeight());
+		
+		setViewPosition(p);
+	}
+
 	/**
 	 * A button for the command card.
 	 * 
@@ -183,10 +244,13 @@ public class TechDisplay extends JViewport
 	private class TechButton extends JButton
 	{
 		private TechNode tech;
+		private int row;
+		private int col;
 		
-		public TechButton(TechNode tech)
+		public TechButton(TechNode tech, int row, int col)
 		{
-			this.tech = tech;
+			this.row = row;
+			this.col = col;
 			
 			Dimension size = new Dimension(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
 			
@@ -194,14 +258,52 @@ public class TechDisplay extends JViewport
 			setMaximumSize(size);
 			setPreferredSize(size);
 			setMinimumSize(size);
+			
+			setTech(tech);
+		}
+		
+		public void setTech(TechNode tech)
+		{
+			this.tech = tech;
+			if(tech != null)
+			{
+				TechConfiguration techConfig = tech.getTechConfig();
+				
+//				setIcon(new ButtonIcon(this, techConfig.getIconURI()));
+//				setPressedIcon(new ButtonIcon(this, techConfig.getPressedIconURI()));
+//				setRolloverIcon(new ButtonIcon(this, techConfig.getRolloverIconURI()));
+//				setSelectedIcon(new ButtonIcon(this, techConfig.getSelectedIconURI()));
+//				setDisabledIcon(new ButtonIcon(this, techConfig.getDisabledIconURI()));
+			}
+			else
+			{
+				setIcon(new ButtonIcon(this, null));
+				setPressedIcon(new ButtonIcon(this, null));
+				setRolloverIcon(new ButtonIcon(this, null));
+				setSelectedIcon(new ButtonIcon(this, null));
+				setDisabledIcon(new ButtonIcon(this, null));
+			}
+		}
+		
+		public Point buttonToTreeDisplay(Point p)
+		{
+			return new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
 		}
 		
 		@Override
 		public void paint(Graphics g)
 		{
-			super.paint(g);
+			if(tech == null)
+				g.setColor(Color.red);
+			else if(tech.getTechConfig() == activeTech)
+				g.setColor(Color.blue);
+			else
+				g.setColor(Color.orange);
+			
+			g.fillRect(0, 0, getWidth(), getHeight());
+			
 //			DefaultButtonModel model = (DefaultButtonModel)getModel();
-//			if(!tech.isUnlocked())
+//			if(tech != null && !tech.isUnlocked())
 //				getDisabledIcon().paintIcon(this, g, 0, 0);
 //			else if(model.isPressed())
 //				getPressedIcon().paintIcon(this, g, 0, 0);
@@ -256,6 +358,100 @@ public class TechDisplay extends JViewport
 		}
 	}
 
+	private class EditorButtonListener extends MouseAdapter
+	{
+		private Point lastPoint;
+		private TechButton button;
+		private boolean movingTech;
+		
+		public EditorButtonListener(TechButton b)
+		{
+			this.button = b;
+			this.movingTech = false;
+		}
+		
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			int mButton = e.getButton();
+			if(mButton == MouseEvent.BUTTON1)
+			{
+				if(button.tech == null)
+				{
+					button.setTech(techGraph.addNode());
+					button.tech.setPosition(button.col, button.row);
+				}
+				
+				activeTech = button.tech.getTechConfig();
+				
+				//TODO display the active tech
+			}
+			else if(mButton == MouseEvent.BUTTON3)
+			{
+				if(button.tech == null)
+				{
+					lastPoint = e.getPoint();
+				}
+				else
+				{
+					movingTech = true;
+					
+					activeTech = button.tech.getTechConfig();
+					
+					//TODO display the active tech
+				}
+			}
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e)
+		{
+			if(!movingTech)
+			{
+				Point vector = e.getPoint();
+				vector.translate(-lastPoint.x, -lastPoint.y);
+				moveViewport(vector);
+				lastPoint = e.getPoint();
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			Component atPoint = treeDisplay.getComponentAt(button.buttonToTreeDisplay(e.getPoint()));
+			if(atPoint == null || !(atPoint instanceof TechButton))
+				return;
+			
+			TechButton releasedOver = (TechButton)atPoint;
+			
+			int mButton = e.getButton();
+			if(mButton == MouseEvent.BUTTON1)
+			{
+				if(releasedOver.tech != null)
+				{
+					try
+					{
+						button.tech.addChild(releasedOver.tech);
+					}
+					catch (CycleException e1)
+					{}
+				}
+			}
+			else if(mButton == MouseEvent.BUTTON3)
+			{
+				if(releasedOver.tech == null)
+				{
+					releasedOver.setTech(button.tech);
+					button.setTech(null);
+					
+					releasedOver.tech.setPosition(releasedOver.col, releasedOver.row);
+				}
+			}
+			
+			TechDisplay.this.repaint();
+		}
+	}
+		
 	private class ViewportDragger extends MouseAdapter
 	{
 		private Point lastPoint;
@@ -271,30 +467,16 @@ public class TechDisplay extends JViewport
 		{
 			Point vector = e.getPoint();
 			vector.translate(-lastPoint.x, -lastPoint.y);
-			
-			Point p = getViewPosition();
-			p.translate(-vector.x, -vector.y);
-			
-			if(p.x < 0)
-				p.setLocation(0, p.y);
-			else if(p.x > treeDisplay.getWidth() - getWidth())
-				p.setLocation(treeDisplay.getWidth() - getWidth(), p.y);
-			
-			if(p.y < 0)
-				p.setLocation(p.x, 0);
-			else if(p.y > treeDisplay.getHeight() - getHeight())
-				p.setLocation(p.x, treeDisplay.getHeight() - getHeight());
-			
-			setViewPosition(p);
+			moveViewport(vector);
 			lastPoint = e.getPoint();
 		}
 	}
 	
-	private class ButtonHandler implements ActionListener
+	private class ResearchTechHandler implements ActionListener
 	{
 		private int index;
 		
-		public ButtonHandler(int index)
+		public ResearchTechHandler(int index)
 		{
 			this.index = index;
 		}
