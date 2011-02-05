@@ -43,6 +43,46 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION));
 	}
 	
+	public void setName(String newName)
+	{
+		super.setPropertyForName("name", new Property(Usage.STRING, newName));
+	}
+	
+	public void addUnit(UnitDefinition ud)
+	{
+		// TODO implement
+	}
+	
+	public void removeUnit(UnitDefinition ud)
+	{
+		// TODO implement
+	}
+	
+	public void addTech(TechConfiguration tc)
+	{
+		// TODO implement
+	}
+	
+	public void removeTech(TechConfiguration tc)
+	{
+		// TODO implement
+	}
+		
+	public void addBuilding(BuildingDefinition bc)
+	{
+		// TODO implement
+	}
+	
+	public void setCommandCenter(BuildingDefinition cc)
+	{
+		// TODO implement
+	}
+	
+	public void setGate(GateDefinition gd)
+	{
+		// TODO implement
+	}
+	
 	/**
 	 * 
 	 * @return
