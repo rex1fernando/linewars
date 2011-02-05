@@ -208,13 +208,21 @@ public class TechGraph implements Serializable
 		}
 
 		public void addChild(TechNode node) throws CycleException
-		{ 
+		{
+			TechGraph.this.unmarkAll();
+			
 			if(this == node || node.isAncestor(this))
+			{
+				TechGraph.this.unmarkAll();
 				throw new CycleException("Adding that child to this node will create a cycle.");
+			}
+			
+			TechGraph.this.unmarkAll();
 
 			children.add(node);
 			node.parents.add(this);
 			TechGraph.this.roots.remove(node);
+			
 		}
 		
 		public int getX()
@@ -267,17 +275,26 @@ public class TechGraph implements Serializable
 			return null;
 		}
 		
-		private boolean isAncestor(TechNode parent)
+		/**
+		 * Checks to see if this TechNode is an ancestor of the potential child.
+		 * @param potentialChild The TechNode that is potentially a child of this TechNode
+		 * @return true if this TechNode is an ancestor of the potential child,
+		 * 			false otherwise.
+		 */
+		private boolean isAncestor(TechNode potentialChild)
 		{
-			TechNode child = parent.getChild();
+			mark();
+			
+			TechNode child = getChild();
 			while(child != null)
 			{
-				if(this == child)
+				if(potentialChild == child)
 					return true;
 				
-				isAncestor(child);
+				if(child.isAncestor(potentialChild))
+					return true;
 				
-				child = parent.getNextChild();
+				child = getNextChild();
 			}
 			
 			return false;

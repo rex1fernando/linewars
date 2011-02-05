@@ -22,6 +22,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import editor.URISelector;
+
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
@@ -41,6 +43,8 @@ public class TechDisplay extends JViewport
 	private boolean editorNOTgame;
 	
 	private TechConfiguration activeTech;
+	private URISelector techSelector;
+	private URISelector unlockStrategySelector;
 	
 	/**
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
@@ -80,8 +84,8 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = techGraph.getMaxX() + 3;
-		int ySize = techGraph.getMaxY() + 3;
+		int xSize = techGraph.getMaxX() + 30;
+		int ySize = techGraph.getMaxY() + 30;
 		
 		GridBagLayout treeLayout = new GridBagLayout();
 		GridBagConstraints treeConstraints = new GridBagConstraints();
@@ -363,11 +367,13 @@ public class TechDisplay extends JViewport
 		private Point lastPoint;
 		private TechButton button;
 		private boolean movingTech;
+		private boolean creatingDependency;
 		
 		public EditorButtonListener(TechButton b)
 		{
 			this.button = b;
 			this.movingTech = false;
+			this.creatingDependency = false;
 		}
 		
 		@Override
@@ -376,6 +382,8 @@ public class TechDisplay extends JViewport
 			int mButton = e.getButton();
 			if(mButton == MouseEvent.BUTTON1)
 			{
+				creatingDependency = true;
+				
 				if(button.tech == null)
 				{
 					button.setTech(techGraph.addNode());
@@ -390,7 +398,7 @@ public class TechDisplay extends JViewport
 			{
 				if(button.tech == null)
 				{
-					lastPoint = e.getPoint();
+					lastPoint = button.buttonToTreeDisplay(e.getPoint());
 				}
 				else
 				{
@@ -406,12 +414,12 @@ public class TechDisplay extends JViewport
 		@Override
 		public void mouseDragged(MouseEvent e)
 		{
-			if(!movingTech)
+			if(!movingTech && !creatingDependency)
 			{
-				Point vector = e.getPoint();
+				Point vector = button.buttonToTreeDisplay(e.getPoint());
 				vector.translate(-lastPoint.x, -lastPoint.y);
 				moveViewport(vector);
-				lastPoint = e.getPoint();
+				lastPoint = button.buttonToTreeDisplay(e.getPoint());
 			}
 		}
 
@@ -436,16 +444,20 @@ public class TechDisplay extends JViewport
 					catch (CycleException e1)
 					{}
 				}
+				
+				creatingDependency = false;
 			}
 			else if(mButton == MouseEvent.BUTTON3)
 			{
-				if(releasedOver.tech == null)
+				if(movingTech && releasedOver.tech == null)
 				{
 					releasedOver.setTech(button.tech);
 					button.setTech(null);
 					
 					releasedOver.tech.setPosition(releasedOver.col, releasedOver.row);
 				}
+				
+				movingTech = false;
 			}
 			
 			TechDisplay.this.repaint();
