@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -51,6 +52,8 @@ public strictfp class Lane
 	private ArrayList<Node> nodes;
 	private double gatePos;
 	private GameState gameState;
+	
+	private LinkedList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
 	 * The width of the lane.
@@ -705,6 +708,11 @@ public strictfp class Lane
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
 		List<Unit> allUnits = getCollidableMapItems();
+		
+		
+		
+		
+		
 		for(MapItem first : allUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
 			
@@ -784,6 +792,48 @@ public strictfp class Lane
 				toMove.setPosition(toMove.getPosition().add(offset));				
 			}
 		}
+	}
+	
+	private LinkedList<Unit> sweepAndPrune(List<Unit> allUnits)
+	{
+		if (horizontallySortedUnits == null)
+			initializeSortedUnits(allUnits);
+		sortUnits();
+	
+		
+	}
+	
+	private void initializeSortedUnits(List<Unit> allUnits)
+	{
+		horizontallySortedUnits = new LinkedList<Unit>();
+		verticallySortedUnits = new LinkedList<Unit>();
+		horizontallySortedUnits.addAll(allUnits);
+		verticallySortedUnits.addAll(allUnits);
+	}
+	
+	private void sortUnits()
+	{
+		Collections.sort(horizontallySortedUnits, new Comparator<MapItem>()
+				{
+					public int compare(MapItem m1, MapItem m2)
+					{
+						if (m1.getBody().getAABB().getXMin() < m2.getBody().getAABB().getXMin())
+							return -1;
+						else
+							return 1;
+					}
+				});
+				
+		Collections.sort(verticallySortedUnits, new Comparator<MapItem>()
+				{
+					public int compare(MapItem m1, MapItem m2)
+					{
+						if (m1.getBody().getAABB().getYMin() < m2.getBody().getAABB().getYMin())
+							return -1;
+						else
+							return 1;
+					}
+				});
 	}
 
 	private void pushUnitsOntoLane() {
