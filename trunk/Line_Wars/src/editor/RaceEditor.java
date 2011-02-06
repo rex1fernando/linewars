@@ -1,21 +1,21 @@
 package editor;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import linewars.gamestate.Race;
 import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
+
 
 /**
  * An editor allowing the user to define races.
@@ -24,184 +24,76 @@ import editor.URISelector.SelectorOptions;
  */
 public class RaceEditor implements ConfigurationEditor
 {
-	/**
-	 * The one editor to control them all.
-	 */
 	private BigFrameworkGuy superEditor;
-	
-	/**
-	 * The actual panel that is used by the configuration editor.
-	 */
 	private RacePanel racePanel;
-
-	/**
-	 * Creates a new RaceEditor object with a reference to the BigFrameworkGuy
-	 * as its parent.
-	 * 
-	 * @param bfg The parent big framework guy of the race editor.
-	 */
+	
 	public RaceEditor(BigFrameworkGuy bfg)
 	{
 		superEditor = bfg;
 		racePanel = new RacePanel();
 		instantiateNewConfiguration();	// creates a configData object and updates the GUI
 	}
-
+	
 	@Override
 	public void setData(Configuration cd)
-	{
-		if (isValid(cd))
-		{
-			forceSetData(cd);
-		}
-		throw new RuntimeException("The configuration file: " + cd + " is invalid.");
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd)
-	{
-		updatePanel(cd);
+	{	
+		updatePanel((Race) cd);
 	}
 
 	@Override
 	public Configuration instantiateNewConfiguration()
 	{
-		updatePanel(new ConfigData());
+		Configuration c = new Race();
+		updatePanel((Race) c);
+		return c;
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet)
 	{
-		return createConfigData(racePanel);
-	}
-
-	@Override
-	public boolean isValidConfig()
-	{
-		return isValid(createConfigData(racePanel));
+		// TODO take stuff from the editor and place into the cd
+		return ConfigType.race;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes()
 	{
-		return ParserKeys.raceURI;
-	}
-	
-	/**
-	 * Checks to see if the ConfigData object contains all the required
-	 * information to save the race it corresponds to.
-	 * 
-	 * @param cd The ConfigData object to check.
-	 * @return True if the data object has all the necessary elements.
-	 */
-	private boolean isValid(ConfigData cd)
-	{
-		try
-		{
-			if (cd.getString(ParserKeys.gateURI) == null
-			 || cd.getString(ParserKeys.name) == null
-			 || cd.getString(ParserKeys.commandCenterURI) == null
-			 || cd.getStringList(ParserKeys.unitURI).size() == 0
-			 || cd.getStringList(ParserKeys.buildingURI).size() == 0)
-			{
-				return false;
-			}
-		} catch (Exception e)
-		{
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Populates the GUI with all the information stored within the ConfigData
-	 * object.
-	 * 
-	 * @param cd The config data object to populate the gui with.
-	 */
-	private void updatePanel(ConfigData cd)
-	{
-		racePanel.nameBox.name.setText((cd.getDefinedKeys().contains(ParserKeys.name)? cd.getString(ParserKeys.name) : ""));
-		racePanel.commandCenter.setSelectedURI((cd.getDefinedKeys().contains(ParserKeys.commandCenterURI)? cd.getString(ParserKeys.commandCenterURI) : ""));
-		racePanel.gate.setSelectedURI((cd.getDefinedKeys().contains(ParserKeys.gateURI)? cd.getString(ParserKeys.gateURI) : ""));
-		racePanel.unit.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.unitURI)? cd.getStringList(ParserKeys.unitURI).toArray(new String[0]) : new String[0]));
-		racePanel.building.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.buildingURI)? cd.getStringList(ParserKeys.buildingURI).toArray(new String[0]) : new String[0]));
-		racePanel.tech.setSelectedURIs((cd.getDefinedKeys().contains(ParserKeys.techURI)? cd.getStringList(ParserKeys.techURI).toArray(new String[0]) : new String[0]));
-	}
-	
-	/**
-	 * Creates and returns a config data object using the data stored within the
-	 * GUI fields.
-	 * 
-	 * @param rp The panel to take the data from.
-	 * @return The config data corresponding to the data stored within the panel.
-	 */
-	private ConfigData createConfigData(RacePanel rp)
-	{
-		ConfigData data = new ConfigData();
-		
-		data.set(ParserKeys.name, racePanel.nameBox.name.getText());
-		data.set(ParserKeys.commandCenterURI, racePanel.commandCenter.getSelectedURI());
-		data.set(ParserKeys.gateURI, racePanel.gate.getSelectedURI());
-		data.set(ParserKeys.buildingURI, racePanel.building.getSelectedURIs());
-		data.set(ParserKeys.techURI, racePanel.tech.getSelectedURIs());
-		data.set(ParserKeys.unitURI, racePanel.unit.getSelectedURIs());
-		
-		return data;
+		ArrayList<ConfigType> arr = new ArrayList<ConfigType>(1);
+		arr.add(ConfigType.race);
+		return arr;
 	}
 
 	@Override
 	public JPanel getPanel()
 	{
-		return racePanel;
+		// TODO Auto-generated method stub
+		return null;
 	}
-
+	
+	private void updatePanel(Race cd)
+	{
+		racePanel.nameBox.name.setText(cd.getName());
+		racePanel.commandCenter.setSelectedConfiguration(cd.getCommandCenter());
+		racePanel.gate.setSelectedConfiguration(cd.getGate());
+		racePanel.unit.setSelectedConfigurations(cd.getUnits());
+		racePanel.building.setSelectedConfigurations(cd.getBuildings());
+		racePanel.tech.setSelectedConfigurations(cd.getTechs());
+	}
+	
 	/**
 	 * The panel that contains all the GUI elements of the race editor.
 	 */
 	private class RacePanel extends JPanel
 	{
 		private static final long serialVersionUID = -4411534509382555738L;
-
-		/**
-		 * The number of units of space between elements in the panel.
-		 */
 		private static final int SPACING = 3;
-		
-		/**
-		 * A label and text field combo for typing in the name of the race.
-		 */
 		private NameBox nameBox;
+		private ConfigurationSelector commandCenter;
+		private ConfigurationSelector gate;
+		private ListConfigurationSelector unit;
+		private ListConfigurationSelector building;
+		private ListConfigurationSelector tech;
 		
-		/**
-		 * The selector for the command center.
-		 */
-		private URISelector commandCenter;
-		
-		/**
-		 * The selector for the gate building.
-		 */
-		private URISelector gate;
-		
-		/**
-		 * The selector for the race's units.
-		 */
-		private ListURISelector unit;
-		
-		/**
-		 * The selector for the buildings in the race.
-		 */
-		private ListURISelector building;
-		
-		/**
-		 * The selector for the techs in the race.
-		 */
-		private ListURISelector tech;
-		
-		/**
-		 * Creates a new RacePanel that is empty.
-		 */
 		public RacePanel()
 		{
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -209,17 +101,14 @@ public class RaceEditor implements ConfigurationEditor
 			nameBox = new NameBox();
 			add(nameBox);
 			
-			initURISelectors();
+			initConfigSelectors();
 		}
 		
-		/**
-		 * Initializes all the selectors.
-		 */
-		private void initURISelectors()
+		private void initConfigSelectors()
 		{
-			commandCenter = createSelector("Command Center", superEditor.getCommandCenterURIs());
+			commandCenter = createSelector("Command Center", ConfigType.building);
 			initURISelector(commandCenter);
-			gate = createSelector("Gate", superEditor.getGateURIs());
+			gate = createSelector("Gate", ConfigType.gate);
 			initURISelector(gate);
 			unit = createListSelector("Unit", superEditor.getUnitURIs());
 			initURISelector(unit);
@@ -229,37 +118,14 @@ public class RaceEditor implements ConfigurationEditor
 			initURISelector(tech);
 		}
 		
-		/**
-		 * Creates a new selector with the given name and allowing the selection
-		 * of the list of strings.
-		 * 
-		 * @param name The name for the selector.
-		 * @param options The options to select within the selector.
-		 * @return The newly constructed selector.
-		 */
-		private URISelector createSelector(String name, final String[] options)
+		private ConfigurationSelector createSelector(String name, ConfigType t)
 		{
-			return new URISelector(name, new SelectorOptions() {
-				public String[] getOptions() { return options; }
-				public void uriSelected(String uri) {}
-			});
+			return new ConfigurationSelector(name, superEditor, t);
 		}
 
-		/**
-		 * Similar to the method above, except that it creates a list selector.
-		 * 
-		 * @param name The name of the selector.
-		 * @param options The options to be selected.
-		 * @return The selector that was constructed.
-		 */
-		private ListURISelector createListSelector(String name, final String[] options)
+		private ListConfigurationSelector createListSelector(String name, final String[] options)
 		{
-			return new ListURISelector(name, new ListSelectorOptions() {
-				public String[] getOptions() { return options; }
-				public void uriSelected(String uri) {}
-				public void uriRemoved(String uri) {}
-				public void uriHighlightChange(String[] uris) {}
-			});
+			return 
 		}
 		
 		/**
