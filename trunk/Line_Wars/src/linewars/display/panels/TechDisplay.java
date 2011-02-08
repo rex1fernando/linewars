@@ -23,6 +23,6 @@ public class TechDisplay extends JPanel
 		treeDisplay = new JPanel();
 		scrollPane.add(treeDisplay);
 		
-		
+
 	}
 }
