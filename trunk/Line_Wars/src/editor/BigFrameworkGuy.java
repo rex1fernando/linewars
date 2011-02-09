@@ -30,7 +30,7 @@ import configuration.Usage;
 import editor.abilities.AbilityStrategyEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
-import editor.mapitems.MapItemEditor;
+import editor.mapitems.MapItemCommanalitiesEditor;
 import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 
@@ -51,7 +51,7 @@ public class BigFrameworkGuy
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,
-		projectile, building
+		projectile, building, part, turret
 	}
 	
 	private JFrame frame;
@@ -151,7 +151,7 @@ public class BigFrameworkGuy
 		{
 			ConfigurationEditor ce = null;
 			if(e.equals("Map Item"))
-				ce = new MapItemEditor(this);
+				ce = new MapItemCommanalitiesEditor(this);
 			else if(e.equals("Ability"))
 				ce = new AbilityStrategyEditor(this);
 			else if(e.equals("Animation"))

@@ -1,14 +1,23 @@
 package linewars.gamestate.tech;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 
-public class TechGraph
+public class TechGraph implements Serializable
 {
-	List<TechNode> roots;
-	Iterator<TechNode> rootIterator;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1615922455457654069L;
+	
+	private List<TechNode> roots;
+	private Iterator<TechNode> rootIterator;
+	private int maxX;
+	private int maxY;
 	
 	public TechGraph()
 	{
@@ -38,9 +47,54 @@ public class TechGraph
 		return null;		
 	}
 	
-	class TechNode
+	public void unmarkAll()
 	{
-		private Tech tech;
+		TechNode root = getRoot();
+		while(root != null)
+		{
+			root.unmarkAll();
+			root = getNextRoot();
+		}
+	}
+	
+	public List<TechNode> getOrderedList()
+	{
+		List<TechNode> orderedList = roots;
+		
+		if(orderedList.isEmpty())
+			return orderedList;
+		
+		unmarkAll();
+		int i = 0;
+		while(i < orderedList.size())
+		{
+			TechNode current = orderedList.get(i++);
+			if(!current.isMarked())
+			{
+				current.mark();
+				orderedList.addAll(current.children);
+			}
+		}
+		
+		unmarkAll();
+		
+		Collections.sort(orderedList);
+		return orderedList;
+	}
+	
+	public int getMaxX()
+	{
+		return maxX;
+	}
+	
+	public int getMaxY()
+	{
+		return maxY;
+	}
+	
+	public class TechNode implements Comparable<TechNode>
+	{
+		private TechConfiguration techConfig;
 		private UnlockStrategy strat;
 		
 		private List<TechNode> parents;
@@ -49,6 +103,8 @@ public class TechGraph
 		private Iterator<TechNode> parentIterator;
 		private Iterator<TechNode> childIterator;
 		
+		private boolean marked;
+		
 		private int x;
 		private int y;
 		
@@ -56,7 +112,7 @@ public class TechGraph
 		{
 			this.x = -1;
 			this.y = -1;
-			this.tech = null;
+			this.techConfig = null;
 			this.strat = null;
 			this.parents = new ArrayList<TechNode>();
 			this.children = new ArrayList<TechNode>();
@@ -69,47 +125,104 @@ public class TechGraph
 			this();
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
-		private TechNode(Tech tech, UnlockStrategy strat)
+		private TechNode(TechConfiguration techConfig, UnlockStrategy strat)
 		{
 			this();
-			this.tech = tech;
+			this.techConfig = techConfig;
 			this.strat = strat;
 		}
 		
-		private TechNode(Tech tech, UnlockStrategy strat, List<TechNode> parents)
+		private TechNode(TechConfiguration techConfig, UnlockStrategy strat, List<TechNode> parents)
 		{
 			this();
-			this.tech = tech;
+			this.techConfig = techConfig;
 			this.strat = strat;
 			this.parents = parents;
+		}
+		
+		@Override
+		public int compareTo(TechNode o)
+		{
+			if(this.y - o.y != 0)
+				return this.y - o.y;
+			
+			return this.x - o.x;
+		}
+
+		public void mark()
+		{
+			marked = true;
+		}
+		
+		public boolean isMarked()
+		{
+			return marked;
+		}
+		
+		private void unmarkAll()
+		{
+			if(!marked)
+				return;
+			
+			marked = false;
+			
+			TechNode child = getChild();
+			while(child != null)
+			{
+				child.unmarkAll();
+				child = getNextChild();
+			}
 		}
 		
 		public void setPosition(int x, int y)
 		{
 			this.x = x;
 			this.y = y;
+			
+			if(maxX < x)
+				maxX = x;
+			if(maxY < y)
+				maxY = y;
 		}
 		
-		public void setTech(Tech tech)
+		public void setTech(TechConfiguration techConfig)
 		{
-			this.tech = tech;
+			this.techConfig = techConfig;
 		}
 		
 		public void setUnlockStrategy(UnlockStrategy strat)
 		{
 			this.strat = strat;
 		}
+		
+		public boolean isUnlocked()
+		{
+			return true; //getUnlockStrategy().isUnlocked(this);
+		}
 
 		public void addChild(TechNode node) throws CycleException
-		{ 
+		{
+			TechGraph.this.unmarkAll();
+			
 			if(this == node || node.isAncestor(this))
+			{
+				TechGraph.this.unmarkAll();
 				throw new CycleException("Adding that child to this node will create a cycle.");
+			}
+			
+			TechGraph.this.unmarkAll();
 
 			children.add(node);
 			node.parents.add(this);
 			TechGraph.this.roots.remove(node);
+			
 		}
 		
 		public int getX()
@@ -122,9 +235,9 @@ public class TechGraph
 			return y;
 		}
 		
-		public Tech getTech()
+		public TechConfiguration getTechConfig()
 		{
-			return tech;
+			return techConfig;
 		}
 		
 		public UnlockStrategy getUnlockStrategy()
@@ -162,17 +275,26 @@ public class TechGraph
 			return null;
 		}
 		
-		private boolean isAncestor(TechNode parent)
+		/**
+		 * Checks to see if this TechNode is an ancestor of the potential child.
+		 * @param potentialChild The TechNode that is potentially a child of this TechNode
+		 * @return true if this TechNode is an ancestor of the potential child,
+		 * 			false otherwise.
+		 */
+		private boolean isAncestor(TechNode potentialChild)
 		{
-			TechNode child = parent.getChild();
+			mark();
+			
+			TechNode child = getChild();
 			while(child != null)
 			{
-				if(this == child)
+				if(potentialChild == child)
 					return true;
 				
-				isAncestor(child);
+				if(child.isAncestor(potentialChild))
+					return true;
 				
-				child = parent.getNextChild();
+				child = getNextChild();
 			}
 			
 			return false;

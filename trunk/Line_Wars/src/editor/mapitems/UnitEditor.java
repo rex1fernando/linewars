@@ -29,7 +29,7 @@ import editor.abilities.StrategySelector.StrategySelectorFieldType;
  * units.
  *
  */
-public class UnitEditorPanel extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
+public class UnitEditor extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
 
 	//variable for storing the max hp
 	private JTextField maxHP;
@@ -49,7 +49,7 @@ public class UnitEditorPanel extends JPanel implements ConfigurationEditor, Acti
 	 */
 	private static final long serialVersionUID = -8788172270105836095L;
 	
-	public UnitEditorPanel()
+	public UnitEditor()
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		

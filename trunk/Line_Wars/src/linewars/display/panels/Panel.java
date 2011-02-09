@@ -4,7 +4,6 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
 import linewars.display.Animation;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
@@ -49,7 +48,7 @@ public abstract class Panel extends JPanel
 	 * @param animations
 	 *            The list of animations for the panel.
 	 */
-	public Panel(GameStateProvider stateManager, int width, int height, ConfigData... animations)
+	public Panel(GameStateProvider stateManager, int width, int height, Animation... animations)
 	{
 		super(null);
 		setOpaque(false);
@@ -74,7 +73,7 @@ public abstract class Panel extends JPanel
 		this.animations = new Animation[animations.length];
 		for(int i = 0; i < animations.length; ++i)
 		{
-			this.animations[i] = new Animation(animations[i], "", width, height);
+			this.animations[i] = animations[i];
 		}
 
 		if(this.animations.length != 0)
