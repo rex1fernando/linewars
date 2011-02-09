@@ -4,9 +4,12 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 
@@ -43,7 +46,7 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -71,12 +74,12 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		maxHP.setText("");
 	}
 
 	@Override
-	public ConfigData getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		cd.set(ParserKeys.coefficients, "dummy");
 		Scanner s = new Scanner(maxHP.getText());
@@ -94,7 +97,7 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.gateURI;
 	}
 

@@ -1,12 +1,11 @@
 package linewars.gamestate;
 
 import java.awt.Dimension;
+import java.io.Serializable;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.shapes.Rectangle;
 
-public class BuildingSpot
+public class BuildingSpot implements Serializable
 {
 	private Rectangle rect;
 	
@@ -18,24 +17,6 @@ public class BuildingSpot
 	public BuildingSpot(Position p)
 	{
 		rect = new Rectangle(new Transformation(p, 0), 25, 25);
-	}
-	
-	public BuildingSpot(ConfigData data)
-	{
-		rect = new Rectangle(data);
-	}
-	
-	public ConfigData getData()
-	{
-		ConfigData data = new ConfigData();
-		
-		data.set(ParserKeys.x, getTrans().getPosition().getX());
-		data.set(ParserKeys.y, getTrans().getPosition().getY());
-		data.set(ParserKeys.width, getDim().getWidth());
-		data.set(ParserKeys.height, getDim().getHeight());
-		data.set(ParserKeys.rotation, getTrans().getRotation());
-		
-		return data;
 	}
 	
 	public void setRect(Rectangle r)

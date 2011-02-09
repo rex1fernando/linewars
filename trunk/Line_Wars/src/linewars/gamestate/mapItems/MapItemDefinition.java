@@ -1,26 +1,19 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemyUnits;
-import linewars.gamestate.mapItems.strategies.collision.CollidesWithAll;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
-import linewars.gamestate.mapItems.strategies.collision.Ground;
-import linewars.gamestate.mapItems.strategies.collision.NoCollision;
-import linewars.gamestate.shapes.Shape;
-import linewars.gamestate.tech.Upgradable;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.shapes.ShapeConfiguration;
+import configuration.Configuration;
+import configuration.ListConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 /**
  * 
@@ -34,53 +27,30 @@ import linewars.gamestate.tech.Upgradable;
  * they are allowed to use, who owns them, and what collision strategy
  * they use.
  */
-public strictfp abstract class MapItemDefinition<T extends MapItem> implements Upgradable{
+public strictfp abstract class MapItemDefinition<T extends MapItem> extends Configuration implements Observer {
 	
 	private ArrayList<MapItemState> validStates;
 	private String name;
-	private ConfigData parser;
 	protected ArrayList<AbilityDefinition> abilities;
-	private Player owner;
-	protected CollisionStrategy cStrat;
-	protected Shape body;
-	private GameState gameState;
+	protected CollisionStrategyConfiguration cStrat;
+	protected ShapeConfiguration body;
 	
 	/**
-	 * Creates a map item definition loaded from the config at the given
-	 * URI with owner owner.
-	 * 
-	 * @param URI			the location of the config that defines this definition
-	 * @param owner			the player that owns this definition
-	 * @param gameState		the game state associated with this definition
-	 * @throws FileNotFoundException
-	 * @throws InvalidConfigFileException
+	 * Creates a map item definition.
 	 */
-	public MapItemDefinition(String URI, Player owner, GameState gameState) throws FileNotFoundException, InvalidConfigFileException
+	public MapItemDefinition()
 	{
-		parser = new ConfigFileReader(URI).read();
-		
-		this.gameState = gameState;
-		
-		this.owner = owner;
-		this.forceReloadConfigData();
-	}
-	
-	/**
-	 * Creates a dummy map item definition.
-	 * 
-	 * @param gameState	the game state associated with this map item definition
-	 */
-	protected MapItemDefinition(GameState gameState)
-	{
-		validStates = new ArrayList<MapItemState>();
-		validStates.add(MapItemState.Idle);
-		this.owner = null;
-		name = "";
-		parser = null;
-		abilities = new ArrayList<AbilityDefinition>();
-		cStrat = null;
-		body = null;
-		this.gameState = gameState;
+		super.setPropertyForName("validStates", 
+				new Property(Usage.CONFIGURATION, 
+						new ListConfiguration<MapItemState>(new ArrayList<MapItemState>(), 
+								new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("name", new Property(Usage.STRING, ""));
+		super.setPropertyForName("abilities", new Property(Usage.CONFIGURATION,
+				new ListConfiguration<AbilityDefinition>(new ArrayList<AbilityDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("cStrat", new Property(Usage.CONFIGURATION, null));
+		super.setPropertyForName("body", new Property(Usage.CONFIGURATION, null));
+		this.addObserver(this);
 	}
 
 	/**
@@ -105,15 +75,6 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> implements U
 	
 	/**
 	 * 
-	 * @return	the parser that defines the map items
-	 */
-	public ConfigData getParser()
-	{
-		return parser;
-	}
-	
-	/**
-	 * 
 	 * @return	the list of availabel ability definitions
 	 */
 	public AbilityDefinition[] getAbilityDefinitions()
@@ -123,18 +84,9 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> implements U
 	
 	/**
 	 * 
-	 * @return	the player that owns this mapItemDefinition
-	 */
-	public Player getOwner()
-	{
-		return owner;
-	}
-	
-	/**
-	 * 
 	 * @return	the collision strategy associated with this type of map item
 	 */
-	public CollisionStrategy getCollisionStrategy()
+	public CollisionStrategyConfiguration getCollisionStrategyConfig()
 	{
 		return cStrat;
 	}
@@ -143,83 +95,37 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> implements U
 	 * 
 	 * @return	the shape aggregate associated with this map item
 	 */
-	public Shape getBody()
+	public ShapeConfiguration getBodyConfig()
 	{
 		return body;
 	}
 	
+	public abstract T createMapItem(Transformation t, Player owner, GameState gameState);
+	
 	@Override
-	public boolean equals(Object o)
+	public void update(Observable obs, Object o)
 	{
-		if(o instanceof MapItemDefinition)
-		{
-			return parser.equals(((MapItemDefinition)o).getParser());			
-		}
-		else
-			return false;
+		if(obs == this)
+			this.forceReloadConfigData();
+		else if(obs instanceof ShapeConfiguration)
+			update(this, "body");
 	}
-	
-	/**
-	 * 
-	 * @return	the game state associated with this definition
-	 */
-	public GameState getGameState()
-	{
-		return gameState;
-	}
-	
-	public abstract T createMapItem(Transformation t);
 	
 	/**
 	 * Forces this definition to reload itself from its config
 	 */
-	public void forceReloadConfigData() throws FileNotFoundException, InvalidConfigFileException
+	@SuppressWarnings("unchecked")
+	public void forceReloadConfigData()
 	{
-		validStates = new ArrayList<MapItemState>();
-		List<String> vs = parser.getStringList(ParserKeys.ValidStates);
-		for(String s : vs)
-			validStates.add(MapItemState.valueOf(s));
+		validStates = ((ListConfiguration<MapItemState>)super.getPropertyForName("validStates").getValue()).getEnabledSubList();
+		name = (String)super.getPropertyForName("name").getValue();
+		abilities = ((ListConfiguration<AbilityDefinition>)super.getPropertyForName("abilities").getValue()).getEnabledSubList();
+		cStrat = (CollisionStrategyConfiguration)super.getPropertyForName("cStrat").getValue();
+		body = (ShapeConfiguration)super.getPropertyForName("body").getValue();
 		
-		name = parser.getString(ParserKeys.name);
+		if(body != null)
+			body.addObserver(this);
 		
-		abilities = new ArrayList<AbilityDefinition>();
-		try
-		{
-			List<String> abs = parser.getStringList(ParserKeys.abilities);
-			for(String s : abs)
-			{
-				AbilityDefinition ad = owner.getAbilityDefinition(s);
-				abilities.add(ad);
-			}
-		}
-		catch (ConfigData.NoSuchKeyException e)
-		{}
-		
-		try
-		{
-			ConfigData strat = parser.getConfig(ParserKeys.collisionStrategy);
-			String type = strat.getString(ParserKeys.type);
-			if(type.equalsIgnoreCase("AllEnemies"))
-				cStrat = new AllEnemies();
-			else if(type.equalsIgnoreCase("CollidesWithAll"))
-				cStrat = new CollidesWithAll();
-			else if(type.equalsIgnoreCase("Ground"))
-				cStrat = new Ground();
-			else if(type.equalsIgnoreCase("NoCollision"))
-				cStrat = new NoCollision();
-			else if(type.equalsIgnoreCase("AllEnemyUnits"))
-				cStrat = new AllEnemyUnits();
-		}
-		catch(ConfigData.NoSuchKeyException e)
-		{
-			cStrat = new NoCollision();
-		}
-		
-		//check to make sure this is a valid strat for this definition
-		if(!cStrat.isValidMapItem(this))
-			throw new IllegalArgumentException(cStrat.name() + " is not compatible with map item " + getName());
-		
-		body = Shape.buildFromParser(parser.getConfig(ParserKeys.body));//new ShapeAggregate(parser.getParser(ParserKeys.body));
 		this.forceSubclassReloadConfigData();
 	}
 	

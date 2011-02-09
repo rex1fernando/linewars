@@ -1,9 +1,7 @@
 package linewars.gamestate;
 
+import java.io.Serializable;
 import java.util.Scanner;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -13,7 +11,9 @@ import linewars.configfilehandler.ParserKeys;
  * immutable.
  *
  */
-public strictfp class Position {
+public strictfp class Position implements Serializable {
+	
+	public static final Position ORIGIN = new Position(0, 0);
 	
 	private double x;
 	private double y;
@@ -46,16 +46,6 @@ public strictfp class Position {
 		Scanner s = new Scanner(toParse);
 		x = s.nextDouble();
 		y = s.nextDouble();
-	}
-	
-	/**
-	 * Parses a position from a config data.
-	 * 
-	 * @param toParse
-	 */
-	public Position(ConfigData toParse) {
-		x = toParse.getNumber(ParserKeys.x);
-		y = toParse.getNumber(ParserKeys.y);
 	}
 
 	/**

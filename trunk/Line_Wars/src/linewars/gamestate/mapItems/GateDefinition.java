@@ -2,14 +2,13 @@ package linewars.gamestate.mapItems;
 
 import java.io.FileNotFoundException;
 
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemies;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
-import linewars.gamestate.mapItems.strategies.combat.NoCombat;
-import linewars.gamestate.mapItems.strategies.movement.Immovable;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration;
+import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration;
+import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
 
 /**
  * 
@@ -18,6 +17,9 @@ import linewars.gamestate.mapItems.strategies.movement.Immovable;
  * This class defines gates that sit at the end of lanes.
  */
 public strictfp class GateDefinition extends UnitDefinition {
+	
+	private MovementStrategyConfiguration mStrat;
+	private CombatStrategyConfiguration combatStrat;
 
 	/**
 	 * Creates a gate definition from the config at URI with owner
@@ -29,32 +31,27 @@ public strictfp class GateDefinition extends UnitDefinition {
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public GateDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);
+	public GateDefinition() {
+		super();
+		mStrat = new ImmovableConfiguration();
+		combatStrat = new NoCombatConfiguration();
 	}
 	
 	@Override
-	public Unit createUnit(Transformation t)
+	public MovementStrategyConfiguration getMovementStratConfig()
 	{
-		return createGate(t);
-	}
-	
-	/**
-	 * crteates a gate
-	 * 
-	 * @param t	the transformation of the gate
-	 * @return	the gate
-	 */
-	public Gate createGate(Transformation t)
-	{
-		return new Gate(t, this, new Immovable(), new NoCombat());
+		return mStrat;
 	}
 	
 	@Override
-	public CollisionStrategy getCollisionStrategy()
+	public CombatStrategyConfiguration getCombatStratConfig()
 	{
-		return new AllEnemies();
+		return combatStrat;
+	}
+	
+	public Gate createGate(Transformation t, Player owner, GameState gameState)
+	{
+		return (Gate)super.createMapItem(t, owner, gameState);
 	}
 
 }

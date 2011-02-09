@@ -1,7 +1,9 @@
 package linewars.gamestate.mapItems;
 
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
@@ -18,7 +20,6 @@ import linewars.gamestate.shapes.Shape;
 public strictfp class Projectile extends MapItemAggregate {
 
 	private ProjectileDefinition definition;
-	private CollisionStrategy cStrat;
 	private ImpactStrategy iStrat;
 	private Lane lane;
 	
@@ -35,11 +36,10 @@ public strictfp class Projectile extends MapItemAggregate {
 	 * @param is	the impact strategy for this projectile
 	 * @param l		the lane that this projectile is in
 	 */
-	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is) {
-		super(t, def);
+	public Projectile(Transformation t, ProjectileDefinition def, Player owner, GameState gameState) {
+		super(t, def, gameState, owner);
 		definition = def;
-		cStrat = cs.createInstanceOf(this);
-		iStrat = is.createInstanceOf(this);
+		iStrat = def.getImpactStratConfig().createStrategy(this);
 	}
 	
 	public void setLane(Lane l)
@@ -113,11 +113,6 @@ public strictfp class Projectile extends MapItemAggregate {
 	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
 	}
-
-	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return cStrat;
-	}
 	
 	/**
 	 * 
@@ -140,18 +135,6 @@ public strictfp class Projectile extends MapItemAggregate {
 			else
 				return tempBody.isCollidingWith(m.getBody());
 		}
-	}
-	
-	@Override
-	public void setRotation(double rot)
-	{
-		super.setRotation(rot);
-	}
-	
-	@Override
-	public void setTransformation(Transformation t)
-	{
-		super.setTransformation(t);
 	}
 
 	@Override

@@ -1,17 +1,11 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
-import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.impact.DealDamageOnce;
-import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 /**
  * 
@@ -24,11 +18,12 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Projectile> {
 	
 	private double velocity;
-	private ImpactStrategy iStrat;
+	private ImpactStrategyConfiguration iStrat;
 
-	public ProjectileDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);		
+	public ProjectileDefinition() {
+		super();	
+		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT));
+		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION));
 	}
 	
 	/**
@@ -48,42 +43,21 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 	{
 		this.velocity = velocity;
 	}
-	
-	/**
-	 * Creates a projectile
-	 * 
-	 * @param t	the transformation to create the projectile at
-	 * @return	the projectile
-	 */
-	public Projectile createProjectile(Transformation t, Lane l)
-	{
-		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
-		p.setLane(l);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				p.addActiveAbility(ad.createAbility(p));
+
+	@Override
+	protected Projectile createMapItemAggregate(Transformation t, Player owner, GameState gameState) {
+		Projectile p = new Projectile(t, this, owner, gameState);
 		return p;
 	}
 
-	@Override
-	protected void forceSubclassReloadConfigData() {
-		velocity = super.getParser().getNumber(ParserKeys.velocity);
-		ConfigData is = super.getParser().getConfig(ParserKeys.impactStrategy);
-		if(is.getString(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
-		{
-			iStrat = new DealDamageOnce(is.getNumber(ParserKeys.damage));
-		}
-		else
-			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());		
+	public ImpactStrategyConfiguration getImpactStratConfig() {
+		return iStrat;
 	}
 
 	@Override
-	protected Projectile createMapItemAggregate(Transformation t) {
-		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				p.addActiveAbility(ad.createAbility(p));
-		return p;
+	protected void forceAggregateSubReloadConfigData() {
+		velocity = (Double)super.getPropertyForName("velocity").getValue();
+		iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
 	}
 
 }

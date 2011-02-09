@@ -1,23 +1,17 @@
 package linewars.gamestate;
 
-import java.awt.geom.Dimension2D;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.gameLogic.TimingManager;
-import linewars.gamestate.mapItems.*;
-import linewars.network.messages.AdjustFlowDistributionMessage;
-import linewars.network.messages.BuildMessage;
+import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemAggregate;
+import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.Unit;
 import linewars.network.messages.Message;
-import linewars.network.messages.UpgradeMessage;
 
 
 /**
@@ -38,7 +32,7 @@ public strictfp class GameState
 	private Map map;
 	private HashMap<Integer, Player> players;
 	private int numPlayers;
-	private ArrayList<Race> races;
+	private List<Race> races;
 	
 	private Player winningPlayer = null;
 	
@@ -52,33 +46,18 @@ public strictfp class GameState
 		return players.get(playerID);
 	}
 	
-	/**
-	 * This constructor constructs the game state. It takes in the parser for the map,
-	 * the number of players, and the list of race URIs, in order for each player
-	 * (eg the 1st spot in the list is the race for the 1st player and so on).
-	 * 
-	 * @param mapParser		the parser for the map	
-	 * @param numPlayers	the number of players
-	 * @param raceURIs		the URI's of the races
-	 * @throws FileNotFoundException
-	 * @throws InvalidConfigFileException
-	 */
-	public GameState(String mapURI, int numPlayers, List<String> raceURIs, List<String> playerNames) throws FileNotFoundException, InvalidConfigFileException
+	public GameState(MapConfiguration mapConfig, int numPlayers, List<Race> races, List<String> playerNames)
 	{
-		ConfigData mapParser = new ConfigFileReader(mapURI).read();
-		map = new Map(this, mapParser);
+		map = mapConfig.createMap(this);
 		players = new HashMap<Integer, Player>();
 		this.numPlayers = numPlayers;
 		timerTick = 0;
 		
-		races = new ArrayList<Race>();
-		for(int i = 0; i < raceURIs.size(); i++)
+		this.races = races;
+		for(int i = 0; i < races.size(); i++)
 		{
-			Race r = new Race(new ConfigFileReader(raceURIs.get(i)).read());
-			if(!races.contains(r))
-				races.add(r);
+			Race r = races.get(i);
 			Node[] startNode = { map.getStartNode(i) };
-			//TODO I'm changing this to add the players to the HashMap. Let me know if that's incorrect. -John G.
 			Player p = new Player(this, startNode, r, playerNames.get(i), i);
 			players.put(i, p);
 		}
@@ -88,7 +67,7 @@ public strictfp class GameState
 	 * 
 	 * @return	the dimensions of the map
 	 */
-	public Dimension2D getMapSize()
+	public Position getMapSize()
 	{
 		return map.getDimensions();
 	}
@@ -151,8 +130,6 @@ public strictfp class GameState
 				list = getProjectiles();
 			case BUILDING:
 				list = getBuildings();
-			case LANEBORDER:
-				list = getLaneBorders();
 			default:
 				list = new ArrayList<MapItem>(0);
 		}
@@ -234,23 +211,11 @@ public strictfp class GameState
 	
 	/**
 	 * 
-	 * @return	all the lane borders in the game state
-	 */
-	public List<LaneBorder> getLaneBorders()
-	{
-		List<LaneBorder> borders = new ArrayList<LaneBorder>();
-		for(Lane l : map.getLanes())
-			borders.addAll(l.getLaneBorders());
-		return borders;
-	}
-	
-	/**
-	 * 
 	 * @return	all the command centers in the game state
 	 */
-	public List<CommandCenter> getCommandCenters()
+	public List<Building> getCommandCenters()
 	{
-		ArrayList<CommandCenter> ccs = new ArrayList<CommandCenter>();
+		ArrayList<Building> ccs = new ArrayList<Building>();
 		Node[] nodes = map.getNodes();
 		for(Node n : nodes)
 			ccs.add(n.getCommandCenter());

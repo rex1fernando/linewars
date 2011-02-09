@@ -1,14 +1,6 @@
 package linewars.gamestate;
 
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.geom.Dimension2D;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -20,33 +12,19 @@ import linewars.configfilehandler.ParserKeys;
 public strictfp class Map {
 	private ArrayList<Node> nodes;
 	private ArrayList<Lane> lanes;
-	private Dimension2D dimensions;
-	private ConfigData parser;
+	private MapConfiguration config;
 	
 	
-	public Map(GameState gameState, ConfigData mapParser)
+	public Map(GameState gameState, MapConfiguration config)
 	{
-		dimensions = new Dimension((int)(double)mapParser.getNumber(ParserKeys.imageWidth), (int)(double)mapParser.getNumber(ParserKeys.imageHeight));
-		parser = mapParser;
-		
-		lanes = new ArrayList<Lane>();
-		List<ConfigData> ls = mapParser.getConfigList(ParserKeys.lanes);
-		for(ConfigData l : ls)
-			lanes.add(new Lane(gameState, l));
-		
+		this.config = config;
 		nodes = new ArrayList<Node>();
-		List<ConfigData> ns = mapParser.getConfigList(ParserKeys.nodes);
-		for(ConfigData n : ns)
-			nodes.add(new Node(n, gameState, lanes.toArray(new Lane[0]), nodes.size()));
-	}
-	/**
-	 * This method gets a list of the lanes attached to the Node n
-	 * @param n The Node in question.
-	 * @return A list of the lanes attached to N
-	 */
-	public Lane[] getLanes(Node n)
-	{
-		return n.getAttachedLanes();
+		int id = 0;
+		for(NodeConfiguration nc : config.nodes())
+			nodes.add(nc.createNode(gameState, id++));
+		lanes = new ArrayList<Lane>();
+		for(LaneConfiguration lc : config.lanes())
+			lanes.add(lc.createLane(gameState));
 	}
 	
 	/**
@@ -56,17 +34,6 @@ public strictfp class Map {
 	public Lane[] getLanes()
 	{
 		return lanes.toArray(new Lane[0]);
-	}
-	
-	/**
-	 * Gets a list of the nodes attached to this lane. The size of the array
-	 * should be 2 unless later we decide to do crazy n-node lanes.
-	 * @param l The lane in question.
-	 * @return A list of the nodes this lane connects.
-	 */
-	public Node[] getNodes(Lane l)
-	{
-		return l.getNodes();
 	}
 	
 	/**
@@ -82,27 +49,14 @@ public strictfp class Map {
 	 * 
 	 * @return	the dimensions of the map
 	 */
-	public Dimension2D getDimensions()
+	public Position getDimensions()
 	{
-		return dimensions;
+		return config.getImageSize();
 	}
 	
-	/**
-	 * 
-	 * @return	the URI of the map
-	 */
-	public String getMapURI()
+	public MapConfiguration getConfig()
 	{
-		return parser.getURI();
-	}
-	
-	/**
-	 * 
-	 * @return	the parser for the map configuration
-	 */
-	public ConfigData getParser()
-	{
-		return parser;
+		return config;
 	}
 	
 	/**

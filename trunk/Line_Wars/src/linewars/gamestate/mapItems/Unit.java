@@ -1,10 +1,10 @@
 package linewars.gamestate.mapItems;
 
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.Wave;
-import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
@@ -20,7 +20,6 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 public strictfp class Unit extends MapItemAggregate {
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
-	private CollisionStrategy colStrat;
 	
 	private UnitDefinition definition;
 	
@@ -40,16 +39,12 @@ public strictfp class Unit extends MapItemAggregate {
 	 * @param ms	the movement strategy for this unit
 	 * @param cs	the combat strategy for this unit
 	 */
-	public Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
-		super(t, def);
+	public Unit(Transformation t, UnitDefinition def, Player owner, GameState gameState) {
+		super(t, def, gameState, owner);
 		definition = def;
 		hp = definition.getMaxHP();
-		mStrat = ms;
-		mStrat.setUnit(this);
-		cStrat = cs;
-		cStrat.setUnit(this);
-		colStrat = def.getCollisionStrategy().createInstanceOf(this);
-		
+		mStrat = def.getMovementStratConfig().createStrategy(this);
+		cStrat = def.getCombatStratConfig().createStrategy(this);		
 	}
 	
 	/**
@@ -111,11 +106,6 @@ public strictfp class Unit extends MapItemAggregate {
 	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
 	}
-
-	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return colStrat;
-	}
 	
 	/**
 	 * 
@@ -145,9 +135,9 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public double getPositionAlongCurve()
 	{
-		if(lastTickPositionMarker != definition.getGameState().getTimerTick())
+		if(lastTickPositionMarker != getGameState().getTimerTick())
 		{
-			lastTickPositionMarker = definition.getGameState().getTimerTick();
+			lastTickPositionMarker = getGameState().getTimerTick();
 			positionOnCurve = currentWave.getLane().getClosestPointRatio(this.getPosition());
 		}
 		return positionOnCurve;

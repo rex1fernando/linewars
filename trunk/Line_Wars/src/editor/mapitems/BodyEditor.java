@@ -19,6 +19,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigFileWriter;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
@@ -27,6 +29,7 @@ import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItemState;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.ListURISelector;
 import editor.URISelector;
@@ -43,7 +46,7 @@ import editor.animations.Sprite;
  */
 public class BodyEditor extends JPanel implements ConfigurationEditor, ActionListener, Runnable, MouseListener, WindowListener {
 	
-	private MapItemEditor mie;
+	private MapItemCommanalitiesEditor mie;
 	
 	//variable for selecting the shape type, at the moment only circle supported
 	private URISelector shapeType;
@@ -77,7 +80,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	 * 
 	 * @param m	the calling map item editor
 	 */
-	public BodyEditor(MapItemEditor m)
+	public BodyEditor(MapItemCommanalitiesEditor m)
 	{
 		mie = m;
 		
@@ -122,7 +125,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 		
 		running = true;
 		
-		this.reset();
+		this.instantiateNewConfiguration();
 		
 		new Thread(this).start();
 	}
@@ -228,7 +231,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		String type = cd.getString(ParserKeys.shapetype);
 
 		if(type.equalsIgnoreCase("Circle"))
@@ -252,7 +255,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		shapeType.setSelectedURI("");
 		scale.setText("100");
 		if(images != null && images.length > 0)
@@ -262,7 +265,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public ConfigData getData() {
+	public ConfigType getData(Configuration toSet) {
 		String type = shapeType.getSelectedURI();
 		ConfigData cd = new ConfigData();
 		if(type.equalsIgnoreCase("Circle"))
@@ -289,7 +292,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -341,7 +344,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor, ActionLis
 		{
 			if(this.isValidConfig()) 
 			{
-				ConfigData cd = this.getData();
+				ConfigData cd = this.getData(null);
 				mie.setBody(cd);
 				running = false;
 			}

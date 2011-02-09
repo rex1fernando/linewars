@@ -13,10 +13,13 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 /**
@@ -86,8 +89,8 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
-		reset();
+	public void setData(Configuration cd) {
+		instantiateNewConfiguration();
 
 		//figure out which editor should be used
 		String modifierType = cd.getString(ParserKeys.modifiertype);
@@ -103,7 +106,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 
 	@Override
 	public void forceSetData(ConfigData cd) {
-		reset();
+		instantiateNewConfiguration();
 		
 		try{
 			String strKey = cd.getString(ParserKeys.key);
@@ -149,7 +152,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		//reset this class' panel
 		if(currentModifierTypeEditor != null){
 			panel.remove(currentModifierTypeEditor.getPanel());
@@ -159,16 +162,16 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 		
 		//reset every subeditor
 		for(ConfigurationEditor toReset : subEditors.values()){
-			toReset.reset();
+			toReset.instantiateNewConfiguration();
 		}
 	}
 
 	@Override
-	public ConfigData getData() {
+	public ConfigType getData(Configuration toSet) {
 		if(currentModifierTypeEditor == null){
 			return new ConfigData();
 		}
-		ConfigData ret = currentModifierTypeEditor.getData();
+		ConfigData ret = currentModifierTypeEditor.getData(null);
 		ret.set(ParserKeys.modifiertype, currentModifierTypeEditor.getName());
 		return ret;
 	}
@@ -182,7 +185,7 @@ public class ModifierEditor implements ConfigurationEditor, ActionListener {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.modifier;
 	}
 

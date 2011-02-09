@@ -3,9 +3,6 @@ package linewars.gamestate.shapes;
 import java.util.ArrayList;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -18,46 +15,12 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class ShapeAggregate extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
-	}
-	
 	private Position center;
 	private ArrayList<Shape> members;
 	private double rotation;
 	
 	private Rectangle boundingRectangle = null;
 	private Circle boundingCircle = null;
-
-
-	/**
-	 * Constructs a ShapeAggregate on the given Parser.
-	 * This constructor expects to see a list of shape names mapped to
-	 * the ParserKeys.shapes key which each have a Parser mapped to them.
-	 * 
-	 * If the ParserKeys.rotation key is specified, that value will be the
-	 * default rotation of the ShapeAggregate; if it is not specified, it
-	 * to 0 (facing to the right).
-	 * 
-	 * @param p
-	 * The Parser which defines this ShapeAggregate
-	 */
-	public ShapeAggregate(ConfigData p){
-		center = new Position(0, 0);
-		
-		members = new ArrayList<Shape>();
-		List<ConfigData> list = p.getConfigList(ParserKeys.shapes);
-		for(ConfigData cfg : list){
-			members.add(Shape.buildFromParser(cfg));
-		}
-		
-		try{
-			rotation = p.getNumber(ParserKeys.rotation);			
-		}catch(NoSuchKeyException e){
-			rotation = 0;//defaults to 0
-		}
-	}
 	
 	public ShapeAggregate(Transformation center, ArrayList<Shape> shapes, ArrayList<Transformation> relativePositions){
 		this();
@@ -212,15 +175,5 @@ public strictfp class ShapeAggregate extends Shape {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public ConfigData getData() {
-		ConfigData ret = new ConfigData();
-		ret.set(ParserKeys.rotation, rotation);
-		for(Shape toAdd : members){
-			ret.add(ParserKeys.shapes, toAdd.getData());
-		}
-		return ret;
 	}
 }

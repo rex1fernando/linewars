@@ -7,9 +7,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 /**
@@ -51,7 +54,7 @@ public class TechEditor implements ConfigurationEditor {
 		
 		topLevel.setPreferredSize(new Dimension(800, 700));
 		
-		reset();
+		instantiateNewConfiguration();
 	}
 	
 	/**
@@ -71,9 +74,9 @@ public class TechEditor implements ConfigurationEditor {
 	 * Resets the editor to an empty configuration
 	 */
 	@Override
-	public void reset() {
-		ntcf.reset();
-		modifiedURIs.reset();
+	public Configuration instantiateNewConfiguration() {
+		ntcf.instantiateNewConfiguration();
+		modifiedURIs.instantiateNewConfiguration();
 	}
 
 	/**
@@ -83,7 +86,7 @@ public class TechEditor implements ConfigurationEditor {
 	 * @param cd
 	 */
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		ntcf.setData(cd);
 		modifiedURIs.setData(cd);
 	}
@@ -93,9 +96,9 @@ public class TechEditor implements ConfigurationEditor {
 	 * @return	the ConfigData object associated with the data in the editor
 	 */
 	@Override
-	public ConfigData getData() {
-		ConfigData ntcfData = ntcf.getData();
-		ConfigData modifiedURIsData = modifiedURIs.getData();
+	public ConfigType getData(Configuration toSet) {
+		ConfigData ntcfData = ntcf.getData(null);
+		ConfigData modifiedURIsData = modifiedURIs.getData(null);
 		ConfigData ret = new ConfigData();
 		for(ParserKeys toAdd : ntcfData.getDefinedKeys()){
 			ret.add(toAdd, ntcfData.getStringList(toAdd).toArray(new String[0]));
@@ -118,7 +121,7 @@ public class TechEditor implements ConfigurationEditor {
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.techURI;
 	}
 

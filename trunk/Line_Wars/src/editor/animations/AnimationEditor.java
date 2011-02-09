@@ -3,13 +3,10 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferStrategy;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -21,17 +18,17 @@ import java.util.Scanner;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
-import editor.ConfigurationEditor;
+import linewars.display.Animation;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
+import editor.ConfigurationEditor;
 
 
 
@@ -384,58 +381,42 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);		
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		if(!this.isValid(cd) && !force)
-			throw new IllegalArgumentException("The config data object is not valid");
-		
-		
-    	scrollPanel.removeAll();
+	public void setData(Configuration cd) {
+		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
         newList = new ArrayList<Frame>();
         
-    	List<String> names = cd.getStringList(ParserKeys.icon);
-    	List<Double> times = cd.getNumberList(ParserKeys.displayTime);
+    	Animation an = (Animation)cd;
     	
     	ArrayList<Frame> newList = new ArrayList<Frame>();
-        for(int i = 0; i < Math.min(names.size(), times.size()); i++)
+        for(int i = 0; i < an.getNumImages(); i++)
         {
         	Frame f;
 			try {
-				f = new Frame(new File(new File(animationFolder), names.get(i)).getAbsolutePath());
+				f = new Frame(new File(new File(animationFolder), an.getImage(i)).getAbsolutePath());
+				f.setTime("" + an.getImageTime(i));
+	        	newList.add(f);
+	        	scrollPanel.add(f);
 			} catch (Exception e) {
-				if(force)
-					continue;
-				else
-					throw new IllegalArgumentException(names.get(i) + " is not in " + animationFolder);
+				throw new IllegalArgumentException(an.getImage(i) + " is not in " + animationFolder);
 			}
-        	f.setTime(times.get(i).toString());
-        	newList.add(f);
-        	scrollPanel.add(f);
         }
         
         this.newList = newList;
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
-        newList = new ArrayList<Frame>();		
+        newList = new ArrayList<Frame>();
+        return new Animation();
 	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
+	public ConfigType getData(Configuration toSet) {
+		Animation an = (Animation)toSet;
+		
 		File dir = new File(animationFolder);
 		for(Frame f : list)
 		{
@@ -446,33 +427,17 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 				e.printStackTrace();
 				continue;
 			}
-			
-			cd.add(ParserKeys.icon, new File(f.getFrame().toString()).getName());
-			cd.add(ParserKeys.displayTime, (double)f.getTime());
+			an.addFrame(new File(f.getFrame().toString()).getName(), (double)f.getTime());
 		}
 		
-		return cd;
+		return ConfigType.animation;
 	}
 
 	@Override
-	public boolean isValidConfig() {
-		ConfigData cd = this.getData();
-		return isValid(cd);
-	}
-	
-	private boolean isValid(ConfigData cd)
-	{
-		if(cd.getNumberList(ParserKeys.displayTime).size() != cd.getStringList(ParserKeys.icon).size())
-			return false;
-		if(cd.getStringList(ParserKeys.icon).size() <= 0)
-			return false;
-		
-		return true;
-	}
-
-	@Override
-	public ParserKeys getType() {
-		return ParserKeys.animationURI;
+	public List<ConfigType> getAllLoadableTypes() {
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.animation);
+		return ret;
 	}
 
 	@Override

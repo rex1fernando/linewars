@@ -8,13 +8,17 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import linewars.configfilehandler.ConfigData;
 import linewars.configfilehandler.ParserKeys;
 import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
-import editor.mapitems.StrategySelector.StrategySelectorCallback;
-import editor.mapitems.StrategySelector.StrategySelectorFieldType;
+import editor.abilities.StrategySelector;
+import editor.abilities.StrategySelector.StrategySelectorCallback;
+import editor.abilities.StrategySelector.StrategySelectorFieldType;
 
 /**
  * 
@@ -66,7 +70,7 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -118,14 +122,14 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		velocity.setText("");
 		impactData = null;
 		impactStatus.setText("Not Set");
 	}
 
 	@Override
-	public ConfigData getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		
 		Scanner s = new Scanner(velocity.getText());
@@ -141,7 +145,7 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		return ParserKeys.projectileURI;
 	}
 

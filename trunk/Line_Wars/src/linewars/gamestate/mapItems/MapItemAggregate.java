@@ -3,7 +3,10 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Observable;
 
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Shape;
@@ -17,8 +20,9 @@ public abstract class MapItemAggregate extends MapItem {
 	
 	private ShapeAggregate body = null;
 	
-	public MapItemAggregate(Transformation trans, MapItemDefinition<? extends MapItemAggregate> def) {
-		super(trans, def);
+	public MapItemAggregate(Transformation trans, MapItemDefinition<? extends MapItemAggregate> def, 
+			GameState gameState, Player owner) {
+		super(trans, def, owner, gameState);
 		transform = trans;
 	}
 	
@@ -26,6 +30,12 @@ public abstract class MapItemAggregate extends MapItem {
 	{
 		m.setTransformation(new Transformation(this.getPosition().add(t.getPosition()), t.getRotation()));
 		containedItems.add(m);
+		body = null;
+	}
+	
+	public void removeAllMapItems()
+	{
+		containedItems.clear();
 		body = null;
 	}
 	
@@ -143,6 +153,24 @@ public abstract class MapItemAggregate extends MapItem {
 			if(m.getDefinition().isValidState(state))
 				m.setState(state);
 		super.setState(state);
+	}
+	
+	@Override
+	public void update(Observable obs, Object o)
+	{
+		super.update(obs, o);
+		if(obs == this.getDefinition())
+		{
+			if(o.equals("containedItems") || o.equals("relativeTrans"))
+			{
+				this.removeAllMapItems();
+				List<MapItemDefinition<?>> newItems = ((MapItemAggregateDefinition<?>)this.getDefinition()).getContainedItems();
+				List<Transformation> newTrans = ((MapItemAggregateDefinition<?>)this.getDefinition()).getRelativeTransformations();
+				for(int i = 0; i < newItems.size(); i++)
+					this.addMapItem(newItems.get(i).createMapItem(Transformation.ORIGIN, 
+							this.getOwner(), this.getGameState()), newTrans.get(i));
+			}
+		}
 	}
 	
 	public static boolean checkForContainedItemsChange(MapItemAggregate mia)

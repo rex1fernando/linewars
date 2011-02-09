@@ -1,9 +1,15 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import java.util.Observable;
+import java.util.Observer;
+
 import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
+import configuration.*;
+import editor.abilities.AbilityStrategyEditor;
+import editor.abilities.EditorProperty;
+import editor.abilities.EditorUsage;
 
 /**
  * 
@@ -13,17 +19,47 @@ import linewars.gamestate.mapItems.MapItem;
  * crteates new generate stuff abilities.
  *
  */
-public strictfp class GenerateStuffDefinition extends AbilityDefinition {
+public strictfp class GenerateStuffDefinition extends AbilityDefinition implements Observer {
+	
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Generate Stuff", GenerateStuffDefinition.class, AbilityStrategyEditor.class);
+	}
 
 	private double stuffIncome;
-	private ConfigData parser;
-	private GameState gameState;
 	
-	public GenerateStuffDefinition(int id, ConfigData p, GameState gs) {
-		super(id);
-		parser = p;
-		gameState = gs;
-		this.forceReloadConfigData();
+	public class GenerateStuff implements Ability {
+		
+		private Player owner;
+		private double startTime;
+		
+		private GenerateStuff(Player p)
+		{
+			owner = p;
+			startTime = p.getGameState().getTime();
+		}
+
+		@Override
+		public void update() {
+			owner.addStuff((owner.getGameState().getTime() - startTime)*getStuffIncome());
+			startTime = owner.getGameState().getTime();
+		}
+
+		@Override
+		public boolean killable() {
+			return true;
+		}
+
+		@Override
+		public boolean finished() {
+			return false;
+		}
+
+	}
+	
+	public GenerateStuffDefinition() {
+		super.setPropertyForName("stuffIncome", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, 
+				null, EditorUsage.PositiveReal, "The amount of stuff generated per second"));
+		super.addObserver(this);
 	}
 	
 	/**
@@ -33,38 +69,9 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition {
 	public double getStuffIncome() {
 		return stuffIncome;
 	}
-	
-	public GameState getGameState() {
-		return gameState;
-	}
-
-	@Override
-	public ConfigData getParser() {
-		return parser;
-	}
-
-	@Override
-	public void forceReloadConfigData() {
-		stuffIncome = parser.getNumber(ParserKeys.stuffIncome);		
-	}
-
-	@Override
-	public boolean checkValidity() {
-		return true;
-	}
 
 	@Override
 	public boolean startsActive() {
-		return true;
-	}
-
-	@Override
-	public Ability createAbility(MapItem m) {
-		return new GenerateStuff(this, m.getOwner());
-	}
-
-	@Override
-	public boolean unlocked() {
 		return true;
 	}
 
@@ -79,26 +86,6 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition {
 	}
 
 	@Override
-	public String getIconURI() {
-		return null;
-	}
-
-	@Override
-	public String getPressedIconURI() {
-		return null;
-	}
-
-	@Override
-	public String getRolloverIconURI() {
-		return null;
-	}
-
-	@Override
-	public String getSelectedIconURI() {
-		return null;
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if(o instanceof GenerateStuffDefinition)
 		{
@@ -107,5 +94,16 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition {
 		}
 		return false;
 	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if(o == this && arg.equals("stuffIncome"))
+			stuffIncome = (Double)super.getPropertyForName("stuffIncome").getValue();
+	}
+
+	@Override
+	public Ability createAbility(MapItem m) {
+		return new GenerateStuff(m.getOwner());
+	}	
 
 }

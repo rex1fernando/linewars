@@ -1,7 +1,7 @@
 package linewars.gamestate;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import java.io.Serializable;
+
 
 /**
  * 
@@ -11,7 +11,9 @@ import linewars.configfilehandler.ParserKeys;
  * and a direction. It is immutable.
  *
  */
-public strictfp class Transformation {
+public strictfp class Transformation implements Serializable {
+	
+	public static final Transformation ORIGIN = new Transformation(Position.ORIGIN, 0);
 	
 	private Position pos;
 	//in radians
@@ -28,17 +30,6 @@ public strictfp class Transformation {
 	{
 		pos = p;
 		rotation = rot;
-	}
-	
-	/**
-	 * Constructs a transformation from the given config data
-	 * 
-	 * @param configData
-	 */
-	public Transformation(ConfigData configData)
-	{
-		pos = new Position(configData.getNumber(ParserKeys.x), configData.getNumber(ParserKeys.y));
-		rotation = configData.getNumber(ParserKeys.rotation);
 	}
 	
 	/**
@@ -81,6 +72,17 @@ public strictfp class Transformation {
 	@Override
 	public String toString(){
 		return pos.toString() + " @ " + rotation + " radians";
+	}
+
+	/**
+	 * Returns a new Transformation that is the sum of this and position.  Both the translation vectors and the rotation deltas are added together.
+	 * @param position
+	 * @return A new Transformation that is the sum of this and position.
+	 */
+	public Transformation add(Transformation position) {
+		double newAngle = position.rotation + rotation;
+		Position newPosition = this.pos.add(position.pos);
+		return new Transformation(newPosition, newAngle);
 	}
 
 }

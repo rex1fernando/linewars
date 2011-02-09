@@ -1,7 +1,5 @@
 package linewars.gamestate;
 
-import java.awt.Graphics;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,20 +10,12 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.Building;
-import linewars.gamestate.mapItems.LaneBorder;
-import linewars.gamestate.mapItems.LaneBorderDefinition;
+import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.strategies.combat.NoCombat;
-import linewars.gamestate.mapItems.strategies.movement.Immovable;
 import linewars.gamestate.shapes.Circle;
 
 /**
@@ -38,13 +28,11 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;
-	static final double LANE_BORDER_RESOLUTION = 0.05;
+	private static final double LANE_BORDER_RESOLUTION = 0.05;
 	private static final int NUM_COLLISION_FIXES = 1;
-	private static int NEXT_UID = 1;
 	
-	private String name;
 	
-	private BezierCurve curve;
+	
 	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
 	private HashMap<Node, Gate> gates;
@@ -52,68 +40,22 @@ public strictfp class Lane
 	private double gatePos;
 	private GameState gameState;
 	
+	private LaneConfiguration config;
+	
 	/**
 	 * The width of the lane.
 	 */
-	private double width;
+	
 	
 	private PathFinding pathFinder;
 	
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
-	private ArrayList<LaneBorder> borders = new ArrayList<LaneBorder>();
-	
-	private LaneBorderDefinition lbd;
 	
 	
-	public Lane(Node n1, Node n2)
+	
+	
+	public Lane(GameState gameState, LaneConfiguration config)
 	{
-		width = 100;
-		name = "lane" + NEXT_UID++;
-		nodes = new ArrayList<Node>();
-		nodes.add(n1);
-		nodes.add(n2);
-		
-		Position n1Pos = n1.getTransformation().getPosition();
-		Position n2Pos = n2.getTransformation().getPosition();
-		
-		//calculate p0
-		Position pointingVec = n2Pos.subtract(n1Pos).normalize();
-		Position p0 = pointingVec.scale(n1.getBoundingCircle().getRadius()).add(n1Pos);
-		
-		//calculate p3
-		pointingVec = pointingVec.scale(-1);
-		Position p3 = pointingVec.scale(n2.getBoundingCircle().getRadius()).add(n2Pos);
-		
-		//set the curve
-		curve = BezierCurve.buildCurve(p0, p3);
-	}
-		
-	public Lane(ConfigData parser, boolean force)
-	{
-		curve = BezierCurve.buildCurve(parser);
-		
-		this.nodes = new ArrayList<Node>();
-		this.name = parser.getString(ParserKeys.name);
-		int id = new Integer(name.substring(4)).intValue();
-		if(id >= NEXT_UID)
-		{
-			NEXT_UID = id + 1;
-		}
-		
-		if(parser.getDefinedKeys().contains(ParserKeys.width))
-			this.width = parser.getNumber(ParserKeys.width);
-		else if(force)
-			this.width = 100;
-		else
-			throw new IllegalArgumentException("The lane width is not defined for lane " + name);
-	}
-	
-	public Lane(GameState gameState, ConfigData parser)
-	{
-		this.name = parser.getString(ParserKeys.name);
-		curve = BezierCurve.buildCurve(parser);
-		
-		this.width = parser.getNumber(ParserKeys.width);
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
 		this.gates = new HashMap<Node, Gate>();
@@ -122,120 +64,12 @@ public strictfp class Lane
 		this.gameState = gameState;
 		pathFinder = new PathFinding(gameState);
 		
-		double size = LANE_BORDER_RESOLUTION*this.getLength();
-		try {
-			lbd = new LaneBorderDefinition(gameState, size);
-			
-			
-			for(double i = 0; i <= 1; i += LANE_BORDER_RESOLUTION)
-			{
-				Position before, start, end, after;
-				boolean startLine = false, endLine = false;
-				//special cases at the ends
-				if(i == 0)
-				{
-					before = start = this.getPosition(i).getPosition();
-					end = this.getPosition(i + LANE_BORDER_RESOLUTION).getPosition();
-					after = this.getPosition(i + 2*LANE_BORDER_RESOLUTION).getPosition();
-					startLine = true;
-				}
-				else if(i + 2*LANE_BORDER_RESOLUTION > 1.001)
-				{
-					before = this.getPosition(i - LANE_BORDER_RESOLUTION).getPosition();
-					start = this.getPosition(i).getPosition();
-					end = after = this.getPosition(Math.min(i + 2*LANE_BORDER_RESOLUTION, 1)).getPosition();
-					endLine = true;
-				}
-				else
-				{
-					before = this.getPosition(i - LANE_BORDER_RESOLUTION).getPosition();
-					start = this.getPosition(i).getPosition();
-					end = this.getPosition(i + LANE_BORDER_RESOLUTION).getPosition();
-					after = this.getPosition(Math.min(i + 2*LANE_BORDER_RESOLUTION, 1)).getPosition();
-				}
-				//lane borders are removed, this is the line to uncomment if they need to come back
-//				this.addBorders(before, start, end, after, size, startLine, endLine);
-			}
-			
-		} catch (FileNotFoundException e) {
-		} catch (InvalidConfigFileException e) {}
-		
+		this.config = config;
 	}
 	
-	private void addBorders(Position before, Position start, Position end, Position after, double radius, boolean startLine, boolean endLine)
+	public LaneConfiguration getConfig()
 	{
-		double width = this.getWidth() + 2*radius;
-		
-		// get the vectors that represents the line segments
-		Position segBefore = before.subtract(start);
-		Position segment = start.subtract(end);
-		Position segAfter = end.subtract(after);
-
-		// get the normalized vectors that are orthagonal to the lane
-		// we will use these to get the bounding points on the segment
-		Position normOrthStart = segBefore.orthogonal().add(segment.orthogonal()).normalize();
-		Position normOrthEnd = segment.orthogonal().add(segAfter.orthogonal()).normalize();
-
-		// generate the points that bound the segment to be drawn
-		Position p1 = new Position(start.getX() + normOrthStart.getX() * width / 2,
-														start.getY() + normOrthStart.getY() * width / 2);
-		Position p2 = new Position(start.getX() - normOrthStart.getX() * width / 2,
-														start.getY() - normOrthStart.getY() * width / 2);
-		Position p3 = new Position(end.getX() - normOrthEnd.getX() * width / 2,
-														end.getY() - normOrthEnd.getY() * width / 2);
-		Position p4 = new Position(end.getX() + normOrthEnd.getX() * this.getWidth() / 2,
-														end.getY() + normOrthEnd.getY() * width / 2);
-		
-		addBordersInLine(p1, p4, radius);
-		addBordersInLine(p2, p3, radius);
-		if(startLine)
-			addBordersInLine(p1, p2, radius);
-		if(endLine)
-			addBordersInLine(p3, p4, radius);
-	}
-	
-	private void addBordersInLine(Position start, Position end, double radius)
-	{
-		double distance = Math.sqrt(start.distanceSquared(end));
-		for(double i = 0; i <= distance; i += radius/2)
-		{
-			Position p = end.subtract(start).scale(i/distance).add(start);
-			borders.add(lbd.createLaneBorder(new Transformation(p, 0)));
-		}
-	}
-	
-	/**
-	 * 
-	 * @return	the config data that represents this lane
-	 */
-	public ConfigData getData()
-	{
-		ConfigData data = new ConfigData();
-		
-		ConfigData p0 = new ConfigData();
-		p0.add(ParserKeys.x, curve.getP0().getX());
-		p0.add(ParserKeys.y, curve.getP0().getY());
-		data.add(ParserKeys.controlPoint, p0);
-		
-		ConfigData p1 = new ConfigData();
-		p1.add(ParserKeys.x, curve.getP1().getX());
-		p1.add(ParserKeys.y, curve.getP1().getY());
-		data.add(ParserKeys.controlPoint, p1);
-		
-		ConfigData p2 = new ConfigData();
-		p2.add(ParserKeys.x, curve.getP2().getX());
-		p2.add(ParserKeys.y, curve.getP2().getY());
-		data.add(ParserKeys.controlPoint, p2);
-		
-		ConfigData p3 = new ConfigData();
-		p3.add(ParserKeys.x, curve.getP3().getX());
-		p3.add(ParserKeys.y, curve.getP3().getY());
-		data.add(ParserKeys.controlPoint, p3);
-		
-		data.add(ParserKeys.width, width);
-		data.add(ParserKeys.name, name);
-		
-		return data;
+		return config;
 	}
 
 	/**
@@ -276,10 +110,10 @@ public strictfp class Lane
 	public Queue<Position> findPath(Unit unit, Position target, double range)
 	{
 		double c = 2;
-		double top = Math.min(unit.getPosition().getY(), target.getY()) - c*this.width;
-		double bottom = Math.max(unit.getPosition().getY(), target.getY()) + c*this.width;
-		double left = Math.min(unit.getPosition().getX(), target.getX()) - c*this.width;
-		double right = Math.max(unit.getPosition().getX(), target.getX()) + c*this.width;
+		double top = Math.min(unit.getPosition().getY(), target.getY()) - c*this.getWidth();
+		double bottom = Math.max(unit.getPosition().getY(), target.getY()) + c*this.getWidth();
+		double left = Math.min(unit.getPosition().getX(), target.getX()) - c*this.getWidth();
+		double right = Math.max(unit.getPosition().getX(), target.getX()) + c*this.getWidth();
 		MapItem[] os = this.getMapItemsIn(new Position(left, top), right - left, bottom - top);
 		ArrayList<MapItem> obstacles = new ArrayList<MapItem>();
 		for(MapItem m : os)
@@ -336,16 +170,7 @@ public strictfp class Lane
 	 */
 	public double getWidth()
 	{
-		return width;
-	}
-	
-	/**
-	 * 
-	 * @param width	the width to set this lane to
-	 */
-	public void setWidth(double width)
-	{
-		this.width = width;
+		return config.getWidth();
 	}
 	
 	/**
@@ -381,7 +206,7 @@ public strictfp class Lane
 	 */
 	public BezierCurve getCurve()
 	{
-		return curve;
+		return config.getBezierCurve();
 	}
 
 	/**
@@ -398,7 +223,7 @@ public strictfp class Lane
 	 */
 	public Transformation getPosition(double pos)
 	{
-		return curve.getPosition(pos);
+		return this.getCurve().getPosition(pos);
 	}
 
 	/**
@@ -467,7 +292,7 @@ public strictfp class Lane
 		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
 		double forwardBound = findForwardBound(n); //TODO make this not related to next closest unit
 		//this represents the position along the lateral part of the lane a unit must be placed below
-		double startWidth = width/2;
+		double startWidth = this.getWidth()/2;
 		ArrayList<Unit> deletedUnits = new ArrayList<Unit>();
 		//the last row will need to be centered, so remember it
 		ArrayList<Unit> lastRow = new ArrayList<Unit>();
@@ -476,19 +301,19 @@ public strictfp class Lane
 		{
 			lastRow.clear();
 			startWidth = this.getWidth()/2; //restart the lateral placement
-			for(int i = 0; i < units.size() && startWidth > -width/2;) //look for the biggest unit that will fit
+			for(int i = 0; i < units.size() && startWidth > -this.getWidth()/2;) //look for the biggest unit that will fit
 			{
 				Unit u = units.get(i);
 				
 				if((forward && minForward + 2*u.getRadius()/this.getLength() > forwardBound) //if this unit will never fit
 					|| (!forward && minForward - 2*u.getRadius()/this.getLength() < forwardBound)
-					|| (2*u.getRadius() > width))
+					|| (2*u.getRadius() > this.getWidth()))
 				{
 					units.remove(i); //get rid of it
 					deletedUnits.add(u);
 					u.getOwner().removeUnit(u);
 				}
-				else if(startWidth - 2*u.getRadius() > -width/2) //if there's enough room to fit the unit
+				else if(startWidth - 2*u.getRadius() > -this.getWidth()/2) //if there's enough room to fit the unit
 				{
 					double pos = u.getRadius()/this.getLength(); //get the radius in terms of length along the curve
 					pos = minForward + (forward ? pos : -pos); //now figure out where the exact position along the lane the unit should go
@@ -528,7 +353,7 @@ public strictfp class Lane
 		}
 		
 		//now center the last row
-		double moveBack = Math.abs((width - (width/2 - startWidth))/2); //this is how much we need to move the units by to center them
+		double moveBack = Math.abs((this.getWidth() - (this.getWidth()/2 - startWidth))/2); //this is how much we need to move the units by to center them
 		for(Unit u : lastRow)
 		{
 			Transformation tpos = u.getTransformation();
@@ -622,16 +447,6 @@ public strictfp class Lane
 				items.add(prj);
 		}
 		
-		for(LaneBorder lb : borders)
-		{
-			Position p = upperLeft.subtract(lb.getRadius(), lb.getRadius());
-			if(lb.getPosition().getX() >= p.getX() &&
-					lb.getPosition().getY() >= p.getY() &&
-					lb.getPosition().getX() <= p.getX() + width + lb.getRadius() &&
-					lb.getPosition().getY() <= p.getY() + height + lb.getRadius())
-				items.add(lb);
-		}
-		
 		return items.toArray(new MapItem[0]);
 	}
 	
@@ -683,7 +498,7 @@ public strictfp class Lane
 		{
 			Projectile p = projectiles.get(i);
 			p.move();
-			p.update();
+			p.updateMapItem();
 			//get rid of dead projectiles
 			if(p.getState() == MapItemState.Dead && p.finished())
 				projectiles.remove(i);
@@ -726,8 +541,8 @@ public strictfp class Lane
 						Position firstOriginPos = firstOrigin.getTransformation().getPosition();
 						Node secondOrigin = ((Unit)first).getWave().getOrigin();
 						Position secondOriginPos = secondOrigin.getTransformation().getPosition();
-						Position zeroPos = curve.getP0();
-						Position onePos = curve.getP1();
+						Position zeroPos = this.getCurve().getP0();
+						Position onePos = this.getCurve().getP1();
 						
 						//these will be true if first and second respectively originated from the 'one' end of the lane
 						boolean firstOne = firstOriginPos.distanceSquared(onePos) < firstOriginPos.distanceSquared(zeroPos);
@@ -745,14 +560,14 @@ public strictfp class Lane
 							if(first instanceof Unit)
 								firstDistance = ((Unit)first).getPositionAlongCurve();
 							else
-								firstDistance = curve.getClosestPointRatio(first.getPosition());
+								firstDistance = this.getCurve().getClosestPointRatio(first.getPosition());
 							
 							//if second is a unit then there's a more efficient way to get its position
 							double secondDistance = -1;
 							if(first instanceof Unit)
 								secondDistance = ((Unit)first).getPositionAlongCurve();
 							else
-								secondDistance = curve.getClosestPointRatio(first.getPosition());
+								secondDistance = this.getCurve().getClosestPointRatio(first.getPosition());
 							
 							if(firstOne){//if 1 -> 0
 								if(firstDistance < secondDistance){
@@ -793,11 +608,11 @@ public strictfp class Lane
 		List<Unit> allUnits = getCollidableMapItems();
 		for(Unit toMove : allUnits){
 			//get its closest point on the curve
-			Transformation pointOnCurve = curve.getPosition(toMove.getPositionAlongCurve());
+			Transformation pointOnCurve = this.getCurve().getPosition(toMove.getPositionAlongCurve());
 			//use the width and stuff to figure out where it should be placed so it's actually on the Lane
 			Position offset = toMove.getPosition().subtract(pointOnCurve.getPosition());
 			double offsetMag = offset.length();
-			double maxShouldBe = width / 2;
+			double maxShouldBe = this.getWidth() / 2;
 			if(offsetMag < maxShouldBe){
 				continue;
 			}
@@ -846,7 +661,7 @@ public strictfp class Lane
 				t = this.getPosition(1 - LANE_GATE_DISTANCE);
 			else
 				t = this.getPosition(LANE_GATE_DISTANCE);
-			Gate g = gameState.getPlayer(0).getGateDefinition().createGate(t);
+			Gate g = gameState.getPlayer(0).getGateDefinition().createGate(t, gameState.getPlayer(0), gameState);
 			g.setState(MapItemState.Dead);
 			gates.put(n, g);
 		}
@@ -874,7 +689,7 @@ public strictfp class Lane
 		}
 		else
 			t = this.getPosition(LANE_GATE_DISTANCE);
-		Gate g = p.getGateDefinition().createGate(t);
+		Gate g = p.getGateDefinition().createGate(t, p, gameState);
 		Gate oldG = gates.get(n);
 		gates.put(n, g);
 		//if there is already a gate here, find the wave that contains it and remove it
@@ -927,20 +742,11 @@ public strictfp class Lane
 	
 	/**
 	 * 
-	 * @return	the name of the lane
-	 */
-	public String getName()
-	{
-		return name;
-	}
-	
-	/**
-	 * 
 	 * @return	the length of the lane
 	 */
 	public double getLength()
 	{
-		return curve.getLength();
+		return this.getCurve().getLength();
 	}
 	
 	/**
@@ -952,7 +758,7 @@ public strictfp class Lane
 	 */
 	public double getClosestPointRatio(Position p) 
 	{
-		return curve.getClosestPointRatio(p);
+		return this.getCurve().getClosestPointRatio(p);
 	}
 	
 	/**
@@ -966,25 +772,11 @@ public strictfp class Lane
 	
 	@Override
 	public boolean equals(Object o){
-//		if(o == null) return false;
-//		if(!(o instanceof Lane)) return false;
-//		Lane other = (Lane) o;
-//		if(width != other.width) return false;
-//		if(!(waves.equals(other.waves))) return false;
-//		if(!projectiles.equals(other.projectiles)) return false;
-//		//TODO test more here?
-//		return true;
 		if(o instanceof Lane)
-			return this.getName().equals(((Lane)o).getName());
+		{
+			return config.equals(((Lane)o).config);
+		}
 		else
 			return false;
-	}
-	
-	/**
-	 * 
-	 * @return	the list of lane borders around this lane
-	 */
-	public List<LaneBorder> getLaneBorders() {
-		return borders;
 	}
 }

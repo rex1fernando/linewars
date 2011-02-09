@@ -13,7 +13,10 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import configuration.Configuration;
+
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
@@ -44,7 +47,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
+	public void setData(Configuration cd) {
 		setData(cd, false);
 	}
 
@@ -55,7 +58,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	
 	private void setData(ConfigData cd, boolean force)
 	{
-		this.reset();
+		this.instantiateNewConfiguration();
 		if (cd.getDefinedKeys().contains(ParserKeys.functionType)
 				&& cd.getString(ParserKeys.functionType) != null
 				&& cd.getDefinedKeys().contains(ParserKeys.coefficients)
@@ -89,12 +92,12 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 				addFrames.setEnabled(true);
 			}
 			else if(force)
-				this.reset();
+				this.instantiateNewConfiguration();
 			else
 				throw new IllegalArgumentException("Function type not defined");
 		}
 		else if(force)
-			this.reset();
+			this.instantiateNewConfiguration();
 		else
 			throw new IllegalArgumentException("Function type not defined or keys not defined");
 		
@@ -103,7 +106,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public void reset() {
+	public Configuration instantiateNewConfiguration() {
 		type.setSelectedURI("");
 		
 		for(CoefficientFrame f : frames)
@@ -117,7 +120,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public ConfigData getData() {
+	public ConfigType getData(Configuration toSet) {
 		ConfigData cd = new ConfigData();
 		cd.set(ParserKeys.functionType, type.getSelectedURI());
 		for(CoefficientFrame f : frames)
@@ -136,7 +139,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 	}
 
 	@Override
-	public ParserKeys getType() {
+	public List<ConfigType> getAllLoadableTypes() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -196,7 +199,7 @@ public class FunctionEditor extends JPanel implements ConfigurationEditor, Selec
 
 	@Override
 	public void uriSelected(String uri) {
-		this.reset();
+		this.instantiateNewConfiguration();
 		if(uri.equalsIgnoreCase("Exponential"))
 		{
 			this.addCoefficient("Exponential");
