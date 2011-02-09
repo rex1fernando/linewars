@@ -73,6 +73,7 @@ public class TechDisplay extends JViewport
 		this.pID = pID;
 		this.techGraph = techGraph;
 		
+<<<<<<< HEAD
 		initializeDisplay();
 		
 		ViewportDragger dragger = new ViewportDragger();
@@ -502,5 +503,8 @@ public class TechDisplay extends JViewport
 			//TODO send message to resarch tech
 //			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
 		}
+=======
+
+>>>>>>> branch 'refs/heads/config-replacement' of https://ryantew@github.com/rex1fernando/linewars.git
 	}
 }
