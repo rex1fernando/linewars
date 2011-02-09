@@ -27,10 +27,12 @@ import javax.swing.JTabbedPane;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
+import editor.abilities.AbilityEditor;
 import editor.abilities.AbilityStrategyEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemCommanalitiesEditor;
+import editor.race.RaceEditor;
 import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 
@@ -153,7 +155,7 @@ public class BigFrameworkGuy
 			if(e.equals("Map Item"))
 				ce = new MapItemCommanalitiesEditor(this);
 			else if(e.equals("Ability"))
-				ce = new AbilityStrategyEditor(this);
+				ce = new AbilityEditor(this);
 			else if(e.equals("Animation"))
 				ce = toStart;
 			else if(e.equals("Map"))
