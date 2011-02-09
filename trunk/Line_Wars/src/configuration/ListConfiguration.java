@@ -181,6 +181,14 @@ public class ListConfiguration<T> extends Configuration implements Observer{
 			}
 		}
 	}
+	
+	public ArrayList<Boolean> getEnabledFlags()
+	{
+		ArrayList<Boolean> ret = new ArrayList<Boolean>();
+		for(ListObject lo : dataList)
+			ret.add(lo.enabled);
+		return ret;
+	}
 
 	//struct to hold the data in a list
 	private class ListObject{

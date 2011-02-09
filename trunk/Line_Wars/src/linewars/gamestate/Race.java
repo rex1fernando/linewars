@@ -48,9 +48,26 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("name", new Property(Usage.STRING, newName));
 	}
 	
-	public void addUnit(UnitDefinition ud)
+	public void addUnit(UnitDefinition ud, boolean enabled)
 	{
-		// TODO implement
+		@SuppressWarnings("unchecked")
+		ArrayList<UnitDefinition> units = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getFullList();
+		units.add(ud);
+		
+		ArrayList<Boolean> enabledList = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getEnabledFlags();
+		enabledList.add(enabled);
+		
+		ArrayList<Usage> usages = new ArrayList<Usage>();
+		ArrayList<String> names = new ArrayList<String>();
+		for(UnitDefinition def : units)
+		{
+			usages.add(Usage.CONFIGURATION);
+			String name = (String) def.getPropertyForName("bfgName").getValue();
+			while(names.contains(name))
+				name += "_";
+		}
+		
+		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, new ListConfiguration<UnitDefinition>(units, names, usages, enabled)))
 	}
 	
 	public void removeUnit(UnitDefinition ud)
