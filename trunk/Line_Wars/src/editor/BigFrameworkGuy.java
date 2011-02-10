@@ -53,7 +53,7 @@ public class BigFrameworkGuy
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,
-		projectile, building, part, turret
+		projectile, building, part, turret, collisionStrategy
 	}
 	
 	private JFrame frame;

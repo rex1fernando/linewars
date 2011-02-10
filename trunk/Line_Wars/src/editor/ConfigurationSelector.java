@@ -58,7 +58,10 @@ public class ConfigurationSelector extends JPanel
 	public void setSelectedConfiguration(Configuration c)
 	{
 		selectedConfig = c;
-		textField.setText((String) c.getPropertyForName("bfgName").getValue());
+		if(c != null)
+			textField.setText((String) c.getPropertyForName("bfgName").getValue());
+		else
+			textField.setText("");
 	}
 	
 	private class ButtonClickEvent implements ActionListener

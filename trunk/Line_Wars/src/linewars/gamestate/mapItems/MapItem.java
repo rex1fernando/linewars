@@ -212,7 +212,7 @@ public strictfp abstract class MapItem implements Observer {
 	 */
 	public AbilityDefinition[] getAvailableAbilities()
 	{
-		return this.getDefinition().getAbilityDefinitions();
+		return this.getDefinition().getAbilityDefinitions().toArray(new AbilityDefinition[0]);
 	}
 	
 	/**
