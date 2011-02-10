@@ -19,6 +19,7 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
@@ -42,8 +43,8 @@ public class TechDisplay extends JViewport
 	
 	private boolean editorNOTgame;
 	
-	private TechConfiguration activeTech;
-	private URISelector techSelector;
+	private TechNode activeTech;
+	private JComboBox techSelector;
 	private URISelector unlockStrategySelector;
 	
 	/**
@@ -73,7 +74,6 @@ public class TechDisplay extends JViewport
 		this.pID = pID;
 		this.techGraph = techGraph;
 		
-<<<<<<< HEAD
 		initializeDisplay();
 		
 		ViewportDragger dragger = new ViewportDragger();
@@ -172,6 +172,16 @@ public class TechDisplay extends JViewport
 		return techGraph;
 	}
 	
+	public TechNode getActiveTech()
+	{
+		return activeTech;
+	}
+	
+	public void setTechSelector(JComboBox techSelector)
+	{
+		this.techSelector = techSelector;
+	}
+	
 	@Override
 	public void paint(Graphics g)
 	{
@@ -201,10 +211,12 @@ public class TechDisplay extends JViewport
 		TechNode child = node.getChild();
 		while(child != null)
 		{
-			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE;
-			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
-			int endX = child.getX() * TECH_BUTTON_SIZE;
-			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
+			Point offset = getViewPosition();
+			
+			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE - offset.x;
+			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
+			int endX = child.getX() * TECH_BUTTON_SIZE - offset.x;
+			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
 			
 			Position vector = new Position(startX - endX, startY - endY);
 			vector = vector.normalize().scale(15);
@@ -256,6 +268,7 @@ public class TechDisplay extends JViewport
 		{
 			this.row = row;
 			this.col = col;
+			this.tech = tech;
 			
 			Dimension size = new Dimension(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
 			
@@ -264,21 +277,25 @@ public class TechDisplay extends JViewport
 			setPreferredSize(size);
 			setMinimumSize(size);
 			
-			setTech(tech);
+			setIcons(tech.getTechConfig());
 		}
 		
 		public void setTech(TechNode tech)
 		{
 			this.tech = tech;
+			
+			setIcons(tech.getTechConfig());
+		}
+		
+		private void setIcons(TechConfiguration tech)
+		{
 			if(tech != null)
 			{
-				TechConfiguration techConfig = tech.getTechConfig();
-				
-//				setIcon(new ButtonIcon(this, techConfig.getIconURI()));
-//				setPressedIcon(new ButtonIcon(this, techConfig.getPressedIconURI()));
-//				setRolloverIcon(new ButtonIcon(this, techConfig.getRolloverIconURI()));
-//				setSelectedIcon(new ButtonIcon(this, techConfig.getSelectedIconURI()));
-//				setDisabledIcon(new ButtonIcon(this, techConfig.getDisabledIconURI()));
+//				setIcon(new ButtonIcon(this, tech.getIconURI()));
+//				setPressedIcon(new ButtonIcon(this, tech.getPressedIconURI()));
+//				setRolloverIcon(new ButtonIcon(this, tech.getRolloverIconURI()));
+//				setSelectedIcon(new ButtonIcon(this, tech.getSelectedIconURI()));
+//				setDisabledIcon(new ButtonIcon(this, tech.getDisabledIconURI()));
 			}
 			else
 			{
@@ -290,9 +307,12 @@ public class TechDisplay extends JViewport
 			}
 		}
 		
-		public Point buttonToTreeDisplay(Point p)
+		public Point buttonToViewPort(Point p)
 		{
-			return new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			Point treeDispPos = new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			Point viewPos = getViewPosition();
+			treeDispPos.translate(-viewPos.x, -viewPos.y);
+			return treeDispPos;
 		}
 		
 		@Override
@@ -300,12 +320,15 @@ public class TechDisplay extends JViewport
 		{
 			if(tech == null)
 				g.setColor(Color.red);
-			else if(tech.getTechConfig() == activeTech)
+			else if(tech == activeTech)
 				g.setColor(Color.blue);
 			else
 				g.setColor(Color.orange);
 			
 			g.fillRect(0, 0, getWidth(), getHeight());
+			
+			g.setColor(Color.black);
+			g.drawRect(0, 0, getWidth(), getHeight());
 			
 //			DefaultButtonModel model = (DefaultButtonModel)getModel();
 //			if(tech != null && !tech.isUnlocked())
@@ -391,7 +414,7 @@ public class TechDisplay extends JViewport
 					button.tech.setPosition(button.col, button.row);
 				}
 				
-				activeTech = button.tech.getTechConfig();
+				activeTech = button.tech;
 				
 				//TODO display the active tech
 			}
@@ -399,17 +422,20 @@ public class TechDisplay extends JViewport
 			{
 				if(button.tech == null)
 				{
-					lastPoint = button.buttonToTreeDisplay(e.getPoint());
+					lastPoint = button.buttonToViewPort(e.getPoint());
 				}
 				else
 				{
 					movingTech = true;
 					
-					activeTech = button.tech.getTechConfig();
+					activeTech = button.tech;
 					
 					//TODO display the active tech
 				}
 			}
+			
+			if(activeTech != null)
+				techSelector.setSelectedItem(activeTech.getTechConfig());
 		}
 
 		@Override
@@ -417,17 +443,17 @@ public class TechDisplay extends JViewport
 		{
 			if(!movingTech && !creatingDependency)
 			{
-				Point vector = button.buttonToTreeDisplay(e.getPoint());
+				Point vector = button.buttonToViewPort(e.getPoint());
 				vector.translate(-lastPoint.x, -lastPoint.y);
+				lastPoint = button.buttonToViewPort(e.getPoint());
 				moveViewport(vector);
-				lastPoint = button.buttonToTreeDisplay(e.getPoint());
 			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e)
 		{
-			Component atPoint = treeDisplay.getComponentAt(button.buttonToTreeDisplay(e.getPoint()));
+			Component atPoint = treeDisplay.getComponentAt(button.buttonToViewPort(e.getPoint()));
 			if(atPoint == null || !(atPoint instanceof TechButton))
 				return;
 			
@@ -503,8 +529,5 @@ public class TechDisplay extends JViewport
 			//TODO send message to resarch tech
 //			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
 		}
-=======
-
->>>>>>> branch 'refs/heads/config-replacement' of https://ryantew@github.com/rex1fernando/linewars.git
 	}
 }

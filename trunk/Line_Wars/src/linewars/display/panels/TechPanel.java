@@ -13,12 +13,17 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+
+import configuration.Configuration;
 
 import editor.BigFrameworkGuy;
 import editor.URISelector;
@@ -26,7 +31,10 @@ import editor.URISelector.SelectorOptions;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.BuildingSpot;
+import linewars.gamestate.Node;
 import linewars.gamestate.tech.CycleException;
+import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
 
@@ -52,8 +60,8 @@ public class TechPanel extends Panel
 	
 	private TechDisplay activeTech;
 	
-	private URISelector techSelector;
-	private URISelector unlockStrategySelector;
+	private JComboBox techSelector;
+	private JComboBox unlockStrategySelector;
 	
 	private boolean displayed;
 	
@@ -169,11 +177,33 @@ public class TechPanel extends Panel
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
 		
-//		techSelector = new URISelector("Tech", new TechSelector());
-//		editorComponents.add(techSelector);
+		JPanel techSelectorPanel = new JPanel();
+		JLabel techLabel = new JLabel("Tech:");
+		techSelectorPanel.add(techLabel);
+		techSelector = new JComboBox();
+		techSelector.setPreferredSize(new Dimension(160, 20));
+		techSelector.addActionListener(new ComboBoxListener());
+		techSelectorPanel.add(techSelector);
+		editorComponents.add(techSelectorPanel);
 		
-		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
-		editorComponents.add(unlockStrategySelector);
+//		List<Configuration> techs = bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech);
+//		for(Configuration tech : techs)
+//		{
+//			techSelector.addItem(tech);
+//		}
+		
+		JPanel unlockStrategySelectorPanel = new JPanel();
+		JLabel unlockStrategyLabel = new JLabel("Un:");
+		unlockStrategySelectorPanel.add(unlockStrategyLabel);
+		unlockStrategySelector = new JComboBox();
+		unlockStrategySelector.setPreferredSize(new Dimension(160, 20));
+		unlockStrategySelector.addActionListener(new ComboBoxListener());
+		unlockStrategySelectorPanel.add(unlockStrategySelector);
+		editorComponents.add(unlockStrategySelectorPanel);
+		
+		unlockStrategySelector.addItem("All");
+		unlockStrategySelector.addItem("One");
+		unlockStrategySelector.addItem("No Syblings");
 	}
 
 	boolean isDisplayed()
@@ -234,6 +264,8 @@ public class TechPanel extends Panel
 			for(TechDisplay td : techs)
 			{
 				td.setPreferredSize(new Dimension(width, height));
+				td.validate();
+				td.updateUI();
 			}
 		}
 	}
@@ -290,33 +322,29 @@ public class TechPanel extends Panel
 		}
 	}
 	
-	private class TechSelector implements SelectorOptions
+	private class ComboBoxListener implements ActionListener
 	{
 		@Override
-		public String[] getOptions()
+		public void actionPerformed(ActionEvent e)
 		{
-			return bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech).toArray(new String[0]);
-		}
-		
-		@Override
-		public void uriSelected(String uri)
-		{
-			//TODO set the tech on the active tech button
-		}
-	}
-	
-	private class UnlockStrategySelector implements SelectorOptions
-	{
-		@Override
-		public String[] getOptions()
-		{
-			return new String[]{"All", "One", "No Syblings"};
-		}
+			Object source = e.getSource();
 
-		@Override
-		public void uriSelected(String uri)
-		{
-			//TODO set the correct UnlockStrategy to the active tech button for the selection
+			if(source == techSelector)
+			{
+				TechConfiguration selected = (TechConfiguration)techSelector.getSelectedItem();
+				if(selected != null)
+				{
+					activeTech.getActiveTech().setTech(selected);
+				}
+			}
+			else if(source == unlockStrategySelector)
+			{
+				String selected = (String)unlockStrategySelector.getSelectedItem();
+				if(selected != null)
+				{
+					//TODO set the correct UnlockStrategy to the active tech button for the selection
+				}
+			}
 		}
 	}
 }
