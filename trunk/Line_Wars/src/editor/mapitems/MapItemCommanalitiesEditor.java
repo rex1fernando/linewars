@@ -22,16 +22,20 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
-import editor.ConfigurationSelector;
-import editor.ListConfigurationSelector;
-import editor.ListURISelector;
+import editor.GenericSelector;
+import editor.GenericSelector.GenericListCallback;
+import editor.GenericSelector.SelectConfigurations;
+import editor.GenericSelector.SelectionChangeListener;
+import editor.GenericSelector.ShowBFGName;
+import editor.ListGenericSelector;
+import editor.ListGenericSelector.ListChangeListener;
 import editor.ListURISelector.ListSelectorOptions;
-import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
 /**
@@ -48,13 +52,13 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	private JTextField name;
 	
 	//variables for the states and corresponding animations
-	private ListURISelector validStates;
-	private URISelector animations;
+	private ListGenericSelector<MapItemState> validStates;
+	private GenericSelector<Animation> animations;
 	private HashMap<MapItemState, Animation> animationMap = new HashMap<MapItemState, Animation>();
 	
 	//variable for the abilities and collision strategies
-	private ListConfigurationSelector abilities;
-	private ConfigurationSelector collisionStrat;
+	private ListGenericSelector<AbilityDefinition> abilities;
+	private GenericSelector<CollisionStrategyConfiguration> collisionStrat;
 	
 	//variables for setting the body
 	private JButton bodyButton;
@@ -82,17 +86,50 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		namePanel.add(name);
 		
 		//set up the states panel
-		validStates = new ListURISelector("Valid States", new MapItemStateSelector());
-		animations = new URISelector("Animation", new AnimationSelector());
+		validStates = new ListGenericSelector<MapItemState>("Valid States", new MapItemStateSelector());
+		validStates.addListChangeListener(new ListChangeListener<MapItemState>() {
+			@Override
+			public void objectsRemoved(List<MapItemState> removed) {
+				for(MapItemState mis : removed)
+					animationMap.remove(mis);
+			}
+			@Override
+			public void objectAdded(MapItemState added) {}
+			@Override
+			public void HighlightChange(List<MapItemState> highlighted) {
+				if(highlighted.size() == 1)
+					animations.setSelectedObject(animationMap.get(highlighted.get(0)));
+				else
+					animations.setSelectedObject(null);
+			}
+		});
+		
+		//set up the animations
+		animations = new GenericSelector<Animation>("Animation", 
+				new SelectConfigurations<Animation>(bfg, ConfigType.animation), new ShowBFGName<Animation>());
+		animations.addSelectionChangeListener(new SelectionChangeListener<Animation>() {
+			@Override
+			public void selectionChanged(Animation newSelection) {
+				if(validStates.getHighlightedObjects().size() == 1)
+					animationMap.put(validStates.getHighlightedObjects().get(0), newSelection);
+				else
+					animations.setSelectedObject(null);
+			}
+		});
+		
+		//add the panel for states/animations
 		JPanel statesPanel = new JPanel();
 		statesPanel.add(validStates);
 		statesPanel.add(animations);
 		
 		//set up the abilities and collision strat panel
-		abilities = new ListConfigurationSelector("Abilities", bfg, ConfigType.ability);
+		abilities = new ListGenericSelector<AbilityDefinition>("Abilities", 
+				new SelectConfigurations<AbilityDefinition>(bfg, ConfigType.ability), new ShowBFGName<AbilityDefinition>());
 		JPanel aPanel = new JPanel();
 		aPanel.add(abilities);
-		collisionStrat = new ConfigurationSelector("Collision Strategy", bfg, ConfigType.collisionStrategy);
+		collisionStrat = new GenericSelector<CollisionStrategyConfiguration>("Collision Strategy", 
+				new SelectConfigurations<CollisionStrategyConfiguration>(bfg, ConfigType.collisionStrategy), 
+				new ShowBFGName<CollisionStrategyConfiguration>());
 		JPanel cPanel = new JPanel();
 		cPanel.add(collisionStrat);
 		
@@ -155,23 +192,20 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		name.setText(mic.getName());
 		
 		//set the states
-		List<MapItemState> states = mic.getValidStates();
-		List<String> stateStrings = new ArrayList<String>();
-		for(MapItemState mis : states)
-			stateStrings.add(mis.toString());
-		validStates.setSelectedURIs(stateStrings.toArray(new String[0]));
+		validStates.setSelectedObjects(mic.getValidStates());
 		
 		//set up the animations
 		animationMap.clear();
 		DisplayConfiguration dc = (DisplayConfiguration)mic.getDisplayConfiguration();
+		List<MapItemState> states = mic.getValidStates();
 		for(MapItemState mis : states)
 			animationMap.put(mis, dc.getAnimation(mis));
 		
 		//set up the abilities
-		abilities.setSelectedConfigurations(mic.getAbilityDefinitions());
+		abilities.setSelectedObjects(mic.getAbilityDefinitions());
 		
 		//set up the collision strat
-		collisionStrat.setSelectedConfiguration(mic.getCollisionStrategyConfig());
+		collisionStrat.setSelectedObject(mic.getCollisionStrategyConfig());
 		
 		//set up the body
 		if(mic.getBodyConfig() != null)
@@ -192,6 +226,8 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		name.setText("");
 		
 		//reset the states and animations
+		List<MapItemState> initialStates = new ArrayList<MapItemState>();
+		//TODO pick up here
 		validStates.setSelectedURIs(new String[]{MapItemState.Idle.toString()});
 		animationMap.clear();
 		animations.setSelectedURI("");
@@ -331,53 +367,26 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		}
 	}
 	
-	private class MapItemStateSelector implements ListSelectorOptions {
+	private class MapItemStateSelector implements GenericListCallback<MapItemState> {
 
 		@Override
-		public String[] getOptions() {
-			String[] options = new String[MapItemState.values().length];
-			for(int i = 0; i < options.length; i++)
-				options[i] = MapItemState.values()[i].toString();
+		public List<MapItemState> getSelectionList() {
+			List<MapItemState> options = new ArrayList<MapItemState>();
+			for(int i = 0; i < MapItemState.values().length; i++)
+				options.add(MapItemState.values()[i]);
 			return options;
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			getPanel().validate();	
-			getPanel().updateUI();
-		}
-
-		@Override
-		public void uriRemoved(String uri) {
-		}
-
-		@Override
-		public void uriHighlightChange(String[] uris) {
-			MapItemState key = null;
-			if(uris.length > 0)
-				key = MapItemState.valueOf(uris[0]);
-			if(uris.length != 1 || animationMap.get(key) == null)
-				animations.setSelectedURI("");
-			else
-				animations.setSelectedURI(animationMap.get(key));
 		}
 		
 	}
 	
-	private class AnimationSelector implements SelectorOptions {
+	private class AnimationSelector implements GenericListCallback<Animation> {
 
 		@Override
-		public String[] getOptions() {
-			return bfg.getAnimationURIs();
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			String[] highlighted = validStates.getHighlightedURIs();
-			if(highlighted.length != 1)
-				animations.setSelectedURI("");
-			else
-				animationMap.put(MapItemState.valueOf(highlighted[0]), animations.getSelectedURI());
+		public List<Animation> getSelectionList() {
+			List<Animation> ret = new ArrayList<Animation>();
+			for(Configuration c : bfg.getConfigurationsByType(ConfigType.animation))
+				ret.add((Animation) c);
+			return ret;
 		}
 		
 	}

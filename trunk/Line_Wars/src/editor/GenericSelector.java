@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -16,7 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import editor.URISelector.SelectorOptions;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
 
 
 public class GenericSelector<T> extends JPanel {
@@ -31,6 +31,35 @@ public class GenericSelector<T> extends JPanel {
 	
 	public interface SelectionChangeListener<E> {
 		public void selectionChanged(E newSelection);
+	}
+	
+	public static class ShowBFGName<E extends Configuration> implements CustomToString<E> {
+
+		@Override
+		public String toString(E obj) {
+			return (String) obj.getPropertyForName("bfgName").getValue();
+		}
+		
+	}
+	
+	public static class SelectConfigurations<E extends Configuration> implements GenericListCallback<E> {
+
+		private BigFrameworkGuy bfg;
+		private ConfigType type;
+		
+		public SelectConfigurations(BigFrameworkGuy bfg, ConfigType type) {
+			this.bfg = bfg;
+			this.type = type;
+		}
+		
+		@Override
+		public List<E> getSelectionList() {
+			List<E> ret = new ArrayList<E>();
+			for(Configuration c : bfg.getConfigurationsByType(type))
+				ret.add((E)c);
+			return ret;
+		}
+		
 	}
 	
 	private static final int WIDTH = 160;
@@ -60,7 +89,7 @@ public class GenericSelector<T> extends JPanel {
 	{
 		this.callback = callback;
 		this.customToString = customToString;
-		
+
 		button = new JButton("Select");
 		button.addActionListener(new ButtonClickEvent());
 		this.label = new JLabel(label);
@@ -105,7 +134,10 @@ public class GenericSelector<T> extends JPanel {
 	public void setSelectedObject(T obj)
 	{
 		selectedObject = obj;
-		textField.setText(customToString.toString(obj));
+		if(obj != null)
+			textField.setText(customToString.toString(obj));
+		else
+			textField.setText("");
 		notifyObservers(selectedObject);
 	}
 	
