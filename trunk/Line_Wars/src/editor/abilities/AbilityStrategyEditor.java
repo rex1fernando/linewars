@@ -1,6 +1,5 @@
 package editor.abilities;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +9,6 @@ import java.util.Map.Entry;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-
-import linewars.gamestate.mapItems.UnitDefinition;
 
 import configuration.Configuration;
 import editor.BigFrameworkGuy;

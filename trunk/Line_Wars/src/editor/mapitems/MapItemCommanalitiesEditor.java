@@ -227,14 +227,14 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		
 		//reset the states and animations
 		List<MapItemState> initialStates = new ArrayList<MapItemState>();
-		//TODO pick up here
-		validStates.setSelectedURIs(new String[]{MapItemState.Idle.toString()});
+		initialStates.add(MapItemState.Idle);
+		validStates.setSelectedObjects(initialStates);
 		animationMap.clear();
-		animations.setSelectedURI("");
+		animations.setSelectedObject(null);
 		
 		//reset the abilities and collision strat
-		abilities.setSelectedConfigurations(new ArrayList<AbilityDefinition>());
-		collisionStrat.setSelectedConfiguration(null);
+		abilities.setSelectedObjects(new ArrayList<AbilityDefinition>());
+		collisionStrat.setSelectedObject(null);
 		
 		//reset the body config
 		bodyConfig = null;
@@ -246,6 +246,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ConfigType getData(Configuration toSet) {
 		MapItemDefinition<? extends MapItem> mid = (MapItemDefinition<? extends MapItem>)toSet;
@@ -254,94 +255,34 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		mid.setName(name.getText());
 		
 		//add the valid states
-		
+		mid.setValidStates(validStates.getSelectedObjects());
 		
 		//add the valid states and their animations
-		for(String s : validStates.getSelectedURIs())
-		{
-			cd.add(ParserKeys.ValidStates, s);
-			MapItemState state = MapItemState.valueOf(s);
-			if(animationMap.containsKey(state))
-				cd.set(ParserKeys.valueOf(state.toString()), animationMap.get(state));
-		}
+		DisplayConfiguration dc = new DisplayConfiguration();
+		for(MapItemState mis : validStates.getSelectedObjects())
+			if(animationMap.containsKey(mis))
+				dc.setAnimation(mis, animationMap.get(mis));
+		mid.setDisplayConfiguration(dc);
 		
 		//get the abilities
-		if(abilities.getSelectedURIs().length > 0)
-			cd.set(ParserKeys.abilities, abilities.getSelectedURIs());
+		mid.setAbilities(abilities.getSelectedObjects());
 		
 		//add the collision strat
-		if(!collisionStrat.getSelectedURI().equals(""))
-		{
-			ConfigData col = new ConfigData();
-			col.set(ParserKeys.type, collisionStrat.getSelectedURI());
-			cd.set(ParserKeys.collisionStrategy, col);
-		}
+		mid.setCollisionStrategy(collisionStrat.getSelectedObject());
 		
 		//set the body
-		if(bodyConfig != null)
-			cd.set(ParserKeys.body, bodyConfig);
+		mid.setBody(bodyConfig);
 		
-		return cd;
+		return null;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
+		//TODO start work here and work down
 		if(mapItemTypeInfo != null)
 			return mapItemTypeInfo.getAllLoadableTypes();
 		else //use unit as default type
 			return ParserKeys.unitURI;
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		if(name == null)
-			return false;
-		
-		//if the type is specified, then use the parser from that
-		if(mapItemTypeInfo != null)
-		{
-			if(!mapItemTypeInfo.isValidConfig())
-				return false;
-		}
-		else
-			return false;
-		
-		//check the name
-		if(name.getText().equals(""))
-			return false;
-		
-		List<String> vs = new ArrayList<String>();
-		for(String s : validStates.getSelectedURIs())
-			vs.add(s);
-		
-		//make sure idle is defined
-		if(!vs.contains("Idle"))
-			return false;
-		
-		//units and projectiles need dead
-		if((mapItemType.getSelectedURI().equalsIgnoreCase("Unit") 
-				|| mapItemType.getSelectedURI().equalsIgnoreCase("Projectile")
-				|| mapItemType.getSelectedURI().equalsIgnoreCase("Gate"))
-				&& !vs.contains("Dead"))
-				return false;
-		
-		//check to make sure the animations are defined
-		for(String s : validStates.getSelectedURIs())
-		{
-			MapItemState state = MapItemState.valueOf(s);
-			if(!animationMap.containsKey(state))
-				return false;
-		}
-		
-		//add the collision strat
-		if(collisionStrat.getSelectedURI().equals(""))
-			return false;
-		
-		//set the body
-		if(bodyConfig == null)
-			return false;
-		
-		return true;
 	}
 	
 	@Override
@@ -375,55 +316,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			for(int i = 0; i < MapItemState.values().length; i++)
 				options.add(MapItemState.values()[i]);
 			return options;
-		}
-		
-	}
-	
-	private class AnimationSelector implements GenericListCallback<Animation> {
-
-		@Override
-		public List<Animation> getSelectionList() {
-			List<Animation> ret = new ArrayList<Animation>();
-			for(Configuration c : bfg.getConfigurationsByType(ConfigType.animation))
-				ret.add((Animation) c);
-			return ret;
-		}
-		
-	}
-	
-	private class AbilitySelector implements ListSelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return bfg.getAbilityURIs();
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			getPanel().validate();
-			getPanel().updateUI();
-		}
-
-		@Override
-		public void uriRemoved(String uri) {
-		}
-
-		@Override
-		public void uriHighlightChange(String[] uris) {
-		}
-		
-	}
-	
-	private class CollisionStrategySelector implements SelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return new String[]{"AllEnemies", "CollidesWithAll", "Ground", "NoCollision", "AllEnemyUnits"};
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-						
 		}
 		
 	}
