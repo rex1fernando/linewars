@@ -17,7 +17,7 @@ public class PartDefinition extends MapItemDefinition<Part> {
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
+	protected void forceSubclassReloadConfiguration() {
 				
 	}
 

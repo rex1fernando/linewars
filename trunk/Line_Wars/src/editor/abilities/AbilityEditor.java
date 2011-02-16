@@ -2,6 +2,7 @@ package editor.abilities;
 
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -65,26 +66,24 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
+		return realEditor.instantiateNewConfiguration();
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		// TODO Auto-generated method stub
-		return null;
+		return realEditor.getData(toSet);
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		// TODO Auto-generated method stub
-		return null;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.ability);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 }
