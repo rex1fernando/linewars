@@ -7,6 +7,7 @@ import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.tech.TechConfiguration;
+import linewars.gamestate.tech.TechGraph;
 import configuration.Configuration;
 import configuration.ListConfiguration;
 import configuration.Property;
@@ -33,14 +34,114 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<UnitDefinition>(new ArrayList<UnitDefinition>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
-		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
-				new ListConfiguration<TechConfiguration>(new ArrayList<TechConfiguration>(), 
-						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION));
 		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<BuildingDefinition>(new ArrayList<BuildingDefinition>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("commandCenter", new Property(Usage.CONFIGURATION));
 		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION));
+	}
+	
+	public void setName(String newName)
+	{
+		super.setPropertyForName("name", new Property(Usage.STRING, newName));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void addUnit(UnitDefinition ud, boolean enabled)
+	{
+		ArrayList<UnitDefinition> units = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getFullList();		
+		ArrayList<Boolean> enabledList = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getEnabledFlags();		
+		ArrayList<Usage> usages = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getUsages();
+		ArrayList<String> names = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getNames();
+		
+		units.add(ud);
+		enabledList.add(enabled);
+		usages.add(Usage.CONFIGURATION);
+		String name = (String) ud.getPropertyForName("bfgName").getValue();
+		while(names.contains(name))
+			name += "_";
+		names.add(name);
+		
+		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, new ListConfiguration<UnitDefinition>(units, names, usages, enabledList)));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void removeUnit(UnitDefinition ud)
+	{
+		ArrayList<UnitDefinition> units = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getFullList();		
+		ArrayList<Boolean> enabledList = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getEnabledFlags();		
+		ArrayList<Usage> usages = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getUsages();
+		ArrayList<String> names = ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getNames();
+		
+		for(int i = 0; i < units.size(); i++)
+		{
+			if(units.get(i) == ud)
+			{
+				units.remove(i);
+				enabledList.remove(i);
+				usages.remove(i);
+				names.remove(i);
+				break;
+			}
+		}
+		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, new ListConfiguration<UnitDefinition>(units, names, usages, enabledList)));
+	}
+	
+	public void setTechGraph(TechGraph tg)
+	{
+		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, tg));
+	}
+		
+	@SuppressWarnings("unchecked")
+	public void addBuilding(BuildingDefinition bc, boolean enabled)
+	{
+		ArrayList<BuildingDefinition> buildings = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getFullList();		
+		ArrayList<Boolean> enabledList = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getEnabledFlags();		
+		ArrayList<Usage> usages = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getUsages();
+		ArrayList<String> names = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getNames();
+		
+		buildings.add(bc);
+		enabledList.add(enabled);
+		usages.add(Usage.CONFIGURATION);
+		String name = (String) bc.getPropertyForName("bfgName").getValue();
+		while(names.contains(name))
+			name += "_";
+		names.add(name);
+		
+		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, new ListConfiguration<BuildingDefinition>(buildings, names, usages, enabledList)));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void removeBuilding(BuildingDefinition bc)
+	{
+		ArrayList<BuildingDefinition> buildings = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getFullList();		
+		ArrayList<Boolean> enabledList = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getEnabledFlags();		
+		ArrayList<Usage> usages = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getUsages();
+		ArrayList<String> names = ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getNames();
+		
+		for(int i = 0; i < buildings.size(); i++)
+		{
+			if(buildings.get(i) == bc)
+			{
+				buildings.remove(i);
+				enabledList.remove(i);
+				usages.remove(i);
+				names.remove(i);
+				break;
+			}
+		}
+		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, new ListConfiguration<BuildingDefinition>(buildings, names, usages, enabledList)));
+	}
+	
+	public void setCommandCenter(BuildingDefinition cc)
+	{
+		super.setPropertyForName("commandCenter", new Property(Usage.CONFIGURATION, cc));
+	}
+	
+	public void setGate(GateDefinition gd)
+	{
+		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION, gd));
 	}
 	
 	/**
@@ -68,9 +169,9 @@ public strictfp class Race extends Configuration {
 	 * @return
 	 * 		A List containing all of the TechURIs associated with this Race.
 	 */
-	public List<TechConfiguration> getTechs()
+	public TechGraph getTechGraph()
 	{
-		return (List<TechConfiguration>) super.getPropertyForName("techs").getValue();
+		return (TechGraph) super.getPropertyForName("techs").getValue();
 	}
 	
 	/**

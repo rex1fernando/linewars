@@ -7,6 +7,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.MapItem;
 import configuration.*;
+import editor.abilities.AbilityStrategyEditor;
 import editor.abilities.EditorProperty;
 import editor.abilities.EditorUsage;
 
@@ -19,6 +20,10 @@ import editor.abilities.EditorUsage;
  *
  */
 public strictfp class GenerateStuffDefinition extends AbilityDefinition implements Observer {
+	
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Generate Stuff", GenerateStuffDefinition.class, AbilityStrategyEditor.class);
+	}
 
 	private double stuffIncome;
 	

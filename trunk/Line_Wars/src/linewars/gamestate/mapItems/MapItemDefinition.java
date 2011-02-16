@@ -1,9 +1,11 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import linewars.display.DisplayConfiguration;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -35,6 +37,8 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	protected CollisionStrategyConfiguration cStrat;
 	protected ShapeConfiguration body;
 	
+	private Configuration displayConfig;
+	
 	/**
 	 * Creates a map item definition.
 	 */
@@ -50,6 +54,7 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("cStrat", new Property(Usage.CONFIGURATION, null));
 		super.setPropertyForName("body", new Property(Usage.CONFIGURATION, null));
+		super.setPropertyForName("displayConfig", new Property(Usage.CONFIGURATION));
 		this.addObserver(this);
 	}
 
@@ -77,9 +82,9 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	 * 
 	 * @return	the list of availabel ability definitions
 	 */
-	public AbilityDefinition[] getAbilityDefinitions()
+	public List<AbilityDefinition> getAbilityDefinitions()
 	{
-		return abilities.toArray(new AbilityDefinition[0]);
+		return abilities;
 	}
 	
 	/**
@@ -100,13 +105,76 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 		return body;
 	}
 	
+	public List<MapItemState> getValidStates()
+	{
+		return validStates;
+	}
+	
+	public Configuration getDisplayConfiguration()
+	{
+		return displayConfig;
+	}
+	
+	public void setName(String name)
+	{
+		super.setPropertyForName("name", new Property(Usage.STRING, name));
+	}
+	
+	public void setValidStates(List<MapItemState> states)
+	{
+		ArrayList<MapItemState> validStates = new ArrayList<MapItemState>(states); 
+		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<Usage> usages = new ArrayList<Usage>();
+		for(MapItemState mis : states)
+		{
+			names.add(mis.toString());
+			usages.add(Usage.IMMUTABLE);
+		}
+		super.setPropertyForName("validStates", new Property(
+				Usage.CONFIGURATION, new ListConfiguration<MapItemState>(
+						validStates, names, usages)));
+	}
+	
+	public void setAbilities(List<AbilityDefinition> abilities)
+	{
+		ArrayList<AbilityDefinition> validAbilites = new ArrayList<AbilityDefinition>(abilities); 
+		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<Usage> usages = new ArrayList<Usage>();
+		for(AbilityDefinition ad : abilities)
+		{
+			String name = ad.getName();
+			while(names.contains(name))
+				name += "_";
+			names.add(name);
+			usages.add(Usage.CONFIGURATION);
+		}
+		super.setPropertyForName("abilities", new Property(
+				Usage.CONFIGURATION, new ListConfiguration<AbilityDefinition>(
+						validAbilites, names, usages)));
+	}
+	
+	public void setCollisionStrategy(CollisionStrategyConfiguration csc)
+	{
+		super.setPropertyForName("cStrat", new Property(Usage.CONFIGURATION, csc));
+	}
+	
+	public void setBody(ShapeConfiguration sc)
+	{
+		super.setPropertyForName("body", new Property(Usage.CONFIGURATION, sc));
+	}
+	
+	public void setDisplayConfiguration(DisplayConfiguration dc)
+	{
+		super.setPropertyForName("displayConfig", new Property(Usage.CONFIGURATION, dc));
+	}
+	
 	public abstract T createMapItem(Transformation t, Player owner, GameState gameState);
 	
 	@Override
 	public void update(Observable obs, Object o)
 	{
 		if(obs == this)
-			this.forceReloadConfigData();
+			this.forceReloadConfiguration();
 		else if(obs instanceof ShapeConfiguration)
 			update(this, "body");
 	}
@@ -115,23 +183,24 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	 * Forces this definition to reload itself from its config
 	 */
 	@SuppressWarnings("unchecked")
-	public void forceReloadConfigData()
+	public void forceReloadConfiguration()
 	{
 		validStates = ((ListConfiguration<MapItemState>)super.getPropertyForName("validStates").getValue()).getEnabledSubList();
 		name = (String)super.getPropertyForName("name").getValue();
 		abilities = ((ListConfiguration<AbilityDefinition>)super.getPropertyForName("abilities").getValue()).getEnabledSubList();
 		cStrat = (CollisionStrategyConfiguration)super.getPropertyForName("cStrat").getValue();
 		body = (ShapeConfiguration)super.getPropertyForName("body").getValue();
+		displayConfig = (Configuration)super.getPropertyForName("displayConfig").getValue();
 		
 		if(body != null)
 			body.addObserver(this);
 		
-		this.forceSubclassReloadConfigData();
+		this.forceSubclassReloadConfiguration();
 	}
 	
 	/**
 	 * Forces any subclass of MapItemDefinition to reload itself from its config
 	 */
-	protected abstract void forceSubclassReloadConfigData();
+	protected abstract void forceSubclassReloadConfiguration();
 	
 }

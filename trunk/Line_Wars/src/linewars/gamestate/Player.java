@@ -170,16 +170,6 @@ public strictfp class Player {
 	}
 	
 	/**
-	 * 
-	 * @return
-	 * 		An array containing all of the Tech owned by this Player.
-	 */
-	public TechConfiguration[] getTech()
-	{
-		return race.getTechs().toArray(new TechConfiguration[0]);
-	}
-	
-	/**
 	 * adds the given mapItem to the player's master list of owned items
 	 * 
 	 * @param m	the mapItem to add

@@ -1,5 +1,6 @@
 package editor.abilities;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +19,12 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 	
 	private Map<String, Field> fields = new HashMap<String, Field>();
 	private BigFrameworkGuy bfg;
-	private ConfigType workingType;
+	private Class<? extends Configuration> toInstantiate;
 	
-	public AbilityStrategyEditor(BigFrameworkGuy bfg)
+	public AbilityStrategyEditor(BigFrameworkGuy bfg, Class<? extends Configuration> toInstantiate)
 	{
 		this.bfg = bfg;
-		workingType = ConfigType.ability;
+		this.toInstantiate = toInstantiate;
 	}
 
 	@Override
@@ -67,9 +68,23 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 	@Override
 	public Configuration instantiateNewConfiguration() {
 		Configuration c = null;
-		// TODO figure out how to instantiate the config type
+		try {
+			c = toInstantiate.getConstructor().newInstance();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
 		setData(c);
-		return null;
+		return c;
 	}
 
 	@Override
@@ -81,14 +96,12 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 					prop.makeCopy(fields.get(e.getKey()).getValue()));
 		}
 		
-		return workingType;
+		return null;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		List<ConfigType> ret = new ArrayList<BigFrameworkGuy.ConfigType>();
-		ret.add(workingType);
-		return ret;
+		return new ArrayList<BigFrameworkGuy.ConfigType>();
 	}
 
 	@Override

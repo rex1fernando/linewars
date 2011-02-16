@@ -10,6 +10,7 @@ import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import configuration.Usage;
+import editor.abilities.AbilityStrategyEditor;
 import editor.abilities.EditorProperty;
 import editor.abilities.EditorUsage;
 
@@ -21,6 +22,10 @@ import editor.abilities.EditorUsage;
  * a building. Knows what buiding it contructs.
  */
 public strictfp class ConstructBuildingDefinition extends AbilityDefinition implements Observer {
+	
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Construct Building", ConstructBuildingDefinition.class, AbilityStrategyEditor.class);
+	}
 	
 	private BuildingDefinition buildingDefinition;
 	

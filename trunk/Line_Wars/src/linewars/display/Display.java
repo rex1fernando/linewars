@@ -32,6 +32,7 @@ import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
+import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
@@ -54,7 +55,7 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
 @SuppressWarnings("serial")
 public class Display extends JFrame implements Runnable
 {
-	private static final boolean DEBUG_MODE = false;
+	private static final boolean DEBUG_MODE = true;
 
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
@@ -99,7 +100,7 @@ public class Display extends JFrame implements Runnable
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setContentPane(gamePanel);
 		setSize(new Dimension(800, 600));
-		setUndecorated(true);
+		setUndecorated(!DEBUG_MODE);
 	}
 
 	@Override
@@ -183,6 +184,7 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		private TechPanel techPanel;
+		private TechButtonPanel techButtonPanel;
 		
 		private boolean panLeft;
 		private boolean panRight;
@@ -274,8 +276,11 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
 			add(techPanel);
+			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
+			add(techButtonPanel);
+			
 
 			addComponentListener(new ResizeListener());
 
@@ -668,6 +673,7 @@ public class Display extends JFrame implements Runnable
 				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
 				techPanel.updateLocation();
+				techButtonPanel.updateLocation();
 			}
 		}
 

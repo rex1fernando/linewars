@@ -22,7 +22,7 @@ public class TurretDefinition extends MapItemDefinition<Turret> {
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
+	protected void forceSubclassReloadConfiguration() {
 		turretStrat = (TurretStrategyConfiguration)super.getPropertyForName("turretStrat").getValue();
 	}
 	

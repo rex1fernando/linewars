@@ -1,8 +1,13 @@
 package linewars.gamestate.mapItems.abilities;
 
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import linewars.gamestate.mapItems.MapItem;
 import configuration.Configuration;
+import editor.ConfigurationEditor;
 
 /**
  * 
@@ -15,6 +20,31 @@ import configuration.Configuration;
  * ability definition.
  */
 public strictfp abstract class AbilityDefinition extends Configuration {
+	
+	private static Map<String, Class<? extends ConfigurationEditor>> abilityEditors;
+	private static Map<String, Class<? extends AbilityDefinition>> abilityConfigs;
+	
+	static {
+		abilityConfigs = new HashMap<String, Class<? extends AbilityDefinition>>();
+		abilityEditors = new HashMap<String, Class<? extends ConfigurationEditor>>();
+	}
+	
+	public static void setAbilityConfigMapping(String name, Class<? extends AbilityDefinition> config, Class<? extends ConfigurationEditor> editor){
+		abilityConfigs.put(name, config);
+		abilityEditors.put(name, editor);
+	}
+	
+	public static Class<? extends AbilityDefinition> getConfig(String name) {
+		return abilityConfigs.get(name);
+	}
+	
+	public static Class<? extends ConfigurationEditor> getEditor(String name) {
+		return abilityEditors.get(name);
+	}
+	
+	public static Set<String> getAbilityNameSet() {
+		return abilityConfigs.keySet();
+	}
 	
 	public AbilityDefinition()
 	{}
