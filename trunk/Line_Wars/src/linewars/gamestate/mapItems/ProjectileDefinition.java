@@ -41,7 +41,7 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 	 */
 	public void setVelocity(double velocity)
 	{
-		this.velocity = velocity;
+		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT, velocity));
 	}
 
 	@Override
@@ -52,6 +52,11 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 
 	public ImpactStrategyConfiguration getImpactStratConfig() {
 		return iStrat;
+	}
+	
+	public void setImpactStratConfig(ImpactStrategyConfiguration isc)
+	{
+		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION, isc));
 	}
 
 	@Override

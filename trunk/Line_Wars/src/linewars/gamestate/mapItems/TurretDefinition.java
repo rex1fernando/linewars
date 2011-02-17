@@ -30,5 +30,10 @@ public class TurretDefinition extends MapItemDefinition<Turret> {
 	{
 		return turretStrat;
 	}
+	
+	public void setTurretStratConfig(TurretStrategyConfiguration tsc)
+	{
+		super.setPropertyForName("turretStrat", new Property(Usage.CONFIGURATION, tsc));
+	}
 
 }

@@ -2,23 +2,28 @@ package editor.mapitems;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import linewars.gamestate.mapItems.ProjectileDefinition;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
 
 import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-
 import editor.BigFrameworkGuy.ConfigType;
+import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
-import editor.abilities.StrategySelector;
-import editor.abilities.StrategySelector.StrategySelectorCallback;
-import editor.abilities.StrategySelector.StrategySelectorFieldType;
+import editor.GenericSelector;
+import editor.GenericSelector.CustomToString;
+import editor.GenericSelector.GenericListCallback;
 
 /**
  * 
@@ -29,7 +34,7 @@ import editor.abilities.StrategySelector.StrategySelectorFieldType;
  * projectiles.
  *
  */
-public class ProjectileEditor extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
+public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 
 	/**
 	 * 
@@ -40,11 +45,9 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 	private JTextField velocity;
 	
 	//variables associated with the impact strategy
-	private JButton impactButton;
-	private ConfigData impactData;
-	private JLabel impactStatus;
+	private GenericSelector<Configuration> impactStrat;
 	
-	public ProjectileEditor()
+	public ProjectileEditor(BigFrameworkGuy bfg)
 	{
 		//set up the velocity panel
 		velocity = new JTextField();
@@ -54,150 +57,56 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor, Act
 		velPanel.add(velocity);
 		
 		//set up the impact strat panel
-		impactButton = new JButton("Set Impact Strategy");
-		impactButton.addActionListener(this);
-		impactData = null;
-		impactStatus = new JLabel("Not Set");
-		JPanel impactPanel = new JPanel();
-		impactPanel.add(impactButton);
-		impactPanel.add(impactStatus);
+		impactStrat = new GenericSelector<Configuration>("Impact Strategy", 
+				new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.impactStrategy),
+				new GenericSelector.ShowBFGName<Configuration>());
 		
 		//set up this panel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(velPanel);
-		this.add(impactPanel);
+		this.add(impactStrat);
 	}
 	
 
 	@Override
 	public void setData(Configuration cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		try {
-			Double d = cd.getNumber(ParserKeys.velocity);
-			if(d != null)
-				velocity.setText(d.toString());
-			else if(force)
-				velocity.setText("");
-			else
-				throw new IllegalArgumentException("Velocity is not defined");
-		} catch(NoSuchKeyException e) {
-			if(force)
-				velocity.setText("");
-			else
-				throw new IllegalArgumentException("Velocity is not defined");
-		}
-		
-		try {
-			ConfigData d = cd.getConfig(ParserKeys.impactStrategy);
-			if(d != null)
-			{
-				impactData = d;
-				impactStatus.setText("Set");
-			}
-			else if(force)
-			{
-				impactData = null;
-				impactStatus.setText("Not Set");
-			}
-			else
-				throw new IllegalArgumentException("Impact Strategy is not defined");
-		} catch(NoSuchKeyException e) {
-			if(force)
-			{
-				impactData = null;
-				impactStatus.setText("Not Set");
-			}
-			else
-				throw new IllegalArgumentException("Impact Strategy is not defined");
-		}
+		ProjectileDefinition pd = (ProjectileDefinition)cd;
+		velocity.setText(pd.getVelocity() + "");
+		impactStrat.setSelectedObject(pd.getImpactStratConfig());
 	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
 		velocity.setText("");
-		impactData = null;
-		impactStatus.setText("Not Set");
+		impactStrat.setSelectedObject(null);
+		return new ProjectileDefinition();
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		ConfigData cd = new ConfigData();
+		ProjectileDefinition pd = (ProjectileDefinition)toSet;
 		
 		Scanner s = new Scanner(velocity.getText());
 		if(s.hasNextDouble())
-			cd.set(ParserKeys.velocity, s.nextDouble());
+			pd.setVelocity(s.nextDouble());
 		else
-			cd.set(ParserKeys.velocity, -1.0);
+			pd.setVelocity(0);
 		
-		if(impactData != null)
-			cd.set(ParserKeys.impactStrategy, impactData);
+		pd.setImpactStratConfig((ImpactStrategyConfiguration) impactStrat.getSelectedObject());
 		
-		return cd;
+		return ConfigType.projectile;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		return ParserKeys.projectileURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.part);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource().equals(impactButton))
-		{
-			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap = 
-				new HashMap<String, Map<ParserKeys,StrategySelectorFieldType>>();
-			Map<ParserKeys, StrategySelectorFieldType> field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
-			
-			//make the shoot closest target combat
-			field.put(ParserKeys.damage, StrategySelectorFieldType.numeric);
-			fieldMap.put("DealDamageOnce", field);
-			
-			StrategySelector ss = new StrategySelector(this, "Impact", fieldMap);
-			if(impactData != null)
-				ss.setData(impactData);
-		}
-		
-	}
-
-
-	@Override
-	public void setConfigForStrategy(StrategySelector caller, ConfigData cd) {
-		if(caller.getTitle().equalsIgnoreCase("Impact"))
-		{
-			impactData = cd;
-			impactStatus.setText("Set");
-		}
-		
-		this.validate();
-		this.updateUI();
-	}
-
-
-	@Override
-	public boolean isValidConfig() {
-		Scanner s = new Scanner(velocity.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		if(impactData == null)
-			return false;
-		
-		return true;
 	}
 
 }

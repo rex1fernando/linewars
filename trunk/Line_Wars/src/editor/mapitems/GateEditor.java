@@ -1,14 +1,18 @@
 package editor.mapitems;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
+import linewars.gamestate.mapItems.GateDefinition;
+import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration;
+import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration;
 import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
-
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
@@ -47,72 +51,42 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		if(cd.getDefinedKeys().contains(ParserKeys.maxHP))
-		{
-			Double d = cd.getNumber(ParserKeys.maxHP);
-			if(d != null)
-				maxHP.setText(d.toString());
-			else if(force)
-				maxHP.setText("");
-			else
-				throw new IllegalArgumentException("Max HP is not defined");
-		}
-		else if(force)
-			maxHP.setText("");
-		else
-			throw new IllegalArgumentException("Max HP is not defined");
+		GateDefinition gd = (GateDefinition)cd;
+		maxHP.setText(gd.getMaxHP() + "");
 	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
 		maxHP.setText("");
+		return new GateDefinition();
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		ConfigData cd = new ConfigData();
-		cd.set(ParserKeys.coefficients, "dummy");
+		GateDefinition gd = (GateDefinition)toSet;
+		
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
-			cd.set(ParserKeys.maxHP, s.nextDouble());
+			gd.setMaxHP(s.nextDouble());
+		else
+			gd.setMaxHP(0);
 		
-		ConfigData combat = new ConfigData();
-		combat.set(ParserKeys.type, "NoCombat");
-		cd.set(ParserKeys.combatStrategy, combat);
+		gd.setCombatStratConfig(new NoCombatConfiguration());
+		gd.setMovementStratConfig(new ImmovableConfiguration());
 		
-		ConfigData mov = new ConfigData();
-		mov.set(ParserKeys.type, "Immovable");
-		cd.set(ParserKeys.movementStrategy, mov);
-		return cd;
+		return ConfigType.gate;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		return ParserKeys.gateURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.gate);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-	
-	@Override
-	public boolean isValidConfig() {
-		Scanner s = new Scanner(maxHP.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		return true;
 	}
 
 }

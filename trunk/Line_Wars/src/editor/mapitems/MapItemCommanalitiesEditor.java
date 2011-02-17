@@ -278,11 +278,14 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		//TODO start work here and work down
-		if(mapItemTypeInfo != null)
-			return mapItemTypeInfo.getAllLoadableTypes();
-		else //use unit as default type
-			return ParserKeys.unitURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.building);
+		ret.add(ConfigType.gate);
+		ret.add(ConfigType.part);
+		ret.add(ConfigType.projectile);
+		ret.add(ConfigType.turret);
+		ret.add(ConfigType.unit);
+		return ret;
 	}
 	
 	@Override
@@ -316,53 +319,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			for(int i = 0; i < MapItemState.values().length; i++)
 				options.add(MapItemState.values()[i]);
 			return options;
-		}
-		
-	}
-	
-	private class MapItemTypeSelector implements SelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return new String[]{"Unit", "Building", "Projectile", "Gate"};
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			if(mapItemTypeInfo != null)
-				MapItemCommanalitiesEditor.this.remove(mapItemTypeInfo.getPanel());
-			
-			if(uri.equalsIgnoreCase("Unit"))
-				mapItemTypeInfo = new UnitEditor();
-			else if(uri.equalsIgnoreCase("Building"))
-				mapItemTypeInfo = new BuildingEditor();
-			else if(uri.equalsIgnoreCase("Projectile"))
-				mapItemTypeInfo = new ProjectileEditor();
-			else if(uri.equalsIgnoreCase("Gate"))
-				mapItemTypeInfo = new GateEditor();
-			
-			//make sure the dead state is on the list
-			if(uri.equalsIgnoreCase("Unit") ||
-					uri.equalsIgnoreCase("Projectile") || 
-					uri.equalsIgnoreCase("Gate"))
-			{
-				String[] states = validStates.getSelectedURIs();
-				boolean found = false;
-				for(String s : states)
-					if(s.equals("Dead"))
-						found = true;
-				if(!found)
-				{
-					states = Arrays.copyOf(states, states.length + 1);
-					states[states.length - 1] = "Dead";
-					validStates.setSelectedURIs(states);
-				}
-			}
-			
-			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
-			MapItemCommanalitiesEditor.this.add(mapItemTypeInfo.getPanel());
-			MapItemCommanalitiesEditor.this.validate();
-			MapItemCommanalitiesEditor.this.updateUI();
 		}
 		
 	}

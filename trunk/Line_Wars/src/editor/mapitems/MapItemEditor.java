@@ -116,15 +116,15 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor {
 	private ConfigurationEditor getConfigEditor(ConfigType type)
 	{
 		if(type.equals(ConfigType.unit))
-			return new UnitEditor();
+			return new UnitEditor(bfg);
 		else if(type.equals(ConfigType.building))
 			return new BuildingEditor();
 		else if(type.equals(ConfigType.projectile))
-			return new ProjectileEditor();
+			return new ProjectileEditor(bfg);
 		else if(type.equals(ConfigType.gate))
 			return new GateEditor();
 		else if(type.equals(ConfigType.turret))
-			return new TurretEditor();
+			return new TurretEditor(bfg);
 		else if(type.equals(ConfigType.part))
 			return new PartEditor();
 		else

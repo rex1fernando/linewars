@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import configuration.Property;
 import configuration.Usage;
 
+import linewars.display.IconConfiguration;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -22,12 +23,14 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	
 	private double cost;
 	private double buildTime;
+	private IconConfiguration iconConfig;
 
 	public BuildingDefinition() {
 		super();
 		
 		super.setPropertyForName("cost", new Property(Usage.NUMERIC_FLOATING_POINT, null));
 		super.setPropertyForName("buildTime", new Property(Usage.NUMERIC_FLOATING_POINT, null));
+		super.setPropertyForName("iconConfig", new Property(Usage.CONFIGURATION));
 	}
 	
 	/**
@@ -48,13 +51,18 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		return buildTime;
 	}
 	
+	public IconConfiguration getIconConfig()
+	{
+		return iconConfig;
+	}
+	
 	/**
 	 * 
 	 * @param cost	the new cost of this building
 	 */
 	public void setCost(double cost)
 	{
-		this.cost = cost;
+		super.setPropertyForName("cost", new Property(Usage.NUMERIC_FLOATING_POINT, cost));
 	}
 	
 	/**
@@ -63,7 +71,12 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	 */
 	public void setBuildTime(double buildTime)
 	{
-		this.buildTime = buildTime;
+		super.setPropertyForName("buildTime", new Property(Usage.NUMERIC_FLOATING_POINT, buildTime));
+	}
+	
+	public void setIconConfig(IconConfiguration ic)
+	{
+		super.setPropertyForName("iconConfig", new Property(Usage.CONFIGURATION, ic));
 	}
 
 	@Override
@@ -76,6 +89,7 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	protected void forceAggregateSubReloadConfigData() {
 		cost = (Double)super.getPropertyForName("cost").getValue();
 		buildTime = (Double)super.getPropertyForName("buildTime").getValue();
+		iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
 	}
 
 }

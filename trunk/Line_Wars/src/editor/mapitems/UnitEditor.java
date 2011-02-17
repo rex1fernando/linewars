@@ -1,24 +1,22 @@
 package editor.mapitems;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
+import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
 import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
-
+import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
-import editor.abilities.StrategySelector;
-import editor.abilities.StrategySelector.StrategySelectorCallback;
-import editor.abilities.StrategySelector.StrategySelectorFieldType;
+import editor.GenericSelector;
 
 /**
  * 
@@ -29,27 +27,19 @@ import editor.abilities.StrategySelector.StrategySelectorFieldType;
  * units.
  *
  */
-public class UnitEditor extends JPanel implements ConfigurationEditor, ActionListener, StrategySelectorCallback {
+public class UnitEditor extends JPanel implements ConfigurationEditor {
 
 	//variable for storing the max hp
 	private JTextField maxHP;
-	
-	//variables related to the combat strat
-	private ConfigData combatConfig;
-	private JButton combatButton;
-	private JLabel combatStatus;
-	
-	//variables related to the movement strat
-	private ConfigData movConfig;
-	private JButton movButton;
-	private JLabel movStatus;
+	private GenericSelector<Configuration> combatStrat;
+	private GenericSelector<Configuration> moveStrat;
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8788172270105836095L;
 	
-	public UnitEditor()
+	public UnitEditor(BigFrameworkGuy bfg)
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
@@ -60,95 +50,25 @@ public class UnitEditor extends JPanel implements ConfigurationEditor, ActionLis
 		hpPanel.add(new JLabel("Max HP:"));
 		hpPanel.add(maxHP);
 		
-		//set up the combat strat panel
-		combatConfig = null;
-		combatButton = new JButton("Set the Combat Strategy...");
-		combatButton.addActionListener(this);
-		combatStatus = new JLabel("Not set");
-		JPanel combatPanel = new JPanel();
-		combatPanel.add(combatButton);
-		combatPanel.add(combatStatus);
-		
-		
-		//set up the mov strat panel
-		movConfig = null;
-		movButton = new JButton("Set the Movement Strategy...");
-		movButton.addActionListener(this);
-		movStatus = new JLabel("Not set");
-		JPanel movPanel = new JPanel();
-		movPanel.add(movButton);
-		movPanel.add(movStatus);
+		combatStrat  = new GenericSelector<Configuration>("Combat Strategy", 
+				new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.combatStrategy),
+				new GenericSelector.ShowBFGName<Configuration>());
+		moveStrat  = new GenericSelector<Configuration>("Movement Strategy", 
+				new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.movementStrategy),
+				new GenericSelector.ShowBFGName<Configuration>());
 		
 		//now add them all
 		this.add(hpPanel);
-		this.add(combatPanel);
-		this.add(movPanel);
+		this.add(combatStrat);
+		this.add(moveStrat);
 	}
 
 	@Override
 	public void setData(Configuration cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		try {
-			Double d = cd.getNumber(ParserKeys.maxHP);
-			if(d == null)
-			{
-				if(force)
-					maxHP.setText("");
-				else
-					throw new IllegalArgumentException(ParserKeys.maxHP.toString() + " is not defined");
-			}
-			maxHP.setText(d.toString());
-		} catch(NoSuchKeyException e) {
-			if(force)
-				maxHP.setText("");
-			else
-				throw new IllegalArgumentException(ParserKeys.maxHP.toString() + " is not defined");
-		}
-		
-		try {
-			ConfigData d = cd.getConfig(ParserKeys.combatStrategy);
-			if(d == null)
-			{
-				if(force)
-					combatConfig = null;
-				else
-					throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
-			}
-			combatConfig = d;
-			combatStatus.setText("Set");
-		} catch(NoSuchKeyException e) {
-			if(force)
-				combatConfig = null;
-			else
-				throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
-		}
-		
-		try {
-			ConfigData d = cd.getConfig(ParserKeys.movementStrategy);
-			if(d == null)
-			{
-				if(force)
-					movConfig = null;
-				else
-					throw new IllegalArgumentException(ParserKeys.movementStrategy.toString() + " is not defined");
-			}
-			movConfig = d;
-			movStatus.setText("Set");
-		} catch(NoSuchKeyException e) {
-			if(force)
-				movConfig = null;
-			else
-				throw new IllegalArgumentException(ParserKeys.combatStrategy.toString() + " is not defined");
-		}
+		UnitDefinition ud = (UnitDefinition)cd;
+		maxHP.setText(ud.getMaxHP() + "");
+		combatStrat.setSelectedObject(ud.getCombatStratConfig());
+		moveStrat.setSelectedObject(ud.getMovementStratConfig());
 		
 		this.validate();
 		this.updateUI();
@@ -157,104 +77,34 @@ public class UnitEditor extends JPanel implements ConfigurationEditor, ActionLis
 	@Override
 	public Configuration instantiateNewConfiguration() {
 		maxHP.setText("");
-		combatConfig = null;
-		combatStatus.setText("Not Set");
-		movConfig = null;
-		movStatus.setText("Not Set");
+		combatStrat.setSelectedObject(null);
+		moveStrat.setSelectedObject(null);
+		return new UnitDefinition();
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		ConfigData cd = new ConfigData();
+		UnitDefinition ud = (UnitDefinition)toSet;
 		Scanner s = new Scanner(maxHP.getText());
 		if(s.hasNextDouble())
-			cd.set(ParserKeys.maxHP, s.nextDouble());
+			ud.setMaxHP(s.nextDouble());
 		else
-			cd.set(ParserKeys.maxHP, -1.0);
-		if(combatConfig != null)
-			cd.set(ParserKeys.combatStrategy, combatConfig);
-		if(movConfig != null)
-			cd.set(ParserKeys.movementStrategy, movConfig);
-		return cd;
+			ud.setMaxHP(0);
+		ud.setCombatStratConfig((CombatStrategyConfiguration) combatStrat.getSelectedObject());
+		ud.setMovementStratConfig((MovementStrategyConfiguration) moveStrat.getSelectedObject());
+		return ConfigType.unit;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		return ParserKeys.unitURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.unit);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource().equals(combatButton))
-		{
-			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap = 
-				new HashMap<String, Map<ParserKeys,StrategySelectorFieldType>>();
-			Map<ParserKeys, StrategySelectorFieldType> field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
-			
-			//make the shoot closest target combat
-			field.put(ParserKeys.shootCoolDown, StrategySelectorFieldType.numeric);
-			fieldMap.put("ShootClosestTarget", field);
-			
-			//make the no combat strat
-			field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
-			fieldMap.put("NoCombat", field);
-			
-			StrategySelector ss = new StrategySelector(this, "Combat", fieldMap);
-			if(combatConfig != null)
-				ss.setData(combatConfig);
-		}
-		if(e.getSource().equals(movButton))
-		{
-			Map<String, Map<ParserKeys, StrategySelectorFieldType>> fieldMap = 
-				new HashMap<String, Map<ParserKeys,StrategySelectorFieldType>>();
-			Map<ParserKeys, StrategySelectorFieldType> field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
-			
-			//make the straight mov strat
-			field.put(ParserKeys.speed, StrategySelectorFieldType.numeric);
-			fieldMap.put("Straight", field);
-			
-			//make the immovable mov strat
-			field = new HashMap<ParserKeys, StrategySelector.StrategySelectorFieldType>();
-			fieldMap.put("Immovable", field);
-			
-			StrategySelector ss = new StrategySelector(this, "Movement", fieldMap);
-			if(movConfig != null)
-				ss.setData(movConfig);
-		}
-	}
-
-	@Override
-	public void setConfigForStrategy(StrategySelector caller, ConfigData cd) {
-		if(caller.getTitle().equalsIgnoreCase("Combat"))
-		{
-			combatConfig = cd;
-			combatStatus.setText("Set");
-		}
-		else if(caller.getTitle().equalsIgnoreCase("Movement"))
-		{
-			movConfig = cd;
-			movStatus.setText("Set");
-		}
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		Scanner s = new Scanner(maxHP.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		if(combatConfig == null)
-			return false;
-		
-		if(movConfig == null)
-			return false;
-		
-		return true;
 	}
 
 }
