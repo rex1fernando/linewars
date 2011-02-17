@@ -1,5 +1,9 @@
 package linewars.display;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import linewars.gamestate.mapItems.MapItemState;
 import configuration.Configuration;
 import configuration.Property;
@@ -15,6 +19,17 @@ public class DisplayConfiguration extends Configuration {
 	public void setAnimation(MapItemState state, Animation a)
 	{
 		super.setPropertyForName(state.toString(), new Property(Usage.ANIMATION, a));
+	}
+	
+	public List<MapItemState> getDefinedStates()
+	{
+		List<MapItemState> ret = new ArrayList<MapItemState>();
+		Set<String> definedKeys = super.getPropertyNames();
+		for(MapItemState mis : MapItemState.values())
+			if(definedKeys.contains(mis))
+				ret.add(mis);
+		
+		return ret;
 	}
 
 }

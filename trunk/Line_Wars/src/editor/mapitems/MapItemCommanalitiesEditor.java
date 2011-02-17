@@ -37,6 +37,7 @@ import editor.ListGenericSelector;
 import editor.ListGenericSelector.ListChangeListener;
 import editor.ListURISelector.ListSelectorOptions;
 import editor.URISelector.SelectorOptions;
+import editor.mapitems.body.BodyEditorOLD;
 
 /**
  * 
@@ -305,7 +306,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 					    JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			BodyEditor be = new BodyEditor(this);
+			BodyEditorOLD be = new BodyEditorOLD(this);
 			if(bodyConfig != null)
 				be.setData(bodyConfig);
 		}
