@@ -23,6 +23,9 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import configuration.Configuration;
+
+import editor.GenericSelector;
 import editor.URISelector;
 
 import linewars.display.ImageDrawer;
@@ -35,16 +38,19 @@ import linewars.gamestate.tech.TechGraph.TechNode;
 public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;
+	private final static int BUTTON_BORDER_SIZE = 5;
 	
 	private int pID;
 	private TechGraph techGraph;
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
 	
+	private GridBagLayout treeLayout;
+
 	private boolean editorNOTgame;
 	
 	private TechNode activeTech;
-	private JComboBox techSelector;
+	private GenericSelector<Configuration> techSelector;
 	private URISelector unlockStrategySelector;
 	
 	/**
@@ -85,15 +91,35 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = techGraph.getMaxX() + 30;
-		int ySize = techGraph.getMaxY() + 30;
-		
-		GridBagLayout treeLayout = new GridBagLayout();
-		GridBagConstraints treeConstraints = new GridBagConstraints();
+		treeLayout = new GridBagLayout();
 		treeDisplay = new JPanel(treeLayout);
-		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
 		treeDisplay.setOpaque(false);
 		add(treeDisplay);
+		
+		refreshDisplay(true);
+	}
+	
+	private void refreshDisplay(boolean initialization)
+	{
+		if(!initialization)
+		{
+			treeDisplay.removeAll();
+		}
+		
+		int xSize;
+		int ySize;
+		if(editorNOTgame)
+		{
+			xSize = techGraph.getMaxX() + BUTTON_BORDER_SIZE;
+			ySize = techGraph.getMaxY() + BUTTON_BORDER_SIZE;
+		}
+		else
+		{
+			xSize = techGraph.getMaxX();
+			ySize = techGraph.getMaxY();
+		}
+		
+		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
 		
 		List<TechNode> orderedTechList = techGraph.getOrderedList();
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
@@ -107,6 +133,7 @@ public class TechDisplay extends JViewport
 		if(orderedListIterator.hasNext())
 			current = orderedListIterator.next();
 
+		GridBagConstraints treeConstraints = new GridBagConstraints();
 		treeConstraints.gridwidth = 1;
 		treeConstraints.gridheight = 1;
 		treeConstraints.gridy = 0;
@@ -165,6 +192,9 @@ public class TechDisplay extends JViewport
 
 			++treeConstraints.gridy;
 		}
+		
+		validate();
+		repaint();
 	}
 	
 	public TechGraph getTechGraph()
@@ -177,9 +207,14 @@ public class TechDisplay extends JViewport
 		return activeTech;
 	}
 	
-	public void setTechSelector(JComboBox techSelector)
+	public void setTechSelector(GenericSelector<Configuration> techSelector)
 	{
 		this.techSelector = techSelector;
+	}
+	
+	public void setUnlockStrategySelector(URISelector unlockStrategySelector)
+	{
+		this.unlockStrategySelector = unlockStrategySelector;
 	}
 	
 	@Override
@@ -277,14 +312,20 @@ public class TechDisplay extends JViewport
 			setPreferredSize(size);
 			setMinimumSize(size);
 			
-			setIcons(tech.getTechConfig());
+			if(tech != null)
+				setIcons(tech.getTechConfig());
+			else
+				setIcons(null);
 		}
 		
 		public void setTech(TechNode tech)
 		{
 			this.tech = tech;
 			
-			setIcons(tech.getTechConfig());
+			if(tech != null)
+				setIcons(tech.getTechConfig());
+			else
+				setIcons(null);
 		}
 		
 		private void setIcons(TechConfiguration tech)
@@ -315,6 +356,12 @@ public class TechDisplay extends JViewport
 			return treeDispPos;
 		}
 		
+		public Point buttonToTreeDisplay(Point p)
+		{
+			Point treeDispPos = new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			return treeDispPos;
+		}
+
 		@Override
 		public void paint(Graphics g)
 		{
@@ -412,11 +459,11 @@ public class TechDisplay extends JViewport
 				{
 					button.setTech(techGraph.addNode());
 					button.tech.setPosition(button.col, button.row);
+					
+					refreshDisplay(false);
 				}
 				
 				activeTech = button.tech;
-				
-				//TODO display the active tech
 			}
 			else if(mButton == MouseEvent.BUTTON3)
 			{
@@ -429,13 +476,14 @@ public class TechDisplay extends JViewport
 					movingTech = true;
 					
 					activeTech = button.tech;
-					
-					//TODO display the active tech
 				}
 			}
 			
 			if(activeTech != null)
-				techSelector.setSelectedItem(activeTech.getTechConfig());
+			{
+				techSelector.setSelectedObject(activeTech.getTechConfig());
+				//TODO unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
+			}
 		}
 
 		@Override
@@ -453,7 +501,7 @@ public class TechDisplay extends JViewport
 		@Override
 		public void mouseReleased(MouseEvent e)
 		{
-			Component atPoint = treeDisplay.getComponentAt(button.buttonToViewPort(e.getPoint()));
+			Component atPoint = treeDisplay.getComponentAt(button.buttonToTreeDisplay(e.getPoint()));
 			if(atPoint == null || !(atPoint instanceof TechButton))
 				return;
 			
@@ -482,6 +530,8 @@ public class TechDisplay extends JViewport
 					button.setTech(null);
 					
 					releasedOver.tech.setPosition(releasedOver.col, releasedOver.row);
+					
+					refreshDisplay(false);
 				}
 				
 				movingTech = false;

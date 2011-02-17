@@ -26,6 +26,9 @@ import javax.swing.JTextPane;
 import configuration.Configuration;
 
 import editor.BigFrameworkGuy;
+import editor.GenericSelector;
+import editor.GenericSelector.GenericListCallback;
+import editor.GenericSelector.SelectionChangeListener;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
@@ -60,8 +63,8 @@ public class TechPanel extends Panel
 	
 	private TechDisplay activeTech;
 	
-	private JComboBox techSelector;
-	private JComboBox unlockStrategySelector;
+	private GenericSelector<Configuration> techSelector;
+	private URISelector unlockStrategySelector;
 	
 	private boolean displayed;
 	
@@ -72,6 +75,11 @@ public class TechPanel extends Panel
 	public TechPanel(BigFrameworkGuy bfg)
 	{
 		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		
+		Dimension size = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
 		
 		this.bfg = bfg;
 
@@ -177,33 +185,12 @@ public class TechPanel extends Panel
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
 		
-		JPanel techSelectorPanel = new JPanel();
-		JLabel techLabel = new JLabel("Tech:");
-		techSelectorPanel.add(techLabel);
-		techSelector = new JComboBox();
-		techSelector.setPreferredSize(new Dimension(160, 20));
-		techSelector.addActionListener(new ComboBoxListener());
-		techSelectorPanel.add(techSelector);
-		editorComponents.add(techSelectorPanel);
+		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
+		techSelector.addSelectionChangeListener(new TechSelectionListener());
+		editorComponents.add(techSelector);
 		
-//		List<Configuration> techs = bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech);
-//		for(Configuration tech : techs)
-//		{
-//			techSelector.addItem(tech);
-//		}
-		
-		JPanel unlockStrategySelectorPanel = new JPanel();
-		JLabel unlockStrategyLabel = new JLabel("Un:");
-		unlockStrategySelectorPanel.add(unlockStrategyLabel);
-		unlockStrategySelector = new JComboBox();
-		unlockStrategySelector.setPreferredSize(new Dimension(160, 20));
-		unlockStrategySelector.addActionListener(new ComboBoxListener());
-		unlockStrategySelectorPanel.add(unlockStrategySelector);
-		editorComponents.add(unlockStrategySelectorPanel);
-		
-		unlockStrategySelector.addItem("All");
-		unlockStrategySelector.addItem("One");
-		unlockStrategySelector.addItem("No Syblings");
+		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
+		editorComponents.add(unlockStrategySelector);
 	}
 
 	boolean isDisplayed()
@@ -264,9 +251,10 @@ public class TechPanel extends Panel
 			for(TechDisplay td : techs)
 			{
 				td.setPreferredSize(new Dimension(width, height));
-				td.validate();
-				td.updateUI();
 			}
+			
+			validate();
+			repaint();
 		}
 	}
 	
@@ -284,6 +272,13 @@ public class TechPanel extends Panel
 		{
 			activeTech = tech;
 			setAllTechGraphsInvisible();
+			
+			TechNode activeTechNode = activeTech.getActiveTech();
+			if(activeTechNode != null)
+			{
+				techSelector.setSelectedObject(activeTechNode.getTechConfig());
+				//TODO unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
+			}
 		}	
 	}
 	
@@ -309,6 +304,10 @@ public class TechPanel extends Panel
 				return;
 			
 			TechDisplay tech = new TechDisplay(new TechGraph());
+			tech.setTechSelector(techSelector);
+			tech.setUnlockStrategySelector(unlockStrategySelector);
+			
+			activeTech = tech;
 			techs.add(tech);
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
@@ -322,29 +321,36 @@ public class TechPanel extends Panel
 		}
 	}
 	
-	private class ComboBoxListener implements ActionListener
+	private class TechListCallback implements GenericListCallback<Configuration>
 	{
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public List<Configuration> getSelectionList()
 		{
-			Object source = e.getSource();
+			return new ArrayList<Configuration>(bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech));
+		}
+	}
+	
+	private class TechSelectionListener implements SelectionChangeListener<Configuration>
+	{
+		@Override
+		public void selectionChanged(Configuration newSelection)
+		{
+			activeTech.getActiveTech().setTech((TechConfiguration)newSelection);
+		}
+	}
+	
+	private class UnlockStrategySelector implements SelectorOptions
+	{
+		@Override
+		public String[] getOptions()
+		{
+			return new String[]{"All", "One", "No Syblings"};
+		}
 
-			if(source == techSelector)
-			{
-				TechConfiguration selected = (TechConfiguration)techSelector.getSelectedItem();
-				if(selected != null)
-				{
-					activeTech.getActiveTech().setTech(selected);
-				}
-			}
-			else if(source == unlockStrategySelector)
-			{
-				String selected = (String)unlockStrategySelector.getSelectedItem();
-				if(selected != null)
-				{
-					//TODO set the correct UnlockStrategy to the active tech button for the selection
-				}
-			}
+		@Override
+		public void uriSelected(String uri)
+		{
+			//TODO set the correct UnlockStrategy to the active tech button for the selection
 		}
 	}
 }

@@ -59,7 +59,7 @@ public class TechGraph implements Serializable
 	
 	public List<TechNode> getOrderedList()
 	{
-		List<TechNode> orderedList = roots;
+		List<TechNode> orderedList = new ArrayList<TechGraph.TechNode>(roots);
 		
 		if(orderedList.isEmpty())
 			return orderedList;
@@ -69,11 +69,17 @@ public class TechGraph implements Serializable
 		while(i < orderedList.size())
 		{
 			TechNode current = orderedList.get(i++);
-			if(!current.isMarked())
+			TechNode child = current.getChild();
+			while(child != null)
 			{
-				current.mark();
-				orderedList.addAll(current.children);
+				if(!child.isMarked())
+				{
+					child.mark();
+					orderedList.add(child);
+				}
+				child = current.getNextChild();
 			}
+			
 		}
 		
 		unmarkAll();
