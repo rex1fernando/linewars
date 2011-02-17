@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import linewars.gamestate.Player;
+import linewars.gamestate.Race;
 
 import configuration.Configuration;
 import configuration.Property;
@@ -24,16 +25,27 @@ public class TechConfiguration extends Configuration implements Observer {
 	private static final String pressedIconURIKey = "pressedIconURI";
 	private static final String rolloverIconURIKey = "rolloverIconURI";
 	private static final String selectedIconURIKey = "selectedIconURI";
+	private static final String disabledIconURIKey = "disabledIconURI";
 	
-	private ModifierConfiguration modification;	
+	//The Modification to be made to the owner's race
+	private ModifierConfiguration modification;
+	//The cost to research this this Tech
 	private double cost;
 	
+	//The name of this Tech
 	private String name;
+	//The tooltip to be displayed when the user hovers the mouse over this Tech
 	private String tooltip;
+	//The URI of this Tech's icon
 	private String iconURI;
+	//The URI of the icon displayed while this Tech is clicked
 	private String pressedIconURI;
+	//The URI of the icon displayed while the mouse is over this Tech
 	private String rolloverIconURI;
+	//The URI of the icon displayed when the Tech's icon is selected (like via Tab)
 	private String selectedIconURI;
+	//The URI of the icon to be displayed when this Tech is disabled
+	private String disabledIconURI;
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
@@ -58,11 +70,14 @@ public class TechConfiguration extends Configuration implements Observer {
 			rolloverIconURI = (String) value;
 		}else if(propertyName == selectedIconURIKey){
 			selectedIconURI = (String) value;
-		}		
+		}else if(propertyName == disabledIconURIKey){
+			disabledIconURI = (String) value;
+		}
 	}
 	
 	public void research(Player owner){
-		
+		Race toModify = owner.getRace();
+		modification.applyTo(new Property(Usage.CONFIGURATION, toModify));
 	}
 	
 	public ModifierConfiguration getModification() {
@@ -127,5 +142,13 @@ public class TechConfiguration extends Configuration implements Observer {
 	
 	public void setSelectedIconURI(String selectedIconURI) {
 		this.setPropertyForName(selectedIconURIKey, new Property(Usage.STRING, selectedIconURI));
+	}
+	
+	public String getDisabledIconURI(){
+		return disabledIconURI;
+	}
+	
+	public void setDisabledIconURI(String disabledIconURI){
+		this.setPropertyForName(disabledIconURIKey, new Property(Usage.STRING, disabledIconURI));
 	}
 }

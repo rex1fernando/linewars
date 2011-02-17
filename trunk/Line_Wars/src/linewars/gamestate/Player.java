@@ -361,4 +361,13 @@ public strictfp class Player {
 	public Node getStartNode(Lane l) {
 		return this.startPoints.get(l);
 	}
+
+	/**
+	 * 
+	 * @return
+	 * 		The Race object which defines this Player's race.
+	 */
+	public Race getRace() {
+		return race;
+	}
 }
