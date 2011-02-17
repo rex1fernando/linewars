@@ -1,15 +1,10 @@
 package linewars.gamestate.tech;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
-import linewars.gamestate.shapes.Shape;
+import utility.ForceLoadPackage;
 
 import configuration.Configuration;
 import configuration.Property;
@@ -17,19 +12,15 @@ import configuration.Usage;
 
 public abstract class ModifierConfiguration extends Configuration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4468407517465792016L;
 	private static HashMap<Usage, List<Class<? extends ModifierConfiguration>>> validModifiersForUsage;
 	
 	static{
-		try {
-			List<Class> classes = getClasses(Shape.class.getPackage().getName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ForceLoadPackage.forceLoadClassesInPackage(ModifierConfiguration.class.getPackage());
 	}
-	
-	
 	
 	public static void addModifierForUsage(Usage key, Class<? extends ModifierConfiguration> value){
 		if(validModifiersForUsage == null){
@@ -46,5 +37,4 @@ public abstract class ModifierConfiguration extends Configuration {
 	}
 
 	public abstract Property applyTo(Property toModify);
-	//do shapes-like static init stuff
 }
