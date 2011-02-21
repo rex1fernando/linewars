@@ -3,17 +3,26 @@ package editor.mapitems.body;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 
+import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItemState;
@@ -23,6 +32,7 @@ import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
 import editor.GenericSelector.GenericListCallback;
+import editor.GenericSelector.SelectionChangeListener;
 
 public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
@@ -46,7 +56,11 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private String imagePath;
 	
 	private GenericSelector<MapItemState> animationState;
-	private JTextField scalingFactor; //TODO
+	private JTextField scalingFactor;
+	
+	private JTree containerTree;
+	private BodyEditorNode root;
+	private boolean mouseState;
 	
 	public BodyEditor(BigFrameworkGuy bfg, DisplayConfigurationCallback dcc, String imagePath)
 	{
@@ -68,6 +82,33 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				return BodyEditor.this.dcc.getDisplayConfiguration().getDefinedStates();
 			}
 		});
+		animationState.setSelectedObject(MapItemState.Idle);
+		animationState.addSelectionChangeListener(new SelectionChangeListener<MapItemState>() {
+			@Override
+			public void selectionChanged(MapItemState newSelection) {
+				loadImages(animationState.getSelectedObject());
+			}
+		});
+		
+		scalingFactor = new JTextField(20);
+		JPanel scalePanel = new JPanel();
+		scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
+		scalePanel.add(new JLabel("How wide in game units should this image be?"));
+		scalePanel.add(scalingFactor);
+		
+		JPanel southPanel = new JPanel();
+		southPanel.add(scalePanel);
+		southPanel.add(animationState);
+		
+		this.add(southPanel, BorderLayout.SOUTH);
+		
+		root = new BodyEditorNode("Root");
+//		root.add(new BodyEditorNode("child1", new Circle()));
+		root.add(new BodyEditorNode("child1", new Rectangle()));
+		containerTree = new JTree(root);
+		containerTree.setPreferredSize(new Dimension(150, 600));
+		
+		this.add(containerTree, BorderLayout.WEST);
 		
 		//TODO add more stuff to be constructed
 	}
@@ -135,6 +176,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 						}
 					}
 					
+					drawShapes(g, root);
+					
 					//TODO update the shapes being drawn
 					
 					//flip the buffers
@@ -161,9 +204,46 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		}
 	}
 	
+	private void drawShapes(Graphics2D g, BodyEditorNode ben)
+	{
+		if(ben.getShape() != null)
+		{
+			Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
+			Point mousePos = canvas.getMousePosition();
+			if(mousePos == null)
+				mousePos = new Point(0, 0);
+			ben.getShape().drawActive(g, canvasCenter, mousePos, mouseState);
+		}
+		else
+		{
+			for(int i = 0; i < ben.getChildCount(); i++)
+				drawShapes(g, (BodyEditorNode)ben.getChildAt(i));
+		}
+	}
+	
 	private void loadImages(MapItemState mis)
 	{
-		//TODO, don't forget to lock the images while loading
+		Animation a = dcc.getDisplayConfiguration().getAnimation(mis);
+		synchronized(imageLock)
+		{
+			Image[] oldImages = images;
+			long[] oldImagetimes = imagetimes;
+			images = new Image[a.getNumImages()];
+			imagetimes = new long[a.getNumImages()];
+			for(int i = 0; i < a.getNumImages(); i++)
+			{
+				try {
+					images[i] = ImageIO.read(new File(new File(imagePath), a.getImage(i)));
+				} catch (IOException e) {
+					e.printStackTrace();
+					images = oldImages;
+					imagetimes = oldImagetimes;
+					return;
+				}
+				imagetimes[i] = (long) a.getImageTime(i);
+			}
+		}
+		
 	}
 
 	@Override
@@ -219,14 +299,14 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 
 		@Override
 		public void mousePressed(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
+			if(arg0.getButton() == MouseEvent.BUTTON1)
+				mouseState = true;
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
+			if(arg0.getButton() == MouseEvent.BUTTON1)
+				mouseState = false;
 		}
 		
 	}
@@ -234,16 +314,31 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	public static void main(String[] args)
 	{
 		JFrame frame = new JFrame();
-		BodyEditor be = new BodyEditor(null);
+		
+		Animation a1 = new Animation();
+		a1.addFrame("Explosion 1.png", 500);
+		a1.addFrame("Explosion 2.png", 500);
+		
+		Animation a2 = new Animation();
+		a2.addFrame("Explosion 7.png", 500);
+		a2.addFrame("Explosion 8.png", 500);
+		
+		final DisplayConfiguration dc = new DisplayConfiguration();
+		dc.setAnimation(MapItemState.Idle, a1);
+		dc.setAnimation(MapItemState.Active, a2);
+		
+		BodyEditor be = new BodyEditor(null, new DisplayConfigurationCallback() {
+			@Override
+			public DisplayConfiguration getDisplayConfiguration() {
+				return dc;
+			}
+		}, "resources/animations");
 		frame.setContentPane(be);	
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.setVisible(true);
 		be.setVisible(true);
-		be.setVisible(false);
-		be.setVisible(true);
-		be.setVisible(false);
 	}
 
 }
