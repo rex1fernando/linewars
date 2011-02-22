@@ -7,11 +7,15 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -19,8 +23,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 
 import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
@@ -39,6 +46,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	public interface DisplayConfigurationCallback {
 		public DisplayConfiguration getDisplayConfiguration();
 	}
+	
+	public enum Inputs { shift, alt, ctrl, leftMouse }
 	
 	//variables for drawing the image
 	private Canvas canvas;
@@ -60,7 +69,9 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
 	private JTree containerTree;
 	private BodyEditorNode root;
-	private boolean mouseState;
+	private BodyEditorNode selectedNode = null;
+	
+	private List<Inputs> currentInputs = Collections.synchronizedList(new ArrayList<Inputs>());
 	
 	public BodyEditor(BigFrameworkGuy bfg, DisplayConfigurationCallback dcc, String imagePath)
 	{
@@ -72,6 +83,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		canvas = new Canvas();
 		canvas.setSize(800, 600);
 		canvas.addMouseListener(new MouseEventListener());
+		canvas.addKeyListener(new KeyEventListener());
 		
 		this.setLayout(new BorderLayout());
 		this.add(canvas, BorderLayout.CENTER);
@@ -103,12 +115,14 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		this.add(southPanel, BorderLayout.SOUTH);
 		
 		root = new BodyEditorNode("Root");
-//		root.add(new BodyEditorNode("child1", new Circle()));
+		root.add(new BodyEditorNode("child1", new Circle()));
 		root.add(new BodyEditorNode("child1", new Rectangle()));
 		containerTree = new JTree(root);
 		containerTree.setPreferredSize(new Dimension(150, 600));
+		containerTree.addTreeSelectionListener(new TreeEventListener());
+		JScrollPane scroller = new JScrollPane(containerTree);
 		
-		this.add(containerTree, BorderLayout.WEST);
+		this.add(scroller, BorderLayout.WEST);
 		
 		//TODO add more stuff to be constructed
 	}
@@ -176,7 +190,10 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 						}
 					}
 					
-					drawShapes(g, root);
+					synchronized (currentInputs)
+					{
+						drawShapes(g, root);
+					}
 					
 					//TODO update the shapes being drawn
 					
@@ -212,7 +229,10 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			Point mousePos = canvas.getMousePosition();
 			if(mousePos == null)
 				mousePos = new Point(0, 0);
-			ben.getShape().drawActive(g, canvasCenter, mousePos, mouseState);
+			if(ben == selectedNode)
+				ben.getShape().drawActive(g, canvasCenter, mousePos, currentInputs);
+			else
+				ben.getShape().drawInactive(g, canvasCenter);
 		}
 		else
 		{
@@ -299,14 +319,55 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 
 		@Override
 		public void mousePressed(MouseEvent arg0) {
-			if(arg0.getButton() == MouseEvent.BUTTON1)
-				mouseState = true;
+			if(arg0.getButton() == MouseEvent.BUTTON1 && !currentInputs.contains(Inputs.leftMouse))
+				currentInputs.add(Inputs.leftMouse);
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
-			if(arg0.getButton() == MouseEvent.BUTTON1)
-				mouseState = false;
+			if(arg0.getButton() == MouseEvent.BUTTON1 && currentInputs.contains(Inputs.leftMouse))
+				currentInputs.remove(Inputs.leftMouse);
+		}
+		
+	}
+	
+	private class KeyEventListener implements KeyListener
+	{
+
+		@Override
+		public void keyPressed(KeyEvent ke) {
+			if(ke.getKeyCode() == KeyEvent.VK_SHIFT && !currentInputs.contains(Inputs.shift))
+				currentInputs.add(Inputs.shift);
+			if(ke.getKeyCode() == KeyEvent.VK_ALT && !currentInputs.contains(Inputs.alt))
+				currentInputs.add(Inputs.alt);
+			if(ke.getKeyCode() == KeyEvent.VK_CONTROL && !currentInputs.contains(Inputs.ctrl))
+				currentInputs.add(Inputs.ctrl);
+		}
+
+		@Override
+		public void keyReleased(KeyEvent ke) {
+			if(ke.getKeyCode() == KeyEvent.VK_SHIFT && currentInputs.contains(Inputs.shift))
+				currentInputs.remove(Inputs.shift);
+			if(ke.getKeyCode() == KeyEvent.VK_ALT && currentInputs.contains(Inputs.alt))
+				currentInputs.remove(Inputs.alt);
+			if(ke.getKeyCode() == KeyEvent.VK_CONTROL && currentInputs.contains(Inputs.ctrl))
+				currentInputs.remove(Inputs.ctrl);
+		}
+
+		@Override
+		public void keyTyped(KeyEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	private class TreeEventListener implements TreeSelectionListener
+	{
+
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			selectedNode = (BodyEditorNode) e.getNewLeadSelectionPath().getLastPathComponent();
 		}
 		
 	}

@@ -4,6 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.List;
+
+import editor.mapitems.body.BodyEditor.Inputs;
 
 import linewars.gamestate.Position;
 
@@ -22,7 +25,7 @@ public class Circle implements ShapeDisplay {
 	}
 
 	@Override
-	public void drawActive(Graphics2D g, Position canvasCenter, Point mousePosition, boolean mouseState) {
+	public void drawActive(Graphics2D g, Position canvasCenter, Point mousePosition, List<Inputs> inputs) {
 		drawCircle(g, canvasCenter, Color.red);
 		Position mousePos = new Position(mousePosition.x, mousePosition.y);
 		if((Math.abs(mousePos.distanceSquared(canvasCenter.subtract(center))/(radius*radius) - 1) <= 0.05 
@@ -35,11 +38,11 @@ public class Circle implements ShapeDisplay {
 			Position lowerRight = new Position(radius, radius).scale(2);
 			g.drawOval((int)upperLeft.getX(), (int)upperLeft.getY(),
 						(int)lowerRight.getX(), (int)lowerRight.getY());
-			if(mouseState)
+			if(inputs.contains(Inputs.leftMouse))
 				radius = Math.sqrt(mousePos.distanceSquared(canvasCenter.subtract(center)));
 		}
 		else if((mousePos.distanceSquared(canvasCenter.subtract(center)) < radius*radius 
-				&& mouseState) || moveCircleStart != null) 
+				&& inputs.contains(Inputs.leftMouse)) || moveCircleStart != null) 
 		{
 			if(moveCircleStart == null)
 				moveCircleStart = mousePos;
@@ -50,7 +53,7 @@ public class Circle implements ShapeDisplay {
 			}
 		}
 		
-		if(!mouseState)
+		if(!inputs.contains(Inputs.leftMouse))
 			moveCircleStart = null;
 		if(Math.abs(mousePos.distanceSquared(canvasCenter.subtract(center))/(radius*radius) - 1) > 0.05 && adjustingRadius)
 			adjustingRadius = false;
