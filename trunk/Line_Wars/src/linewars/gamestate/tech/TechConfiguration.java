@@ -24,6 +24,7 @@ public class TechConfiguration extends Configuration implements Observer {
 	private static final String pressedIconURIKey = "pressedIconURI";
 	private static final String rolloverIconURIKey = "rolloverIconURI";
 	private static final String selectedIconURIKey = "selectedIconURI";
+	private static final String disabledIconURIKey = "disabledIconURI";
 	
 	private ModifierConfiguration modification;	
 	private double cost;
@@ -34,6 +35,7 @@ public class TechConfiguration extends Configuration implements Observer {
 	private String pressedIconURI;
 	private String rolloverIconURI;
 	private String selectedIconURI;
+	private String disabledIconURI;
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
@@ -58,6 +60,8 @@ public class TechConfiguration extends Configuration implements Observer {
 			rolloverIconURI = (String) value;
 		}else if(propertyName == selectedIconURIKey){
 			selectedIconURI = (String) value;
+		}else if(propertyName == disabledIconURIKey){
+			disabledIconURI = (String) value;
 		}		
 	}
 	
@@ -127,5 +131,13 @@ public class TechConfiguration extends Configuration implements Observer {
 	
 	public void setSelectedIconURI(String selectedIconURI) {
 		this.setPropertyForName(selectedIconURIKey, new Property(Usage.STRING, selectedIconURI));
+	}
+	
+	public String getDisabledIconURI() {
+		return disabledIconURI;
+	}
+	
+	public void setDisabledIconURI(String disabledIconURI) {
+		this.setPropertyForName(disabledIconURIKey, new Property(Usage.STRING, disabledIconURI));
 	}
 }

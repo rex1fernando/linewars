@@ -17,16 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
-
-import configuration.Configuration;
-
-import editor.GenericSelector;
-import editor.URISelector;
 
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
@@ -34,6 +29,9 @@ import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import configuration.Configuration;
+import editor.GenericSelector;
+import editor.URISelector;
 
 public class TechDisplay extends JViewport
 {
@@ -332,11 +330,11 @@ public class TechDisplay extends JViewport
 		{
 			if(tech != null)
 			{
-//				setIcon(new ButtonIcon(this, tech.getIconURI()));
-//				setPressedIcon(new ButtonIcon(this, tech.getPressedIconURI()));
-//				setRolloverIcon(new ButtonIcon(this, tech.getRolloverIconURI()));
-//				setSelectedIcon(new ButtonIcon(this, tech.getSelectedIconURI()));
-//				setDisabledIcon(new ButtonIcon(this, tech.getDisabledIconURI()));
+				setIcon(new ButtonIcon(this, tech.getIconURI()));
+				setPressedIcon(new ButtonIcon(this, tech.getPressedIconURI()));
+				setRolloverIcon(new ButtonIcon(this, tech.getRolloverIconURI()));
+				setSelectedIcon(new ButtonIcon(this, tech.getSelectedIconURI()));
+				setDisabledIcon(new ButtonIcon(this, tech.getDisabledIconURI()));
 			}
 			else
 			{
@@ -365,29 +363,29 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-			if(tech == null)
-				g.setColor(Color.red);
-			else if(tech == activeTech)
-				g.setColor(Color.blue);
-			else
-				g.setColor(Color.orange);
-			
-			g.fillRect(0, 0, getWidth(), getHeight());
-			
-			g.setColor(Color.black);
-			g.drawRect(0, 0, getWidth(), getHeight());
-			
-//			DefaultButtonModel model = (DefaultButtonModel)getModel();
-//			if(tech != null && !tech.isUnlocked())
-//				getDisabledIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isPressed())
-//				getPressedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isSelected())
-//				getSelectedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isRollover())
-//				getRolloverIcon().paintIcon(this, g, 0, 0);
+//			if(tech == null)
+//				g.setColor(Color.red);
+//			else if(tech == activeTech)
+//				g.setColor(Color.blue);
 //			else
-//				getIcon().paintIcon(this, g, 0, 0);
+//				g.setColor(Color.orange);
+//			
+//			g.fillRect(0, 0, getWidth(), getHeight());
+//			
+//			g.setColor(Color.black);
+//			g.drawRect(0, 0, getWidth(), getHeight());
+			
+			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			if(tech != null && !tech.isUnlocked())
+				getDisabledIcon().paintIcon(this, g, 0, 0);
+			else if(model.isPressed())
+				getPressedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isSelected())
+				getSelectedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isRollover())
+				getRolloverIcon().paintIcon(this, g, 0, 0);
+			else
+				getIcon().paintIcon(this, g, 0, 0);
 		}
 	}
 	
@@ -482,7 +480,7 @@ public class TechDisplay extends JViewport
 			if(activeTech != null)
 			{
 				techSelector.setSelectedObject(activeTech.getTechConfig());
-				//TODO unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
 			}
 		}
 
