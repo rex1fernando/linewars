@@ -16,6 +16,7 @@ public class TechPanelTest extends JFrame
 		TechPanel panel = new TechPanel(null);
 		add(panel);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(panel.getSize());
 		setVisible(true);
 	}
 }

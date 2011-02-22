@@ -17,12 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
-
-import editor.URISelector;
 
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
@@ -30,20 +29,26 @@ import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import configuration.Configuration;
+import editor.GenericSelector;
+import editor.URISelector;
 
 public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;
+	private final static int BUTTON_BORDER_SIZE = 5;
 	
 	private int pID;
 	private TechGraph techGraph;
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
 	
+	private GridBagLayout treeLayout;
+
 	private boolean editorNOTgame;
 	
-	private TechConfiguration activeTech;
-	private URISelector techSelector;
+	private TechNode activeTech;
+	private GenericSelector<Configuration> techSelector;
 	private URISelector unlockStrategySelector;
 	
 	/**
@@ -73,7 +78,6 @@ public class TechDisplay extends JViewport
 		this.pID = pID;
 		this.techGraph = techGraph;
 		
-<<<<<<< HEAD
 		initializeDisplay();
 		
 		ViewportDragger dragger = new ViewportDragger();
@@ -85,15 +89,35 @@ public class TechDisplay extends JViewport
 	{
 		setOpaque(false);
 		
-		int xSize = techGraph.getMaxX() + 30;
-		int ySize = techGraph.getMaxY() + 30;
-		
-		GridBagLayout treeLayout = new GridBagLayout();
-		GridBagConstraints treeConstraints = new GridBagConstraints();
+		treeLayout = new GridBagLayout();
 		treeDisplay = new JPanel(treeLayout);
-		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
 		treeDisplay.setOpaque(false);
 		add(treeDisplay);
+		
+		refreshDisplay(true);
+	}
+	
+	private void refreshDisplay(boolean initialization)
+	{
+		if(!initialization)
+		{
+			treeDisplay.removeAll();
+		}
+		
+		int xSize;
+		int ySize;
+		if(editorNOTgame)
+		{
+			xSize = techGraph.getMaxX() + BUTTON_BORDER_SIZE;
+			ySize = techGraph.getMaxY() + BUTTON_BORDER_SIZE;
+		}
+		else
+		{
+			xSize = techGraph.getMaxX();
+			ySize = techGraph.getMaxY();
+		}
+		
+		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
 		
 		List<TechNode> orderedTechList = techGraph.getOrderedList();
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
@@ -107,6 +131,7 @@ public class TechDisplay extends JViewport
 		if(orderedListIterator.hasNext())
 			current = orderedListIterator.next();
 
+		GridBagConstraints treeConstraints = new GridBagConstraints();
 		treeConstraints.gridwidth = 1;
 		treeConstraints.gridheight = 1;
 		treeConstraints.gridy = 0;
@@ -165,11 +190,29 @@ public class TechDisplay extends JViewport
 
 			++treeConstraints.gridy;
 		}
+		
+		validate();
+		repaint();
 	}
 	
 	public TechGraph getTechGraph()
 	{
 		return techGraph;
+	}
+	
+	public TechNode getActiveTech()
+	{
+		return activeTech;
+	}
+	
+	public void setTechSelector(GenericSelector<Configuration> techSelector)
+	{
+		this.techSelector = techSelector;
+	}
+	
+	public void setUnlockStrategySelector(URISelector unlockStrategySelector)
+	{
+		this.unlockStrategySelector = unlockStrategySelector;
 	}
 	
 	@Override
@@ -201,10 +244,12 @@ public class TechDisplay extends JViewport
 		TechNode child = node.getChild();
 		while(child != null)
 		{
-			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE;
-			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
-			int endX = child.getX() * TECH_BUTTON_SIZE;
-			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2;
+			Point offset = getViewPosition();
+			
+			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE - offset.x;
+			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
+			int endX = child.getX() * TECH_BUTTON_SIZE - offset.x;
+			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
 			
 			Position vector = new Position(startX - endX, startY - endY);
 			vector = vector.normalize().scale(15);
@@ -256,6 +301,7 @@ public class TechDisplay extends JViewport
 		{
 			this.row = row;
 			this.col = col;
+			this.tech = tech;
 			
 			Dimension size = new Dimension(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
 			
@@ -264,21 +310,31 @@ public class TechDisplay extends JViewport
 			setPreferredSize(size);
 			setMinimumSize(size);
 			
-			setTech(tech);
+			if(tech != null)
+				setIcons(tech.getTechConfig());
+			else
+				setIcons(null);
 		}
 		
 		public void setTech(TechNode tech)
 		{
 			this.tech = tech;
+			
+			if(tech != null)
+				setIcons(tech.getTechConfig());
+			else
+				setIcons(null);
+		}
+		
+		private void setIcons(TechConfiguration tech)
+		{
 			if(tech != null)
 			{
-				TechConfiguration techConfig = tech.getTechConfig();
-				
-//				setIcon(new ButtonIcon(this, techConfig.getIconURI()));
-//				setPressedIcon(new ButtonIcon(this, techConfig.getPressedIconURI()));
-//				setRolloverIcon(new ButtonIcon(this, techConfig.getRolloverIconURI()));
-//				setSelectedIcon(new ButtonIcon(this, techConfig.getSelectedIconURI()));
-//				setDisabledIcon(new ButtonIcon(this, techConfig.getDisabledIconURI()));
+				setIcon(new ButtonIcon(this, tech.getIconURI()));
+				setPressedIcon(new ButtonIcon(this, tech.getPressedIconURI()));
+				setRolloverIcon(new ButtonIcon(this, tech.getRolloverIconURI()));
+				setSelectedIcon(new ButtonIcon(this, tech.getSelectedIconURI()));
+				setDisabledIcon(new ButtonIcon(this, tech.getDisabledIconURI()));
 			}
 			else
 			{
@@ -290,34 +346,46 @@ public class TechDisplay extends JViewport
 			}
 		}
 		
-		public Point buttonToTreeDisplay(Point p)
+		public Point buttonToViewPort(Point p)
 		{
-			return new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			Point treeDispPos = new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			Point viewPos = getViewPosition();
+			treeDispPos.translate(-viewPos.x, -viewPos.y);
+			return treeDispPos;
 		}
 		
+		public Point buttonToTreeDisplay(Point p)
+		{
+			Point treeDispPos = new Point(col * TECH_BUTTON_SIZE + p.x, row * TECH_BUTTON_SIZE + p.y);
+			return treeDispPos;
+		}
+
 		@Override
 		public void paint(Graphics g)
 		{
-			if(tech == null)
-				g.setColor(Color.red);
-			else if(tech.getTechConfig() == activeTech)
-				g.setColor(Color.blue);
-			else
-				g.setColor(Color.orange);
-			
-			g.fillRect(0, 0, getWidth(), getHeight());
-			
-//			DefaultButtonModel model = (DefaultButtonModel)getModel();
-//			if(tech != null && !tech.isUnlocked())
-//				getDisabledIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isPressed())
-//				getPressedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isSelected())
-//				getSelectedIcon().paintIcon(this, g, 0, 0);
-//			else if(model.isRollover())
-//				getRolloverIcon().paintIcon(this, g, 0, 0);
+//			if(tech == null)
+//				g.setColor(Color.red);
+//			else if(tech == activeTech)
+//				g.setColor(Color.blue);
 //			else
-//				getIcon().paintIcon(this, g, 0, 0);
+//				g.setColor(Color.orange);
+//			
+//			g.fillRect(0, 0, getWidth(), getHeight());
+//			
+//			g.setColor(Color.black);
+//			g.drawRect(0, 0, getWidth(), getHeight());
+			
+			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			if(tech != null && !tech.isUnlocked())
+				getDisabledIcon().paintIcon(this, g, 0, 0);
+			else if(model.isPressed())
+				getPressedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isSelected())
+				getSelectedIcon().paintIcon(this, g, 0, 0);
+			else if(model.isRollover())
+				getRolloverIcon().paintIcon(this, g, 0, 0);
+			else
+				getIcon().paintIcon(this, g, 0, 0);
 		}
 	}
 	
@@ -389,26 +457,30 @@ public class TechDisplay extends JViewport
 				{
 					button.setTech(techGraph.addNode());
 					button.tech.setPosition(button.col, button.row);
+					
+					refreshDisplay(false);
 				}
 				
-				activeTech = button.tech.getTechConfig();
-				
-				//TODO display the active tech
+				activeTech = button.tech;
 			}
 			else if(mButton == MouseEvent.BUTTON3)
 			{
 				if(button.tech == null)
 				{
-					lastPoint = button.buttonToTreeDisplay(e.getPoint());
+					lastPoint = button.buttonToViewPort(e.getPoint());
 				}
 				else
 				{
 					movingTech = true;
 					
-					activeTech = button.tech.getTechConfig();
-					
-					//TODO display the active tech
+					activeTech = button.tech;
 				}
+			}
+			
+			if(activeTech != null)
+			{
+				techSelector.setSelectedObject(activeTech.getTechConfig());
+				unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
 			}
 		}
 
@@ -417,10 +489,10 @@ public class TechDisplay extends JViewport
 		{
 			if(!movingTech && !creatingDependency)
 			{
-				Point vector = button.buttonToTreeDisplay(e.getPoint());
+				Point vector = button.buttonToViewPort(e.getPoint());
 				vector.translate(-lastPoint.x, -lastPoint.y);
+				lastPoint = button.buttonToViewPort(e.getPoint());
 				moveViewport(vector);
-				lastPoint = button.buttonToTreeDisplay(e.getPoint());
 			}
 		}
 
@@ -456,6 +528,8 @@ public class TechDisplay extends JViewport
 					button.setTech(null);
 					
 					releasedOver.tech.setPosition(releasedOver.col, releasedOver.row);
+					
+					refreshDisplay(false);
 				}
 				
 				movingTech = false;
@@ -503,8 +577,5 @@ public class TechDisplay extends JViewport
 			//TODO send message to resarch tech
 //			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
 		}
-=======
-
->>>>>>> branch 'refs/heads/config-replacement' of https://ryantew@github.com/rex1fernando/linewars.git
 	}
 }
