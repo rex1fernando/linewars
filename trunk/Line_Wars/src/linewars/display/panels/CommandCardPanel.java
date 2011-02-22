@@ -12,16 +12,14 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
-import linewars.gamestate.mapItems.abilities.ResearchTechDefinition;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
@@ -95,7 +93,7 @@ public class CommandCardPanel extends Panel
 	 *            An array of animations to use for this panel.
 	 */
 	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver,
-			ConfigData... anims)
+			Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 

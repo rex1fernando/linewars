@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Node;
@@ -61,7 +61,7 @@ public class NodeStatusPanel extends Panel
 	 * @param anims
 	 *            The list of animations for this panel.
 	 */
-	public NodeStatusPanel(Display display, GameStateProvider stateManager, ConfigData... anims)
+	public NodeStatusPanel(Display display, GameStateProvider stateManager, Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 
