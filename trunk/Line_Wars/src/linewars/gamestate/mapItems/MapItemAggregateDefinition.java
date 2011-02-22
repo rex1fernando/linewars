@@ -40,7 +40,7 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected final void forceSubclassReloadConfigData()
+	protected final void forceSubclassReloadConfiguration()
 	{
 		containedItems = ((ListConfiguration<MapItemDefinition<? extends MapItem>>)super.getPropertyForName("containedItems").getValue()).getEnabledSubList();
 		relativeTrans = ((ListConfiguration<Transformation>)super.getPropertyForName("relativeTrans").getValue()).getEnabledSubList();

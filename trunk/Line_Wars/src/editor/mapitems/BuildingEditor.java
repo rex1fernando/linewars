@@ -1,16 +1,20 @@
 package editor.mapitems;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
+import linewars.display.IconConfiguration;
+import linewars.display.IconConfiguration.IconType;
+import linewars.gamestate.mapItems.BuildingDefinition;
 import configuration.Configuration;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
-
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
@@ -38,6 +42,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	
 	//variables for the icons
 	private ConfigurationEditor icons;
+	private Configuration iconConfig;
 	
 	/**
 	 * Constructs this building editor.
@@ -58,7 +63,18 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		buildTimePanel.add(new JLabel("Build Time (ms):"));
 		buildTimePanel.add(buildTime);
 		
-		icons = new IconEditor();
+		List<IconType> neededIcons = new ArrayList<IconType>();
+		List<String> iconDescriptions = new ArrayList<String>();
+		neededIcons.add(IconType.regular);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.highlighted);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.pressed);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.rollover);
+		iconDescriptions.add("");
+		icons = new IconEditor(neededIcons, iconDescriptions);
+		iconConfig = icons.instantiateNewConfiguration();
 		
 		JPanel innerPanel = new JPanel();
 
@@ -74,103 +90,52 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		if(force)
-			icons.forceSetData(cd);
-		else
-			icons.setData(cd);
-		
-		try {
-			Double d = cd.getNumber(ParserKeys.cost);
-			if(d != null)
-				cost.setText(d.toString());
-			else if(!force)
-				throw new IllegalArgumentException("Cost not defined");
-			else
-				cost.setText("");
-		} catch(NoSuchKeyException e) {
-			if(!force)
-				throw new IllegalArgumentException("Cost not defined");
-			else
-				cost.setText("");
-		}
-		
-		try {
-			Double d = cd.getNumber(ParserKeys.buildTime);
-			if(d != null)
-				buildTime.setText(d.toString());
-			else if(!force)
-				throw new IllegalArgumentException("Build time not defined");
-			else
-				buildTime.setText("");
-		} catch(NoSuchKeyException e) {
-			if(!force)
-				throw new IllegalArgumentException("Build Time not defined");
-			else
-				buildTime.setText("");
-		}
+		BuildingDefinition bd = (BuildingDefinition)cd;
+		cost.setText(bd.getCost() + "");
+		buildTime.setText(bd.getBuildTime() + "");
+		iconConfig = bd.getIconConfig();
+		icons.setData(iconConfig);
 	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
 		cost.setText("");
 		buildTime.setText("");
-		icons.instantiateNewConfiguration();
+		iconConfig = icons.instantiateNewConfiguration();
+		return new BuildingDefinition();
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		ConfigData cd = icons.getData(null);
-		
-		Scanner s = new Scanner(cost.getText());
-		if(s.hasNextDouble())
-			cd.set(ParserKeys.cost, s.nextDouble());
+		BuildingDefinition bd = (BuildingDefinition)toSet;
+		Scanner parser = new Scanner(cost.getText());
+		if(parser.hasNextDouble())
+			bd.setCost(parser.nextDouble());
 		else
-			cd.set(ParserKeys.cost, -1.0);
+			bd.setCost(0);
 		
-		s = new Scanner(buildTime.getText());
-		if(s.hasNextDouble())
-			cd.set(ParserKeys.buildTime, s.nextDouble());
+		parser = new Scanner(buildTime.getText());
+		if(parser.hasNextDouble())
+			bd.setBuildTime(parser.nextDouble());
+		else
+			bd.setBuildTime(0);
 		
-		return cd;
+		icons.getData(iconConfig);
+		bd.setIconConfig((IconConfiguration) iconConfig);
+		
+		return ConfigType.building;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		return ParserKeys.buildingURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.building);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		if(cost == null)
-			return false;
-		
-		if(!icons.isValidConfig())
-			return false;
-		
-		Scanner s = new Scanner(cost.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		s = new Scanner(buildTime.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		return true;
 	}
 
 }

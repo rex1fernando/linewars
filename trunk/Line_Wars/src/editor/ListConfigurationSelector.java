@@ -57,7 +57,7 @@ public class ListConfigurationSelector extends ConfigurationSelector
 	{
 		selections.clear();
 		selections.addAll(configs);
-		list.setListData(createOptions(configs));
+		list.setListData(createOptions((List<Configuration>) configs));
 	}
 	
 	private SelectorOption[] createOptions(List<Configuration> configs)

@@ -75,5 +75,15 @@ public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 	{
 		return combatStrat;
 	}
+	
+	public void setMovementStratConfig(MovementStrategyConfiguration msc)
+	{
+		super.setPropertyForName("mStrat", new Property(Usage.CONFIGURATION, msc));
+	}
+	
+	public void setCombatStratConfig(CombatStrategyConfiguration csc)
+	{
+		super.setPropertyForName("combatStrat", new Property(Usage.CONFIGURATION, csc));
+	}
 
 }
