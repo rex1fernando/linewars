@@ -6,13 +6,13 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Formatter.BigDecimalLayoutForm;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
@@ -21,13 +21,14 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
+import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
+
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.BuildingSpot;
-import linewars.gamestate.Lane;
-import linewars.gamestate.Node;
+import linewars.gamestate.LaneConfiguration;
+import linewars.gamestate.MapConfiguration;
+import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Circle;
@@ -46,8 +47,6 @@ public class MapPanel extends JPanel
 	private static final double MAX_ZOOM = 0.15;
 	private static final double MIN_ZOOM = 1.5;
 
-	private static int NEXT_NODE_ID = 1;
-	
 	private MapEditor parent;
 
 	private JSlider laneWidthSlider;
@@ -60,23 +59,20 @@ public class MapPanel extends JPanel
 	private double zoomLevel;
 	private double lastDrawTime;
 
-	private String mapURI;
-	private double mapWidth;
-	private double mapHeight;
-
 	private Position mousePosition;
 	private Rectangle2D viewport;
-	private Dimension2D mapSize;
+	private Position mapSize;
+	private String mapURI;
 
 	private MapDrawer mapDrawer;
 	private LaneDrawer laneDrawer;
 	private NodeDrawer nodeDrawer;
 	private BuildingDrawer buildingDrawer;
 
-	private ArrayList<Lane> lanes;
-	private ArrayList<Node> nodes;
-	private ArrayList<BuildingSpot> buildingSpots;
-	private ArrayList<BuildingSpot> commandCenters;
+	private List<LaneConfiguration> lanes;
+	private List<NodeConfiguration> nodes;
+	private List<BuildingSpot> buildingSpots;
+	private List<BuildingSpot> commandCenters;
 
 	private boolean moving;
 	private boolean moveP1;
@@ -85,12 +81,12 @@ public class MapPanel extends JPanel
 	private boolean resizeH;
 	private boolean rotating;
 
-	private Lane movingLane;
-	private Node movingNode;
+	private LaneConfiguration movingLane;
+	private NodeConfiguration movingNode;
 	private BuildingSpot movingSpot;
 
-	private Lane selectedLane;
-	private Node selectedNode;
+	private LaneConfiguration selectedLane;
+	private NodeConfiguration selectedNode;
 	private BuildingSpot selectedBuilding;
 	private BuildingSpot selectedCommandCenter;
 
@@ -130,12 +126,10 @@ public class MapPanel extends JPanel
 		// starts the user fully zoomed out
 		zoomLevel = 1.0;
 		mousePosition = new Position(0, 0);
-		mapSize = new Dimension(100, 100);
+		mapSize = new Position(100, 100);
 		viewport = new Rectangle2D.Double(0, 0, 100, 100);
 
 		mapURI = null;
-		mapWidth = 100;
-		mapHeight = 100;
 
 		mapDrawer = new MapDrawer(this);
 		mapDrawer.setMapSize(100, 100);
@@ -143,8 +137,8 @@ public class MapPanel extends JPanel
 		nodeDrawer = new NodeDrawer(this);
 		buildingDrawer = new BuildingDrawer(this);
 
-		lanes = new ArrayList<Lane>();
-		nodes = new ArrayList<Node>();
+		lanes = new ArrayList<LaneConfiguration>();
+		nodes = new ArrayList<NodeConfiguration>();
 		buildingSpots = new ArrayList<BuildingSpot>();
 		commandCenters = new ArrayList<BuildingSpot>();
 
@@ -194,118 +188,19 @@ public class MapPanel extends JPanel
 	 *            ConfigData is assumed to be correct and valid, if it is not an
 	 *            error will most likely be thrown.
 	 */
-	public void loadConfigFile(ConfigData data, boolean force)
+	public void loadMap(MapConfiguration map)
 	{
-		if(!force && !Boolean.getBoolean(data.getString(ParserKeys.valid)))
-			throw new IllegalArgumentException("The config data object is not valid");
-
-		List<ParserKeys> definedKeys = data.getDefinedKeys();
-
-		lanes = new ArrayList<Lane>();
-		nodes = new ArrayList<Node>();
-		buildingSpots = new ArrayList<BuildingSpot>();
+		setMapImage(map.getImageURI());
+		setMapSize(map.getImageSize(), true);
+		lanes = map.lanes();
+		nodes = map.nodes();
+		
 		commandCenters = new ArrayList<BuildingSpot>();
-
-		if(definedKeys.contains(ParserKeys.icon))
-			setMapImage(data.getString(ParserKeys.icon));
-		else if(force)
+		buildingSpots = new ArrayList<BuildingSpot>();
+		for(NodeConfiguration n : nodes)
 		{
-			setMapImage(null);
-		}
-		else
-			throw new IllegalArgumentException("The map image is not defined");
-
-		if(definedKeys.contains(ParserKeys.imageWidth) && definedKeys.contains(ParserKeys.imageHeight))
-			setMapSize((int)(double)data.getNumber(ParserKeys.imageWidth),
-					(int)(double)data.getNumber(ParserKeys.imageHeight), true);
-		else if(force)
-			setMapSize(100, 100, true);
-		else
-			throw new IllegalArgumentException("The map size is not defined");
-
-		if(definedKeys.contains(ParserKeys.lanes))
-		{
-			List<ConfigData> ls = data.getConfigList(ParserKeys.lanes);
-			for(ConfigData l : ls)
-			{
-				Lane lane;
-				try
-				{
-					lane = new Lane(l, force);
-				}
-				catch (NoSuchKeyException e)
-				{
-					if(force)
-						continue;
-					else
-						throw new IllegalArgumentException("A lane could not be properly constructed");
-				}
-
-				lanes.add(lane);
-			}
-		}
-		else if(!force)
-			throw new IllegalArgumentException("There are no lanes defined");
-
-		if(definedKeys.contains(ParserKeys.nodes))
-		{
-			List<ConfigData> ns = data.getConfigList(ParserKeys.nodes);
-			for(ConfigData n : ns)
-			{
-				Node newNode;
-				try
-				{
-					newNode = new Node(n, lanes.toArray(new Lane[0]), NEXT_NODE_ID++, force);
-				}
-				catch (NoSuchKeyException e)
-				{
-					if(force)
-						continue;
-					else
-						throw new IllegalArgumentException("A node could not be properly constructed");
-				}
-
-				nodes.add(newNode);
-
-				commandCenters.add(newNode.getCommandCenterSpot());
-				for(BuildingSpot s : newNode.getBuildingSpots())
-				{
-					buildingSpots.add(s);
-				}
-			}
-		}
-		else if(!force)
-			throw new IllegalArgumentException("There are no nodes defined");
-
-		for(Lane l : lanes)
-		{
-			Node[] nodes = l.getNodes();
-			if(nodes.length == 0)
-			{
-				if(!force)
-					throw new IllegalArgumentException("Lane " + l.getName() + " has no nodes");
-
-				lanes.remove(l);
-			}
-			else if(nodes.length == 1)
-			{
-				if(!force)
-					throw new IllegalArgumentException("Lane " + l.getName() + " has only one attached node");
-
-				nodes[0].removeAttachedLane(l);
-				lanes.remove(l);
-			}
-		}
-
-		for(Node n : nodes)
-		{
-			if(n.getAttachedLanes().length == 0)
-			{
-				if(!force)
-					throw new IllegalArgumentException("There is a node with no attached lanes");
-
-				nodes.remove(n);
-			}
+			commandCenters.add(n.getCommandCenterSpot());
+			buildingSpots.addAll(n.buildingSpots());
 		}
 	}
 
@@ -314,50 +209,17 @@ public class MapPanel extends JPanel
 	 * 
 	 * @return The ConfigData for the current map.
 	 */
-	public ConfigData getData()
+	public ConfigType getData(MapConfiguration toSet)
 	{
-		ConfigData data = new ConfigData();
-
 		if(mapURI == null)
 			createMapImage();
 
-		data.set(ParserKeys.icon, mapURI);
-		data.set(ParserKeys.imageWidth, mapWidth);
-		data.set(ParserKeys.imageHeight, mapHeight);
+		toSet.setImageURI(mapURI);
+		toSet.setImageSize(mapSize);
+		toSet.lanes().addAll(lanes);
+		toSet.nodes().addAll(nodes);
 
-		for(Lane l : lanes)
-		{
-			data.add(ParserKeys.lanes, l.getData(null));
-		}
-
-		for(Node n : nodes)
-		{
-			data.add(ParserKeys.nodes, n.getData(null));
-		}
-
-		data.set(ParserKeys.valid, Boolean.toString(isValidConfig()));
-
-		return data;
-	}
-
-	/**
-	 * Determines if the map is a valid and correct map.
-	 * 
-	 * @return True if the map is a valid and correct map. False otherwise.
-	 */
-	public boolean isValidConfig()
-	{
-		boolean valid = mapURI != null && mapWidth != 0 && mapHeight != 0;
-
-		for(Node n : nodes)
-		{
-			if(n.getCommandCenterSpot() == null)
-				valid = false;
-			if(n.getAttachedLanes().length == 0)
-				valid = false;
-		}
-
-		return valid;
+		return BigFrameworkGuy.ConfigType.map;
 	}
 
 	/**
@@ -366,16 +228,16 @@ public class MapPanel extends JPanel
 	 */
 	private void createMapImage()
 	{
-		BufferedImage map = new BufferedImage((int)mapWidth, (int)mapHeight, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage map = new BufferedImage((int)mapSize.getX(), (int)mapSize.getY(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = map.getGraphics();
 
 		g.setColor(Color.black);
-		g.fillRect(0, 0, (int)mapWidth, (int)mapHeight);
+		g.fillRect(0, 0, (int)mapSize.getX(), (int)mapSize.getY());
 
-		for(Lane l : lanes)
+		for(LaneConfiguration l : lanes)
 			laneDrawer.createMap(g, l);
 
-		for(Node n : nodes)
+		for(NodeConfiguration n : nodes)
 			nodeDrawer.createMap(g, n);
 
 		for(BuildingSpot b : buildingSpots)
@@ -411,9 +273,9 @@ public class MapPanel extends JPanel
 	 * 
 	 * @return All of the nodes in the map.
 	 */
-	public Node[] getNodes()
+	public NodeConfiguration[] getNodes()
 	{
-		return nodes.toArray(new Node[0]);
+		return nodes.toArray(new NodeConfiguration[0]);
 	}
 
 	/**
@@ -442,7 +304,7 @@ public class MapPanel extends JPanel
 	 * @param n
 	 *            The new selected node.
 	 */
-	public void setSelectedNode(Node n)
+	public void setSelectedNode(NodeConfiguration n)
 	{
 		selectedNode = n;
 	}
@@ -571,26 +433,24 @@ public class MapPanel extends JPanel
 	public void setMapImage(String mapURI)
 	{
 		this.mapURI = mapURI;
-		Dimension dim = mapDrawer.setMap(mapURI);
-		setMapSize(dim.getWidth(), dim.getHeight(), true);
+		Position dim = mapDrawer.setMap(mapURI);
+		setMapSize(dim, true);
 	}
 
 	/**
 	 * Sets the size of the map.
-	 * 
-	 * @param width
-	 *            The width of the map in game units.
-	 * @param height
+	 * @param mapSize
 	 *            The height of the map in game units.
 	 * @param setEdits
 	 *            Set the map size text fields?
 	 */
-	public void setMapSize(double width, double height, boolean setEdits)
+	public void setMapSize(Position mapSize, boolean setEdits)
 	{
-		mapWidth = width;
-		mapHeight = height;
+		double width = mapSize.getX();
+		double height = mapSize.getY();
+		
 		mapDrawer.setMapSize(width, height);
-		mapSize.setSize(width, height);
+		this.mapSize = new Position(mapSize.getX(), mapSize.getY());
 		double scale = (getHeight() / height) / (getWidth() / width);
 		viewport = new Rectangle2D.Double(0, 0, width, height * scale);
 
@@ -678,7 +538,7 @@ public class MapPanel extends JPanel
 	public void setLaneWidth(double width)
 	{
 		if(selectedLane != null)
-			selectedLane.setWidth(mapHeight * (width / 100));
+			selectedLane.setWidth(mapSize.getY() * (width / 100));
 	}
 
 	/**
@@ -688,24 +548,20 @@ public class MapPanel extends JPanel
 	{
 		if(createLane)
 		{
-			Node[] attachedNodes = selectedLane.getNodes();
-			for(Node n : attachedNodes)
-			{
-				n.removeAttachedLane(selectedLane);
-			}
-
+			selectedLane.getNode(0).attachedLanes().remove(selectedLane);
+			selectedLane.getNode(1).attachedLanes().remove(selectedLane);
 			lanes.remove(selectedLane);
 			selectedLane = null;
 		}
 		else if(createNode)
 		{
-			Lane[] attachedLanes = selectedNode.getAttachedLanes();
-			for(Lane l : attachedLanes)
+			List<LaneConfiguration> attachedLanes = selectedNode.attachedLanes();
+			for(LaneConfiguration l : attachedLanes)
 			{
-				Node[] attachedNodes = l.getNodes();
-				for(Node n : attachedNodes)
+				NodeConfiguration[] attachedNodes = {l.getNode(0), l.getNode(1)};
+				for(NodeConfiguration n : attachedNodes)
 				{
-					n.removeAttachedLane(l);
+					n.attachedLanes().remove(l);
 				}
 
 				lanes.remove(l);
@@ -719,12 +575,9 @@ public class MapPanel extends JPanel
 		}
 		else if(createBuilding)
 		{
-			for(Node n : nodes)
+			for(NodeConfiguration n : nodes)
 			{
-				if(n.getBuildingSpots().contains(selectedBuilding))
-				{
-					n.removeBuildingSpot(selectedBuilding);
-				}
+				n.buildingSpots().remove(selectedBuilding);
 			}
 
 			buildingSpots.remove(selectedBuilding);
@@ -735,11 +588,11 @@ public class MapPanel extends JPanel
 		}
 		else if(createCC)
 		{
-			for(Node n : nodes)
+			for(NodeConfiguration n : nodes)
 			{
 				if(n.getCommandCenterSpot() == selectedCommandCenter)
 				{
-					n.removeCommandCenterSpot();
+					n.setCommandCenterSpot(null);
 				}
 			}
 
@@ -801,7 +654,7 @@ public class MapPanel extends JPanel
 		// draw the lanes
 		if(lanesVisible)
 		{
-			for(Lane l : lanes)
+			for(LaneConfiguration l : lanes)
 			{
 				laneDrawer.draw(g, l, selectedLane == l, toGameCoord(mousePosition), scale);
 			}
@@ -810,7 +663,7 @@ public class MapPanel extends JPanel
 		// draw the nodes
 		if(nodesVisible)
 		{
-			for(Node n : nodes)
+			for(NodeConfiguration n : nodes)
 			{
 				nodeDrawer.draw(g, n, selectedNode == n, toGameCoord(mousePosition), scale);
 			}
@@ -904,15 +757,15 @@ public class MapPanel extends JPanel
 			moveX += x - newX;
 			newX = x;
 		}
-		if(newX > mapSize.getWidth() - newW)
+		if(newX > mapSize.getX() - newW)
 		{
-			double x = mapSize.getWidth() - newW;
+			double x = mapSize.getX() - newW;
 			moveX += x - newX;
 			newX = x;
 		}
-		if(newW > mapSize.getWidth())
+		if(newW > mapSize.getX())
 		{
-			double x = (mapSize.getWidth() - newW) / 2;
+			double x = (mapSize.getX() - newW) / 2;
 			moveX += x - newX;
 			newX = x;
 		}
@@ -925,15 +778,15 @@ public class MapPanel extends JPanel
 			moveY += y - newY;
 			newY = y;
 		}
-		if(newY > mapSize.getHeight() - newH)
+		if(newY > mapSize.getY() - newH)
 		{
-			double y = mapSize.getHeight() - newH;
+			double y = mapSize.getY() - newH;
 			moveY += y - newY;
 			newY = y;
 		}
-		if(newH > mapSize.getHeight())
+		if(newH > mapSize.getY())
 		{
-			double y = (mapSize.getHeight() - newH) / 2;
+			double y = (mapSize.getY() - newH) / 2;
 			moveY += y - newY;
 			newY = y;
 		}
@@ -1001,15 +854,15 @@ public class MapPanel extends JPanel
 	 * @param l
 	 *            The lane to modify.
 	 */
-	private void moveP0andP1(Position change, Lane l)
+	private void moveP0andP1(Position change, LaneConfiguration l)
 	{
-		BezierCurve curve = l.getCurve();
+		BezierCurve curve = l.getBezierCurve();
 		Position newP1 = curve.getP1().add(change);
 
-		Node node = l.getNodes()[0];
-		Position nodePos = node.getTransformation().getPosition();
+		NodeConfiguration node = l.getNode(0);
+		Position nodePos = node.getShape().position().getPosition();
 		Position pointingVec = newP1.subtract(nodePos).normalize();
-		Position newP0 = pointingVec.scale(node.getBoundingCircle().getRadius()).add(nodePos);
+		Position newP0 = pointingVec.scale(node.getShape().boundingCircle().getRadius()).add(nodePos);
 
 		curve.setP0(newP0);
 		curve.setP1(newP1);
@@ -1024,15 +877,15 @@ public class MapPanel extends JPanel
 	 * @param l
 	 *            The lane to modify.
 	 */
-	private void moveP2andP3(Position change, Lane l)
+	private void moveP2andP3(Position change, LaneConfiguration l)
 	{
-		BezierCurve curve = l.getCurve();
+		BezierCurve curve = l.getBezierCurve();
 		Position newP2 = curve.getP2().add(change);
 
-		Node node = l.getNodes()[1];
-		Position nodePos = node.getTransformation().getPosition();
+		NodeConfiguration node = l.getNode(1);
+		Position nodePos = node.getShape().position().getPosition();
 		Position pointingVec = newP2.subtract(nodePos).normalize();
-		Position newP3 = pointingVec.scale(node.getBoundingCircle().getRadius()).add(nodePos);
+		Position newP3 = pointingVec.scale(node.getShape().boundingCircle().getRadius()).add(nodePos);
 
 		curve.setP2(newP2);
 		curve.setP3(newP3);
@@ -1060,14 +913,13 @@ public class MapPanel extends JPanel
 
 		movingNode.setShape(s);
 
-		for(Lane l : movingNode.getAttachedLanes())
+		for(LaneConfiguration l : movingNode.attachedLanes())
 		{
-			Node[] nodeArr = l.getNodes();
-			if(movingNode == nodeArr[0])
+			if(movingNode == l.getNode(0))
 			{
 				moveP0andP1(new Position(0, 0), l);
 			}
-			else if(movingNode == nodeArr[1])
+			else if(movingNode == l.getNode(1))
 			{
 				moveP2andP3(new Position(0, 0), l);
 			}
@@ -1145,9 +997,9 @@ public class MapPanel extends JPanel
 	private void selectLane(Position p)
 	{
 		double scale = getWidth() / viewport.getWidth();
-		for(Lane l : lanes)
+		for(LaneConfiguration l : lanes)
 		{
-			BezierCurve curve = l.getCurve();
+			BezierCurve curve = l.getBezierCurve();
 			Position p1 = curve.getP1();
 			Position p2 = curve.getP2();
 			Circle c1 = new Circle(new Transformation(p1, 0), 5 / scale);
@@ -1169,13 +1021,13 @@ public class MapPanel extends JPanel
 
 		selectedLane = movingLane;
 		if(selectedLane != null && laneWidthSlider != null)
-			laneWidthSlider.setValue((int)(selectedLane.getWidth() / mapHeight * 100));
+			laneWidthSlider.setValue((int)(selectedLane.getWidth() / mapSize.getY() * 100));
 
 		if(!moveP1 && !moveP2)
 		{
-			for(Node n : nodes)
+			for(NodeConfiguration n : nodes)
 			{
-				Circle c = n.getBoundingCircle();
+				Circle c = n.getShape().boundingCircle();
 				if(c.positionIsInShape(p))
 				{
 					selectedNode = n;
@@ -1195,9 +1047,9 @@ public class MapPanel extends JPanel
 	private void selectNode(Position p)
 	{
 		double scale = getWidth() / viewport.getWidth();
-		for(Node n : nodes)
+		for(NodeConfiguration n : nodes)
 		{
-			Circle c = n.getBoundingCircle();
+			Circle c = n.getShape().boundingCircle();
 			Circle dragNode = new Circle(c.position(), c.getRadius() - 2.5 / scale);
 			Circle resizeNode = new Circle(c.position(), c.getRadius() + 2.5 / scale);
 
@@ -1218,7 +1070,7 @@ public class MapPanel extends JPanel
 
 		if(!moving && !resizeW && !resizeH)
 		{
-			movingNode = new Node(p, NEXT_NODE_ID++);
+			movingNode = new NodeConfiguration(p);
 			nodes.add(movingNode);
 			nodeSelector.addItem(movingNode);
 
@@ -1289,7 +1141,7 @@ public class MapPanel extends JPanel
 	 * @param p
 	 *            The position that was clicked.
 	 */
-	private void selectBuildingSpot(Position p, ArrayList<BuildingSpot> spots)
+	private void selectBuildingSpot(Position p, List<BuildingSpot> spots)
 	{
 		double scale = getWidth() / viewport.getWidth();
 		for(BuildingSpot b : spots)
@@ -1344,10 +1196,10 @@ public class MapPanel extends JPanel
 	 */
 	private void createLane(Position p)
 	{
-		Node otherNode = null;
-		for(Node n : nodes)
+		NodeConfiguration otherNode = null;
+		for(NodeConfiguration n : nodes)
 		{
-			Circle c = n.getBoundingCircle();
+			Circle c = n.getShape().boundingCircle();
 			if(c.positionIsInShape(p))
 			{
 				otherNode = n;
@@ -1357,26 +1209,15 @@ public class MapPanel extends JPanel
 
 		if(otherNode != null)
 		{
-			// determine the order to add the nodes, this prevents the lane
-			// from being "twisted" when the file is loaded again
-			ArrayList<Node> attachedNodes = new ArrayList<Node>();
-			for(Node n : nodes)
-			{
-				if(n == selectedNode)
-					attachedNodes.add(selectedNode);
-				else if(n == otherNode)
-					attachedNodes.add(otherNode);
-			}
-
-			Lane l = new Lane(attachedNodes.get(0), attachedNodes.get(1));
+			LaneConfiguration l = new LaneConfiguration(selectedNode, otherNode);
 			selectedLane = l;
 
 			if(laneWidthSlider != null)
-				laneWidthSlider.setValue((int)(l.getWidth() / mapHeight * 100));
+				laneWidthSlider.setValue((int)(l.getWidth() / mapSize.getY() * 100));
 
 			lanes.add(l);
-			selectedNode.addAttachedLane(l);
-			otherNode.addAttachedLane(l);
+			selectedNode.attachedLanes().add(l);
+			otherNode.attachedLanes().add(l);
 		}
 	}
 

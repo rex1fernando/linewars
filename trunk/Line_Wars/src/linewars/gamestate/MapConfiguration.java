@@ -1,14 +1,16 @@
 package linewars.gamestate;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import configuration.Configuration;
-import configuration.Property;
 
 public class MapConfiguration extends Configuration {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3696605874044495962L;
 	
 	private Position imageSize;
 	private String imageURI;

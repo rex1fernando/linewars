@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import linewars.gamestate.BezierCurve;
-import linewars.gamestate.Lane;
+import linewars.gamestate.LaneConfiguration;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -39,20 +39,18 @@ public class LaneDrawer
 	 * @param g The Graphics object for the image.
 	 * @param lane The lane to be drawn.
 	 */
-	public void createMap(Graphics g, Lane lane)
+	public void createMap(Graphics g, LaneConfiguration lane)
 	{
-		Node[] nodes = lane.getNodes();
-
-		Position laneStart = lane.getPosition(0).getPosition();
-		Position laneEnd = lane.getPosition(1.0).getPosition();
+		Position laneStart = lane.getBezierCurve().getPosition(0.0).getPosition();
+		Position laneEnd = lane.getBezierCurve().getPosition(1.0).getPosition();
 
 		g.setColor(Color.white);
 
 		// initialize the draw positions
-		Position beforePos = nodes[0].getTransformation().getPosition();
+		Position beforePos = lane.getNode(0).getShape().position().getPosition();
 		Position startPos = laneStart;
-		Position endPos = lane.getPosition(SEGMENT_STEP).getPosition();
-		Position afterPos = lane.getPosition(2 * SEGMENT_STEP).getPosition();
+		Position endPos = lane.getBezierCurve().getPosition(SEGMENT_STEP).getPosition();
+		Position afterPos = lane.getBezierCurve().getPosition(2 * SEGMENT_STEP).getPosition();
 
 		// draw the first segment it needs to start at the node
 		drawSegment(g, lane, beforePos, beforePos, laneStart, endPos, true);
@@ -67,7 +65,7 @@ public class LaneDrawer
 			beforePos = startPos;
 			startPos = endPos;
 			endPos = afterPos;
-			afterPos = lane.getPosition(pos).getPosition();
+			afterPos = lane.getBezierCurve().getPosition(pos).getPosition();
 
 			drawSegment(g, lane, beforePos, startPos, endPos, afterPos, true);
 		}
@@ -76,7 +74,7 @@ public class LaneDrawer
 		beforePos = startPos;
 		startPos = endPos;
 		endPos = afterPos;
-		afterPos = nodes[1].getTransformation().getPosition();
+		afterPos = lane.getNode(1).getShape().position().getPosition();
 
 		// draw the second to last segment
 		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, true);
@@ -102,20 +100,18 @@ public class LaneDrawer
 	 * @param scale
 	 *            The conversion factor from map size to screen size.
 	 */
-	public void draw(Graphics g, Lane lane, boolean selected, Position mouse, double scale)
+	public void draw(Graphics g, LaneConfiguration lane, boolean selected, Position mouse, double scale)
 	{
-		Node[] nodes = lane.getNodes();
-
-		Position laneStart = lane.getPosition(0).getPosition();
-		Position laneEnd = lane.getPosition(1.0).getPosition();
+		Position laneStart = lane.getBezierCurve().getPosition(0.0).getPosition();
+		Position laneEnd = lane.getBezierCurve().getPosition(1.0).getPosition();
 
 		g.setColor(new Color(255, 0, 0, selected ? 90 : 60));
 
 		// initialize the draw positions
-		Position beforePos = nodes[0].getTransformation().getPosition();
+		Position beforePos = lane.getNode(0).getShape().position().getPosition();
 		Position startPos = laneStart;
-		Position endPos = lane.getPosition(SEGMENT_STEP).getPosition();
-		Position afterPos = lane.getPosition(2 * SEGMENT_STEP).getPosition();
+		Position endPos = lane.getBezierCurve().getPosition(SEGMENT_STEP).getPosition();
+		Position afterPos = lane.getBezierCurve().getPosition(2 * SEGMENT_STEP).getPosition();
 
 		// draw the first segment it needs to start at the node
 		drawSegment(g, lane, beforePos, beforePos, laneStart, endPos, false);
@@ -130,7 +126,7 @@ public class LaneDrawer
 			beforePos = startPos;
 			startPos = endPos;
 			endPos = afterPos;
-			afterPos = lane.getPosition(pos).getPosition();
+			afterPos = lane.getBezierCurve().getPosition(pos).getPosition();
 
 			drawSegment(g, lane, beforePos, startPos, endPos, afterPos, false);
 		}
@@ -139,7 +135,7 @@ public class LaneDrawer
 		beforePos = startPos;
 		startPos = endPos;
 		endPos = afterPos;
-		afterPos = nodes[1].getTransformation().getPosition();
+		afterPos = lane.getNode(1).getShape().position().getPosition();
 
 		// draw the second to last segment
 		drawSegment(g, lane, beforePos, startPos, endPos, laneEnd, false);
@@ -151,7 +147,7 @@ public class LaneDrawer
 		drawSegment(g, lane, endPos, laneEnd, afterPos, afterPos, false);
 
 		// get the control points
-		BezierCurve curve = lane.getCurve();
+		BezierCurve curve = lane.getBezierCurve();
 		Position gameP1 = curve.getP1();
 		Position gameP2 = curve.getP2();
 		Position screenP0 = panel.toScreenCoord(curve.getP0());
@@ -201,7 +197,7 @@ public class LaneDrawer
 	 *            A position that is close to and comes after end.
 	 * @param drawMap TODO
 	 */
-	private void drawSegment(Graphics g, Lane lane, Position before, Position start,
+	private void drawSegment(Graphics g, LaneConfiguration lane, Position before, Position start,
 			Position end, Position after, boolean drawMap)
 	{
 		// get the vectors that represents the line segments
