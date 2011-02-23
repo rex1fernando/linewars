@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -22,7 +24,10 @@ import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
@@ -32,7 +37,14 @@ import javax.swing.event.TreeSelectionListener;
 import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemAggregateDefinition;
+import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.shapes.CircleConfiguration;
+import linewars.gamestate.shapes.RectangleConfiguration;
+import linewars.gamestate.shapes.ShapeAggregateConfiguration;
+import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
@@ -57,6 +69,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private Image[] images;
 	private long[] imagetimes;
 	
+	private boolean isAggregate = false;
+	
 	private boolean running;
 	private Thread animationThread;
 	
@@ -70,6 +84,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private JTree containerTree;
 	private BodyEditorNode root;
 	private BodyEditorNode selectedNode = null;
+	private JPopupMenu treePopupMenu;
 	
 	private List<Inputs> currentInputs = Collections.synchronizedList(new ArrayList<Inputs>());
 	
@@ -115,11 +130,21 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		this.add(southPanel, BorderLayout.SOUTH);
 		
 		root = new BodyEditorNode("Root");
-		root.add(new BodyEditorNode("child1", new Circle()));
-		root.add(new BodyEditorNode("child1", new Rectangle()));
 		containerTree = new JTree(root);
 		containerTree.setPreferredSize(new Dimension(150, 600));
 		containerTree.addTreeSelectionListener(new TreeEventListener());
+		containerTree.addMouseListener(new MouseListener() {	
+			public void mouseReleased(MouseEvent e) {}
+			public void mousePressed(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseClicked(MouseEvent e) {
+				if(e.getButton() == MouseEvent.BUTTON3 && selectedNode != null)
+					treePopupMenu.show(containerTree, e.getX(), e.getY());
+			}
+		});
+		treePopupMenu = constructPopupMenu();
+		
 		JScrollPane scroller = new JScrollPane(containerTree);
 		
 		this.add(scroller, BorderLayout.WEST);
@@ -193,9 +218,13 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 					synchronized (currentInputs)
 					{
 						drawShapes(g, root);
+						Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
+						Point mousePos = canvas.getMousePosition();
+						if(mousePos == null)
+							mousePos = new Point(0, 0);
+						if(selectedNode != null && selectedNode.getShape() != null)
+							selectedNode.getShape().drawActive(g, canvasCenter, mousePos, currentInputs);
 					}
-					
-					//TODO update the shapes being drawn
 					
 					//flip the buffers
 					g.dispose();
@@ -226,12 +255,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		if(ben.getShape() != null)
 		{
 			Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
-			Point mousePos = canvas.getMousePosition();
-			if(mousePos == null)
-				mousePos = new Point(0, 0);
-			if(ben == selectedNode)
-				ben.getShape().drawActive(g, canvasCenter, mousePos, currentInputs);
-			else
+			if(ben != selectedNode)
 				ben.getShape().drawInactive(g, canvasCenter);
 		}
 		else
@@ -265,11 +289,139 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 	}
+	
+	private JPopupMenu constructPopupMenu()
+	{
+		JMenuItem remove = new JMenuItem("Remove");
+		remove.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedNode != root)
+				{
+					selectedNode.removeFromParent();
+					containerTree.validate();
+					containerTree.updateUI();
+					selectedNode = null;
+				}
+				else
+					JOptionPane.showMessageDialog(BodyEditor.this,
+						    "Cannot remove the root.",
+						    "Error",
+						    JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		
+		JMenuItem add = new JMenuItem("Add Child");
+		add.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedNode == null)
+					return;
+				if(isAggregate)
+				{
+					//TODO
+				}
+				else
+				{
+					if(selectedNode == root)
+					{
+						Object[] options = { "Cirlce", "Rectangle", "Cancel" };
+						int n = JOptionPane.showOptionDialog(BodyEditor.this,
+								"Which shape would you like to add?",
+								"Add Shape", JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[2]);
+						BodyEditorNode ben;
+						if(n == 0)
+							ben = new BodyEditorNode(getNodeName("Circle"), new CircleDisplay());
+						else if(n == 1)
+							ben = new BodyEditorNode(getNodeName("Rectangle"), new RectangleDisplay());
+						else
+							return;
+						root.add(ben);
+						containerTree.validate();
+						containerTree.updateUI();
+					}
+					else
+						JOptionPane.showMessageDialog(BodyEditor.this,
+							    "Cannot add children to anything but the root.",
+							    "Error",
+							    JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		
+		JMenuItem rename = new JMenuItem("Rename");
+		rename.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedNode == null)
+					return;
+				String s = (String) JOptionPane.showInputDialog(
+						BodyEditor.this, "Please enter a new name", "Rename",
+						JOptionPane.PLAIN_MESSAGE, null, null,
+						selectedNode.getUserObject());
+				if(isNameUnique(s, root))
+				{
+					selectedNode.setUserObject(s);
+					containerTree.validate();
+					containerTree.updateUI();
+				}
+				else
+					JOptionPane.showMessageDialog(BodyEditor.this,
+						    "Cannot rename: name already in use.",
+						    "Error",
+						    JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		
+		JPopupMenu ret = new JPopupMenu();
+		ret.add(remove);
+		ret.add(add);
+		ret.add(rename);
+		return ret;
+	}
+	
+	private String getNodeName(String baseName)
+	{
+		String ret = baseName;		
+		for(int i = 0; !isNameUnique(ret, root); i++)
+			ret = baseName + i;
+		return ret;
+	}
+	
+	private boolean isNameUnique(String name, BodyEditorNode root)
+	{
+		if(name.equals(root.getUserObject()))
+			return false;
+		for(int i = 0; i < root.getChildCount(); i++)
+			if(!isNameUnique(name, (BodyEditorNode) root.getChildAt(i)))
+				return false;
+		
+		return true;
+	}
 
 	@Override
 	public void setData(Configuration cd) {
-		// TODO Auto-generated method stub
-
+		if(cd instanceof MapItemAggregateDefinition<?>)
+		{
+			isAggregate = true;
+			//TODO
+		}
+		else
+		{
+			isAggregate = false;
+			ShapeConfiguration sc = ((MapItemDefinition<? extends MapItem>) cd).getBodyConfig();
+			if(sc instanceof CircleConfiguration)
+				root.add(new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc)));
+			else if(sc instanceof RectangleConfiguration)
+				root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc)));
+			else if(sc instanceof ShapeAggregateConfiguration)
+			{
+				
+			}
+			//TODO
+		}
 	}
 
 	@Override

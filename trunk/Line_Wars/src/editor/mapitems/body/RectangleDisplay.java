@@ -7,9 +7,10 @@ import java.util.List;
 import java.awt.Point;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.shapes.RectangleConfiguration;
 import editor.mapitems.body.BodyEditor.Inputs;
 
-public class Rectangle implements ShapeDisplay {
+public class RectangleDisplay implements ShapeDisplay {
 	
 	private enum RectangleState {
 		rotating, moving, changingRight, changingUp, changingLeft, changingDown
@@ -24,6 +25,22 @@ public class Rectangle implements ShapeDisplay {
 	
 	private double initialAngle;
 	private Position startPosition;
+	
+	public RectangleDisplay()
+	{
+	}
+	
+	public RectangleDisplay(RectangleConfiguration rc)
+	{
+		this(rc, new Position(0, 0));
+	}
+	
+	public RectangleDisplay(RectangleConfiguration rc, Position center)
+	{
+		width = rc.getWidth();
+		height = rc.getHeight();
+		this.center = center;
+	}
 
 	@Override
 	public void drawInactive(Graphics2D g, Position canvasCenter) {
@@ -144,6 +161,11 @@ public class Rectangle implements ShapeDisplay {
 		//TODO start here
 	}
 	
+	private Position offset(Position pos, int scaler)
+	{
+		return pos.add(new Position(5, 5).scale(scaler));
+	}
+	
 	private boolean isOver(Graphics2D g, RectangleState s, Position canvasCenter, Position mousePosition)
 	{
 		boolean ret = false;
@@ -161,7 +183,7 @@ public class Rectangle implements ShapeDisplay {
 			//check corners
 			for(Position corner : corners)
 			{
-				if(isIn(mousePosition, corner.subtract(0.05*width, 0.05*height), corner.add(0.05*width, 0.05*height)))
+				if(isIn(mousePosition, offset(corner, -1), offset(corner, 1)))
 				{
 					ret = true;
 					rotateGraphics(g, canvasCenter);
@@ -195,7 +217,7 @@ public class Rectangle implements ShapeDisplay {
 					b = lowerRight;
 					break;
 			}
-			if(isIn(mousePosition, a.subtract(0.05*width, 0.05*height), b.add(0.05*width, 0.05*height)))
+			if(isIn(mousePosition, offset(a, -1), offset(b, 1)))
 			{
 				ret = true;
 				rotateGraphics(g, canvasCenter);
