@@ -1,13 +1,12 @@
 package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-
-import configuration.Configuration;
 import configuration.ListConfiguration;
 import configuration.Usage;
 
@@ -47,6 +46,42 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 		//TODO set up the new configuration and set ti
 		//TODO observe it too?
 		return true;
+	}
+	
+	/**
+	 * This method sets the name name to refer to shapeConfig.
+	 * 
+	 * @param name
+	 * @param shapeConfig
+	 * @param enabled
+	 */
+	public void setShapeConfigurationForName(String name, ShapeConfiguration shapeConfig, boolean enabled)
+	{
+		//TODO
+	}
+	
+	/**
+	 * Gets the shape configuration that is associated with name, as set by
+	 * setShapeConfigurationForName.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public ShapeConfiguration getShapeConfigurationForName(String name)
+	{
+		//TODO
+		return null;
+	}
+	
+	/**
+	 * Gets the list of all shape configuration names set by setShapeConfigurationForName
+	 * 
+	 * @return
+	 */
+	public List<String> getDefinedShapeNames()
+	{
+		//TODO
+		return null;
 	}
 
 	@Override

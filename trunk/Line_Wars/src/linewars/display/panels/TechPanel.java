@@ -13,20 +13,31 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import configuration.Configuration;
+
 import editor.BigFrameworkGuy;
+import editor.GenericSelector;
+import editor.GenericSelector.GenericListCallback;
+import editor.GenericSelector.SelectionChangeListener;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.BuildingSpot;
+import linewars.gamestate.Node;
 import linewars.gamestate.tech.CycleException;
+import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
 
@@ -52,7 +63,7 @@ public class TechPanel extends Panel
 	
 	private TechDisplay activeTech;
 	
-	private URISelector techSelector;
+	private GenericSelector<Configuration> techSelector;
 	private URISelector unlockStrategySelector;
 	
 	private boolean displayed;
@@ -64,6 +75,11 @@ public class TechPanel extends Panel
 	public TechPanel(BigFrameworkGuy bfg)
 	{
 		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		
+		Dimension size = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
 		
 		this.bfg = bfg;
 
@@ -169,8 +185,9 @@ public class TechPanel extends Panel
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
 		
-//		techSelector = new URISelector("Tech", new TechSelector());
-//		editorComponents.add(techSelector);
+		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
+		techSelector.addSelectionChangeListener(new TechSelectionListener());
+		editorComponents.add(techSelector);
 		
 		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
 		editorComponents.add(unlockStrategySelector);
@@ -235,6 +252,9 @@ public class TechPanel extends Panel
 			{
 				td.setPreferredSize(new Dimension(width, height));
 			}
+			
+			validate();
+			repaint();
 		}
 	}
 	
@@ -252,6 +272,13 @@ public class TechPanel extends Panel
 		{
 			activeTech = tech;
 			setAllTechGraphsInvisible();
+			
+			TechNode activeTechNode = activeTech.getActiveTech();
+			if(activeTechNode != null)
+			{
+				techSelector.setSelectedObject(activeTechNode.getTechConfig());
+				//TODO unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
+			}
 		}	
 	}
 	
@@ -277,6 +304,10 @@ public class TechPanel extends Panel
 				return;
 			
 			TechDisplay tech = new TechDisplay(new TechGraph());
+			tech.setTechSelector(techSelector);
+			tech.setUnlockStrategySelector(unlockStrategySelector);
+			
+			activeTech = tech;
 			techs.add(tech);
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
@@ -290,18 +321,21 @@ public class TechPanel extends Panel
 		}
 	}
 	
-	private class TechSelector implements SelectorOptions
+	private class TechListCallback implements GenericListCallback<Configuration>
 	{
 		@Override
-		public String[] getOptions()
+		public List<Configuration> getSelectionList()
 		{
-			return bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech).toArray(new String[0]);
+			return new ArrayList<Configuration>(bfg.getConfigurationsByType(BigFrameworkGuy.ConfigType.tech));
 		}
-		
+	}
+	
+	private class TechSelectionListener implements SelectionChangeListener<Configuration>
+	{
 		@Override
-		public void uriSelected(String uri)
+		public void selectionChanged(Configuration newSelection)
 		{
-			//TODO set the tech on the active tech button
+			activeTech.getActiveTech().setTech((TechConfiguration)newSelection);
 		}
 	}
 	

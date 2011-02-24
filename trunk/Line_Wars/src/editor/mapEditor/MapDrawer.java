@@ -13,6 +13,8 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import linewars.gamestate.Position;
+
 /**
  * Handles drawing the map to the map panel.
  * 
@@ -49,13 +51,13 @@ public class MapDrawer
 	 *            The URI of the image.
 	 * @return The size of the map image in pixels.
 	 */
-	public Dimension setMap(String mapURI)
+	public Position setMap(String mapURI)
 	{
 		if(mapURI == null)
 		{
 			map = null;
 			bufferedMap = null;
-			return new Dimension(100, 100);
+			return new Position(100, 100);
 		}
 
 		String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
@@ -76,7 +78,7 @@ public class MapDrawer
 		scaleX = 1.0;
 		scaleY = 1.0;
 
-		return new Dimension(map.getWidth(null), map.getHeight(null));
+		return new Position(map.getWidth(null), map.getHeight(null));
 	}
 
 	/**

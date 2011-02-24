@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.display.Animation;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
@@ -45,7 +45,7 @@ public class ExitButtonPanel extends Panel
 	 * @param anims
 	 *            The list of animations for the button.
 	 */
-	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, ConfigData... anims)
+	public ExitButtonPanel(JFrame frame, GameStateProvider stateManager, Animation... anims)
 	{
 		super(stateManager, WIDTH, HEIGHT, anims);
 
