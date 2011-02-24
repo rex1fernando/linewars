@@ -28,6 +28,15 @@ public class TimingManager implements Runnable{
 	private int nextTickID;
 	private long nextUpdateTime;
 	
+	//per game:
+	//map configuration
+	
+	//per player:
+	//name
+	//color
+	//spot
+	//race configuration
+	
 	public TimingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException{
 		manager = new LogicBlockingManager(mapURI, numPlayers, raceURIs, players);
 		nextTickID = 1;

@@ -23,6 +23,7 @@ public class TechConfiguration extends Configuration implements Observer {
 	private static final String nameKey = "name";
 	private static final String tooltipKey = "tooltip";
 	private static final String iconsKey = "icons";
+	private static final String raceKey = "race";
 	
 	//The Modification to be made to the owner's race
 	private ModifierConfiguration modification;
@@ -36,6 +37,9 @@ public class TechConfiguration extends Configuration implements Observer {
 	
 	//The Configuration object that stores the icon configuration for this tech
 	private IconConfiguration icons;
+	
+	//The Configuration object that stores the Race that will be modified.
+	private Race race;
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
@@ -54,11 +58,14 @@ public class TechConfiguration extends Configuration implements Observer {
 			tooltip = (String) value;
 		}else if(propertyName == iconsKey){
 			icons = (IconConfiguration) value;
+		}else if(propertyName == raceKey){
+			race = (Race) value;
 		}
 	}
 	
 	public void research(Player owner){
 		Race toModify = owner.getRace();
+		//TODO assert toModify.equals(race) ???
 		modification.applyTo(new Property(Usage.CONFIGURATION, toModify));
 	}
 	
@@ -100,5 +107,13 @@ public class TechConfiguration extends Configuration implements Observer {
 	
 	public void setIcons(IconConfiguration icons){
 		this.setPropertyForName(iconsKey, new Property(Usage.CONFIGURATION, icons));
+	}
+	
+	public Race getRace(){
+		return race;
+	}
+	
+	public void setRace(Race race){
+		this.race = race;
 	}
 }
