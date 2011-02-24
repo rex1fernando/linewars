@@ -9,8 +9,6 @@ import javax.swing.JSeparator;
 
 import configuration.Configuration;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
@@ -25,13 +23,13 @@ public class TechEditor implements ConfigurationEditor {
 	private JPanel topLevel;
 	private JPanel bottomLevel;
 	
-	private NTCFEditor ntcf;
+	private NTCIEditor ntcf;
 	private TechURISelector modifiedURIs;
 	private TechKeySelector keySelector;
 	
 	public TechEditor(BigFrameworkGuy framework){
 		//init main components
-		ntcf = new NTCFEditor();
+		ntcf = new NTCIEditor();
 		keySelector = new TechKeySelector(framework);
 		modifiedURIs = new TechURISelector(framework, keySelector);
 		

@@ -3,6 +3,7 @@ package linewars.gamestate.tech;
 import java.util.Observable;
 import java.util.Observer;
 
+import linewars.display.IconConfiguration;
 import linewars.gamestate.Player;
 import linewars.gamestate.Race;
 
@@ -11,21 +12,18 @@ import configuration.Property;
 import configuration.Usage;
 
 public class TechConfiguration extends Configuration implements Observer {
+		
 	/**
-	 * 
+	 * Regenerate this if and only if you change instance variables
 	 */
-	private static final long serialVersionUID = 5760115591033230971L;
-	
+	private static final long serialVersionUID = 1632034550432070187L;
 	
 	private static final String modificationKey = "modification";
 	private static final String costKey = "cost";
 	private static final String nameKey = "name";
 	private static final String tooltipKey = "tooltip";
-	private static final String iconURIKey = "iconURI";
-	private static final String pressedIconURIKey = "pressedIconURI";
-	private static final String rolloverIconURIKey = "rolloverIconURI";
-	private static final String selectedIconURIKey = "selectedIconURI";
-	private static final String disabledIconURIKey = "disabledIconURI";
+	private static final String iconsKey = "icons";
+	private static final String raceKey = "race";
 	
 	//The Modification to be made to the owner's race
 	private ModifierConfiguration modification;
@@ -36,16 +34,12 @@ public class TechConfiguration extends Configuration implements Observer {
 	private String name;
 	//The tooltip to be displayed when the user hovers the mouse over this Tech
 	private String tooltip;
-	//The URI of this Tech's icon
-	private String iconURI;
-	//The URI of the icon displayed while this Tech is clicked
-	private String pressedIconURI;
-	//The URI of the icon displayed while the mouse is over this Tech
-	private String rolloverIconURI;
-	//The URI of the icon displayed when the Tech's icon is selected (like via Tab)
-	private String selectedIconURI;
-	//The URI of the icon to be displayed when this Tech is disabled
-	private String disabledIconURI;
+	
+	//The Configuration object that stores the icon configuration for this tech
+	private IconConfiguration icons;
+	
+	//The Configuration object that stores the Race that will be modified.
+	private Race race;
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
@@ -62,21 +56,16 @@ public class TechConfiguration extends Configuration implements Observer {
 			name = (String) value;
 		}else if(propertyName == tooltipKey){
 			tooltip = (String) value;
-		}else if(propertyName == iconURIKey){
-			iconURI = (String) value;
-		}else if(propertyName == pressedIconURIKey){
-			pressedIconURI = (String) value;
-		}else if(propertyName == rolloverIconURIKey){
-			rolloverIconURI = (String) value;
-		}else if(propertyName == selectedIconURIKey){
-			selectedIconURI = (String) value;
-		}else if(propertyName == disabledIconURIKey){
-			disabledIconURI = (String) value;
+		}else if(propertyName == iconsKey){
+			icons = (IconConfiguration) value;
+		}else if(propertyName == raceKey){
+			race = (Race) value;
 		}
 	}
 	
 	public void research(Player owner){
 		Race toModify = owner.getRace();
+		//TODO assert toModify.equals(race) ???
 		modification.applyTo(new Property(Usage.CONFIGURATION, toModify));
 	}
 	
@@ -112,43 +101,19 @@ public class TechConfiguration extends Configuration implements Observer {
 		this.setPropertyForName(tooltipKey, new Property(Usage.STRING, tooltip));
 	}
 	
-	public String getIconURI() {
-		return iconURI;
+	public IconConfiguration getIcons(){
+		return icons;
 	}
 	
-	public void setIconURI(String iconURI) {
-		this.setPropertyForName(iconURIKey, new Property(Usage.STRING, iconURI));
+	public void setIcons(IconConfiguration icons){
+		this.setPropertyForName(iconsKey, new Property(Usage.CONFIGURATION, icons));
 	}
 	
-	public String getPressedIconURI() {
-		return pressedIconURI;
+	public Race getRace(){
+		return race;
 	}
 	
-	public void setPressedIconURI(String pressedIconURI) {
-		this.setPropertyForName(pressedIconURIKey, new Property(Usage.STRING, pressedIconURI));
-	}
-	
-	public String getRolloverIconURI() {
-		return rolloverIconURI;
-	}
-	
-	public void setRolloverIconURI(String rolloverIconURI) {
-		this.setPropertyForName(rolloverIconURIKey, new Property(Usage.STRING, rolloverIconURI));
-	}
-	
-	public String getSelectedIconURI() {
-		return selectedIconURI;
-	}
-	
-	public void setSelectedIconURI(String selectedIconURI) {
-		this.setPropertyForName(selectedIconURIKey, new Property(Usage.STRING, selectedIconURI));
-	}
-	
-	public String getDisabledIconURI(){
-		return disabledIconURI;
-	}
-	
-	public void setDisabledIconURI(String disabledIconURI){
-		this.setPropertyForName(disabledIconURIKey, new Property(Usage.STRING, disabledIconURI));
+	public void setRace(Race race){
+		this.race = race;
 	}
 }

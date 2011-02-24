@@ -9,8 +9,13 @@ import configuration.Usage;
 
 public class IconConfiguration extends Configuration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8030663091899136179L;
+
 	public enum IconType {
-		regular, pressed, rollover, highlighted
+		regular, pressed, rollover, highlighted, disabled
 	}
 
 	public void setIcon(IconType type, String uri)
