@@ -39,6 +39,7 @@ public abstract class Configuration extends Observable implements Serializable {
 	//can this throw an exception at all?
 	public Property setPropertyForName(String name, Property toSet){
 		Property ret = props.put(name, toSet);
+		setChanged();
 		notifyObservers(name);
 		return ret;
 	}

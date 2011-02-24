@@ -4,10 +4,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
-import java.awt.Point;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.RectangleConfiguration;
+import linewars.gamestate.shapes.ShapeConfiguration;
 import editor.mapitems.body.BodyEditor.Inputs;
 
 public class RectangleDisplay implements ShapeDisplay {
@@ -49,11 +50,11 @@ public class RectangleDisplay implements ShapeDisplay {
 
 	@Override
 	public void drawActive(Graphics2D g, Position canvasCenter,
-			Point mousePosition, List<Inputs> inputs) {
+			Position mousePosition, List<Inputs> inputs) {
 		drawRect(g, canvasCenter, Color.red);
 		
-		Position upperLeft = canvasCenter.subtract(center).subtract(width/2, height/2);
-		Position mousePos = new Position(mousePosition.x, mousePosition.y).rotateAboutPosition(upperLeft.add(width/2, height/2), -rotation);
+		Position upperLeft = canvasCenter.add(center).subtract(width/2, height/2);
+		Position mousePos = mousePosition.rotateAboutPosition(upperLeft.add(width/2, height/2), -rotation);
 		
 		//check for rotating
 		boolean isOverCorner = isOver(g, RectangleState.rotating, canvasCenter, mousePos); 
@@ -84,7 +85,7 @@ public class RectangleDisplay implements ShapeDisplay {
 					double oldWidth = width;
 					width = mousePos.getX() - upperLeft.getX();
 					if(!inputs.contains(Inputs.shift))
-						center = center.subtract(Position.getUnitVector(rotation).scale(0.5*(width - oldWidth)));
+						center = center.add(Position.getUnitVector(rotation).scale(0.5*(width - oldWidth)));
 				}
 			}
 			else
@@ -101,7 +102,7 @@ public class RectangleDisplay implements ShapeDisplay {
 					double oldHeight = height;
 					height = upperLeft.getY() + height - mousePos.getY();
 					if(!inputs.contains(Inputs.shift))
-						center = center.add(Position.getUnitVector(rotation + Math.PI/2).scale(0.5*(height - oldHeight)));
+						center = center.subtract(Position.getUnitVector(rotation + Math.PI/2).scale(0.5*(height - oldHeight)));
 				}
 			}
 			else
@@ -118,7 +119,7 @@ public class RectangleDisplay implements ShapeDisplay {
 					double oldWidth = width;
 					width = upperLeft.getX() + width - mousePos.getX();
 					if(!inputs.contains(Inputs.shift))
-						center = center.add(Position.getUnitVector(rotation).scale(0.5*(width - oldWidth)));
+						center = center.subtract(Position.getUnitVector(rotation).scale(0.5*(width - oldWidth)));
 				}
 			}
 			else
@@ -135,7 +136,7 @@ public class RectangleDisplay implements ShapeDisplay {
 					double oldHeight = height;
 					height = mousePos.getY() - upperLeft.getY();
 					if(!inputs.contains(Inputs.shift))
-						center = center.subtract(Position.getUnitVector(rotation + Math.PI/2).scale(0.5*(height - oldHeight)));
+						center = center.add(Position.getUnitVector(rotation + Math.PI/2).scale(0.5*(height - oldHeight)));
 				}
 			}
 			else
@@ -145,20 +146,18 @@ public class RectangleDisplay implements ShapeDisplay {
 		{
 			if(inputs.contains(Inputs.leftMouse))
 			{
-				Position mp = new Position(mousePosition.x, mousePosition.y);
+				Position mp = mousePosition;
 				if(state != RectangleState.moving)
 				{
 					state = RectangleState.moving;
 					startPosition = mp;
 				}
-				center = center.subtract(mp.subtract(startPosition));
+				center = center.add(mp.subtract(startPosition));
 				startPosition = mp;
 			}
 			else
 				state = null;
 		}
-		
-		//TODO start here
 	}
 	
 	private Position offset(Position pos, int scaler)
@@ -170,7 +169,7 @@ public class RectangleDisplay implements ShapeDisplay {
 	{
 		boolean ret = false;
 		Position[] corners = new Position[4];
-		Position upperLeft = canvasCenter.subtract(center).subtract(width/2, height/2);
+		Position upperLeft = canvasCenter.add(center).subtract(width/2, height/2);
 		Position upperRight = upperLeft.add(width, 0);
 		Position lowerLeft = upperLeft.add(0, height);
 		Position lowerRight = upperLeft.add(width, height);
@@ -238,7 +237,7 @@ public class RectangleDisplay implements ShapeDisplay {
 	
 	private void drawRect(Graphics2D g, Position canvasCenter, Color c)
 	{
-		Position upperLeft = canvasCenter.subtract(center).subtract(width/2, height/2);
+		Position upperLeft = canvasCenter.add(center).subtract(width/2, height/2);
 		rotateGraphics(g, canvasCenter);
 		g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
 		g.fillRect((int)upperLeft.getX(), (int)upperLeft.getY(), 
@@ -253,13 +252,23 @@ public class RectangleDisplay implements ShapeDisplay {
 	
 	private void rotateGraphics(Graphics2D g, Position canvasCenter)
 	{
-		Position center = canvasCenter.subtract(this.center);
+		Position center = canvasCenter.add(this.center);
 		g.rotate(rotation, (int)(center.getX()), (int)(center.getY()));
 	}
 	private void unrotateGraphics(Graphics2D g, Position canvasCenter)
 	{
-		Position center = canvasCenter.subtract(this.center);
+		Position center = canvasCenter.add(this.center);
 		g.rotate(-rotation, (int)(center.getX()), (int)(center.getY()));
+	}
+
+	@Override
+	public ShapeConfiguration generateConfiguration(double scalingFactor) {
+		return new RectangleConfiguration(scalingFactor*width, scalingFactor*height, new Transformation(center.scale(scalingFactor), rotation));
+	}
+
+	@Override
+	public Transformation getTransformation() {
+		return new Transformation(center, rotation);
 	}
 
 }

@@ -24,6 +24,11 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 		//TODO observe that configuration?
 	}
 	
+	public ShapeAggregateConfiguration()
+	{
+		//TODO
+	}
+	
 	public ArrayList<ShapeConfiguration> getAllShapes(){
 		return (ArrayList<ShapeConfiguration>) allShapes.clone();
 	}

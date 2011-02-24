@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -37,10 +38,12 @@ import javax.swing.event.TreeSelectionListener;
 import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemAggregateDefinition;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.PartDefinition;
 import linewars.gamestate.shapes.CircleConfiguration;
 import linewars.gamestate.shapes.RectangleConfiguration;
 import linewars.gamestate.shapes.ShapeAggregateConfiguration;
@@ -130,6 +133,10 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		this.add(southPanel, BorderLayout.SOUTH);
 		
 		root = new BodyEditorNode("Root");
+		//TODO testing code
+		BodyEditorNode child1 = new BodyEditorNode("test map item", testMapItem, scalingFactor, canvas);
+		child1.add(new BodyEditorNode("test map item", testMapItem, scalingFactor, canvas));
+		root.add(child1);
 		containerTree = new JTree(root);
 		containerTree.setPreferredSize(new Dimension(150, 600));
 		containerTree.addTreeSelectionListener(new TreeEventListener());
@@ -217,13 +224,12 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 					
 					synchronized (currentInputs)
 					{
-						drawShapes(g, root);
 						Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
-						Point mousePos = canvas.getMousePosition();
-						if(mousePos == null)
-							mousePos = new Point(0, 0);
-						if(selectedNode != null && selectedNode.getShape() != null)
-							selectedNode.getShape().drawActive(g, canvasCenter, mousePos, currentInputs);
+						Point mousePosition = canvas.getMousePosition();
+						if(mousePosition == null)
+							mousePosition = new Point(0, 0);
+						Position mousePos = new Position(mousePosition.x, mousePosition.y);
+						root.drawShape(g, canvasCenter, mousePos, currentInputs);
 					}
 					
 					//flip the buffers
@@ -247,21 +253,6 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			animationThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	private void drawShapes(Graphics2D g, BodyEditorNode ben)
-	{
-		if(ben.getShape() != null)
-		{
-			Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
-			if(ben != selectedNode)
-				ben.getShape().drawInactive(g, canvasCenter);
-		}
-		else
-		{
-			for(int i = 0; i < ben.getChildCount(); i++)
-				drawShapes(g, (BodyEditorNode)ben.getChildAt(i));
 		}
 	}
 	
@@ -403,6 +394,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {
+		root.removeAllChildren();
+		selectedNode = null;
 		if(cd instanceof MapItemAggregateDefinition<?>)
 		{
 			isAggregate = true;
@@ -418,57 +411,86 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc)));
 			else if(sc instanceof ShapeAggregateConfiguration)
 			{
-				
+				ShapeAggregateConfiguration sac = (ShapeAggregateConfiguration) sc;
+				for(String name : sac.getDefinedShapeNames())
+				{
+					sc = sac.getShapeConfigurationForName(name);
+					if(sc instanceof CircleConfiguration)
+						root.add(new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc)));
+					else if(sc instanceof RectangleConfiguration)
+						root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc)));
+					else
+						throw new IllegalStateException("Shape aggregates should never contain other shape aggregates");
+				}
 			}
-			//TODO
 		}
 	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		// TODO Auto-generated method stub
+		root.removeAllChildren();
+		selectedNode = null;
 		return null;
 	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		// TODO Auto-generated method stub
+		if(isAggregate)
+		{
+			//TODO
+		}
+		else
+		{
+			MapItemDefinition<?> mid = (MapItemDefinition<?>) toSet;
+			ShapeConfiguration sc = null;
+			double scalingFactor = 1;
+			Scanner s = new Scanner(this.scalingFactor.getText());
+			if(s.hasNextDouble())
+				scalingFactor = s.nextDouble()/canvas.getWidth();
+			if(root.getChildCount() == 0)
+				mid.setBody(null);
+			else if(root.getChildCount() == 1)
+				mid.setBody(((BodyEditorNode) root.getChildAt(0)).getShape().generateConfiguration(scalingFactor));
+			else
+			{
+				ShapeAggregateConfiguration sac = new ShapeAggregateConfiguration();
+				for(int i = 0; i < root.getChildCount(); i++)
+					sac.setShapeConfigurationForName(
+							(String) ((BodyEditorNode) root.getChildAt(i))
+									.getUserObject(), ((BodyEditorNode) root
+									.getChildAt(i)).getShape()
+									.generateConfiguration(scalingFactor), true);
+				mid.setBody(sac);
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public List<ConfigType> getAllLoadableTypes() {
-		// TODO Auto-generated method stub
-		return null;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.building);
+		ret.add(ConfigType.gate);
+		ret.add(ConfigType.part);
+		ret.add(ConfigType.projectile);
+		ret.add(ConfigType.turret);
+		ret.add(ConfigType.unit);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 	
 	private class MouseEventListener implements MouseListener
 	{
-
 		@Override
-		public void mouseClicked(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		public void mouseClicked(MouseEvent arg0) {}
 		@Override
-		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		public void mouseEntered(MouseEvent arg0) {}
 		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		public void mouseExited(MouseEvent arg0) {}
 		@Override
 		public void mousePressed(MouseEvent arg0) {
 			if(arg0.getButton() == MouseEvent.BUTTON1 && !currentInputs.contains(Inputs.leftMouse))
@@ -507,10 +529,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		}
 
 		@Override
-		public void keyTyped(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void keyTyped(KeyEvent arg0) {}
 		
 	}
 	
@@ -519,10 +538,16 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {
+			if(selectedNode != null)
+				selectedNode.setActive(false);
 			selectedNode = (BodyEditorNode) e.getNewLeadSelectionPath().getLastPathComponent();
+			if(selectedNode != null)
+				selectedNode.setActive(true);
 		}
 		
 	}
+	
+	private static PartDefinition testMapItem;
 	
 	public static void main(String[] args)
 	{
@@ -539,6 +564,12 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		final DisplayConfiguration dc = new DisplayConfiguration();
 		dc.setAnimation(MapItemState.Idle, a1);
 		dc.setAnimation(MapItemState.Active, a2);
+		
+		testMapItem = new PartDefinition();
+		ShapeConfiguration sc = new RectangleConfiguration(100, 50, new Transformation(new Position(0, 0), 0)); 
+		testMapItem.setBody(sc);
+		if(sc != testMapItem.getBodyConfig())
+			return;
 		
 		BodyEditor be = new BodyEditor(null, new DisplayConfigurationCallback() {
 			@Override

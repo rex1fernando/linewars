@@ -3,14 +3,13 @@ package editor.mapitems.body;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.util.List;
 
-import editor.mapitems.body.BodyEditor.Inputs;
-
 import linewars.gamestate.Position;
-import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.CircleConfiguration;
+import linewars.gamestate.shapes.ShapeConfiguration;
+import editor.mapitems.body.BodyEditor.Inputs;
 
 public class CircleDisplay implements ShapeDisplay {
 	
@@ -42,42 +41,41 @@ public class CircleDisplay implements ShapeDisplay {
 	}
 
 	@Override
-	public void drawActive(Graphics2D g, Position canvasCenter, Point mousePosition, List<Inputs> inputs) {
+	public void drawActive(Graphics2D g, Position canvasCenter, Position mousePosition, List<Inputs> inputs) {
 		drawCircle(g, canvasCenter, Color.red);
-		Position mousePos = new Position(mousePosition.x, mousePosition.y);
-		if((isOnEdge(mousePos, canvasCenter) || adjustingRadius) && moveCircleStart == null)
+		if((isOnEdge(mousePosition, canvasCenter) || adjustingRadius) && moveCircleStart == null)
 		{
 			if(!adjustingRadius)
 				adjustingRadius = true;
 			g.setStroke(new BasicStroke(5));
-			Position upperLeft = canvasCenter.subtract(center).subtract(new Position(radius, radius));
+			Position upperLeft = canvasCenter.add(center).subtract(new Position(radius, radius));
 			Position lowerRight = new Position(radius, radius).scale(2);
 			g.drawOval((int)upperLeft.getX(), (int)upperLeft.getY(),
 						(int)lowerRight.getX(), (int)lowerRight.getY());
 			if(inputs.contains(Inputs.leftMouse))
-				radius = Math.sqrt(mousePos.distanceSquared(canvasCenter.subtract(center)));
+				radius = Math.sqrt(mousePosition.distanceSquared(canvasCenter.add(center)));
 		}
-		else if((mousePos.distanceSquared(canvasCenter.subtract(center)) < radius*radius 
+		else if((mousePosition.distanceSquared(canvasCenter.add(center)) < radius*radius 
 				&& inputs.contains(Inputs.leftMouse)) || moveCircleStart != null) 
 		{
 			if(moveCircleStart == null)
-				moveCircleStart = mousePos;
+				moveCircleStart = mousePosition;
 			else
 			{
-				center = center.add(moveCircleStart.subtract(mousePos));
-				moveCircleStart = mousePos;
+				center = center.subtract(moveCircleStart.subtract(mousePosition));
+				moveCircleStart = mousePosition;
 			}
 		}
 		
 		if(!inputs.contains(Inputs.leftMouse))
 			moveCircleStart = null;
-		if(!isOnEdge(mousePos, canvasCenter) && adjustingRadius)
+		if(!isOnEdge(mousePosition, canvasCenter) && adjustingRadius)
 			adjustingRadius = false;
 	}
 	
 	private boolean isOnEdge(Position mousePos, Position canvasCenter)
 	{
-		return (Math.abs(Math.sqrt(mousePos.distanceSquared(canvasCenter.subtract(center))) - radius) <= 5);
+		return (Math.abs(Math.sqrt(mousePos.distanceSquared(canvasCenter.add(center))) - radius) <= 5);
 	}
 
 	/**
@@ -87,7 +85,7 @@ public class CircleDisplay implements ShapeDisplay {
 	protected void drawCircle(Graphics2D g, Position canvasCenter, Color c) {
 		g.setColor(new Color(c.getRed(), c.getGreen(),
 				c.getBlue(), 128));
-		Position upperLeft = canvasCenter.subtract(center).subtract(new Position(radius, radius));
+		Position upperLeft = canvasCenter.add(center).subtract(new Position(radius, radius));
 		Position lowerRight = new Position(radius, radius).scale(2);
 		g.fillOval((int)upperLeft.getX(), (int)upperLeft.getY(),
 					(int)lowerRight.getX(), (int)lowerRight.getY());
@@ -96,6 +94,16 @@ public class CircleDisplay implements ShapeDisplay {
 		g.setStroke(new BasicStroke(3));
 		g.drawOval((int)upperLeft.getX(), (int)upperLeft.getY(),
 				(int)lowerRight.getX(), (int)lowerRight.getY());
+	}
+
+	@Override
+	public ShapeConfiguration generateConfiguration(double scalingFactor) {
+		return new CircleConfiguration(scalingFactor*radius, new Transformation(center.scale(scalingFactor), 0));
+	}
+
+	@Override
+	public Transformation getTransformation() {
+		return new Transformation(center, 0);
 	}
 
 }
