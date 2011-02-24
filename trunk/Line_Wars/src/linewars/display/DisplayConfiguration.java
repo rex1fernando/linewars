@@ -4,23 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import linewars.display.sound.Sound;
 import linewars.gamestate.mapItems.MapItemState;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
 
-public class DisplayConfiguration extends Configuration {
-	
+public class DisplayConfiguration extends Configuration
+{
 	public Animation getAnimation(MapItemState state)
 	{
 		return (Animation)super.getPropertyForName(state.toString()).getValue();
 	}
-	
+
 	public void setAnimation(MapItemState state, Animation a)
 	{
 		super.setPropertyForName(state.toString(), new Property(Usage.ANIMATION, a));
 	}
-	
+
+	public Sound getSound(MapItemState state)
+	{
+		return (Sound)super.getPropertyForName(state.toString()).getValue();
+	}
+
+	public void setSound(MapItemState state, Sound s)
+	{
+		super.setPropertyForName(state.toString(), new Property(Usage.SOUND, s));
+	}
+
 	public List<MapItemState> getDefinedStates()
 	{
 		List<MapItemState> ret = new ArrayList<MapItemState>();
@@ -28,8 +39,7 @@ public class DisplayConfiguration extends Configuration {
 		for(MapItemState mis : MapItemState.values())
 			if(definedKeys.contains(mis.toString()))
 				ret.add(mis);
-		
+
 		return ret;
 	}
-
 }
