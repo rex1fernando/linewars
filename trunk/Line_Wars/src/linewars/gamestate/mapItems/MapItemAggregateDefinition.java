@@ -58,5 +58,47 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 	{
 		return relativeTrans;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<MapItemDefinition<? extends MapItem>> getAllContainedItems()
+	{
+		return ((ListConfiguration<MapItemDefinition<? extends MapItem>>)super.getPropertyForName("containedItems").getValue()).getFullList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Transformation> getAllRelativeTransformations()
+	{
+		return ((ListConfiguration<Transformation>)super.getPropertyForName("relativeTrans").getValue()).getFullList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Boolean> getAllEnabledFlags()
+	{
+		return ((ListConfiguration<Boolean>)super.getPropertyForName("containedItems").getValue()).getEnabledFlags();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> getAllNames()
+	{
+		return ((ListConfiguration<String>)super.getPropertyForName("containedItems").getValue()).getNames();
+	}
+	
+	public void setFullContainedList(List<MapItemDefinition<? extends MapItem>> items, List<Transformation> relativeTrans, 
+										List<String> names, List<Boolean> enabledFlags)
+	{
+		List<Usage> usages = new ArrayList<Usage>();
+		for(int i = 0; i < items.size(); i++)
+			usages.add(Usage.CONFIGURATION);
+		
+		super.setPropertyForName("containedItems", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<MapItemDefinition<? extends MapItem>>(items, names, usages, enabledFlags)));
+		
+		usages.clear();
+		for(int i = 0; i < items.size(); i++)
+			usages.add(Usage.TRANSFORMATION);
+		
+		super.setPropertyForName("relativeTrans", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<Transformation>(relativeTrans, names, usages, enabledFlags)));
+	}
 
 }

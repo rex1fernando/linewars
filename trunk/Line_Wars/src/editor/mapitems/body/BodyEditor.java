@@ -43,18 +43,27 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemAggregateDefinition;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.PartAggregateDefinition;
 import linewars.gamestate.mapItems.PartDefinition;
 import linewars.gamestate.shapes.CircleConfiguration;
 import linewars.gamestate.shapes.RectangleConfiguration;
 import linewars.gamestate.shapes.ShapeAggregateConfiguration;
 import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
+import configuration.Property;
+import configuration.Usage;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
 import editor.GenericSelector.GenericListCallback;
 import editor.GenericSelector.SelectionChangeListener;
+
+//Left TODO
+//-allow enabling/disabling
+//-show animations for each sub piece
+//-integrate into map item commonalities editor
+//--make sure setData gets called whenever instantiate is
 
 public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
@@ -72,7 +81,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private Image[] images;
 	private long[] imagetimes;
 	
-	private boolean isAggregate = false;
+	private boolean isAggregate = true;
 	
 	private boolean running;
 	private Thread animationThread;
@@ -90,6 +99,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private JPopupMenu treePopupMenu;
 	
 	private List<Inputs> currentInputs = Collections.synchronizedList(new ArrayList<Inputs>());
+	//TODO add a hashmap for enabled/disabled
 	
 	public BodyEditor(BigFrameworkGuy bfg, DisplayConfigurationCallback dcc, String imagePath)
 	{
@@ -132,11 +142,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		
 		this.add(southPanel, BorderLayout.SOUTH);
 		
-		root = new BodyEditorNode("Root");
-		//TODO testing code
-		BodyEditorNode child1 = new BodyEditorNode("test map item", testMapItem, scalingFactor, canvas);
-		child1.add(new BodyEditorNode("test map item", testMapItem, scalingFactor, canvas));
-		root.add(child1);
+		root = new BodyEditorNode("Root", (ShapeDisplay)null);
 		containerTree = new JTree(root);
 		containerTree.setPreferredSize(new Dimension(150, 600));
 		containerTree.addTreeSelectionListener(new TreeEventListener());
@@ -155,8 +161,6 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		JScrollPane scroller = new JScrollPane(containerTree);
 		
 		this.add(scroller, BorderLayout.WEST);
-		
-		//TODO add more stuff to be constructed
 	}
 	
 	@Override
@@ -310,7 +314,33 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 					return;
 				if(isAggregate)
 				{
-					//TODO
+					if(selectedNode.getMapItemDefinition() == null) //this node is an aggregate
+					{
+						Object[] options = { "Aggregate", "Part/Turret", "Cancel" };
+						int n = JOptionPane.showOptionDialog(BodyEditor.this,
+								"What would you like to add?",
+								"Add Node", JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[2]);
+						if(n == 0)
+							selectedNode.add(new BodyEditorNode(getNodeName("Part Aggregate"), BodyEditorNode.DEFAULT_TRANS));
+						else if(n == 1)
+						{
+							//TODO show part/turret selection box
+							selectedNode.add(new BodyEditorNode(
+									getNodeName((String) testMapItem
+											.getPropertyForName("bfgName")
+											.getValue()), testMapItem, BodyEditorNode.DEFAULT_TRANS,
+									scalingFactor, canvas));
+						}
+						containerTree.validate();
+						containerTree.updateUI();
+					}
+					else
+						JOptionPane.showMessageDialog(BodyEditor.this,
+							    "Cannot add children to this node.",
+							    "Error",
+							    JOptionPane.ERROR_MESSAGE);
 				}
 				else
 				{
@@ -391,6 +421,26 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		
 		return true;
 	}
+	
+	private void decomposeMapItemAggregate(BodyEditorNode parent, MapItemAggregateDefinition<?> miad)
+	{
+		List<MapItemDefinition<?>> defs = miad.getAllContainedItems();
+		List<Transformation> trans = miad.getAllRelativeTransformations();
+		List<String> names = miad.getAllNames();
+		
+		for(int i = 0; i < defs.size(); i++)
+		{
+			BodyEditorNode ben;
+			if(defs.get(i) instanceof MapItemAggregateDefinition<?>)
+			{
+				ben = new BodyEditorNode(names.get(i), trans.get(i));
+				decomposeMapItemAggregate(ben, (MapItemAggregateDefinition<?>) defs.get(i));
+			}
+			else
+				ben = new BodyEditorNode(names.get(i), defs.get(i), trans.get(i), scalingFactor, canvas);
+			parent.add(ben);
+		}
+	}
 
 	@Override
 	public void setData(Configuration cd) {
@@ -399,7 +449,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		if(cd instanceof MapItemAggregateDefinition<?>)
 		{
 			isAggregate = true;
-			//TODO
+			decomposeMapItemAggregate(root, (MapItemAggregateDefinition<?>) cd);
 		}
 		else
 		{
@@ -424,6 +474,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				}
 			}
 		}
+		containerTree.validate();
+		containerTree.updateUI();
 	}
 
 	@Override
@@ -432,12 +484,35 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		selectedNode = null;
 		return null;
 	}
+	
+	private void fillAggregates(BodyEditorNode parent, MapItemAggregateDefinition<?> tofill)
+	{
+		List<MapItemDefinition<?>> mids = new ArrayList<MapItemDefinition<?>>();
+		List<Transformation> relativeTrans = new ArrayList<Transformation>();
+		List<String> names = new ArrayList<String>();
+		List<Boolean> enabledFlags = new ArrayList<Boolean>();
+		for(int i = 0; i < parent.getChildCount(); i++)
+		{
+			if(((BodyEditorNode)parent.getChildAt(i)).getMapItemDefinition() == null)
+			{
+				PartAggregateDefinition pad = new PartAggregateDefinition();
+				fillAggregates((BodyEditorNode) parent.getChildAt(i), pad);
+				mids.add(pad);
+			}
+			else
+				mids.add(((BodyEditorNode)parent.getChildAt(i)).getMapItemDefinition());
+			relativeTrans.add(((BodyEditorNode)parent.getChildAt(i)).getShape().getTransformation());
+			names.add((String) ((BodyEditorNode)parent.getChildAt(i)).getUserObject());
+			enabledFlags.add(true);
+		}
+		tofill.setFullContainedList(mids, relativeTrans, names, enabledFlags);
+	}
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
 		if(isAggregate)
 		{
-			//TODO
+			fillAggregates(root, (MapItemAggregateDefinition<?>) toSet);
 		}
 		else
 		{
@@ -566,6 +641,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		dc.setAnimation(MapItemState.Active, a2);
 		
 		testMapItem = new PartDefinition();
+		testMapItem.setPropertyForName("bfgName", new Property(Usage.STRING, "TEST"));
 		ShapeConfiguration sc = new RectangleConfiguration(100, 50, new Transformation(new Position(0, 0), 0)); 
 		testMapItem.setBody(sc);
 		if(sc != testMapItem.getBodyConfig())

@@ -8,7 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import editor.mapitems.body.BodyEditor.Inputs;
-import editor.mapitems.body.ShapeAggregateDisplay.*;
+import editor.mapitems.body.MapItemDisplay.*;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -17,20 +17,23 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 
 public class BodyEditorNode extends DefaultMutableTreeNode {
 	
+	public static final Transformation DEFAULT_TRANS = new Transformation(new Position(0, 100), 0);
+	
 	private MapItemDefinition<? extends MapItem> mid;
 	private ShapeDisplay shape;
 	private boolean active = false;
 	
-	public BodyEditorNode(String display)
+	public BodyEditorNode(String display, Transformation t)
 	{
 		super(display);
+		shape = new AlignmentStickDisplay(t);
 	}
 	
-	public BodyEditorNode(String display, MapItemDefinition<? extends MapItem> mid, JTextField scale, final Canvas canvas)
+	public BodyEditorNode(String display, MapItemDefinition<? extends MapItem> mid, Transformation t, JTextField scale, final Canvas canvas)
 	{
-		this(display);
+		super(display);
 		this.mid = mid;
-		shape = new ShapeAggregateDisplay(mid, scale, new Transformation(new Position(0, 100), 0),
+		shape = new MapItemDisplay(mid, scale, t,
 				new CanvasDimensionsCallback() {		
 					@Override
 					public double getWidth() {
@@ -46,7 +49,7 @@ public class BodyEditorNode extends DefaultMutableTreeNode {
 	
 	public BodyEditorNode(String display, ShapeDisplay shape)
 	{
-		this(display);
+		super(display);
 		this.shape = shape;
 	}
 	
@@ -76,6 +79,7 @@ public class BodyEditorNode extends DefaultMutableTreeNode {
 		
 		for(int i = 0; i < this.getChildCount(); i++)
 			((BodyEditorNode)this.getChildAt(i)).drawShape(g, canvasCenter, mousePosition, inputs);
+		
 		if(shape != null)
 			g.rotate(-shape.getTransformation().getRotation(), (int)canvasCenter.getX(), (int)canvasCenter.getY());
 	}

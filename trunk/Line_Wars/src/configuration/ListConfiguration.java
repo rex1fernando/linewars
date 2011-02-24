@@ -2,9 +2,13 @@ package configuration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemDefinition;
 
 /**
  * This class may be used to store a list of object in a Configuration in a way that allows Techs access to upgrade elements in the list.
@@ -50,10 +54,10 @@ public class ListConfiguration<T> extends Configuration implements Observer{
 	}
 
 
-	public ListConfiguration(ArrayList<T> data, ArrayList<String> names, ArrayList<Usage> usages, ArrayList<Boolean> enabled){
+	public ListConfiguration(List<T> data, List<String> names, List<Usage> usages, List<Boolean> enabledFlags){
 		//make sure the lists are all the same length
 		int expectedSize = data.size();
-		if(names.size() != expectedSize || usages.size() != expectedSize || enabled.size() != expectedSize){
+		if(names.size() != expectedSize || usages.size() != expectedSize || enabledFlags.size() != expectedSize){
 			throw new IllegalArgumentException("The provided parallel lists should all be the same size.");
 		}
 		
@@ -75,7 +79,7 @@ public class ListConfiguration<T> extends Configuration implements Observer{
 			//add data to subclass
 			ListObject toAdd = new ListObject();
 			toAdd.name = names.get(i);
-			toAdd.enabled = enabled.get(i);
+			toAdd.enabled = enabledFlags.get(i);
 			toAdd.data = data.get(i);
 			toAdd.usage = usages.get(i);
 			dataList.add(toAdd);
