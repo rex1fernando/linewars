@@ -17,24 +17,39 @@ import configuration.Usage;
 //should be drawn in)
 public class DisplayConfiguration extends Configuration
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9116359081134456270L;
+
 	public Animation getAnimation(MapItemState state)
 	{
-		return (Animation)super.getPropertyForName(state.toString() + "Animation").getValue();
+		return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getAnimation();
 	}
 
 	public void setAnimation(MapItemState state, Animation a)
 	{
-		super.setPropertyForName(state.toString() + "Animation", new Property(Usage.ANIMATION, a));
+		if(!getDefinedStates().contains(state))
+		{
+			super.setPropertyForName(state.toString(), new Property(Usage.CONFIGURATION, new DisplayState()));
+		}
+		
+		((DisplayState)super.getPropertyForName(state.toString()).getValue()).setAnimation(a);
 	}
 
-	public Sound getSound(MapItemState state)
+	public String getSound(MapItemState state)
 	{
-		return (Sound)super.getPropertyForName(state.toString() + "Sound").getValue();
+		return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getSound();
 	}
 
-	public void setSound(MapItemState state, Sound s)
+	public void setSound(MapItemState state, String s)
 	{
-		super.setPropertyForName(state.toString() + "Sound", new Property(Usage.SOUND, s));
+		if(!getDefinedStates().contains(state))
+		{
+			super.setPropertyForName(state.toString(), new Property(Usage.CONFIGURATION, new DisplayState()));
+		}
+		
+		((DisplayState)super.getPropertyForName(state.toString()).getValue()).setSound(s);
 	}
 
 	public List<MapItemState> getDefinedStates()
@@ -56,5 +71,39 @@ public class DisplayConfiguration extends Configuration
 	public Position getDimensions()
 	{
 		return (Position)super.getPropertyForName("dimensions").getValue();
+	}
+	
+	private class DisplayState extends Configuration
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2786012930654678416L;
+
+		public DisplayState()
+		{
+			setAnimation(null);
+			setSound(null);
+		}
+
+		public Animation getAnimation()
+		{
+			return (Animation)super.getPropertyForName("Animation").getValue();
+		}
+
+		public void setAnimation(Animation a)
+		{
+			super.setPropertyForName("Animation", new Property(Usage.ANIMATION, a));
+		}
+
+		public String getSound()
+		{
+			return (String)super.getPropertyForName("Sound").getValue();
+		}
+
+		public void setSound(String s)
+		{
+			super.setPropertyForName("Sound", new Property(Usage.STRING, s));
+		}
 	}
 }

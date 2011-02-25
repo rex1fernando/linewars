@@ -3,18 +3,16 @@ package linewars.display.sound;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.naming.InsufficientResourcesException;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+
+import linewars.display.sound.SoundPlayer.Channel;
 
 public class Sound
 {
-	private AudioFormat format;
-	private byte[] data;
+	private byte[][] data;
 	
 	public Sound(AudioInputStream in) throws IOException
 	{
-		format = in.getFormat();
 		data = read(in);
 	}
 	
@@ -23,28 +21,28 @@ public class Sound
 		return progress >= data.length;
 	}
 	
-	public int getFrameSize()
+	public int getNextFrame(byte[][] buffer, int progress, int size)
 	{
-		return format.getFrameSize();
-	}
-	
-	public int getNextFrame(byte[] buffer, int progress) throws InsufficientResourcesException
-	{
-		int frameSize = getFrameSize();
-		if(buffer.length < frameSize)
-			throw new InsufficientResourcesException("The buffer cannot handle a frame of length " + frameSize);
+		if(progress + size > data.length)
+			size = data.length - progress;
+		if(buffer.length < size)
+			size = buffer.length;
 		
-		for(int i = 0; i < frameSize; ++i)
+		for(int c = 0; c < data.length; ++c)
 		{
-			buffer[i] = data[progress + i];
+			for(int i = 0; i < size; ++i)
+			{
+				buffer[c][i] = data[c][progress + i];
+			}
 		}
 		
-		return progress + frameSize;
+		return progress + size;
 	}
 
-	private byte[] read(AudioInputStream in) throws IOException
+	private byte[][] read(AudioInputStream in) throws IOException
 	{
-		byte[] allData = new byte[4096];
+		byte[][] allData = new byte[Channel.values().length][4096];
+		
 		int offset = 0;
 		
 		int nBytesRead = 0;
@@ -60,19 +58,25 @@ public class Sound
 		}
 		
 		in.close();
-		System.out.println(offset);
-		return Arrays.copyOf(allData, offset);
+		
+		for(Channel c : Channel.values())
+			allData[c.ordinal()] = Arrays.copyOf(allData[c.ordinal()], offset / allData.length);
+		
+		return allData;
 	}
 	
-	private byte[] append(byte[] target, byte[] source, int offset)
+	private byte[][] append(byte[][] target, byte[] source, int offset)
 	{
-		byte[] ofTheJedi = null;
-		if(target.length < offset + source.length)
+		byte[][] ofTheJedi = null;
+		if(target[0].length < offset + source.length / target.length)
 		{
-			ofTheJedi = new byte[2 * (source.length + offset)];
-			for(int i = 0; i < target.length; i++)
+			ofTheJedi = new byte[target.length][2 * (source.length + offset)];
+			for(int i = 0; i < target.length; ++i)
 			{
-				ofTheJedi[i] = target[i];
+				for(int j = 0; j < target[i].length; ++j)
+				{
+					ofTheJedi[i][j] = target[i][j];
+				}
 			}
 		}
 		else
@@ -82,7 +86,7 @@ public class Sound
 		
 		for(int i = 0; i < source.length; i++)
 		{
-			ofTheJedi[i + offset] = source[i];
+			ofTheJedi[(i + offset) % ofTheJedi.length][(i + offset) / ofTheJedi.length] = source[i];
 		}
 		
 		return ofTheJedi;
