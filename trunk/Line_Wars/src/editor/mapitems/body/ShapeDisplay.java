@@ -10,9 +10,9 @@ import editor.mapitems.body.BodyEditor.Inputs;
 
 public interface ShapeDisplay {
 
-	public void drawInactive(Graphics2D g, Position canvasCenter);
+	public void drawInactive(Graphics2D g, Position canvasCenter, Position canvasSize, double scale);
 	
-	public void drawActive(Graphics2D g, Position canvasCenter, Position mousePosition, List<Inputs> inputs);
+	public void drawActive(Graphics2D g, Position canvasCenter, Position mousePosition, List<Inputs> inputs, Position canvasSize, double scale);
 	
 	public ShapeConfiguration generateConfiguration(double scalingFactor);
 	

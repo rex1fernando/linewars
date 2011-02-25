@@ -44,13 +44,13 @@ public class RectangleDisplay implements ShapeDisplay {
 	}
 
 	@Override
-	public void drawInactive(Graphics2D g, Position canvasCenter) {
+	public void drawInactive(Graphics2D g, Position canvasCenter, Position canvasSize, double scale) {
 		drawRect(g, canvasCenter, Color.gray);
 	}
 
 	@Override
 	public void drawActive(Graphics2D g, Position canvasCenter,
-			Position mousePosition, List<Inputs> inputs) {
+			Position mousePosition, List<Inputs> inputs, Position canvasSize, double scale) {
 		drawRect(g, canvasCenter, Color.red);
 		
 		Position upperLeft = canvasCenter.add(center).subtract(width/2, height/2);

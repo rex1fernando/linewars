@@ -19,38 +19,31 @@ import editor.mapitems.body.BodyEditor.Inputs;
 
 public class MapItemDisplay implements ShapeDisplay {
 	
-	public interface CanvasDimensionsCallback {
-		public double getWidth();
-		public double getHeight();
-	}
-	
 	private MapItemDefinition<?> definition;
-	private JTextField scalingFactor;
-	private CanvasDimensionsCallback dimCallback;
 	
 	private AlignmentStickDisplay aligner;
 	
 	private double currentScale = 1;
 	
-	public MapItemDisplay(MapItemDefinition<?> mid, JTextField scale, Transformation trans, CanvasDimensionsCallback canvasDimensionsCallback)
+	public MapItemDisplay(MapItemDefinition<?> mid, Transformation trans)
 	{
 		this.definition = mid;
-		this.scalingFactor = scale;
 		aligner = new AlignmentStickDisplay(trans);
-		dimCallback = canvasDimensionsCallback;
 	}
 
 	@Override
-	public void drawInactive(Graphics2D g, Position canvasCenter) {
-		drawShapes(g, canvasCenter, Color.gray);
+	public void drawInactive(Graphics2D g, Position canvasCenter, Position canvasSize, double scale) {
+		currentScale = scale;
+		drawShapes(g, canvasCenter, canvasSize, Color.gray);
 	}
 
 	@Override
 	public void drawActive(Graphics2D g, Position canvasCenter,
-			Position mousePosition, List<Inputs> inputs) {
-		drawShapes(g, canvasCenter, Color.red);
+			Position mousePosition, List<Inputs> inputs, Position canvasSize, double scale) {
+		currentScale = scale;
+		drawShapes(g, canvasCenter, canvasSize, Color.red);
 		
-		aligner.drawActive(g, canvasCenter, mousePosition, inputs);
+		aligner.drawActive(g, canvasCenter, mousePosition, inputs, canvasSize, scale);
 	}
 	
 	@Override
@@ -58,12 +51,11 @@ public class MapItemDisplay implements ShapeDisplay {
 		throw new UnsupportedOperationException();
 	}
 	
-	private void drawShapes(Graphics2D g, Position canvasCenter, Color c)
+	private void drawShapes(Graphics2D g, Position canvasCenter, Position canvasSize, Color c)
 	{
 		Position actualCenter = canvasCenter.add(aligner.getTransformation().getPosition());
 		g.rotate(aligner.getTransformation().getRotation(), (int)actualCenter.getX(), (int)actualCenter.getY());
 		
-		updateScalingFactor(dimCallback.getWidth());
 		ShapeConfiguration sc = definition.getBodyConfig();
 		if(sc instanceof CircleConfiguration)
 			drawCircle(g, canvasCenter, (CircleConfiguration) sc, c);
@@ -118,13 +110,6 @@ public class MapItemDisplay implements ShapeDisplay {
 		g.drawRect((int)upperLeft.getX(), (int)upperLeft.getY(), 
 				(int)(rc.getWidth()*currentScale), (int)(rc.getHeight()*currentScale));
 		g.rotate(-rc.getPosition().getRotation(), (int)rectCenter.getX(), (int)rectCenter.getY());
-	}
-	
-	private void updateScalingFactor(double canvasWidth)
-	{
-		Scanner s = new Scanner(scalingFactor.getText());
-		if(s.hasNextDouble())
-			currentScale = s.nextDouble()/canvasWidth;
 	}
 
 	@Override

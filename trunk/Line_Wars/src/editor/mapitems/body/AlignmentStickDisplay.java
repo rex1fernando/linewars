@@ -27,14 +27,14 @@ public class AlignmentStickDisplay implements ShapeDisplay {
 	}
 
 	@Override
-	public void drawInactive(Graphics2D g, Position canvasCenter) {
+	public void drawInactive(Graphics2D g, Position canvasCenter, Position canvasSize, double scale) {
 		Position actualCenter = canvasCenter.add(center);
 		drawDot(g, actualCenter, Color.gray, 7);
 	}
 
 	@Override
 	public void drawActive(Graphics2D g, Position canvasCenter,
-			Position mousePosition, List<Inputs> inputs) {
+			Position mousePosition, List<Inputs> inputs, Position canvasSize, double scale) {
 		Position actualCenter = canvasCenter.add(center);
 		Position rotationKnob = actualCenter.add(Position.getUnitVector(rotation).scale(60));
 		

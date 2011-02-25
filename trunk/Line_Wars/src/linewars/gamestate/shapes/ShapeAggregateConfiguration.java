@@ -79,6 +79,19 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	}
 	
 	/**
+	 * Takes in the name of a shape as set by setShapeConfigurationForName and returns
+	 * the value of the enabled flag for that shape.
+	 * 
+	 * @param shapeName
+	 * @return
+	 */
+	public boolean isInitiallyEnabled(String shapeName)
+	{
+		//TODO
+		return false;
+	}
+	
+	/**
 	 * Gets the list of all shape configuration names set by setShapeConfigurationForName
 	 * 
 	 * @return

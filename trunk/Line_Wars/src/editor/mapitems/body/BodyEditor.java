@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -60,10 +61,11 @@ import editor.GenericSelector.GenericListCallback;
 import editor.GenericSelector.SelectionChangeListener;
 
 //Left TODO
-//-allow enabling/disabling
 //-show animations for each sub piece
-//-integrate into map item commonalities editor
+//-integrate into map item editor
 //--make sure setData gets called whenever instantiate is
+//-fix get/set data to take into account the scale
+//-set the dimensions of the display object
 
 public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
@@ -77,18 +79,15 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private Canvas canvas;
 	private BufferStrategy strategy;
 	
-	private Object imageLock = new Object();
-	private Image[] images;
-	private long[] imagetimes;
+	private AnimationDrawer drawer;
 	
-	private boolean isAggregate = true;
+	private boolean isAggregate = false;
 	
 	private boolean running;
 	private Thread animationThread;
 	
-	private BigFrameworkGuy bfg;
+	private GenericListCallback<MapItemDefinition<?>> partTurretCallback;
 	private DisplayConfigurationCallback dcc;
-	private String imagePath;
 	
 	private GenericSelector<MapItemState> animationState;
 	private JTextField scalingFactor;
@@ -99,13 +98,13 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	private JPopupMenu treePopupMenu;
 	
 	private List<Inputs> currentInputs = Collections.synchronizedList(new ArrayList<Inputs>());
-	//TODO add a hashmap for enabled/disabled
 	
-	public BodyEditor(BigFrameworkGuy bfg, DisplayConfigurationCallback dcc, String imagePath)
+	public BodyEditor(final DisplayConfigurationCallback dcc, String imagePath, GenericListCallback<MapItemDefinition<?>> partTurretCallback)
 	{
-		this.bfg = bfg;
+		this.partTurretCallback = partTurretCallback;
+		
+		AnimationDrawer.setImagePath(imagePath);
 		this.dcc = dcc;
-		this.imagePath = imagePath;
 		
 		//set up the canvas
 		canvas = new Canvas();
@@ -119,16 +118,10 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		animationState = new GenericSelector<MapItemState>("Animation to show", new GenericListCallback<MapItemState>() {
 			public List<MapItemState> getSelectionList()
 			{
-				return BodyEditor.this.dcc.getDisplayConfiguration().getDefinedStates();
+				return dcc.getDisplayConfiguration().getDefinedStates();
 			}
 		});
 		animationState.setSelectedObject(MapItemState.Idle);
-		animationState.addSelectionChangeListener(new SelectionChangeListener<MapItemState>() {
-			@Override
-			public void selectionChanged(MapItemState newSelection) {
-				loadImages(animationState.getSelectedObject());
-			}
-		});
 		
 		scalingFactor = new JTextField(20);
 		JPanel scalePanel = new JPanel();
@@ -185,11 +178,6 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				canvas.createBufferStrategy(3);
 				strategy = canvas.getBufferStrategy();
 				
-				//load the images
-				loadImages(animationState.getSelectedObject());
-				
-				long lastTime = System.currentTimeMillis();
-				int currentImage = 0;
 				while(running)
 				{
 					//get graphics object to draw to
@@ -197,43 +185,17 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 					g.setColor(Color.black);
 					g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 					
-					synchronized(imageLock)
-					{
-						//this keeps any changes to the images being display from causing out of bounds errors
-						currentImage = currentImage%images.length;
-						
-						//calculate the width and height scaling and pick the smallest
-						double widthScale = (double)canvas.getWidth()/images[currentImage].getWidth(null);
-						double heightScale = (double)canvas.getHeight()/images[currentImage].getHeight(null);
-						double scale = Math.min(widthScale, heightScale);
-						
-						Position imageDim = new Position(images[currentImage].getWidth(null)*scale, images[currentImage].getHeight(null)*scale);
-						Position canvasCenter = new Position(canvas.getWidth()/2, canvas.getHeight()/2);
-						Position destUpperLeft = canvasCenter.subtract(imageDim.scale(0.5));
-						Position destLowerRight = canvasCenter.add(imageDim.scale(0.5));
-						g.drawImage(images[currentImage],
-								(int)destUpperLeft.getX(), (int)destUpperLeft.getY(), 
-								(int)destLowerRight.getX(), (int)destLowerRight.getY(), 
-								0, 0, 
-								images[currentImage].getWidth(null), images[currentImage].getHeight(null), 
-								null);
-						
-						//check to see if we need to go to the next frame
-						if(System.currentTimeMillis() - lastTime > imagetimes[currentImage])
-						{
-							currentImage = (currentImage + 1)%images.length;
-							lastTime = System.currentTimeMillis();
-						}
-					}
+					Position canvasDim = new Position(canvas.getWidth(), canvas.getHeight());
+					AnimationDrawer.drawImage(g, canvasDim.scale(0.5), 0,
+							canvasDim, canvasDim, animationState.getSelectedObject(), dcc);
 					
-					synchronized (currentInputs)
+					synchronized(currentInputs)
 					{
-						Position canvasCenter = new Position(canvas.getWidth(), canvas.getHeight()).scale(0.5);
-						Point mousePosition = canvas.getMousePosition();
-						if(mousePosition == null)
-							mousePosition = new Point(0, 0);
-						Position mousePos = new Position(mousePosition.x, mousePosition.y);
-						root.drawShape(g, canvasCenter, mousePos, currentInputs);
+						Position mousePosition = new Position(0, 0);
+						Point mp = canvas.getMousePosition();
+						if(mp != null)
+							mousePosition = new Position(mp.x, mp.y);
+						root.drawShape(g, canvasDim.scale(0.5), canvasDim, mousePosition, currentInputs, getScale());
 					}
 					
 					//flip the buffers
@@ -260,31 +222,6 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		}
 	}
 	
-	private void loadImages(MapItemState mis)
-	{
-		Animation a = dcc.getDisplayConfiguration().getAnimation(mis);
-		synchronized(imageLock)
-		{
-			Image[] oldImages = images;
-			long[] oldImagetimes = imagetimes;
-			images = new Image[a.getNumImages()];
-			imagetimes = new long[a.getNumImages()];
-			for(int i = 0; i < a.getNumImages(); i++)
-			{
-				try {
-					images[i] = ImageIO.read(new File(new File(imagePath), a.getImage(i)));
-				} catch (IOException e) {
-					e.printStackTrace();
-					images = oldImages;
-					imagetimes = oldImagetimes;
-					return;
-				}
-				imagetimes[i] = (long) a.getImageTime(i);
-			}
-		}
-		
-	}
-	
 	private JPopupMenu constructPopupMenu()
 	{
 		JMenuItem remove = new JMenuItem("Remove");
@@ -308,6 +245,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		
 		JMenuItem add = new JMenuItem("Add Child");
 		add.addActionListener(new ActionListener() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(selectedNode == null)
@@ -326,12 +264,19 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 							selectedNode.add(new BodyEditorNode(getNodeName("Part Aggregate"), BodyEditorNode.DEFAULT_TRANS));
 						else if(n == 1)
 						{
-							//TODO show part/turret selection box
+							Entry<String, MapItemDefinition<?>>[] possibilities = convertToEntryList(partTurretCallback.getSelectionList());
+							Entry<String, MapItemDefinition<?>> entry = (Entry<String, MapItemDefinition<?>>) JOptionPane
+									.showInputDialog(
+											BodyEditor.this,
+											"Please select a part or turret to add",
+											"Selection",
+											JOptionPane.PLAIN_MESSAGE, null,
+											possibilities, null);
+							
 							selectedNode.add(new BodyEditorNode(
-									getNodeName((String) testMapItem
-											.getPropertyForName("bfgName")
-											.getValue()), testMapItem, BodyEditorNode.DEFAULT_TRANS,
-									scalingFactor, canvas));
+									getNodeName(entry.getKey()), entry.getValue(),
+									BodyEditorNode.DEFAULT_TRANS,
+									canvas));
 						}
 						containerTree.validate();
 						containerTree.updateUI();
@@ -396,10 +341,23 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			}
 		});
 		
+		JMenuItem enable = new JMenuItem("Enable/Disable");
+		enable.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(selectedNode == null || selectedNode == root)
+					return;
+				selectedNode.setEnabled(!selectedNode.getEnabled());
+				containerTree.validate();
+				containerTree.updateUI();
+			}
+		});
+		
 		JPopupMenu ret = new JPopupMenu();
 		ret.add(remove);
 		ret.add(add);
 		ret.add(rename);
+		ret.add(enable);
 		return ret;
 	}
 	
@@ -422,11 +380,31 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		return true;
 	}
 	
+	private Entry<String, MapItemDefinition<?>>[] convertToEntryList(List<MapItemDefinition<?>> lst)
+	{
+		@SuppressWarnings("unchecked")
+		Entry<String, MapItemDefinition<?>>[] ret = new Entry[lst.size()];
+		for(int i = 0; i < lst.size();  i++)
+			ret[i] = new Pair<String, MapItemDefinition<?>>((String)lst.get(i).getPropertyForName("bfgName").getValue(), lst.get(i));
+		
+		return ret;
+	}
+	
+	private double getScale()
+	{
+		Scanner s = new Scanner(scalingFactor.getText());
+		if(s.hasNextDouble())
+			return s.nextDouble()/canvas.getWidth();
+		else
+			return 1;
+	}
+	
 	private void decomposeMapItemAggregate(BodyEditorNode parent, MapItemAggregateDefinition<?> miad)
 	{
 		List<MapItemDefinition<?>> defs = miad.getAllContainedItems();
 		List<Transformation> trans = miad.getAllRelativeTransformations();
 		List<String> names = miad.getAllNames();
+		List<Boolean> enabledFlags = miad.getAllEnabledFlags();
 		
 		for(int i = 0; i < defs.size(); i++)
 		{
@@ -437,7 +415,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				decomposeMapItemAggregate(ben, (MapItemAggregateDefinition<?>) defs.get(i));
 			}
 			else
-				ben = new BodyEditorNode(names.get(i), defs.get(i), trans.get(i), scalingFactor, canvas);
+				ben = new BodyEditorNode(names.get(i), defs.get(i), trans.get(i), canvas);
+			ben.setEnabled(enabledFlags.get(i));
 			parent.add(ben);
 		}
 	}
@@ -465,12 +444,15 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				for(String name : sac.getDefinedShapeNames())
 				{
 					sc = sac.getShapeConfigurationForName(name);
+					BodyEditorNode ben = null;
 					if(sc instanceof CircleConfiguration)
-						root.add(new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc)));
+						ben = new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc));
 					else if(sc instanceof RectangleConfiguration)
-						root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc)));
+						ben = new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc));
 					else
 						throw new IllegalStateException("Shape aggregates should never contain other shape aggregates");
+					ben.setEnabled(sac.isInitiallyEnabled(name));
+					root.add(ben);
 				}
 			}
 		}
@@ -503,7 +485,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				mids.add(((BodyEditorNode)parent.getChildAt(i)).getMapItemDefinition());
 			relativeTrans.add(((BodyEditorNode)parent.getChildAt(i)).getShape().getTransformation());
 			names.add((String) ((BodyEditorNode)parent.getChildAt(i)).getUserObject());
-			enabledFlags.add(true);
+			enabledFlags.add(((BodyEditorNode)parent.getChildAt(i)).getEnabled());
 		}
 		tofill.setFullContainedList(mids, relativeTrans, names, enabledFlags);
 	}
@@ -534,7 +516,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 							(String) ((BodyEditorNode) root.getChildAt(i))
 									.getUserObject(), ((BodyEditorNode) root
 									.getChildAt(i)).getShape()
-									.generateConfiguration(scalingFactor), true);
+									.generateConfiguration(scalingFactor),
+							((BodyEditorNode) root.getChildAt(i)).getEnabled());
 				mid.setBody(sac);
 			}
 		}
@@ -622,6 +605,41 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		
 	}
 	
+	private class Pair<E, V> implements Entry<E, V>
+	{
+		private E key;
+		private V value;
+		
+		public Pair(E k, V v)
+		{
+			key = k;
+			value = v;
+		}
+		
+		@Override
+		public E getKey() {
+			return key;
+		}
+
+		@Override
+		public V getValue() {
+			return value;
+		}
+
+		@Override
+		public V setValue(V arg0) {
+			V oldV = value;
+			value = arg0;
+			return oldV;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return key.toString();
+		}
+	}
+	
 	private static PartDefinition testMapItem;
 	
 	public static void main(String[] args)
@@ -640,19 +658,31 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		dc.setAnimation(MapItemState.Idle, a1);
 		dc.setAnimation(MapItemState.Active, a2);
 		
+		dc.setDimensions(new Position(400, 300));
+		
 		testMapItem = new PartDefinition();
 		testMapItem.setPropertyForName("bfgName", new Property(Usage.STRING, "TEST"));
 		ShapeConfiguration sc = new RectangleConfiguration(100, 50, new Transformation(new Position(0, 0), 0)); 
 		testMapItem.setBody(sc);
+		testMapItem.setDisplayConfiguration(dc);
 		if(sc != testMapItem.getBodyConfig())
 			return;
 		
-		BodyEditor be = new BodyEditor(null, new DisplayConfigurationCallback() {
+		BodyEditor be = new BodyEditor(new DisplayConfigurationCallback() {
 			@Override
 			public DisplayConfiguration getDisplayConfiguration() {
 				return dc;
 			}
-		}, "resources/animations");
+		}, "resources/animations",
+		new GenericListCallback<MapItemDefinition<?>>() {
+			@Override
+			public List<MapItemDefinition<?>> getSelectionList() {
+				List<MapItemDefinition<?>> ret = new ArrayList<MapItemDefinition<?>>();
+				ret.add(testMapItem);
+				return ret;
+			}
+		});
+		be.isAggregate = true;
 		frame.setContentPane(be);	
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

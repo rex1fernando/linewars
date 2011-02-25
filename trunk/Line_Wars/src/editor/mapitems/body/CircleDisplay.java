@@ -34,14 +34,14 @@ public class CircleDisplay implements ShapeDisplay {
 	}
 
 	@Override
-	public void drawInactive(Graphics2D g, Position canvasCenter) {
+	public void drawInactive(Graphics2D g, Position canvasCenter, Position canvasSize, double scale) {
 		drawCircle(g, canvasCenter, Color.gray);
 		moveCircleStart = null;
 		adjustingRadius = false;
 	}
 
 	@Override
-	public void drawActive(Graphics2D g, Position canvasCenter, Position mousePosition, List<Inputs> inputs) {
+	public void drawActive(Graphics2D g, Position canvasCenter, Position mousePosition, List<Inputs> inputs, Position canvasSize, double scale) {
 		drawCircle(g, canvasCenter, Color.red);
 		if((isOnEdge(mousePosition, canvasCenter) || adjustingRadius) && moveCircleStart == null)
 		{
