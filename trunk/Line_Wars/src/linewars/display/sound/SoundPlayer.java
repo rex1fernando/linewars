@@ -2,9 +2,7 @@ package linewars.display.sound;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.sound.sampled.AudioFormat;
@@ -15,35 +13,48 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class SingletonSoundPlayer implements Runnable
+public class SoundPlayer implements Runnable
 {
 	private static final int SAMPLE_RATE = 44000;
-	private static final int SAMPLE_SIZE = 16;
-	private static final int CHANELS = 2;
+
+	/*
+	 * TODO the code in this class only supports 8 bit encoding, it will have to
+	 * be modified to handle larger sizes if this number is increased.
+	 */
+	private static final int SAMPLE_SIZE_IN_BYTES = 1;
+
+	/*
+	 * TODO if the channels are changed then the sound managers may need to
+	 * change the way that they calculate their volume.
+	 */
+	public enum Channel
+	{
+		LEFT, RIGHT
+	}
 
 	private static final Object instanceLock = new Object();
 	private static final Object runningLock = new Object();
-	private static SingletonSoundPlayer instance;
+	private static SoundPlayer instance;
 
 	private boolean running;
 
 	private HashMap<String, Sound> sounds;
-	private LinkedList<Pair> playing;
+	private LinkedList<SoundPair> playing;
 	private AudioFormat format;
 	private SourceDataLine line;
 	private long lastTime;
 	private float loopTime;
 
-	private SingletonSoundPlayer()
+	private SoundPlayer()
 	{
 		running = false;
 		sounds = new HashMap<String, Sound>();
-		playing = new LinkedList<Pair>();
-		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE, CHANELS, true, false);
+		playing = new LinkedList<SoundPair>();
+		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
 		loopTime = 0.0f;
 	}
 
-	public static SingletonSoundPlayer getInstance()
+	public static SoundPlayer getInstance()
 	{
 		if(instance == null)
 		{
@@ -51,7 +62,7 @@ public class SingletonSoundPlayer implements Runnable
 			{
 				if(instance == null)
 				{
-					instance = new SingletonSoundPlayer();
+					instance = new SoundPlayer();
 				}
 			}
 		}
@@ -67,12 +78,12 @@ public class SingletonSoundPlayer implements Runnable
 		sounds.put(uri, new Sound(din));
 	}
 
-	public void playSound(SoundPlayer playMe)
+	public void playSound(SoundInfo playMe)
 	{
 		if(playMe == null)
 			return;
 
-		playing.add(new Pair(0, playMe));
+		playing.add(new SoundPair(0, playMe));
 	}
 
 	@Override
@@ -104,7 +115,7 @@ public class SingletonSoundPlayer implements Runnable
 			e.printStackTrace();
 			return;
 		}
-		
+
 		while(true)
 		{
 			lastTime = System.currentTimeMillis();
@@ -119,34 +130,47 @@ public class SingletonSoundPlayer implements Runnable
 
 	private void play()
 	{
+		// TODO add in channel info
+
 		int samples = (int)(SAMPLE_RATE / (loopTime / 1000));
-		int bytes = samples * SAMPLE_SIZE;
-		byte[] dataForStream = new byte[bytes];
-		
+		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
+		byte[][] channelData = new byte[Channel.values().length][bytes];
+
 		int index = 0;
 		while(index < playing.size())
 		{
-			Pair p = playing.get(index);
+			SoundPair p = playing.get(index);
 			Sound current = sounds.get(p.sound.getURI());
-			if(current == null || p.sound.finished() || current.isFinished(p.progress))
+			if(current == null || p.sound.isDone() || current.isFinished(p.progress))
 			{
+				p.sound.setDone();
 				playing.remove(index);
 				continue;
 			}
-			
-			byte[] dataFromSource = new byte[bytes];
+
+			byte[][] dataFromSource = new byte[Channel.values().length][bytes];
 			p.progress = current.getNextFrame(dataFromSource, p.progress, bytes);
 
-			for(int i = 0; i < bytes; ++i)
+			// TODO this loop will have to be modified if we choose to use an
+			// encoding larger than 8 bits.
+			for(Channel channel : Channel.values())
 			{
-				dataForStream[i] = (byte)((((int)dataForStream[i]) * index / (index + 1)) +
-								   ((((int)dataFromSource[i])* p.sound.getVolume()) * 1 / (index + 1)));
+				int c = channel.ordinal();
+				for(int i = 0; i < bytes; ++i)
+				{
+					channelData[c][i] = (byte)((((int)channelData[c][i]) * index / (index + 1)) +
+										((((int)dataFromSource[c][i]) * p.sound.getVolume(channel)) * 1 / (index + 1)));
+				}
 			}
-			
+
 			++index;
 		}
+
+		byte[] dataForStream = new byte[channelData.length * bytes];
+		for(int i = 0; i < dataForStream.length; ++i)
+			dataForStream[i] = channelData[i % channelData.length][i / channelData.length];
 		
-		line.write(dataForStream, 0, bytes);
+		line.write(dataForStream, 0, channelData.length * bytes);
 	}
 
 	private static SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException
@@ -158,36 +182,12 @@ public class SingletonSoundPlayer implements Runnable
 		return res;
 	}
 
-	public interface SoundPlayer
-	{
-		/**
-		 * Gets the volume of the sound.
-		 * 
-		 * @return a value from 1.0 to 0.0
-		 */
-		public double getVolume();
-
-		/**
-		 * Gets the uri of the sound.
-		 * 
-		 * @return the uri of the sound.
-		 */
-		public String getURI();
-
-		/**
-		 * Tells if the sound is done playing.
-		 * 
-		 * @return true if the sound is finished, false otherwise.
-		 */
-		public boolean finished();
-	}
-
-	private class Pair
+	private class SoundPair
 	{
 		public int progress;
-		public SoundPlayer sound;
+		public SoundInfo sound;
 
-		public Pair(int progress, SoundPlayer sound)
+		public SoundPair(int progress, SoundInfo sound)
 		{
 			this.progress = progress;
 			this.sound = sound;
