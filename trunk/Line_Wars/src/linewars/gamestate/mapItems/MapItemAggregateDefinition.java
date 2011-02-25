@@ -42,8 +42,10 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 	@Override
 	protected final void forceSubclassReloadConfiguration()
 	{
-		containedItems = ((ListConfiguration<MapItemDefinition<? extends MapItem>>)super.getPropertyForName("containedItems").getValue()).getEnabledSubList();
-		relativeTrans = ((ListConfiguration<Transformation>)super.getPropertyForName("relativeTrans").getValue()).getEnabledSubList();
+		if(super.getPropertyForName("containedItems") != null)
+			containedItems = ((ListConfiguration<MapItemDefinition<? extends MapItem>>)super.getPropertyForName("containedItems").getValue()).getEnabledSubList();
+		if(super.getPropertyForName("relativeTrans") != null)
+			relativeTrans = ((ListConfiguration<Transformation>)super.getPropertyForName("relativeTrans").getValue()).getEnabledSubList();
 		this.forceAggregateSubReloadConfigData();
 	}
 	

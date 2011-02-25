@@ -67,7 +67,7 @@ public class BodyEditorNode extends DefaultMutableTreeNode {
 			if(mid != null)
 			{
 				Position fitIn = new Position(((DisplayConfiguration)mid.getDisplayConfiguration()).getDimensions().getX(), 
-						((DisplayConfiguration)mid.getDisplayConfiguration()).getDimensions().getY()).scale(scale);
+						((DisplayConfiguration)mid.getDisplayConfiguration()).getDimensions().getY()).scale(1/scale);
 				AnimationDrawer.drawImage(g, canvasCenter.add(shape.getTransformation().getPosition()), 
 						shape.getTransformation().getRotation(), canvasSize, fitIn, MapItemState.Idle, 
 						new DisplayConfigurationCallback() {			

@@ -22,15 +22,10 @@ public class CircleDisplay implements ShapeDisplay {
 	{
 	}
 	
-	public CircleDisplay(CircleConfiguration c)
+	public CircleDisplay(CircleConfiguration c, double scale)
 	{
-		this(c, new Position(0, 0));
-	}
-	
-	public CircleDisplay(CircleConfiguration c, Position center)
-	{
-		this.center = center;
-		radius = c.getRadius();
+		this.center = c.getPosition().getPosition().scale(1/scale);
+		radius = c.getRadius()/scale;
 	}
 
 	@Override

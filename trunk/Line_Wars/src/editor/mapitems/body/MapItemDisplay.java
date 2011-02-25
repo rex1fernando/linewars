@@ -81,9 +81,9 @@ public class MapItemDisplay implements ShapeDisplay {
 		g.setColor(new Color(c.getRed(), c.getGreen(),
 				c.getBlue(), 128));
 		Position upperLeft = canvasCenter.add(aligner.getTransformation().getPosition())
-				.add(cc.getPosition().getPosition().scale(currentScale))
-				.subtract(new Position(cc.getRadius()*currentScale, cc.getRadius()*currentScale));
-		Position lowerRight = new Position(cc.getRadius()*currentScale, cc.getRadius()*currentScale).scale(2);
+				.add(cc.getPosition().getPosition().scale(1/currentScale))
+				.subtract(new Position(cc.getRadius()/currentScale, cc.getRadius()/currentScale));
+		Position lowerRight = new Position(cc.getRadius()/currentScale, cc.getRadius()/currentScale).scale(2);
 		g.fillOval((int)upperLeft.getX(), (int)upperLeft.getY(),
 					(int)lowerRight.getX(), (int)lowerRight.getY());
 		
@@ -96,19 +96,19 @@ public class MapItemDisplay implements ShapeDisplay {
 	private void drawRect(Graphics2D g, Position canvasCenter, RectangleConfiguration rc, Color c)
 	{
 		Position upperLeft = canvasCenter.add(aligner.getTransformation().getPosition())
-				.add(rc.getPosition().getPosition().scale(currentScale))
-				.subtract(rc.getWidth()*currentScale / 2, rc.getHeight()*currentScale / 2);
-		Position rectCenter = upperLeft.add(rc.getWidth()*currentScale/2, rc.getHeight()*currentScale/2);
+				.add(rc.getPosition().getPosition().scale(1/currentScale))
+				.subtract(rc.getWidth()/currentScale / 2, rc.getHeight()/currentScale / 2);
+		Position rectCenter = upperLeft.add(rc.getWidth()/currentScale/2, rc.getHeight()/currentScale/2);
 		g.rotate(rc.getPosition().getRotation(), (int)rectCenter.getX(), (int)rectCenter.getY());
 		
 		g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
 		g.fillRect((int)upperLeft.getX(), (int)upperLeft.getY(), 
-				(int)(rc.getWidth()*currentScale), (int)(rc.getHeight()*currentScale));
+				(int)(rc.getWidth()/currentScale), (int)(rc.getHeight()/currentScale));
 		
 		g.setColor(c);
 		g.setStroke(new BasicStroke(3));
 		g.drawRect((int)upperLeft.getX(), (int)upperLeft.getY(), 
-				(int)(rc.getWidth()*currentScale), (int)(rc.getHeight()*currentScale));
+				(int)(rc.getWidth()/currentScale), (int)(rc.getHeight()/currentScale));
 		g.rotate(-rc.getPosition().getRotation(), (int)rectCenter.getX(), (int)rectCenter.getY());
 	}
 

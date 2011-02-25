@@ -31,16 +31,12 @@ public class RectangleDisplay implements ShapeDisplay {
 	{
 	}
 	
-	public RectangleDisplay(RectangleConfiguration rc)
+	public RectangleDisplay(RectangleConfiguration rc, double scale)
 	{
-		this(rc, new Position(0, 0));
-	}
-	
-	public RectangleDisplay(RectangleConfiguration rc, Position center)
-	{
-		width = rc.getWidth();
-		height = rc.getHeight();
-		this.center = center;
+		width = rc.getWidth()/scale;
+		height = rc.getHeight()/scale;
+		this.center = rc.getPosition().getPosition().scale(1/scale);
+		rotation = rc.getPosition().getRotation();
 	}
 
 	@Override

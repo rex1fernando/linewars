@@ -61,9 +61,12 @@ public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 
 	@Override
 	protected void forceAggregateSubReloadConfigData() {
-		maxHp = (Double)super.getPropertyForName("maxHp").getValue();
-		combatStrat = (CombatStrategyConfiguration)super.getPropertyForName("combatStrat").getValue();
-		mStrat = (MovementStrategyConfiguration)super.getPropertyForName("mStrat").getValue();
+		if(super.getPropertyForName("maxHp") != null && super.getPropertyForName("maxHp").getValue() != null)
+			maxHp = (Double)super.getPropertyForName("maxHp").getValue();
+		if(super.getPropertyForName("combatStrat") != null)
+			combatStrat = (CombatStrategyConfiguration)super.getPropertyForName("combatStrat").getValue();
+		if(super.getPropertyForName("mStrat") != null)
+			mStrat = (MovementStrategyConfiguration)super.getPropertyForName("mStrat").getValue();
 	}
 	
 	public MovementStrategyConfiguration getMovementStratConfig()

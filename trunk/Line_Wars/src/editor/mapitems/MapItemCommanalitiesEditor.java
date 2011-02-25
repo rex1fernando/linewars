@@ -1,18 +1,12 @@
 package editor.mapitems;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -23,7 +17,6 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
-import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
@@ -35,9 +28,8 @@ import editor.GenericSelector.SelectionChangeListener;
 import editor.GenericSelector.ShowBFGName;
 import editor.ListGenericSelector;
 import editor.ListGenericSelector.ListChangeListener;
-import editor.ListURISelector.ListSelectorOptions;
-import editor.URISelector.SelectorOptions;
-import editor.mapitems.body.BodyEditorOLD;
+import editor.mapitems.MapItemEditor.Wrapper;
+import editor.mapitems.body.BodyEditor.DisplayConfigurationCallback;
 
 /**
  * 
@@ -47,7 +39,7 @@ import editor.mapitems.body.BodyEditorOLD;
  * edit map items. 
  *
  */
-public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationEditor, ActionListener {
+public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationEditor {
 	
 	//variable for the name
 	private JTextField name;
@@ -61,11 +53,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	private ListGenericSelector<AbilityDefinition> abilities;
 	private GenericSelector<CollisionStrategyConfiguration> collisionStrat;
 	
-	//variables for setting the body
-	private JButton bodyButton;
-	private JLabel bodyStatus;
-	private ShapeConfiguration bodyConfig;
-	
 	private BigFrameworkGuy bfg;
 	
 	/**
@@ -75,7 +62,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	 * 
 	 * @param guy	the big framework guy with a list of all relevant URIs
 	 */
-	public MapItemCommanalitiesEditor(BigFrameworkGuy guy)
+	public MapItemCommanalitiesEditor(BigFrameworkGuy guy, Wrapper<DisplayConfigurationCallback> callback)
 	{
 		bfg = guy;
 		
@@ -134,25 +121,23 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		JPanel cPanel = new JPanel();
 		cPanel.add(collisionStrat);
 		
-		//set up the body panel
-		bodyButton = new JButton("Set the body...");
-		bodyButton.addActionListener(this);
-		bodyStatus = new JLabel("Not Set");
-		JPanel bodyPanel = new JPanel();
-		bodyPanel.add(bodyButton);
-		bodyPanel.add(bodyStatus);
-		
 		//set up the main panel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(namePanel);
 		this.add(statesPanel);
 		this.add(aPanel);
 		this.add(cPanel);
-		this.add(bodyPanel);
 		
 		this.instantiateNewConfiguration();
 		
 		this.setPreferredSize(new Dimension(800, 600));
+		
+		callback.setData(new DisplayConfigurationCallback() {
+			@Override
+			public DisplayConfiguration getDisplayConfiguration() {
+				return constructDisplayConfiguration(null);
+			}
+		});
 	}
 	
 	/**
@@ -166,17 +151,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	public Animation getAnimation(MapItemState key)
 	{
 		return animationMap.get(key);
-	}
-	
-	/**
-	 * Sets the body config to the given config
-	 * 
-	 * @param cd	the body config
-	 */
-	public void setBody(ShapeConfiguration cd)
-	{
-		bodyConfig = cd;
-		bodyStatus.setText("Set");
 	}
 
 	/**
@@ -208,15 +182,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		//set up the collision strat
 		collisionStrat.setSelectedObject(mic.getCollisionStrategyConfig());
 		
-		//set up the body
-		if(mic.getBodyConfig() != null)
-		{
-			bodyConfig = mic.getBodyConfig();
-			bodyStatus.setText("set");
-		}
-		else
-			bodyStatus.setText("not set");
-		
 		this.validate();
 		this.updateUI();
 	}
@@ -237,14 +202,21 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		abilities.setSelectedObjects(new ArrayList<AbilityDefinition>());
 		collisionStrat.setSelectedObject(null);
 		
-		//reset the body config
-		bodyConfig = null;
-		bodyStatus.setText("Not Set");
-		
 		this.validate();
 		this.updateUI();
 		
 		return null;
+	}
+	
+	private DisplayConfiguration constructDisplayConfiguration(DisplayConfiguration dc)
+	{
+		//add the valid states and their animations
+		if(dc == null)
+			dc = new DisplayConfiguration();
+		for(MapItemState mis : validStates.getSelectedObjects())
+			if(animationMap.containsKey(mis))
+				dc.setAnimation(mis, animationMap.get(mis));
+		return dc;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -258,21 +230,14 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		//add the valid states
 		mid.setValidStates(validStates.getSelectedObjects());
 		
-		//add the valid states and their animations
-		DisplayConfiguration dc = new DisplayConfiguration();
-		for(MapItemState mis : validStates.getSelectedObjects())
-			if(animationMap.containsKey(mis))
-				dc.setAnimation(mis, animationMap.get(mis));
-		mid.setDisplayConfiguration(dc);
+		//set the display config
+		mid.setDisplayConfiguration((DisplayConfiguration) mid.getDisplayConfiguration());
 		
 		//get the abilities
 		mid.setAbilities(abilities.getSelectedObjects());
 		
 		//add the collision strat
 		mid.setCollisionStrategy(collisionStrat.getSelectedObject());
-		
-		//set the body
-		mid.setBody(bodyConfig);
 		
 		return null;
 	}
@@ -292,24 +257,6 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		if(arg0.getSource().equals(bodyButton))
-		{
-			if(animationMap.get(MapItemState.Idle) == null)
-			{
-				JOptionPane.showMessageDialog(this,
-					    "The Idle animation must be set before setting the body.",
-					    "Error",
-					    JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			BodyEditorOLD be = new BodyEditorOLD(this);
-			if(bodyConfig != null)
-				be.setData(bodyConfig);
-		}
 	}
 	
 	private class MapItemStateSelector implements GenericListCallback<MapItemState> {

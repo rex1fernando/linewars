@@ -5,7 +5,6 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,15 +13,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -46,6 +42,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.PartAggregateDefinition;
 import linewars.gamestate.mapItems.PartDefinition;
+import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.shapes.CircleConfiguration;
 import linewars.gamestate.shapes.RectangleConfiguration;
 import linewars.gamestate.shapes.ShapeAggregateConfiguration;
@@ -53,19 +50,12 @@ import linewars.gamestate.shapes.ShapeConfiguration;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
-import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
 import editor.GenericSelector.GenericListCallback;
-import editor.GenericSelector.SelectionChangeListener;
 
-//Left TODO
-//-show animations for each sub piece
-//-integrate into map item editor
-//--make sure setData gets called whenever instantiate is
-//-fix get/set data to take into account the scale
-//-set the dimensions of the display object
+
 
 public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
@@ -399,7 +389,7 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			return 1;
 	}
 	
-	private void decomposeMapItemAggregate(BodyEditorNode parent, MapItemAggregateDefinition<?> miad)
+	private void decomposeMapItemAggregate(BodyEditorNode parent, MapItemAggregateDefinition<?> miad, double scale)
 	{
 		List<MapItemDefinition<?>> defs = miad.getAllContainedItems();
 		List<Transformation> trans = miad.getAllRelativeTransformations();
@@ -412,10 +402,11 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			if(defs.get(i) instanceof MapItemAggregateDefinition<?>)
 			{
 				ben = new BodyEditorNode(names.get(i), trans.get(i));
-				decomposeMapItemAggregate(ben, (MapItemAggregateDefinition<?>) defs.get(i));
+				decomposeMapItemAggregate(ben, (MapItemAggregateDefinition<?>) defs.get(i), scale);
 			}
 			else
-				ben = new BodyEditorNode(names.get(i), defs.get(i), trans.get(i), canvas);
+				ben = new BodyEditorNode(names.get(i), defs.get(i), 
+						new Transformation(trans.get(i).getPosition().scale(1/scale), trans.get(i).getRotation()), canvas);
 			ben.setEnabled(enabledFlags.get(i));
 			parent.add(ben);
 		}
@@ -425,19 +416,34 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		root.removeAllChildren();
 		selectedNode = null;
+		
+		//its not possible to not have the dimensions of the displayconfig set
+		//and have parts or all of the body set
+		DisplayConfiguration dc = (DisplayConfiguration) ((MapItemDefinition<?>)cd).getDisplayConfiguration();
+		if(dc == null || dc.getDimensions() == null)
+		{
+			isAggregate = (cd instanceof MapItemAggregateDefinition<?>);
+			containerTree.validate();
+			containerTree.updateUI();
+			return;
+		}
+		
+		scalingFactor.setText(dc.getDimensions().getX() + "");
+		double scale = getScale();
+		
 		if(cd instanceof MapItemAggregateDefinition<?>)
 		{
 			isAggregate = true;
-			decomposeMapItemAggregate(root, (MapItemAggregateDefinition<?>) cd);
+			decomposeMapItemAggregate(root, (MapItemAggregateDefinition<?>) cd, scale);
 		}
 		else
 		{
 			isAggregate = false;
 			ShapeConfiguration sc = ((MapItemDefinition<? extends MapItem>) cd).getBodyConfig();
 			if(sc instanceof CircleConfiguration)
-				root.add(new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc)));
+				root.add(new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc, scale)));
 			else if(sc instanceof RectangleConfiguration)
-				root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc)));
+				root.add(new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc, scale)));
 			else if(sc instanceof ShapeAggregateConfiguration)
 			{
 				ShapeAggregateConfiguration sac = (ShapeAggregateConfiguration) sc;
@@ -446,9 +452,9 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 					sc = sac.getShapeConfigurationForName(name);
 					BodyEditorNode ben = null;
 					if(sc instanceof CircleConfiguration)
-						ben = new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc));
+						ben = new BodyEditorNode("Circle", new CircleDisplay((CircleConfiguration) sc, scale));
 					else if(sc instanceof RectangleConfiguration)
-						ben = new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc));
+						ben = new BodyEditorNode("Rectangle", new RectangleDisplay((RectangleConfiguration) sc, scale));
 					else
 						throw new IllegalStateException("Shape aggregates should never contain other shape aggregates");
 					ben.setEnabled(sac.isInitiallyEnabled(name));
@@ -464,6 +470,8 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 	public Configuration instantiateNewConfiguration() {
 		root.removeAllChildren();
 		selectedNode = null;
+		containerTree.validate();
+		containerTree.updateUI();
 		return null;
 	}
 	
@@ -475,15 +483,19 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		List<Boolean> enabledFlags = new ArrayList<Boolean>();
 		for(int i = 0; i < parent.getChildCount(); i++)
 		{
+			//if the child is a part aggregate
 			if(((BodyEditorNode)parent.getChildAt(i)).getMapItemDefinition() == null)
 			{
 				PartAggregateDefinition pad = new PartAggregateDefinition();
 				fillAggregates((BodyEditorNode) parent.getChildAt(i), pad);
 				mids.add(pad);
 			}
-			else
+			else //it the child is a part or turret
 				mids.add(((BodyEditorNode)parent.getChildAt(i)).getMapItemDefinition());
-			relativeTrans.add(((BodyEditorNode)parent.getChildAt(i)).getShape().getTransformation());
+			//don't forget to scale the positions
+			Transformation trans = ((BodyEditorNode)parent.getChildAt(i)).getShape().getTransformation();
+			trans = new Transformation(trans.getPosition().scale(getScale()), trans.getRotation());
+			relativeTrans.add(trans);
 			names.add((String) ((BodyEditorNode)parent.getChildAt(i)).getUserObject());
 			enabledFlags.add(((BodyEditorNode)parent.getChildAt(i)).getEnabled());
 		}
@@ -492,18 +504,15 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
+		MapItemDefinition<?> mid = (MapItemDefinition<?>) toSet;
 		if(isAggregate)
 		{
 			fillAggregates(root, (MapItemAggregateDefinition<?>) toSet);
 		}
 		else
 		{
-			MapItemDefinition<?> mid = (MapItemDefinition<?>) toSet;
 			ShapeConfiguration sc = null;
-			double scalingFactor = 1;
-			Scanner s = new Scanner(this.scalingFactor.getText());
-			if(s.hasNextDouble())
-				scalingFactor = s.nextDouble()/canvas.getWidth();
+			double scalingFactor = getScale();
 			if(root.getChildCount() == 0)
 				mid.setBody(null);
 			else if(root.getChildCount() == 1)
@@ -521,6 +530,12 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				mid.setBody(sac);
 			}
 		}
+		
+		if(mid.getDisplayConfiguration() == null)
+			mid.setDisplayConfiguration(new DisplayConfiguration());
+		((DisplayConfiguration)mid.getDisplayConfiguration()).setDimensions(
+				new Position(getScale()*canvas.getWidth(), getScale()*canvas.getHeight()));
+		
 		return null;
 	}
 
@@ -640,8 +655,6 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		}
 	}
 	
-	private static PartDefinition testMapItem;
-	
 	public static void main(String[] args)
 	{
 		JFrame frame = new JFrame();
@@ -657,16 +670,24 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		final DisplayConfiguration dc = new DisplayConfiguration();
 		dc.setAnimation(MapItemState.Idle, a1);
 		dc.setAnimation(MapItemState.Active, a2);
-		
 		dc.setDimensions(new Position(400, 300));
 		
+		final DisplayConfiguration dc2 = new DisplayConfiguration();
+		dc2.setAnimation(MapItemState.Idle, a1);
+		dc2.setAnimation(MapItemState.Active, a2);
+		dc2.setDimensions(new Position(800, 600));
+		
+		final PartDefinition testMapItem;
 		testMapItem = new PartDefinition();
 		testMapItem.setPropertyForName("bfgName", new Property(Usage.STRING, "TEST"));
 		ShapeConfiguration sc = new RectangleConfiguration(100, 50, new Transformation(new Position(0, 0), 0)); 
 		testMapItem.setBody(sc);
 		testMapItem.setDisplayConfiguration(dc);
-		if(sc != testMapItem.getBodyConfig())
-			return;
+		
+		final UnitDefinition testMapItem2;
+		testMapItem2 = new UnitDefinition();
+		testMapItem2.setPropertyForName("bfgName", new Property(Usage.STRING, "TEST2"));
+		testMapItem2.setDisplayConfiguration(dc2);
 		
 		BodyEditor be = new BodyEditor(new DisplayConfigurationCallback() {
 			@Override
@@ -689,6 +710,16 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		
 		frame.setVisible(true);
 		be.setVisible(true);
+		
+		Scanner stdin = new Scanner(System.in);
+		stdin.nextLine();
+		System.out.println("saving");
+		be.getData(testMapItem2);
+		System.out.println("clearing");
+		be.instantiateNewConfiguration();
+		stdin.nextLine();
+		System.out.println("reloading");
+		be.setData(testMapItem2);
 	}
 
 }
