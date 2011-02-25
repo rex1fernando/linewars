@@ -4,4 +4,8 @@ import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 
 public abstract class TurretStrategyConfiguration extends StrategyConfiguration<TurretStrategy> {
 
+	static {
+		StrategyConfiguration.setStrategyType("Turret", TurretStrategyConfiguration.class);
+	}
+	
 }

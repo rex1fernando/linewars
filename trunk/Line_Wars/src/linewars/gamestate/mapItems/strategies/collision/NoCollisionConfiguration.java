@@ -1,7 +1,9 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 
 /**
  * 
@@ -11,8 +13,13 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *	that can't collide with anything.
  */
 public strictfp class NoCollisionConfiguration extends CollisionStrategyConfiguration {
+
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("No Collision",
+				NoCollisionConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
-	public class NoCollision implements CollisionStrategy
+	class NoCollision implements CollisionStrategy
 	{
 	
 		private NoCollision() {}

@@ -27,7 +27,7 @@ import javax.swing.JTabbedPane;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
-import editor.abilities.AbilityEditor;
+import editor.abilitiesstrategies.AbilityEditor;
 import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;

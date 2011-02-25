@@ -9,9 +9,9 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import configuration.Usage;
-import editor.abilities.AbilityStrategyEditor;
-import editor.abilities.EditorProperty;
-import editor.abilities.EditorUsage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 

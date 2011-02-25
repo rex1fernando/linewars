@@ -1,7 +1,10 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -11,6 +14,11 @@ import linewars.gamestate.mapItems.Unit;
  * engage in combat. It does nothing.
  */
 public strictfp class NoCombatConfiguration extends CombatStrategyConfiguration {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("No Combat",
+				NoCombatConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	public class NoCombat implements CombatStrategy
 	{

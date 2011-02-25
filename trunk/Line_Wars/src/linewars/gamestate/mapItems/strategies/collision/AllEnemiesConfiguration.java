@@ -1,6 +1,8 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Ground;
 
 /**
@@ -11,6 +13,11 @@ import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Grou
  *only enemies.
  */
 public strictfp class AllEnemiesConfiguration extends CollisionStrategyConfiguration {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("All Enemies",
+				AllEnemiesConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	public class AllEnemies implements CollisionStrategy
 	{

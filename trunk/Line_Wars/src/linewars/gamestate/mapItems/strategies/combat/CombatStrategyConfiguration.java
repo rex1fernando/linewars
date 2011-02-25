@@ -5,5 +5,9 @@ import configuration.Configuration;
 
 
 public abstract class CombatStrategyConfiguration extends StrategyConfiguration<CombatStrategy> {
+	
+	static {
+		StrategyConfiguration.setStrategyType("Combat", CombatStrategyConfiguration.class);
+	}
 
 }

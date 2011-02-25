@@ -1,8 +1,11 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -11,6 +14,11 @@ import linewars.gamestate.mapItems.Unit;
  * This class defines a movement strategy that doesn't move.
  */
 public strictfp class ImmovableConfiguration extends MovementStrategyConfiguration {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Immovable",
+				ImmovableConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	public class Immovable implements MovementStrategy
 	{

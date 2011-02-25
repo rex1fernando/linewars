@@ -1,6 +1,8 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.collision.NoCollisionConfiguration.NoCollision;
 
 /**
@@ -13,6 +15,11 @@ import linewars.gamestate.mapItems.strategies.collision.NoCollisionConfiguration
  */
 public strictfp class CollidesWithAllConfiguration extends CollisionStrategyConfiguration {
 
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Collides with All",
+				CollidesWithAllConfiguration.class, AbilityStrategyEditor.class);
+	}
+	
 	public class CollidesWithAll implements CollisionStrategy
 	{
 	

@@ -10,9 +10,9 @@ import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import configuration.Usage;
-import editor.abilities.AbilityStrategyEditor;
-import editor.abilities.EditorProperty;
-import editor.abilities.EditorUsage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 

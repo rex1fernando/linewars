@@ -1,7 +1,9 @@
 package linewars.gamestate.mapItems.strategies.collision;
 
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 
 /**
  * 
@@ -11,6 +13,11 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  * That is, any map item that is considered on the "ground".
  */
 public strictfp class GroundConfiguration extends CollisionStrategyConfiguration {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Ground",
+				GroundConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	public class Ground implements CollisionStrategy
 	{

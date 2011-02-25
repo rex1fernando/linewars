@@ -3,8 +3,9 @@ package linewars.gamestate.mapItems.strategies.turret;
 import java.util.Observable;
 import java.util.Observer;
 import configuration.Usage;
-import editor.abilities.EditorProperty;
-import editor.abilities.EditorUsage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
@@ -13,6 +14,8 @@ import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ShootDefinition;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -23,6 +26,11 @@ import linewars.gamestate.mapItems.abilities.ShootDefinition;
  * this strategy must have the ability shoot.
  */
 public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConfiguration implements Observer {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Shoot Closest Target",
+				ShootClosestTargetConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	private long shootCoolDown;
 	

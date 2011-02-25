@@ -1,10 +1,11 @@
-package editor.abilities;
+package editor.abilitiesstrategies;
 
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
@@ -66,6 +67,26 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
+		String name = (String) JOptionPane.showInputDialog(this,
+				"Please select the ability you would like to create",
+				"Ability Selection", JOptionPane.PLAIN_MESSAGE, null,
+				AbilityDefinition.getAbilityNameSet().toArray(new String[0]),
+				null);
+		try {
+			realEditor = AbilityDefinition
+						.getEditor(name)
+						.getConstructor(BigFrameworkGuy.class, Class.class)
+						.newInstance(bfg, AbilityDefinition.getConfig(name));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		this.removeAll();
+		this.add(realEditor.getPanel(), BorderLayout.CENTER);
+		this.validate();
+		this.updateUI();
+		
 		return realEditor.instantiateNewConfiguration();
 	}
 

@@ -8,8 +8,10 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 import configuration.Usage;
-import editor.abilities.*;
+import editor.abilitiesstrategies.*;
 
 /**
  * 
@@ -20,6 +22,11 @@ import editor.abilities.*;
  * then stops.
  */
 public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfiguration implements Observer {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Deal Damage Once",
+				DealDamageOnceConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	private double damage;
 	

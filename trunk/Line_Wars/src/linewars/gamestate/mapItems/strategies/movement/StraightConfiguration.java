@@ -4,13 +4,16 @@ import java.util.Observable;
 import java.util.Observer;
 
 import configuration.Usage;
-import editor.abilities.EditorProperty;
-import editor.abilities.EditorUsage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -21,6 +24,11 @@ import linewars.gamestate.mapItems.Unit;
  * hits anything. Requires a movement speed.
  */
 public strictfp class StraightConfiguration extends MovementStrategyConfiguration implements Observer {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Straight",
+				StraightConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	private double speed;
 	
