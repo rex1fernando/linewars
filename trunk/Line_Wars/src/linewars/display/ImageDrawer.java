@@ -56,7 +56,7 @@ public class ImageDrawer
 	 * 
 	 * @param uri
 	 *            The URI of the image to load.
-	 * @param mapItemURI
+	 * @param mapItemName
 	 *            The URI of the MapItem this image is for.
 	 * @param width
 	 *            The width of the image in game units.
@@ -65,16 +65,16 @@ public class ImageDrawer
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, String mapItemURI, int width, int height) throws IOException
+	public void addImage(String uri, String mapItemName, int width, int height) throws IOException
 	{
-		if(images.get(uri + mapItemURI) != null)
+		if(images.get(uri + mapItemName) != null)
 			return;
 
 		Image image = loadImage(uri);
 
 		GameImage scaledImage = new GameImage(image, width, height);
 
-		images.put(uri + mapItemURI, scaledImage);
+		images.put(uri + mapItemName, scaledImage);
 	}
 
 	/**

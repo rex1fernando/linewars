@@ -12,17 +12,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
@@ -38,10 +38,11 @@ import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Map;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.AdjustFlowDistributionMessage;
@@ -218,12 +219,13 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.lockViewableGameState();
 
 			GameState state = gameStateProvider.getCurrentGameState();
-			ConfigData mapParser = state.getMap().getParser();
+			Map map = state.getMap();
 			int numPlayers = state.getNumPlayers();
 
 			// calculates the visible screen size based off of the zoom level
-			double mapWidth = mapParser.getNumber(ParserKeys.imageWidth);
-			double mapHeight = mapParser.getNumber(ParserKeys.imageHeight);
+			Position mapDim = map.getDimensions();
+			double mapWidth = mapDim.getX();
+			double mapHeight = mapDim.getY();
 			mapSize = new Dimension();
 			mapSize.setSize(mapWidth, mapHeight);
 
@@ -234,24 +236,28 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 
 			// add the map image to the MapItemDrawer
-			String mapURI = mapParser.getString(ParserKeys.icon);
+			String mapURI = map.getConfig().getImageURI();
 
-			ConfigData leftUIPanel = null;
-			ConfigData rightUIPanel = null;
-			ConfigData exitButton = null;
-			ConfigData exitButtonClicked = null;
+			Animation leftUIPanel = null;
+			Animation rightUIPanel = null;
+			Animation exitButton = null;
+			Animation exitButtonClicked = null;
 			try
 			{
-				leftUIPanel = new ConfigFileReader("resources/animations/left_ui_panel.cfg").read();
-				rightUIPanel = new ConfigFileReader("resources/animations/right_ui_panel.cfg").read();
-				exitButton = new ConfigFileReader("resources/animations/Exit_Button.cfg").read();
-				exitButtonClicked = new ConfigFileReader("resources/animations/Exit_Button_Clicked.cfg").read();
+				leftUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/left_ui_panel.cfg"))).readObject();
+				rightUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/right_ui_panel.cfg"))).readObject();
+				exitButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button.cfg"))).readObject();
+				exitButtonClicked = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button_Clicked.cfg"))).readObject();
 			}
 			catch (FileNotFoundException e)
 			{
 				e.printStackTrace();
 			}
-			catch (InvalidConfigFileException e)
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ClassNotFoundException e)
 			{
 				e.printStackTrace();
 			}
@@ -534,7 +540,7 @@ public class Display extends JFrame implements Runnable
 			}
 			else
 			{
-				CommandCenter cc = node.getCommandCenter();
+				Building cc = node.getCommandCenter();
 
 				nodeStatusPanel.setVisible(true);
 				nodeStatusPanel.updateNodeStatus(node, gamestate.getTime() * 1000);
@@ -546,7 +552,7 @@ public class Display extends JFrame implements Runnable
 				else
 				{
 					commandCardPanel.setVisible(true);
-					commandCardPanel.updateButtons(cc, node);
+					commandCardPanel.updateButtons(gamestate, node);
 				}
 
 				int recX;
