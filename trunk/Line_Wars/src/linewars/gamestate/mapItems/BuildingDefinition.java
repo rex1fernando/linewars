@@ -56,6 +56,16 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		return iconConfig;
 	}
 	
+	public String getToolTip()
+	{
+		return (String)super.getPropertyForName("toolTip").getValue();
+	}
+	
+	public void setToolTip(String toolTip)
+	{
+		super.setPropertyForName("toolTip", new Property(Usage.STRING, toolTip));
+	}
+	
 	/**
 	 * 
 	 * @param cost	the new cost of this building
