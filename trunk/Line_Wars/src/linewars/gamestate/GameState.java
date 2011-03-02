@@ -36,6 +36,8 @@ public strictfp class GameState
 	
 	private Player winningPlayer = null;
 	
+	private int IDCounter = 0;
+	
 	public int getNumPlayers()
 	{
 		return numPlayers;
@@ -266,6 +268,11 @@ public strictfp class GameState
 	public Player getWinningPlayer()
 	{
 		return winningPlayer;
+	}
+	
+	public int getNextMapItemID()
+	{
+		return IDCounter++;
 	}
 	
 	@Override

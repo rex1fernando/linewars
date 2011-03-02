@@ -74,6 +74,8 @@ public class BigFrameworkGuy
 		
 		public List<Configuration> getConfigsOfType(ConfigType t)
 		{
+			if(masterList.get(t) == null)
+				masterList.put(t, new ArrayList<Configuration>());
 			return masterList.get(t);
 		}
 		
@@ -148,7 +150,8 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
+//		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
+		String[] editors = {"Animation"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;

@@ -156,7 +156,7 @@ public strictfp class Player {
 	 * 		An array containing all of the UnitDefinitions owned by this Player.
 	 */
 	public UnitDefinition[] getUnitDefinitions(){
-		return race.getUnits().toArray(new UnitDefinition[0]);
+		return race.getUnlockedUnits().toArray(new UnitDefinition[0]);
 	}
 	
 	/**
@@ -166,7 +166,7 @@ public strictfp class Player {
 	 */
 	public BuildingDefinition[] getBuildingDefintions()
 	{
-		return race.getBuildings().toArray(new BuildingDefinition[0]);
+		return race.getUnlockedBuildings().toArray(new BuildingDefinition[0]);
 	}
 	
 	/**
