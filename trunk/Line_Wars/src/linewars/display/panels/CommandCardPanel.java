@@ -170,7 +170,7 @@ public class CommandCardPanel extends Panel
 	public void updateButtons(GameState state, Node node)
 	{
 		int pID = node.getOwner().getPlayerID();
-//TODO get unlocked buildings		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getBuildings();
+		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getUnlockedBuildings();
 		for(int i = 0; i < buildings.size(); ++i)
 		{
 			BuildingDefinition def = buildings.get(i);
@@ -199,7 +199,7 @@ public class CommandCardPanel extends Panel
 			pressedIcons[i].setURI(pressedURI);
 			rolloverIcons[i].setURI(rolloverURI);
 			selectedIcons[i].setURI(selectedURI);
-//TODO add tool-tip			buttons[i].setToolTipText();
+			buttons[i].setToolTipText(def.getToolTip());
 			clickEvents[i].setAbility(node, def);
 			buttons[i].setEnabled(true);
 		}
