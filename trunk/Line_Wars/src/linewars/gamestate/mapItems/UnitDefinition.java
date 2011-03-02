@@ -88,5 +88,20 @@ public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 	{
 		super.setPropertyForName("combatStrat", new Property(Usage.CONFIGURATION, csc));
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof UnitDefinition)
+		{
+			UnitDefinition ud = (UnitDefinition)obj;
+			return super.equals(obj) &&
+					maxHp == ud.maxHp &&
+					combatStrat.equals(ud.combatStrat) &&
+					mStrat.equals(ud.mStrat);
+		}
+		else
+			return false;
+	}
 
 }

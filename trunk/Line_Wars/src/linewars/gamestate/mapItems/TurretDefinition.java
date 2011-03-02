@@ -35,5 +35,18 @@ public class TurretDefinition extends MapItemDefinition<Turret> {
 	{
 		super.setPropertyForName("turretStrat", new Property(Usage.CONFIGURATION, tsc));
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof TurretDefinition)
+		{
+			TurretDefinition td = (TurretDefinition) obj;
+			return super.equals(obj) &&
+					turretStrat.equals(td.turretStrat);
+		}
+		else
+			return false;
+	}
 
 }

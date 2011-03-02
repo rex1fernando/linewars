@@ -64,5 +64,19 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 		velocity = (Double)super.getPropertyForName("velocity").getValue();
 		iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof ProjectileDefinition)
+		{
+			ProjectileDefinition pd = (ProjectileDefinition) obj;
+			return super.equals(obj) &&
+					velocity == pd.velocity &&
+					iStrat.equals(pd.iStrat);
+		}
+		else
+			return false;
+	}
 
 }
