@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.List;
 
 import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
@@ -14,10 +15,15 @@ import javax.swing.JPanel;
 
 import linewars.display.Animation;
 import linewars.display.Display;
+import linewars.display.IconConfiguration;
 import linewars.display.ImageDrawer;
+import linewars.display.IconConfiguration.IconType;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.network.MessageReceiver;
@@ -161,15 +167,19 @@ public class CommandCardPanel extends Panel
 	 * @param node
 	 *            The selected Node.
 	 */
-	public void updateButtons(CommandCenter cc, Node node)
+	public void updateButtons(GameState state, Node node)
 	{
-		AbilityDefinition[] ad = cc.getAvailableAbilities();
-		for(int i = 0; i < ad.length; i++)
+		int pID = node.getOwner().getPlayerID();
+//TODO get unlocked buildings		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getBuildings();
+		for(int i = 0; i < buildings.size(); ++i)
 		{
-			String iconURI = ad[i].getIconURI();
-			String pressedURI = ad[i].getPressedIconURI();
-			String rolloverURI = ad[i].getRolloverIconURI();
-			String selectedURI = ad[i].getSelectedIconURI();
+			BuildingDefinition def = buildings.get(i);
+			IconConfiguration icons = def.getIconConfig();
+
+			String iconURI = icons.getIconURI(IconType.regular);
+			String pressedURI = icons.getIconURI(IconType.pressed);
+			String rolloverURI = icons.getIconURI(IconType.rollover);
+			String selectedURI = icons.getIconURI(IconType.highlighted);
 			try
 			{
 				int width = buttons[i].getWidth();
@@ -181,7 +191,6 @@ public class CommandCardPanel extends Panel
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -190,9 +199,9 @@ public class CommandCardPanel extends Panel
 			pressedIcons[i].setURI(pressedURI);
 			rolloverIcons[i].setURI(rolloverURI);
 			selectedIcons[i].setURI(selectedURI);
-			buttons[i].setToolTipText(ad[i].getDescription());
-			clickEvents[i].setAbility(node, ad[i]);
-			buttons[i].setEnabled(ad[i].unlocked());
+//TODO add tool-tip			buttons[i].setToolTipText();
+			clickEvents[i].setAbility(node, def);
+			buttons[i].setEnabled(true);
 		}
 	}
 
@@ -281,20 +290,12 @@ public class CommandCardPanel extends Panel
 	private class ClickHandler implements ActionListener
 	{
 		private Node node;
-		private AbilityDefinition ability;
+		private BuildingDefinition building;
 
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Message message = null;
-			if(ability instanceof ConstructBuildingDefinition)
-			{
-				message = new BuildMessage(node.getOwner().getPlayerID(), node.getID(), ability.getID());
-			}
-			else if(ability instanceof ResearchTechDefinition)
-			{
-				message = new UpgradeMessage(node.getOwner().getPlayerID(), node.getID(), ability.getID());
-			}
+			Message message = new BuildMessage(node.getOwner().getPlayerID(), node.getID(), building.getID());
 
 			CommandCardPanel.this.receiver.addMessage(message);
 		}
@@ -304,13 +305,13 @@ public class CommandCardPanel extends Panel
 		 * 
 		 * @param node
 		 *            The currently selected Node.
-		 * @param ability
+		 * @param building
 		 *            The definition of the ability that this will apply.
 		 */
-		public void setAbility(Node node, AbilityDefinition ability)
+		public void setAbility(Node node, BuildingDefinition building)
 		{
 			this.node = node;
-			this.ability = ability;
+			this.building = building;
 		}
 	}
 }
