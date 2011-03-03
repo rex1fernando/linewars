@@ -9,9 +9,16 @@ public class TextField extends Field {
 	private EditorUsage usage;
 	private JTextField text;
 	
-	public TextField(String name, String description, EditorUsage usage) {
+	public TextField(String name, String description, EditorUsage usage) 
+	{
+		this(name, description, usage, "");
+	}
+	
+	public TextField(String name, String description, EditorUsage usage, String initialText) {
 		super(name, description);
 		text = new JTextField(20);
+		text.setText(initialText);
+		this.usage = usage;
 		this.add(text);
 	}
 

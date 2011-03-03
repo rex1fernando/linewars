@@ -100,6 +100,8 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			public void selectionChanged(Animation newSelection) {
 				if(validStates.getHighlightedObjects().size() == 1)
 					animationMap.put(validStates.getHighlightedObjects().get(0), newSelection);
+				else if(newSelection == null)
+					return;
 				else
 					animations.setSelectedObject(null);
 			}

@@ -8,16 +8,24 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.strategies.Strategy;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.turret.TurretStrategyConfiguration;
+import utility.ForceLoadPackage;
 import configuration.Configuration;
-
 import editor.BigFrameworkGuy;
-import editor.ConfigurationEditor;
 import editor.BigFrameworkGuy.ConfigType;
+import editor.ConfigurationEditor;
 
 public class StrategyEditor extends JPanel implements ConfigurationEditor {
+	
+	static {
+		ForceLoadPackage.forceLoadClassesInPackage(Strategy.class.getPackage());
+	}
 
 	private ConfigurationEditor realEditor;
 	private BigFrameworkGuy bfg;
@@ -32,7 +40,7 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		for(String name : StrategyConfiguration.getStrategyNameSet())
 		{
-			if(StrategyConfiguration.getConfig(name).getClass().equals(cd.getClass()))
+			if(StrategyConfiguration.getConfig(name).equals(cd.getClass()))
 			{
 				try {
 					realEditor = StrategyConfiguration
@@ -106,7 +114,8 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		return realEditor.getData(toSet);
+		realEditor.getData(toSet);
+		return getType(toSet);
 	}
 
 	@Override
@@ -123,6 +132,22 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 	@Override
 	public JPanel getPanel() {
 		return this;
+	}
+	
+	private ConfigType getType(Configuration config)
+	{
+		if(config instanceof CollisionStrategyConfiguration)
+			return ConfigType.collisionStrategy;
+		else if(config instanceof CombatStrategyConfiguration)
+			return ConfigType.combatStrategy;
+		else if(config instanceof ImpactStrategyConfiguration)
+			return ConfigType.impactStrategy;
+		else if(config instanceof MovementStrategyConfiguration)
+			return ConfigType.movementStrategy;
+		else if(config instanceof TurretStrategyConfiguration)
+			return ConfigType.turretStrategy;
+		else
+			return null;
 	}
 
 }

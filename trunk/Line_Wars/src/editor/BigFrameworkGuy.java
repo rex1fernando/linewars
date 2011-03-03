@@ -28,7 +28,9 @@ import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityEditor;
+import editor.abilitiesstrategies.StrategyEditor;
 import editor.animations.AnimationEditor;
+import editor.animations.FileCopy;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
 import editor.race.RaceEditor;
@@ -68,8 +70,8 @@ public class BigFrameworkGuy
 		
 		public void addConfigToList(ConfigType t, Configuration c)
 		{
-			this.saveData();
 			masterList.get(t).add(c);
+			this.saveData();
 		}
 		
 		public List<Configuration> getConfigsOfType(ConfigType t)
@@ -81,8 +83,8 @@ public class BigFrameworkGuy
 		
 		public void setConfigForEditor(ConfigurationEditor ce, Configuration c)
 		{
-			this.saveData();
 			loadedConfigs.put(ce.hashCode(), c);
+			this.saveData();
 		}
 		
 		public Configuration getConfigForEditor(ConfigurationEditor ce)
@@ -95,6 +97,7 @@ public class BigFrameworkGuy
 			if(saveFile != null)
 			{
 				try {
+					FileCopy.copy(saveFile, saveFile + ".bak");
 					ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile));
 					oos.writeObject(this);
 					oos.flush();
@@ -150,8 +153,8 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-//		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
-		String[] editors = {"Animation"};
+//		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy"};
+		String[] editors = {"Animation", "Ability", "Strategy", "Map Item"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -169,14 +172,16 @@ public class BigFrameworkGuy
 				ce = new FunctionEditor();
 			else if (e.equals("Race"))
 				ce = new RaceEditor(this);
+			else if (e.equals("Strategy"))
+				ce = new StrategyEditor(this);
 			//TODO add an if statement for new editors here
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());
 			this.editors.add(ce);
 			
 			//make sure a config is loaded for this editor
-			if(saveData.loadedConfigs.get(ce.hashCode()) == null)
-				saveData.loadedConfigs.put(ce.hashCode(), ce.instantiateNewConfiguration());
+//			if(saveData.loadedConfigs.get(ce.hashCode()) == null)
+//				saveData.loadedConfigs.put(ce.hashCode(), ce.instantiateNewConfiguration());
 			
 			if(ce.getPanel().getPreferredSize().getWidth() > prefferedSize.getWidth())
 				prefferedSize.setSize(ce.getPanel().getPreferredSize().getWidth(), prefferedSize.getHeight());

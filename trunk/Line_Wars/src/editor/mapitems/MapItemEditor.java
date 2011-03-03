@@ -188,6 +188,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor {
 		{
 			showBodyEditor.setText("Hide Body Editor");
 			bodyEditorFrame.setVisible(true);
+			bodyEditorFrame.pack();
 			bodyEditor.getPanel().setVisible(true);
 		}
 		else

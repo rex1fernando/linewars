@@ -24,7 +24,11 @@ public class DisplayConfiguration extends Configuration
 
 	public Animation getAnimation(MapItemState state)
 	{
-		return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getAnimation();
+		if(super.getPropertyForName(state.toString()) == null || 
+				super.getPropertyForName(state.toString()).getValue() == null)
+			return null;
+		else
+			return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getAnimation();
 	}
 
 	public void setAnimation(MapItemState state, Animation a)
@@ -39,7 +43,11 @@ public class DisplayConfiguration extends Configuration
 
 	public String getSound(MapItemState state)
 	{
-		return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getSound();
+		if(super.getPropertyForName(state.toString()) == null || 
+				super.getPropertyForName(state.toString()).getValue() == null)
+			return null;
+		else
+			return ((DisplayState)super.getPropertyForName(state.toString()).getValue()).getSound();
 	}
 
 	public void setSound(MapItemState state, String s)

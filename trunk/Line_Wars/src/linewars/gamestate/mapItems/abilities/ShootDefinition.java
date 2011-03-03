@@ -107,7 +107,7 @@ public strictfp class ShootDefinition extends AbilityDefinition implements Obser
 		{
 			if(arg.equals("ammo"))
 				ammo = (ProjectileDefinition)super.getPropertyForName("ammo").getValue();
-			if(arg.equals("range"))
+			if(arg.equals("range") && super.getPropertyForName("range").getValue() != null)
 				range = (Double)super.getPropertyForName("range").getValue();
 		}
 	}

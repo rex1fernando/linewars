@@ -96,7 +96,7 @@ public class URISelector extends JPanel
 					JOptionPane.PLAIN_MESSAGE,
 					null,
 					opts,
-					opts[0]);
+					null);
 
 			// string was returned
 			if ((s != null) && (s.length() > 0))

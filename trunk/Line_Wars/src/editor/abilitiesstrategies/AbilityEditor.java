@@ -8,6 +8,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import utility.ForceLoadPackage;
+
+import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 import configuration.Configuration;
@@ -17,6 +20,10 @@ import editor.ConfigurationEditor;
 import editor.BigFrameworkGuy.ConfigType;
 
 public class AbilityEditor extends JPanel implements ConfigurationEditor {
+	
+	static {
+		ForceLoadPackage.forceLoadClassesInPackage(Ability.class.getPackage());
+	}
 
 	private ConfigurationEditor realEditor;
 	private BigFrameworkGuy bfg;
@@ -31,7 +38,7 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		for(String name : AbilityDefinition.getAbilityNameSet())
 		{
-			if(AbilityDefinition.getConfig(name).getClass().equals(cd.getClass()))
+			if(AbilityDefinition.getConfig(name).equals(cd.getClass()))
 			{
 				try {
 					realEditor = AbilityDefinition
@@ -92,7 +99,8 @@ public class AbilityEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public ConfigType getData(Configuration toSet) {
-		return realEditor.getData(toSet);
+		realEditor.getData(toSet);
+		return ConfigType.ability;
 	}
 
 	@Override
