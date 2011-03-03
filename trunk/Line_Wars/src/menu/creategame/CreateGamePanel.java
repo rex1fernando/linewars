@@ -2,70 +2,340 @@
 package menu.creategame;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
 import menu.WindowManager;
+import menu.networking.Client;
+import menu.networking.MessageType;
 import menu.networking.PlayerBean;
+import menu.networking.Server;
 
 public class CreateGamePanel extends javax.swing.JPanel {
-
-    /** Creates new form CreateGamePanel */
+	
+	private static final int PORT = 9001;
+	
+	private WindowManager wm;
+	private SelectionComboBoxModel comboBoxModel;
+	private List<PlayerPanel> players;
+	private Client client;
+    
     public CreateGamePanel(WindowManager wm) {
+    	this.wm = wm;
+    	players = new ArrayList<PlayerPanel>();
         initComponents();
     }
     
     public void startServer() {
-    	// TODO implement
+    	Server s = new Server(PORT, replayToggleButton.isSelected(), selectionComboBox.getSelectedItem());
+    	s.start();
+    	startClient("127.0.0.1");
     }
     
     public void startClient(String serverIp) {
-    	// TODO implement
+    	client = new Client(PORT, serverIp, this);
+    	client.start();
     }
 
-    public void setReplay(boolean isReplay) {
-    	// TODO implement
+    public void setReplay(final boolean isReplay) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		replayToggleButton.setSelected(isReplay);
+    	}});
     }
     
-    public void setSelection(Object selection) {
-    	// TODO implement
+    public void setSelection(final Object selection) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		selectionComboBox.setSelectedItem(selection);
+    	}});
     }
     
-    public void setPlayerName(int playerId, String name) {
-    	// TODO implement
+    public void setPlayerName(final int playerId, final String name) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		players.get(playerId).name.setText(name);
+    	}});
     }
     
-    public void setPlayerSlot(int playerId, int slot) {
-    	// TODO implement
+    public void setPlayerSlot(final int playerId, final int slot) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		players.get(playerId).slot.setSelectedItem(slot);
+    	}});
     }
     
-    public void setPlayerRace(int playerId, Object race) {
-    	// TODO implement
+    public void setPlayerRace(final int playerId, final Object race) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		players.get(playerId).race.setSelectedItem(race);
+    	}});
     }
     
-    public void setPlayerColor(int playerId, Color color) {
-    	// TODO implement
+    public void setPlayerColor(final int playerId, final Color color) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		players.get(playerId).race.setSelectedItem(color);
+    	}});
     }
     
-    public void updateChat(String message) {
-    	// TODO implement
+    public void updateChat(final String message) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		chatArea.append(message);
+    	}});
     }
     
-    public void updatePlayerPanel(int playerId, PlayerBean info) {
-    	// TODO implement
+    public void updatePlayerPanel(final int playerId, final PlayerBean info) {
+    	setPlayerName(playerId, info.getName());
+    	setPlayerSlot(playerId, info.getSlot());
+    	setPlayerRace(playerId, info.getRace());
+    	setPlayerColor(playerId, info.getColor());
     }
     
-    public void addPlayer(boolean enabled) {
-    	// TODO implement
+    public void addPlayer(final boolean enabled) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		PlayerPanel pp = new PlayerPanel();
+    		pp.setEnabled(enabled);
+    		players.add(pp);
+    		lobbyPanel.add(pp);
+    	}});
     }
     
-    public void removePlayer(int playerId) {
-    	// TODO implement
+    public void removePlayer(final int playerId) {
+    	SwingUtilities.invokeLater(new Runnable() { public void run() {
+    		PlayerPanel pp = players.get(playerId);
+    		players.remove(playerId);
+    		lobbyPanel.remove(pp);
+    	}});
     }
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {           
+    	if (allIsWell())
+    		client.sendMessage(MessageType.startGame);
+    }                                           
+
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    	String playerName = players.get(client.getPlayerIndex()).getName();
+    	String message = chatField.getText();
+    	String toAppend = playerName + ": " + message;
+    	
+    	// sends the chat message over the network
+    	if (allIsWell())
+    		client.sendMessage(MessageType.chat, toAppend);
+        
+        // appends it to the current chat area
+        chatArea.append(toAppend);
+        
+        // sets the field to blank
+        chatField.setText("");
+    }                                          
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {           
+    	if (allIsWell())
+    		client.sendMessage(MessageType.clientCancelGame);
+    }                                            
+
+    private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {           
+    	if (allIsWell())
+    		client.sendMessage(MessageType.selection, selectionComboBox.getSelectedItem());
+    }                                            
+
+    private void replayCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {                                               
+        boolean isSelected = replayToggleButton.isSelected();
+        selectionLabel.setText((isSelected ? "Replay" : "Map") + " Selection");
+        comboBoxModel.setReplay(isSelected);
+        players.get(client.getPlayerIndex()).setEnabled(!isSelected);
+    }                                              
+
+    private String[] getAvailableMaps() {
+    	// TODO implement
+        return new String[]{"Map 1", "Map 2", "Map 3"};
+    }
+
+    private String[] getAvailableReplays() {
+    	// TODO implement
+        return new String[]{"Replay 1", "Replay 2"};
+    }
+
+    private String[] getAvailableRaces() {
+    	// TODO implement
+        return new String[]{"Race 1", "Race 2", "Race 3", "Race 4"};
+    }
+    
+    private Color[] getAvailableColors() {
+    	// TODO implement
+    	return new Color[] { Color.black, Color.white, Color.red, Color.blue, Color.green };
+    }
+    
+    private boolean allIsWell() {
+    	return (client != null);
+    }
+
+    public class PlayerPanel extends javax.swing.JPanel {
+        
+        public PlayerPanel() {
+            initComponents();
+        }        
+
+        private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {         
+        	if (allIsWell())
+        		client.sendMessage(MessageType.race, race.getSelectedItem());
+        }                                          
+
+        private void nameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
+            String s = (String) javax.swing.JOptionPane.showInputDialog(this,
+                    "Please enter a new name:",
+                    "Rename",
+                    javax.swing.JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    name.getText());
+            
+            if (s != null && !s.equals(name.getText()) && allIsWell()) {
+                name.setText(s);
+                client.sendMessage(MessageType.name, s);
+            }
+        }                                          
+
+        private void slotChangeActionPerformed(java.awt.event.ActionEvent evt) {
+        	if (allIsWell())
+        		client.sendMessage(MessageType.slot, slot.getSelectedItem());
+        }                                          
+
+        private void colorChangeActionPerformed(java.awt.event.ActionEvent evt) {
+        	if (allIsWell())
+        		client.sendMessage(MessageType.color, color.getSelectedItem());
+        }
+     
+        private void initComponents() {
+
+            slot = new javax.swing.JComboBox();
+            race = new javax.swing.JComboBox();
+            name = new javax.swing.JButton();
+            color = new javax.swing.JComboBox();
+
+            setMaximumSize(new java.awt.Dimension(712, 28));
+            setMinimumSize(new java.awt.Dimension(712, 28));
+            setPreferredSize(new java.awt.Dimension(712, 28));
+
+            slot.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
+            slot.setBorder(null);
+            slot.setEditor(null);
+            slot.setFocusable(false);
+            slot.setKeySelectionManager(null);
+            slot.setMaximumSize(new java.awt.Dimension(82, 28));
+            slot.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    slotChangeActionPerformed(evt);
+                }
+            });
+
+            race.setModel(new javax.swing.DefaultComboBoxModel(getAvailableRaces()));
+            race.setBorder(null);
+            race.setFocusable(false);
+            race.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    raceChangeActionPerformed(evt);
+                }
+            });
+
+            name.setText("Name");
+            name.setFocusable(false);
+            name.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+            name.setMaximumSize(new java.awt.Dimension(53, 28));
+            name.setMinimumSize(new java.awt.Dimension(53, 28));
+            name.setPreferredSize(new java.awt.Dimension(53, 28));
+            name.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    nameButtonActionPerformed(evt);
+                }
+            });
+
+            color.setModel(new javax.swing.DefaultComboBoxModel(getAvailableColors()));
+            color.setBorder(null);
+            color.setEditor(null);
+            color.setFocusable(false);
+            color.setKeySelectionManager(null);
+            color.setMaximumSize(new java.awt.Dimension(82, 28));
+            color.setRenderer(new ComboBoxRenderer());
+            color.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    colorChangeActionPerformed(evt);
+                }
+            });
+
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+            this.setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(slot, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(race, 0, 359, Short.MAX_VALUE))
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(slot, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(race, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap())
+            );
+        }
+        
+        private javax.swing.JComboBox color;
+        private javax.swing.JButton name;
+        private javax.swing.JComboBox race;
+        private javax.swing.JComboBox slot;
+    }
+    
+    private class SelectionComboBoxModel implements ComboBoxModel {
+        private int map = 0;
+        private int replay = 0;
+        
+        private boolean isReplay = false;
+        private Object[] choices = getAvailableMaps();
+
+        public void setSelectedItem(Object anItem) {
+            Object[] str =  getItems();
+            for (int i = 0; i < str.length; ++i) {
+                if (str[i].equals(anItem)) {
+                    if (isReplay) replay = i; else map = i;
+                }
+            }
+        }
+
+        public Object getSelectedItem() {
+            return getElementAt(isReplay ? replay : map);
+        }
+
+        public int getSize() {
+            return getItems().length;
+        }
+
+        public Object getElementAt(int index) {
+            return getItems()[index];
+        }
+        
+        public void setReplay(boolean isReplay) {
+        	this.isReplay = isReplay;
+        	choices = isReplay ? getAvailableReplays() : getAvailableMaps();
+        }
+
+        public void addListDataListener(ListDataListener l) {}
+        public void removeListDataListener(ListDataListener l) {}
+
+        private Object[] getItems() {
+            return choices;
+        }
+    }
+    
     private void initComponents() {
 
         jComboBox2 = new javax.swing.JComboBox();
@@ -106,7 +376,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
             }
         });
 
-        selectionComboBox.setModel(new SelectionComboBoxModel());
+        comboBoxModel = new SelectionComboBoxModel();
+        selectionComboBox.setModel(comboBoxModel);
         selectionComboBox.setFocusable(false);
         selectionComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -248,86 +519,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
         );
     }// </editor-fold>                        
 
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        // TODO add your handling code here:
-    }                                           
-
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        // TODO add your handling code here:
-    }                                          
-
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        // TODO add your handling code here:
-    }                                            
-
-    private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        // TODO add your handling code here:
-    }                                            
-
-    private void replayCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {                                               
-        javax.swing.JToggleButton btn = (javax.swing.JToggleButton) evt.getSource();
-        if (btn.isSelected()) {
-            selectionLabel.setText("Replay Selection");
-            // TODO populate replays
-            // TODO disable color, slot, and race of all players
-        } else {
-            selectionLabel.setText("Map Selection");
-            // TODO populate maps
-            // TODO enable color, slot, and race of all players
-        }
-    }                                              
-
-    private String[] getAvailableMaps() {
-        return new String[]{"Map 1", "Map 2", "Map 3"};
-    }
-
-    private String[] getAvailableReplays() {
-        return new String[]{"Replay 1", "Replay 2"};
-    }
-
-    private String[] getAvailableRaces() {
-        return new String[]{"Race 1", "Race 2", "Race 3", "Race 4"};
-    }
-    
-    private Color[] getAvailableColors() {
-    	return new Color[] { Color.black, Color.white, Color.red, Color.blue, Color.green };
-    }
-
-    private class SelectionComboBoxModel implements ComboBoxModel {
-        private int map = 0;
-        private int replay = 0;
-
-        public void setSelectedItem(Object anItem) {
-            String[] str =  getItems();
-            for (int i = 0; i < str.length; ++i) {
-                if (str[i].equals(anItem)) {
-                    if (replayToggleButton.isSelected()) replay = i; else map = i;
-                }
-            }
-        }
-
-        public Object getSelectedItem() {
-            return getElementAt(replayToggleButton.isSelected() ? replay : map);
-        }
-
-        public int getSize() {
-            return getItems().length;
-        }
-
-        public Object getElementAt(int index) {
-            return getItems()[index];
-        }
-
-        public void addListDataListener(ListDataListener l) {}
-        public void removeListDataListener(ListDataListener l) {}
-
-        private String[] getItems() {
-            return (replayToggleButton.isSelected())
-                    ? getAvailableReplays() : getAvailableMaps();
-        }
-    }
-
-    // Variables declaration - do not modify                     
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextArea chatArea;
@@ -343,142 +534,5 @@ public class CreateGamePanel extends javax.swing.JPanel {
     private javax.swing.JComboBox selectionComboBox;
     private javax.swing.JLabel selectionLabel;
     private javax.swing.JButton sendButton;
-    private javax.swing.JButton startButton;
-    // End of variables declaration      
-    
-
-    public class PlayerPanel extends javax.swing.JPanel {
-
-        /** Creates new form playerPanel */
-        public PlayerPanel() {
-            initComponents();
-        }
-
-        /** This method is called from within the constructor to
-         * initialize the form.
-         * WARNING: Do NOT modify this code. The content of this method is
-         * always regenerated by the Form Editor.
-         */
-        @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
-        private void initComponents() {
-
-            slot = new javax.swing.JComboBox();
-            race = new javax.swing.JComboBox();
-            name = new javax.swing.JButton();
-            color = new javax.swing.JComboBox();
-
-            setMaximumSize(new java.awt.Dimension(712, 28));
-            setMinimumSize(new java.awt.Dimension(712, 28));
-            setPreferredSize(new java.awt.Dimension(712, 28));
-
-            slot.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
-            slot.setBorder(null);
-            slot.setEditor(null);
-            slot.setFocusable(false);
-            slot.setKeySelectionManager(null);
-            slot.setMaximumSize(new java.awt.Dimension(82, 28));
-            slot.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    slotChangeActionPerformed(evt);
-                }
-            });
-
-            race.setModel(new javax.swing.DefaultComboBoxModel(getAvailableRaces()));
-            race.setBorder(null);
-            race.setFocusable(false);
-            race.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    raceChangeActionPerformed(evt);
-                }
-            });
-
-            name.setText("Name");
-            name.setFocusable(false);
-            name.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-            name.setMaximumSize(new java.awt.Dimension(53, 28));
-            name.setMinimumSize(new java.awt.Dimension(53, 28));
-            name.setPreferredSize(new java.awt.Dimension(53, 28));
-            name.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    nameButtonActionPerformed(evt);
-                }
-            });
-
-            color.setModel(new javax.swing.DefaultComboBoxModel(getAvailableColors()));
-            color.setBorder(null);
-            color.setEditor(null);
-            color.setFocusable(false);
-            color.setKeySelectionManager(null);
-            color.setMaximumSize(new java.awt.Dimension(82, 28));
-            color.setRenderer(new ComboBoxRenderer());
-            color.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    colorChangeActionPerformed(evt);
-                }
-            });
-
-            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-            this.setLayout(layout);
-            layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(slot, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(race, 0, 359, Short.MAX_VALUE))
-            );
-            layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(slot, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(color, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(race, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap())
-            );
-        }// </editor-fold>                        
-
-        private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {                                           
-            // TODO add your handling code here:
-        }                                          
-
-        private void nameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
-            String s = (String) javax.swing.JOptionPane.showInputDialog(this,
-                    "Please enter a new name:",
-                    "Rename",
-                    javax.swing.JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    name.getText());
-            
-            if (s != null && !s.equals(name.getText())) {
-                name.setText(s);
-                // TODO send stuff over the network
-            }
-        }                                          
-
-        private void slotChangeActionPerformed(java.awt.event.ActionEvent evt) {                                           
-            // TODO add your handling code here:
-    }                                          
-
-        private void colorChangeActionPerformed(java.awt.event.ActionEvent evt) {                                            
-            // TODO add your handling code here:
-        }
-
-        // Variables declaration - do not modify                     
-        private javax.swing.JComboBox color;
-        private javax.swing.JButton name;
-        private javax.swing.JComboBox race;
-        private javax.swing.JComboBox slot;
-        // End of variables declaration                   
-
-    }
-
-
+    private javax.swing.JButton startButton;   
 }
