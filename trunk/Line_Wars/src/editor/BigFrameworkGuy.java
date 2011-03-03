@@ -150,7 +150,7 @@ public class BigFrameworkGuy
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
 //		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
-		String[] editors = {"Animation", "Map"};
+		String[] editors = {"Race"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -218,7 +218,7 @@ public class BigFrameworkGuy
 		frame.setVisible(true);
 		
 		//can't start the animation editors display loop until the panel is added to the frame
-		new Thread(toStart).run();
+		//new Thread(toStart).run();
 		
 	}
 	
