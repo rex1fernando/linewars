@@ -18,11 +18,13 @@ public class TechGraph implements Serializable
 	private Iterator<TechNode> rootIterator;
 	private int maxX;
 	private int maxY;
+	private String name;
 	
 	public TechGraph()
 	{
 		roots = new ArrayList<TechNode>();
 		rootIterator = roots.iterator();
+		name = "tech";
 	}
 	
 	public TechNode addNode()
@@ -45,6 +47,16 @@ public class TechGraph implements Serializable
 			return rootIterator.next();
 		
 		return null;		
+	}
+	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 	
 	public void unmarkAll()
