@@ -32,7 +32,6 @@ import editor.animations.AnimationEditor;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
 import editor.race.RaceEditor;
-import editor.tech.FunctionEditor;
 import editor.tech.TechEditor;
 
 /**
@@ -165,8 +164,6 @@ public class BigFrameworkGuy
 				ce = new MapEditor(frame);
 			else if(e.equals("Tech"))
 				ce = new TechEditor(this);
-			else if(e.equals("Function"))
-				ce = new FunctionEditor();
 			else if (e.equals("Race"))
 				ce = new RaceEditor(this);
 			//TODO add an if statement for new editors here

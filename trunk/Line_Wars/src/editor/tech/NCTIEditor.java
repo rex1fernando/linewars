@@ -1,10 +1,12 @@
 package editor.tech;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,7 +28,7 @@ import editor.IconEditor;
  * @author John George, Taylor Bergquist
  *
  */
-public class NTCIEditor implements ConfigurationEditor {
+public class NCTIEditor implements ConfigurationEditor {
 	
 	private static final List<IconType> iconTypes;
 	private static final List<String> iconDescriptions;
@@ -55,33 +57,54 @@ public class NTCIEditor implements ConfigurationEditor {
 	
 	private IconEditor iconEditor;
 	
-	public NTCIEditor(){
-		iconEditor = new IconEditor(iconTypes, iconDescriptions);
+	public NCTIEditor(){
+		iconEditor = new IconEditor(iconTypes, iconDescriptions, new Dimension(200, 183));
 		
-		//Initialize the elements
+		//Initialize the panels
 		panel = new JPanel();
-		JLabel nameLabel = new JLabel("Name: ");
-		JLabel tooltipLabel = new JLabel("Tooltip: ");
-		nameField = new JTextField(20);
-		tooltipArea = new JTextArea();
-		costField = new JTextField(8);
-		JScrollPane scroller = new JScrollPane(tooltipArea);
+		JPanel NTCPanel = new JPanel();
+		NTCPanel.setLayout(new BoxLayout(NTCPanel, BoxLayout.PAGE_AXIS));
+		JPanel NPanel = new JPanel();
+		JPanel TPanel = new JPanel();
+		JPanel CPanel = new JPanel();
+		JPanel IPanel = new JPanel();
 		
-		//Set the attributes of the elements
-		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		//Initialize NPanel
+		NPanel.add(new JLabel("Name:"));
+		nameField = new JTextField(20);
+		NPanel.add(nameField);
+		
+		//init CPanel
+		CPanel.add(new JLabel("Cost:"));
+		costField = new JTextField(8);
+		CPanel.add(costField);
+		
+		//Init TPanel
+		TPanel.add(new JLabel("Tooltip:"));
+		tooltipArea = new JTextArea();
+		JScrollPane tooltipScroller = new JScrollPane(tooltipArea);
+
+		tooltipScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		tooltipArea.setLineWrap(true);
 		tooltipArea.setWrapStyleWord(true);
-		tooltipArea.setPreferredSize(new Dimension(200, 200));
-		scroller.setPreferredSize(new Dimension(200, 100));
+		tooltipArea.setPreferredSize(new Dimension(400, 200));
+		tooltipScroller.setPreferredSize(new Dimension(400, 100));
 		
-		//Add the elements to the main panel
-		panel.add(nameLabel);
-		panel.add(nameField);
-		panel.add(tooltipLabel);
-		panel.add(scroller);
-		panel.add(costField);
-		panel.add(new JSeparator(JSeparator.VERTICAL));
-		panel.add(iconEditor.getPanel());
+		TPanel.add(tooltipScroller);
+		
+		//init IPanel
+		IPanel.setLayout(new BorderLayout());
+		IPanel.add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
+		IPanel.add(iconEditor.getPanel(), BorderLayout.CENTER);
+		
+		//Put all the sub-panels together
+		NTCPanel.add(NPanel);
+		NTCPanel.add(CPanel);
+		NTCPanel.add(TPanel);
+		
+		panel.add(NTCPanel);
+		//panel.add(new JSeparator(JSeparator.VERTICAL));
+		panel.add(IPanel);
 	}
 	
 	@Override
