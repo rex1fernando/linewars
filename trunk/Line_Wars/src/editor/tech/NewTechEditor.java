@@ -1,10 +1,12 @@
 package editor.tech;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 import linewars.gamestate.tech.TechConfiguration;
 
@@ -23,17 +25,24 @@ import editor.tech.modifierEditors.RaceChooser;
 public class NewTechEditor implements ConfigurationEditor {
 
 	private JPanel editorPanel;
-	private NTCIEditor baggageEditor;
+	private NCTIEditor baggageEditor;
 	private RaceChooser bigCookie;
 	
 	public NewTechEditor(BigFrameworkGuy bfg){
 		editorPanel = new JPanel();
 		editorPanel.setLayout(new BorderLayout());
+		editorPanel.setPreferredSize(new Dimension(700, 600));
 		
-		baggageEditor = new NTCIEditor();
-		editorPanel.add(baggageEditor.getPanel(), BorderLayout.PAGE_START);
+		baggageEditor = new NCTIEditor();
+		baggageEditor.instantiateNewConfiguration();
+		JPanel forASeparator = new JPanel();
+		forASeparator.setLayout(new BorderLayout());
+		forASeparator.add(baggageEditor.getPanel(), BorderLayout.CENTER);
+		forASeparator.add(new JSeparator(JSeparator.HORIZONTAL), BorderLayout.PAGE_END);
+		editorPanel.add(forASeparator, BorderLayout.PAGE_START);
 		
 		bigCookie = new RaceChooser(bfg);
+		bigCookie.instantiateNewConfiguration();
 		editorPanel.add(bigCookie.getPanel(), BorderLayout.CENTER);
 	}
 	
