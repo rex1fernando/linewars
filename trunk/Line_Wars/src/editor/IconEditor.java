@@ -80,7 +80,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		IconConfiguration ic = (IconConfiguration) cd;
 		
-		this.instantiateNewConfiguration();
+		this.resetEditor();
 		
 		for(IconType name : ic.getIconTypes())
 		{
@@ -162,6 +162,11 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		public void setURI(String u) {
+			if(u == null)
+			{
+				clearIcon();
+				return;
+			}
 			if(u.charAt(0) == '/')
 				u = u.substring(1, u.length());
 			

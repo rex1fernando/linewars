@@ -21,7 +21,8 @@ public class TurretEditor extends JPanel implements ConfigurationEditor {
 	public TurretEditor(BigFrameworkGuy bfg)
 	{
 		turretStrat = new GenericSelector<Configuration>("Turret Strategy", 
-					new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.turretStrategy));
+					new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.turretStrategy),
+					new GenericSelector.ShowBFGName<Configuration>());
 		this.add(turretStrat);
 	}
 

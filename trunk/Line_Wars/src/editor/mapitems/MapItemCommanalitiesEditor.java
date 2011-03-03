@@ -236,7 +236,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		mid.setValidStates(validStates.getSelectedObjects());
 		
 		//set the display config
-		mid.setDisplayConfiguration((DisplayConfiguration) mid.getDisplayConfiguration());
+		mid.setDisplayConfiguration(constructDisplayConfiguration((DisplayConfiguration) mid.getDisplayConfiguration()));
 		
 		//get the abilities
 		mid.setAbilities(abilities.getSelectedObjects());

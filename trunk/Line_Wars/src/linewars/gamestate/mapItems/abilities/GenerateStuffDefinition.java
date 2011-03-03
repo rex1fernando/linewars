@@ -97,7 +97,7 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition implemen
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if(o == this && arg.equals("stuffIncome"))
+		if(o == this && arg.equals("stuffIncome") && super.getPropertyForName("stuffIncome").getValue() != null)
 			stuffIncome = (Double)super.getPropertyForName("stuffIncome").getValue();
 	}
 

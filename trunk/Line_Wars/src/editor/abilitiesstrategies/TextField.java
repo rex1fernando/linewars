@@ -6,6 +6,10 @@ import javax.swing.JTextField;
 
 public class TextField extends Field {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8453378525517770107L;
 	private EditorUsage usage;
 	private JTextField text;
 	
@@ -25,7 +29,7 @@ public class TextField extends Field {
 	@SuppressWarnings("null")
 	@Override
 	public Object getValue() {
-		Scanner s  = new Scanner(text.getText());
+		Scanner s = new Scanner(text.getText());
 		Object ret = null;
 		switch (usage)
 		{
@@ -44,7 +48,7 @@ public class TextField extends Field {
 					text.setText("Error: Must be a natural number");
 				break;
 			default:
-			text.setText("Error: This editor has not been updated to support this"
+				text.setText("Error: This editor has not been updated to support this"
 					 + "data type, please contact a programmer to fix it.");	
 		}
 		return ret;

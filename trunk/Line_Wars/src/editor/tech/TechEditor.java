@@ -34,7 +34,7 @@ public class TechEditor implements ConfigurationEditor {
 		editorPanel.setPreferredSize(new Dimension(700, 600));
 		
 		baggageEditor = new NCTIEditor();
-		baggageEditor.instantiateNewConfiguration();
+		baggageEditor.resetEditor();
 		JPanel forASeparator = new JPanel();
 		forASeparator.setLayout(new BorderLayout());
 		forASeparator.add(baggageEditor.getPanel(), BorderLayout.CENTER);
@@ -42,7 +42,7 @@ public class TechEditor implements ConfigurationEditor {
 		editorPanel.add(forASeparator, BorderLayout.PAGE_START);
 		
 		bigCookie = new RaceChooser(bfg);
-		bigCookie.instantiateNewConfiguration();
+		bigCookie.resetEditor();
 		editorPanel.add(bigCookie.getPanel(), BorderLayout.CENTER);
 	}
 	

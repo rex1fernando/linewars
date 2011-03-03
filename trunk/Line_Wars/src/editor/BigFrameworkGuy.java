@@ -2,6 +2,7 @@ package editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,8 +21,10 @@ import java.util.Scanner;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import configuration.Configuration;
@@ -63,6 +66,10 @@ public class BigFrameworkGuy
 	private List<ConfigurationEditor> editors;
 	
 	public static class BFGSavedData implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3043537751663143683L;
 		private HashMap<ConfigType, List<Configuration>> masterList = new HashMap<BigFrameworkGuy.ConfigType, List<Configuration>>();
 		private HashMap<Integer, Configuration> loadedConfigs = new HashMap<Integer, Configuration>();
 		private String saveFile;
@@ -70,6 +77,13 @@ public class BigFrameworkGuy
 		public void addConfigToList(ConfigType t, Configuration c)
 		{
 			masterList.get(t).add(c);
+			this.saveData();
+		}
+		
+		@SuppressWarnings("unchecked")
+		public void setConfigHashMap(HashMap<ConfigType, List<Configuration>> newMap)
+		{
+			masterList = (HashMap<ConfigType, List<Configuration>>) newMap.clone();
 			this.saveData();
 		}
 		
@@ -153,7 +167,7 @@ public class BigFrameworkGuy
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
 //		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy"};
-		String[] editors = {"Animation", "Ability", "Strategy", "Map Item"};
+		String[] editors = {"Animation", "Ability", "Strategy", "Map Item", "Tech"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -201,6 +215,8 @@ public class BigFrameworkGuy
 		save.addActionListener(new SaveButtonListener());
 		JButton saveAs = new JButton("Save as");
 		saveAs.addActionListener(new SaveAsButtonListener());
+		JButton delete = new JButton("Delete Configs");
+		delete.addActionListener(new DeleteButtonListener());
 		JPanel buttonPanel = new JPanel();
 		if(export != null)
 			buttonPanel.add(export);
@@ -208,7 +224,7 @@ public class BigFrameworkGuy
 		buttonPanel.add(load);
 		buttonPanel.add(save);
 		buttonPanel.add(saveAs);
-		
+		buttonPanel.add(delete);		
 		
 		//set up the main panel
 		JPanel mainPanel = new JPanel();
@@ -286,6 +302,8 @@ public class BigFrameworkGuy
 			String s = (String) JOptionPane.showInputDialog(frame,
 					"Please select a configuration to load", "Load",
 					JOptionPane.PLAIN_MESSAGE, null, names, null);
+			if(s == null)
+				return;
 			for(int j = 0; j < configs.size(); j++)
 				if(s.equals(names[j]))
 				{
@@ -339,6 +357,8 @@ public class BigFrameworkGuy
 			String s = (String) JOptionPane
 					.showInputDialog(frame, "Name to use in the editor:", "Name Dialog",
 							JOptionPane.PLAIN_MESSAGE, null, null, "");
+			if(s == null)
+				return;
 			saveData.setConfigForEditor(ce, ce.instantiateNewConfiguration());
 			saveData.getConfigForEditor(ce).setPropertyForName("bfgName", new Property(Usage.STRING, s));
 			
@@ -394,10 +414,126 @@ public class BigFrameworkGuy
 					e1.printStackTrace();
 				}
 				
-			}
-			
+			}	
+		}
+	}
+	
+	private class DeleteButtonListener implements ActionListener
+	{
+		
+		private JFrame deleteFrame = null;
+		private JList list;
+		private ConfigurationWrapper[] listItems;
+		
+		private int typeMaxWidth = 0;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			showDeleteBox();
 		}
 		
+		public void showDeleteBox()
+		{
+			deleteFrame = new JFrame("Delete");
+			
+			list = new JList();
+			list.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+			JScrollPane scroller = new JScrollPane(list);
+			scroller.setPreferredSize(new Dimension(350, 450));
+			listItems = createConfigList();
+			list.setListData(listItems);
+			
+			JPanel mainPanel = new JPanel();
+			mainPanel.setLayout(new BorderLayout());
+			mainPanel.add(scroller, BorderLayout.CENTER);
+			
+			JPanel buttonPanel = new JPanel();
+			JButton delete = new JButton("Delete");
+			delete.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					removeSelected();
+					closeFrame();
+				}
+			});
+			
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					closeFrame();
+				}
+			});
+			
+			buttonPanel.add(delete);
+			buttonPanel.add(cancel);
+			
+			mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+			deleteFrame.setContentPane(mainPanel);
+			
+			deleteFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			deleteFrame.pack();
+			deleteFrame.setVisible(true);
+		}
+		
+		private void removeSelected()
+		{
+			List<Integer> selectedIndices = new ArrayList<Integer>();
+			for(int i : list.getSelectedIndices())
+				selectedIndices.add(i);
+			
+			HashMap<ConfigType, List<Configuration>> newMap = new HashMap<ConfigType, List<Configuration>>();
+			for(int i = 0; i < listItems.length; i++)
+			{
+				if(!selectedIndices.contains(i))
+				{
+					if(newMap.get(listItems[i].type) == null)
+						newMap.put(listItems[i].type, new ArrayList<Configuration>());
+					newMap.get(listItems[i].type).add(listItems[i].config);
+				}
+					
+			}
+			
+			saveData.setConfigHashMap(newMap);
+				
+		}
+		
+		private void closeFrame()
+		{
+			deleteFrame.dispose();
+		}
+		
+		private ConfigurationWrapper[] createConfigList()
+		{
+			List<ConfigurationWrapper> ret = new ArrayList<ConfigurationWrapper>();
+			for(ConfigType type : ConfigType.values())
+			{
+				for(Configuration c : saveData.getConfigsOfType(type))
+					ret.add(new ConfigurationWrapper(c, type));
+			}
+			return ret.toArray(new ConfigurationWrapper[ret.size()]);
+		}
+		
+		private class ConfigurationWrapper
+		{			
+			private Configuration config;
+			private ConfigType type;
+			
+			public ConfigurationWrapper(Configuration c, ConfigType t)
+			{
+				this.config = c;
+				this.type = t;
+				if(t.toString().length() > typeMaxWidth)
+					typeMaxWidth = t.toString().length();
+			}
+			
+			public String toString() {
+				String typeName = type.toString();
+				while(typeName.length() < typeMaxWidth)
+					typeName = " " + typeName;
+				return typeName + " :: " + ((String) config.getPropertyForName("bfgName").getValue());
+			}
+		}
 		
 	}
 	

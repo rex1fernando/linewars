@@ -26,6 +26,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 	{
 		this.bfg = bfg;
 		this.toInstantiate = toInstantiate;
+		setData(instantiateNewConfiguration());
 	}
 
 	@Override
@@ -97,7 +98,6 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-		setData(c);
 		return c;
 	}
 
