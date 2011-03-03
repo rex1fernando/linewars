@@ -161,8 +161,8 @@ public class GenericSelector<T> extends JPanel {
 				JOptionPane.PLAIN_MESSAGE,
 				null,
 				opts,
-				opts[0]);
-		return ((ListItemWrapper)o).wrapped;
+				null);
+		return (o != null) ? ((ListItemWrapper)o).wrapped : null;
 	}
 
 	/**

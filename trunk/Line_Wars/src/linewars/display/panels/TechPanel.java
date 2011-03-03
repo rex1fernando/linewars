@@ -10,36 +10,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Dimension2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 
+import linewars.display.Display;
+import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.tech.CycleException;
+import linewars.gamestate.tech.TechConfiguration;
+import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 import configuration.Configuration;
-
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
 import editor.GenericSelector.GenericListCallback;
 import editor.GenericSelector.SelectionChangeListener;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
-
-import linewars.display.Display;
-import linewars.gameLogic.GameStateProvider;
-import linewars.gamestate.BuildingSpot;
-import linewars.gamestate.Node;
-import linewars.gamestate.tech.CycleException;
-import linewars.gamestate.tech.TechConfiguration;
-import linewars.gamestate.tech.TechGraph;
-import linewars.gamestate.tech.TechGraph.TechNode;
 
 public class TechPanel extends Panel
 {
@@ -140,6 +131,34 @@ public class TechPanel extends Panel
 //END TEST CODE
 		
 		initialize();
+	}
+	
+	public void setAllTechGraphs(List<TechGraph> graphs)
+	{
+		// TODO implement
+	}
+	
+	public void setEnabledTechGraphs(List<TechGraph> graphs)
+	{
+		// TODO implement
+	}
+	
+	public List<TechGraph> getAllTechGraphs()
+	{
+		// TODO implement
+		return null;
+	}
+	
+	public List<TechGraph> getEnabledTechGraphs()
+	{
+		// TODO implement
+		return null;
+	}
+	
+	public void resetTechGraphs()
+	{
+		setAllTechGraphs(new ArrayList<TechGraph>());
+		setEnabledTechGraphs(new ArrayList<TechGraph>());
 	}
 	
 	private void initialize()

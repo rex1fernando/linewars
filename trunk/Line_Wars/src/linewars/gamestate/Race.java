@@ -6,7 +6,6 @@ import java.util.List;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import configuration.Configuration;
 import configuration.ListConfiguration;
@@ -34,9 +33,11 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<UnitDefinition>(new ArrayList<UnitDefinition>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
-		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION));
 		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<BuildingDefinition>(new ArrayList<BuildingDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<TechGraph>(new ArrayList<TechGraph>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("commandCenter", new Property(Usage.CONFIGURATION));
 		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION));
@@ -88,9 +89,30 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, new ListConfiguration<UnitDefinition>(units, names, usages, enabledList)));
 	}
 	
-	public void setTechGraph(TechGraph tg)
+	public void setTechGraphs(List<TechGraph> techGraphs, List<Boolean> enabledList)
 	{
-		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, tg));
+		ArrayList<Usage> usages = new ArrayList<Usage>();
+		ArrayList<String> names = new ArrayList<String>();
+		for(int i = 0; i < techGraphs.size(); i++)
+		{
+			usages.add(Usage.IMMUTABLE);
+			String name = techGraphs.get(i).getName();
+			while(names.contains(name))
+				name += "_";
+			names.add(name); 
+		}
+		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<TechGraph>(techGraphs, names, usages, enabledList)));
+	}
+	
+	public List<TechGraph> getAllTechGraphs()
+	{
+		return ((ListConfiguration<TechGraph>)super.getPropertyForName("techs").getValue()).getFullList();
+	}
+	
+	public List<TechGraph> getUnlockedTechGraphs()
+	{
+		return ((ListConfiguration<TechGraph>)super.getPropertyForName("techs").getValue()).getEnabledSubList();
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -162,11 +184,6 @@ public strictfp class Race extends Configuration {
 	public List<UnitDefinition> getAllUnits()
 	{
 		return ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getFullList();
-	}
-	
-	public TechGraph getTechGraph()
-	{
-		return (TechGraph) super.getPropertyForName("techs").getValue();
 	}
 	
 	public BuildingDefinition getCommandCenter()

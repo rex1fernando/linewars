@@ -119,6 +119,9 @@ public class ListGenericSelector<T> extends GenericSelector<T> {
 	{
 		selections.clear();
 		List<ListItemWrapper> toDisplay = new ArrayList<ListItemWrapper>();
+		
+		if (objs == null) return;
+		
 		for (T obj : objs) 
 		{
 			selections.add(obj);

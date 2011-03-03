@@ -214,29 +214,7 @@ public class Display extends JFrame implements Runnable
 
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
-
-			// get the map parser from the gamestate
-			gameStateProvider.lockViewableGameState();
-
-			GameState state = gameStateProvider.getCurrentGameState();
-			Map map = state.getMap();
-			int numPlayers = state.getNumPlayers();
-
-			// calculates the visible screen size based off of the zoom level
-			Position mapDim = map.getDimensions();
-			double mapWidth = mapDim.getX();
-			double mapHeight = mapDim.getY();
-			mapSize = new Dimension();
-			mapSize.setSize(mapWidth, mapHeight);
-
-			Dimension2D visibleSize = new Dimension();
-			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
-			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
-
-			gameStateProvider.unlockViewableGameState();
-
-			// add the map image to the MapItemDrawer
-			String mapURI = map.getConfig().getImageURI();
+			setOpaque(false);
 
 			Animation leftUIPanel = null;
 			Animation rightUIPanel = null;
@@ -262,19 +240,9 @@ public class Display extends JFrame implements Runnable
 				e.printStackTrace();
 			}
 
-			setOpaque(false);
+			gameStateProvider.lockViewableGameState();
 
-			strategicView = new ArrayList<ILayer>(2);
-			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
-
-			tacticalView = new ArrayList<ILayer>();
-			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
-			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.LANEBORDER, Display.this));
-
-			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
@@ -286,7 +254,49 @@ public class Display extends JFrame implements Runnable
 			add(techPanel);
 			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
 			add(techButtonPanel);
-			
+
+			GameState state = gameStateProvider.getCurrentGameState();
+			Map map = state.getMap();
+			int numPlayers = state.getNumPlayers();
+
+			// calculates the visible screen size based off of the zoom level
+			Position mapDim = map.getDimensions();
+			double mapWidth = mapDim.getX();
+			double mapHeight = mapDim.getY();
+			mapSize = new Dimension();
+			mapSize.setSize(mapWidth, mapHeight);
+
+			Dimension2D visibleSize = new Dimension();
+			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
+			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
+
+			// add the map image to the MapItemDrawer
+			String mapURI = map.getConfig().getImageURI();
+
+			gameStateProvider.unlockViewableGameState();
+
+			strategicView = new ArrayList<ILayer>(2);
+			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
+
+			tacticalView = new ArrayList<ILayer>();
+			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
+			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.LANEBORDER, Display.this));
+
+			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, rightUIPanel);
+			add(commandCardPanel);
+			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
+			add(nodeStatusPanel);
+			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, playerIndex);
+			add(resourceDisplayPanel);
+			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
+			add(exitButtonPanel);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
+			add(techPanel);
+			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
+			add(techButtonPanel);
 
 			addComponentListener(new ResizeListener());
 
