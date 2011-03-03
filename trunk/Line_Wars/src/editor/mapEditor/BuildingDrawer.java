@@ -112,9 +112,9 @@ public class BuildingDrawer
 
 		// set the transparent color
 		if(commandCenter)
-			g.setColor(new Color(255, 140, 0, selected ? 90 : 60));
+			g.setColor(new Color(255, 140, 0, selected ? 90 : 30));
 		else
-			g.setColor(new Color(0, 0, 255, selected ? 90 : 60));
+			g.setColor(new Color(0, 0, 255, selected ? 90 : 30));
 
 		// fill the rectangle
 		g.fillPolygon(x, y, 4);

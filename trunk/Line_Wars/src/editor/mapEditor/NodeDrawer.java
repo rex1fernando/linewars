@@ -71,9 +71,9 @@ public class NodeDrawer
 	{
 		// set the color for the node
 		if(node.isStartNode())
-			g.setColor(new Color(0, 255, 0, selected ? 90 : 60));
+			g.setColor(new Color(0, 255, 0, selected ? 90 : 30));
 		else
-			g.setColor(new Color(255, 0, 0, selected ? 90 : 60));
+			g.setColor(new Color(255, 0, 0, selected ? 90 : 30));
 
 		// get the position of the node
 		double radius = node.getShape().boundingCircle().getRadius();
