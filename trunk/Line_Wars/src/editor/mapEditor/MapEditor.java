@@ -98,7 +98,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	public MapEditor(JFrame frame)
 	{
 		super(null);
-		setPreferredSize(new Dimension(1200, 600));
+		setPreferredSize(new Dimension(1200, 800));
 
 		this.frame = frame;
 

@@ -101,5 +101,19 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		buildTime = (Double)super.getPropertyForName("buildTime").getValue();
 		iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof BuildingDefinition)
+		{
+			BuildingDefinition bd = (BuildingDefinition) obj;
+			return super.equals(obj) &&
+					cost == bd.cost &&
+					buildTime == bd.buildTime;
+		}
+		else 
+			return false;
+	}
 
 }

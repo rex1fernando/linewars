@@ -191,7 +191,10 @@ public class MapPanel extends JPanel
 	public void loadMap(MapConfiguration map)
 	{
 		setMapImage(map.getImageURI());
-		setMapSize(map.getImageSize(), true);
+		Position mapSize = map.getImageSize();
+		if(mapSize != null)
+			setMapSize(mapSize, true);
+		
 		lanes = map.lanes();
 		nodes = map.nodes();
 		
@@ -558,11 +561,13 @@ public class MapPanel extends JPanel
 			List<LaneConfiguration> attachedLanes = selectedNode.attachedLanes();
 			for(LaneConfiguration l : attachedLanes)
 			{
-				NodeConfiguration[] attachedNodes = {l.getNode(0), l.getNode(1)};
-				for(NodeConfiguration n : attachedNodes)
-				{
-					n.attachedLanes().remove(l);
-				}
+				NodeConfiguration node0 = l.getNode(0);
+				NodeConfiguration node1 = l.getNode(1);
+				
+				if(node0 != selectedNode)
+					node0.attachedLanes().remove(l);
+				else if(node1 != selectedNode)
+					node1.attachedLanes().remove(l);
 
 				lanes.remove(l);
 			}

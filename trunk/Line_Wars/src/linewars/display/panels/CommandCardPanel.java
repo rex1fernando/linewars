@@ -98,7 +98,7 @@ public class CommandCardPanel extends Panel
 	 * @param anims
 	 *            An array of animations to use for this panel.
 	 */
-	public CommandCardPanel(Display display, GameStateProvider stateManager, MessageReceiver receiver,
+	public CommandCardPanel(Display display, int pID, GameStateProvider stateManager, MessageReceiver receiver,
 			Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
@@ -135,7 +135,7 @@ public class CommandCardPanel extends Panel
 			selectedIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setSelectedIcon(selectedIcons[i]);
 
-			clickEvents[i] = new ClickHandler();
+			clickEvents[i] = new ClickHandler(stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllBuildings());
 			buttons[i].addActionListener(clickEvents[i]);
 		}
 
@@ -170,7 +170,7 @@ public class CommandCardPanel extends Panel
 	public void updateButtons(GameState state, Node node)
 	{
 		int pID = node.getOwner().getPlayerID();
-//TODO get unlocked buildings		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getBuildings();
+		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getUnlockedBuildings();
 		for(int i = 0; i < buildings.size(); ++i)
 		{
 			BuildingDefinition def = buildings.get(i);
@@ -199,7 +199,7 @@ public class CommandCardPanel extends Panel
 			pressedIcons[i].setURI(pressedURI);
 			rolloverIcons[i].setURI(rolloverURI);
 			selectedIcons[i].setURI(selectedURI);
-//TODO add tool-tip			buttons[i].setToolTipText();
+			buttons[i].setToolTipText(def.getToolTip());
 			clickEvents[i].setAbility(node, def);
 			buttons[i].setEnabled(true);
 		}
@@ -291,11 +291,20 @@ public class CommandCardPanel extends Panel
 	{
 		private Node node;
 		private BuildingDefinition building;
+		private List<BuildingDefinition> buildings;
+		
+		public ClickHandler(List<BuildingDefinition> buildings)
+		{
+			this.buildings = buildings;
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Message message = new BuildMessage(node.getOwner().getPlayerID(), node.getID(), building.getID());
+			int pID = node.getOwner().getPlayerID();
+			int buildingID = buildings.indexOf(building);
+			
+			Message message = new BuildMessage(pID, node.getID(), buildingID);
 
 			CommandCardPanel.this.receiver.addMessage(message);
 		}

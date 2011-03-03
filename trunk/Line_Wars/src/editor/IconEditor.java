@@ -50,12 +50,17 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	private JPanel mainPanel;
 	
+	public IconEditor(List<IconType> iconTypes, List<String> descriptions)
+	{
+		this(iconTypes, descriptions, new Dimension(200, 175));
+	}
+	
 	/**
 	 * Creates the Icon Editor. Does not display it in any way. The
 	 * panel that this editor will be on is responsible for adding
 	 * it as a component.
 	 */
-	public IconEditor(List<IconType> iconTypes, List<String> descriptions)
+	public IconEditor(List<IconType> iconTypes, List<String> descriptions, Dimension defaultSize)
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		for(int i = 0; i < iconTypes.size(); i++)
@@ -66,7 +71,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		JScrollPane scroller = new JScrollPane(this);
-		scroller.setPreferredSize(new Dimension(200, 175));
+		scroller.setPreferredSize(defaultSize);
 		mainPanel = new JPanel();
 		mainPanel.add(scroller);
 	}
@@ -131,8 +136,9 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 			this.description = description;
 			JButton set = new JButton("Set " + type.toString() + " icon");
 			set.addActionListener(this);
+			set.setToolTipText(description);
 			this.add(set);
-			this.add(new JLabel(description));
+//			this.add(new JLabel(description));
 		}
 		
 		public IconType getType()

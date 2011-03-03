@@ -102,5 +102,19 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 		super.setPropertyForName("relativeTrans", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<Transformation>(relativeTrans, names, usages, enabledFlags)));
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapItemAggregateDefinition<?>)
+		{
+			MapItemAggregateDefinition<?> miad = (MapItemAggregateDefinition<?>) obj;
+			return super.equals(obj) &&
+					containedItems.equals(miad.containedItems) &&
+					relativeTrans.equals(miad.relativeTrans);
+		}
+		else
+			return false;
+	}
 
 }
