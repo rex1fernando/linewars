@@ -56,6 +56,12 @@ public class TechEditor implements ConfigurationEditor {
 		baggageEditor.setData(toCopy);
 		bigCookie.setData(toCopy);
 	}
+	
+	public void resetEditor()
+	{
+		baggageEditor.resetEditor();
+		bigCookie.resetEditor();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {

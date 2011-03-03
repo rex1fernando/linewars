@@ -564,15 +564,19 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		editingPanelLoaded = false;
 		map.loadMap((MapConfiguration)c);
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration()
+	
+	public void resetEditor()
 	{
 		editingPanelLoaded = false;
 		
 		MapConfiguration ret = new MapConfiguration();
 		map.loadMap(ret);
-		return ret;
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration()
+	{
+		return new MapConfiguration();
 	}
 
 	@Override

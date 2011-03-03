@@ -20,11 +20,14 @@ public interface ConfigurationEditor {
 	/**
 	 * Instantiates a new configuration object (asking the user if the
 	 * specific type is not immediately known) and returns that object.
-	 * Also resets all the fields in the editor for the type of configuration
-	 * that was returned.
 	 * @return 
 	 */
 	public Configuration instantiateNewConfiguration();
+	
+	/**
+	 * Resets the editor to a blank slate
+	 */
+	public void resetEditor();
 	
 	/**
 	 * Takes in a configuration object and puts all of the data currently in

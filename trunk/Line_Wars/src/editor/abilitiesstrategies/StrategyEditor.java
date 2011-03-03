@@ -73,41 +73,52 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 		}
 
 	}
+	
+	public void resetEditor()
+	{
+		realEditor = null;
+		this.removeAll();
+		this.validate();
+		this.updateUI();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		String type = (String) JOptionPane.showInputDialog(this,
-				"Please select which type of strategy you would like to create",
-				"Strategy Selection", JOptionPane.PLAIN_MESSAGE, null,
-				StrategyConfiguration.getStrategyTypeNameSet().toArray(new String[0]),
-				null);
-		
-		List<String> strategyList = new ArrayList<String>();
-		Class<? extends StrategyConfiguration<?>> stratType = StrategyConfiguration.getConfigType(type);
-		for(String strat : StrategyConfiguration.getStrategyNameSet())
-			if(stratType.isAssignableFrom(StrategyConfiguration.getConfig(strat)))
-				strategyList.add(strat);
-		
-		String name = (String) JOptionPane.showInputDialog(this,
-				"Please select which strategy you would like to create",
-				"Strategy Selection", JOptionPane.PLAIN_MESSAGE, null,
-				strategyList.toArray(new String[0]),
-				null);
-		
-		try {
-			realEditor = StrategyConfiguration
-						.getEditor(name)
-						.getConstructor(BigFrameworkGuy.class, Class.class)
-						.newInstance(bfg, StrategyConfiguration.getConfig(name));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		if(realEditor == null)
+		{
+			String type = (String) JOptionPane.showInputDialog(this,
+					"Please select which type of strategy you would like to create",
+					"Strategy Selection", JOptionPane.PLAIN_MESSAGE, null,
+					StrategyConfiguration.getStrategyTypeNameSet().toArray(new String[0]),
+					null);
+			
+			List<String> strategyList = new ArrayList<String>();
+			Class<? extends StrategyConfiguration<?>> stratType = StrategyConfiguration.getConfigType(type);
+			for(String strat : StrategyConfiguration.getStrategyNameSet())
+				if(stratType.isAssignableFrom(StrategyConfiguration.getConfig(strat)))
+					strategyList.add(strat);
+			
+			String name = (String) JOptionPane.showInputDialog(this,
+					"Please select which strategy you would like to create",
+					"Strategy Selection", JOptionPane.PLAIN_MESSAGE, null,
+					strategyList.toArray(new String[0]),
+					null);
+			
+			try {
+				realEditor = StrategyConfiguration
+							.getEditor(name)
+							.getConstructor(BigFrameworkGuy.class, Class.class)
+							.newInstance(bfg, StrategyConfiguration.getConfig(name));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+			this.removeAll();
+			this.add(realEditor.getPanel(), BorderLayout.CENTER);
+			this.validate();
+			this.updateUI();
 		}
-		
-		this.removeAll();
-		this.add(realEditor.getPanel(), BorderLayout.CENTER);
-		this.validate();
-		this.updateUI();
 		
 		return realEditor.instantiateNewConfiguration();
 	}

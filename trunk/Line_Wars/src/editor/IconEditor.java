@@ -92,14 +92,17 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		this.validate();
 		this.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		for(IconPanel ip : panels.values())
 			ip.clearIcon();
 		this.validate();
 		this.updateUI();
-		
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return new IconConfiguration();
 	}
 

@@ -404,12 +404,16 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         
         this.newList = newList;
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
         newList = new ArrayList<Frame>();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
         return new Animation();
 	}
 

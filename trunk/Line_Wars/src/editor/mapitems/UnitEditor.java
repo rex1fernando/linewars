@@ -73,12 +73,16 @@ public class UnitEditor extends JPanel implements ConfigurationEditor {
 		this.validate();
 		this.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		maxHP.setText("");
 		combatStrat.setSelectedObject(null);
 		moveStrat.setSelectedObject(null);
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return new UnitDefinition();
 	}
 

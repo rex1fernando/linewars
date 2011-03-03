@@ -152,13 +152,8 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-<<<<<<< HEAD
 //		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy"};
 		String[] editors = {"Animation", "Ability", "Strategy", "Map Item"};
-=======
-//		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
-		String[] editors = {"Animation", "Map"};
->>>>>>> remotes/origin/config-replacement
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -270,6 +265,7 @@ public class BigFrameworkGuy
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
+			editors.get(i).resetEditor();
 			Configuration c = editors.get(i).instantiateNewConfiguration();
 			saveData.setConfigForEditor(editors.get(i), c);
 			editors.get(i).getPanel().validate();
@@ -305,7 +301,8 @@ public class BigFrameworkGuy
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
-			if(saveData.getConfigForEditor(editors.get(i)).getPropertyNames().contains("bfgName"))
+			if(saveData.getConfigForEditor(editors.get(i)) != null &&
+					saveData.getConfigForEditor(editors.get(i)).getPropertyNames().contains("bfgName"))
 				save(editors.get(i));
 			else
 				new SaveAsButtonListener().promptAndSave(editors.get(i));	
@@ -342,6 +339,7 @@ public class BigFrameworkGuy
 			String s = (String) JOptionPane
 					.showInputDialog(frame, "Name to use in the editor:", "Name Dialog",
 							JOptionPane.PLAIN_MESSAGE, null, null, "");
+			saveData.setConfigForEditor(ce, ce.instantiateNewConfiguration());
 			saveData.getConfigForEditor(ce).setPropertyForName("bfgName", new Property(Usage.STRING, s));
 			
 			new SaveButtonListener().save(ce);

@@ -15,6 +15,8 @@ public class PartEditor extends JPanel implements ConfigurationEditor {
 
 	@Override
 	public void setData(Configuration cd) {}
+	
+	public void resetEditor() {}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {

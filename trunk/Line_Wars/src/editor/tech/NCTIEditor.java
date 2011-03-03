@@ -120,14 +120,17 @@ public class NCTIEditor implements ConfigurationEditor {
 		costField.setText("" + source.getCost());
 		iconEditor.setData(source.getIcons());
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		nameField.setText(null);
 		tooltipArea.setText(null);
 		costField.setText(null);
-		iconEditor.instantiateNewConfiguration();
-		
+		iconEditor.resetEditor();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return new TechConfiguration();
 	}
 

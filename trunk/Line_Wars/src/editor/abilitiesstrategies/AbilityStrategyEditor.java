@@ -73,6 +73,11 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 		this.validate();
 		this.updateUI();
 	}
+	
+	public void resetEditor()
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {

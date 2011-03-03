@@ -187,9 +187,9 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		this.validate();
 		this.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		//reset the name
 		name.setText("");
 		
@@ -206,7 +206,10 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		
 		this.validate();
 		this.updateUI();
-		
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return null;
 	}
 	

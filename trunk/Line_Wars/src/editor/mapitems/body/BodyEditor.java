@@ -465,13 +465,17 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		containerTree.validate();
 		containerTree.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		root.removeAllChildren();
 		selectedNode = null;
 		containerTree.validate();
 		containerTree.updateUI();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return null;
 	}
 	

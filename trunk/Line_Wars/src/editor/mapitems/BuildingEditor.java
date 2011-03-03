@@ -109,11 +109,16 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		icons.setData(iconConfig);
 		toolTip.setText(bd.getToolTip());
 	}
+	
+	public void resetEditor()
+	{
+		cost.setText("");
+		buildTime.setText("");
+		icons.resetEditor();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		cost.setText("");
-		buildTime.setText("");
 		iconConfig = icons.instantiateNewConfiguration();
 		return new BuildingDefinition();
 	}

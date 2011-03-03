@@ -30,10 +30,14 @@ public class TurretEditor extends JPanel implements ConfigurationEditor {
 		TurretDefinition td = (TurretDefinition)cd;
 		turretStrat.setSelectedObject(td.getTurretStratConfig());
 	}
+	
+	public void resetEditor()
+	{
+		turretStrat.setSelectedObject(null);
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		turretStrat.setSelectedObject(null);
 		return new TurretDefinition();
 	}
 

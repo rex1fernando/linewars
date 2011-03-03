@@ -74,11 +74,15 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 		velocity.setText(pd.getVelocity() + "");
 		impactStrat.setSelectedObject(pd.getImpactStratConfig());
 	}
+	
+	public void resetEditor()
+	{
+		velocity.setText("");
+		impactStrat.setSelectedObject(null);
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		velocity.setText("");
-		impactStrat.setSelectedObject(null);
 		return new ProjectileDefinition();
 	}
 
