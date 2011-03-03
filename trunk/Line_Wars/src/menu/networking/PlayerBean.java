@@ -9,10 +9,10 @@ public class PlayerBean implements Serializable
 	private static final long serialVersionUID = 4002707351260107011L;
 	private String name;
 	private int slot;
-	private Object race;
+	private String race;
 	private Color color;
 	
-	public PlayerBean(String n, Color c, int s, Object r)
+	public PlayerBean(String n, Color c, int s, String r)
 	{
 		name = n;
 		color = c;
@@ -32,10 +32,10 @@ public class PlayerBean implements Serializable
 	public void setSlot(int slot) {
 		this.slot = slot;
 	}
-	public Object getRace() {
+	public String getRace() {
 		return race;
 	}
-	public void setRace(Object race) {
+	public void setRace(String race) {
 		this.race = race;
 	}
 	public Color getColor() {

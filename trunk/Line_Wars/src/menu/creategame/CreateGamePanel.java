@@ -2,10 +2,13 @@
 package menu.creategame;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
@@ -18,32 +21,40 @@ import menu.networking.Server;
 public class CreateGamePanel extends javax.swing.JPanel {
 	
 	private static final int PORT = 9001;
+	private static final int ENTER_KEY = 10;
 	
 	private WindowManager wm;
 	private SelectionComboBoxModel comboBoxModel;
 	private List<PlayerPanel> players;
 	private Client client;
+	private boolean isServer;
     
     public CreateGamePanel(WindowManager wm) {
     	this.wm = wm;
-    	players = new ArrayList<PlayerPanel>();
-        initComponents();
+    	init();
     }
     
     public void startServer() {
     	Server s = new Server(PORT, replayToggleButton.isSelected(), selectionComboBox.getSelectedItem());
     	s.start();
+    	isServer = true;
     	startClient("127.0.0.1");
     }
     
     public void startClient(String serverIp) {
     	client = new Client(PORT, serverIp, this);
     	client.start();
+    	
+    	if (!isServer) {
+    		replayToggleButton.setEnabled(false);
+    		selectionComboBox.setEnabled(false);
+    	}
     }
 
     public void setReplay(final boolean isReplay) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
     		replayToggleButton.setSelected(isReplay);
+    		replayCheckBoxActionPerformed(null);
     	}});
     }
     
@@ -61,7 +72,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     public void setPlayerSlot(final int playerId, final int slot) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
-    		players.get(playerId).slot.setSelectedItem(slot);
+    		players.get(playerId).slot.setSelectedItem("" + slot);
     	}});
     }
     
@@ -73,7 +84,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     public void setPlayerColor(final int playerId, final Color color) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
-    		players.get(playerId).race.setSelectedItem(color);
+    		players.get(playerId).color.setSelectedItem(color);
     	}});
     }
     
@@ -106,44 +117,61 @@ public class CreateGamePanel extends javax.swing.JPanel {
     		lobbyPanel.remove(pp);
     	}});
     }
-
     
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {           
-    	if (allIsWell())
-    		client.sendMessage(MessageType.startGame);
+    private void init() {
+    	players = new ArrayList<PlayerPanel>();
+    	isServer = false;
+    	client = null;
+        initComponents();
+    }
+    
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    	client.sendMessage(MessageType.startGame);
     }                                           
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	String playerName = players.get(client.getPlayerIndex()).getName();
+    	String playerName = players.get(client.getPlayerIndex()).name.getText();
     	String message = chatField.getText();
-    	String toAppend = playerName + ": " + message;
+    	String toAppend = playerName + ": " + message + "\n";
     	
     	// sends the chat message over the network
-    	if (allIsWell())
-    		client.sendMessage(MessageType.chat, toAppend);
+    	client.sendMessage(MessageType.chat, toAppend);
         
         // appends it to the current chat area
         chatArea.append(toAppend);
         
         // sets the field to blank
         chatField.setText("");
-    }                                          
+    }
+    
+    private void sendEnterKeyPressed(KeyEvent e) {
+    	if (e.getKeyCode() == ENTER_KEY)
+    		sendButtonActionPerformed(null);
+    }
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {           
-    	if (allIsWell())
-    		client.sendMessage(MessageType.clientCancelGame);
+    	client.sendMessage(MessageType.clientCancelGame);
+    	// TODO shutdown stuff if needed
+    	goBackToTitleMenu();
+    }
+    
+    private void goBackToTitleMenu() {
+    	init();
+    	wm.gotoTitleMenu();
+    }
+
+    private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {
+    	client.sendMessage(MessageType.selection, selectionComboBox.getSelectedItem());
     }                                            
 
-    private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {           
-    	if (allIsWell())
-    		client.sendMessage(MessageType.selection, selectionComboBox.getSelectedItem());
-    }                                            
-
-    private void replayCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {                                               
-        boolean isSelected = replayToggleButton.isSelected();
+    private void replayCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
+    	boolean isSelected = replayToggleButton.isSelected();
         selectionLabel.setText((isSelected ? "Replay" : "Map") + " Selection");
         comboBoxModel.setReplay(isSelected);
-        players.get(client.getPlayerIndex()).setEnabled(!isSelected);
+        if (client != null && players.size() > client.getPlayerIndex()) {
+        	players.get(client.getPlayerIndex()).setEnabled(!isSelected);
+        	client.sendMessage(MessageType.isReplay, isSelected);
+        }
     }                                              
 
     private String[] getAvailableMaps() {
@@ -166,8 +194,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	return new Color[] { Color.black, Color.white, Color.red, Color.blue, Color.green };
     }
     
-    private boolean allIsWell() {
-    	return (client != null);
+    private boolean allIsWell(PlayerPanel p) {
+    	return (client != null && players.size() > client.getPlayerIndex() &&  p == players.get(client.getPlayerIndex()));
     }
 
     public class PlayerPanel extends javax.swing.JPanel {
@@ -177,7 +205,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }        
 
         private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {         
-        	if (allIsWell())
+        	if (allIsWell(this))
         		client.sendMessage(MessageType.race, race.getSelectedItem());
         }                                          
 
@@ -190,20 +218,28 @@ public class CreateGamePanel extends javax.swing.JPanel {
                     null,
                     name.getText());
             
-            if (s != null && !s.equals(name.getText()) && allIsWell()) {
+            if (s != null && !s.equals(name.getText()) && allIsWell(this)) {
                 name.setText(s);
                 client.sendMessage(MessageType.name, s);
             }
         }                                          
 
         private void slotChangeActionPerformed(java.awt.event.ActionEvent evt) {
-        	if (allIsWell())
-        		client.sendMessage(MessageType.slot, slot.getSelectedItem());
+        	if (allIsWell(this))
+        		client.sendMessage(MessageType.slot, Integer.parseInt((String) slot.getSelectedItem()));
         }                                          
 
         private void colorChangeActionPerformed(java.awt.event.ActionEvent evt) {
-        	if (allIsWell())
+        	if (allIsWell(this))
         		client.sendMessage(MessageType.color, color.getSelectedItem());
+        }
+        
+        @Override
+        public void setEnabled(boolean enabled) {
+        	color.setEnabled(enabled);
+        	name.setEnabled(enabled);
+        	race.setEnabled(enabled);
+        	slot.setEnabled(enabled);
         }
      
         private void initComponents() {
@@ -338,14 +374,12 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     private void initComponents() {
 
-        jComboBox2 = new javax.swing.JComboBox();
         replayLabel = new javax.swing.JLabel();
         selectionLabel = new javax.swing.JLabel();
         replayToggleButton = new javax.swing.JToggleButton();
         selectionComboBox = new javax.swing.JComboBox();
         previewPanel = new javax.swing.JPanel();
         chatWindow = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
         chatArea = new javax.swing.JTextArea();
         chatField = new javax.swing.JTextField();
         sendButton = new javax.swing.JButton();
@@ -354,19 +388,18 @@ public class CreateGamePanel extends javax.swing.JPanel {
         cancelButton = new javax.swing.JButton();
         lobbyScrollPane = new javax.swing.JScrollPane();
         lobbyPanel = new javax.swing.JPanel();
-
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jScrollPane1 = new javax.swing.JScrollPane();
 
         setMaximumSize(new java.awt.Dimension(1024, 640));
         setMinimumSize(new java.awt.Dimension(1024, 640));
 
         replayLabel.setFont(new java.awt.Font("Ubuntu", 1, 18));
         replayLabel.setText("Replay");
-        replayLabel.setRequestFocusEnabled(false);
+        replayLabel.setFocusable(false);
 
         selectionLabel.setFont(new java.awt.Font("Ubuntu", 1, 18));
         selectionLabel.setText("Map Selection");
-        selectionLabel.setRequestFocusEnabled(false);
+        selectionLabel.setFocusable(false);
 
         replayToggleButton.setFocusPainted(false);
         replayToggleButton.setFocusable(false);
@@ -405,6 +438,14 @@ public class CreateGamePanel extends javax.swing.JPanel {
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
+        chatField.addKeyListener(new KeyListener() {
+			public void keyTyped(KeyEvent e) {}
+			public void keyPressed(KeyEvent e) {
+				sendEnterKeyPressed(e);
+			}
+			public void keyReleased(KeyEvent e) {}
+        });
+        
         chatArea.setColumns(20);
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
@@ -517,14 +558,13 @@ public class CreateGamePanel extends javax.swing.JPanel {
                         .addComponent(lobbyScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }
 
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextArea chatArea;
     private javax.swing.JTextField chatField;
     private javax.swing.JPanel chatWindow;
-    private javax.swing.JComboBox jComboBox2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel lobbyPanel;
     private javax.swing.JScrollPane lobbyScrollPane;
