@@ -4,24 +4,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.display.Animation;
 import linewars.display.CircleDrawer;
 import linewars.display.Display;
+import linewars.display.DisplayConfiguration;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
@@ -43,8 +35,6 @@ public class MapItemLayer implements ILayer
 
 	private MapItemType mapItemType;
 
-	private Map<String, Map<MapItemState, Animation>> unitToStateMap;
-
 	/**
 	 * Constructs this map item layer.
 	 * 
@@ -58,8 +48,6 @@ public class MapItemLayer implements ILayer
 		display = d;
 
 		mapItemType = type;
-
-		unitToStateMap = new HashMap<String, Map<MapItemState, Animation>>();
 	}
 
 	@Override
@@ -85,46 +73,11 @@ public class MapItemLayer implements ILayer
 					CircleDrawer.drawCircle(g, pos, mapItem.getRadius() * scale);
 					continue;
 				}
-				// get the animation map for the unit
-				String uri = mapItem.getURI();
-				Map<MapItemState, Animation> stateToAnimationMap = unitToStateMap.get(uri);
-				if(stateToAnimationMap == null)
-				{
-					// we have not drawn this unit before
-					// add a mapping for this unit
-					stateToAnimationMap = new HashMap<MapItemState, Animation>();
-					unitToStateMap.put(uri, stateToAnimationMap);
-				}
-
-				// get the animation for the state
-				MapItemState state = mapItem.getState();
-				Animation anim = stateToAnimationMap.get(state);
+				
+				Animation anim = ((DisplayConfiguration)(mapItem.getDefinition().getDisplayConfiguration())).getAnimation(mapItem.getState());
 				if(anim == null)
 				{
-					// we have not drawn this state before
-					// get the animation for this state
-					ConfigData parser = null;
-					try
-					{
-						parser = new ConfigFileReader(mapItem.getParser().getString(
-								ParserKeys.valueOf(state.toString()))).read();
-					}
-					catch (FileNotFoundException e)
-					{
-						e.printStackTrace();
-					}
-					catch (NoSuchKeyException e)
-					{
-						e.printStackTrace();
-					}
-					catch (InvalidConfigFileException e)
-					{
-						e.printStackTrace();
-					}
-
-					// add an animation mapping for this state
-					anim = new Animation(parser, mapItem.getURI(), (int)mapItem.getWidth(), (int)mapItem.getHeight());
-					stateToAnimationMap.put(state, anim);
+					continue;
 				}
 
 				// get the items coordinates based on the visible screen
@@ -137,7 +90,7 @@ public class MapItemLayer implements ILayer
 
 				// draw the animation
 				ImageDrawer.getInstance().draw(g,
-						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getURI(),
+						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getName(),
 						upperLeftPos, scale);
 
 				// set the graphics to not be rotated anymore

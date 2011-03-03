@@ -23,6 +23,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import linewars.display.IconConfiguration;
+import linewars.display.IconConfiguration.IconType;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
@@ -330,11 +332,13 @@ public class TechDisplay extends JViewport
 		{
 			if(tech != null)
 			{
-				setIcon(new ButtonIcon(this, tech.getIconURI()));
-				setPressedIcon(new ButtonIcon(this, tech.getPressedIconURI()));
-				setRolloverIcon(new ButtonIcon(this, tech.getRolloverIconURI()));
-				setSelectedIcon(new ButtonIcon(this, tech.getSelectedIconURI()));
-				setDisabledIcon(new ButtonIcon(this, tech.getDisabledIconURI()));
+				IconConfiguration icons = tech.getIcons();
+				
+				setIcon(new ButtonIcon(this, icons.getIconURI(IconType.regular)));
+				setPressedIcon(new ButtonIcon(this, icons.getIconURI(IconType.pressed)));
+				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
+				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted)));
+				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled)));
 			}
 			else
 			{

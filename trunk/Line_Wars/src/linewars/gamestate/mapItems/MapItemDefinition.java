@@ -203,4 +203,20 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	 */
 	protected abstract void forceSubclassReloadConfiguration();
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapItemDefinition<?>)
+		{
+			MapItemDefinition<?> mid = (MapItemDefinition<?>) obj;
+			return validStates.equals(mid.validStates) &&
+					name.equals(mid.name) &&
+					abilities.equals(mid.abilities) &&
+					cStrat.equals(mid.cStrat) &&
+					body.equals(mid.body);
+		}
+		else
+			return false;
+	}
+	
 }

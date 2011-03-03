@@ -1,6 +1,12 @@
 package configuration;
 
-public class Property {
+import java.io.Serializable;
+
+public class Property implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7819349848595979245L;
 	private Object data;
 	private Usage type;
 	

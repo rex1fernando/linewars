@@ -144,41 +144,31 @@ public strictfp class Race extends Configuration {
 		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION, gd));
 	}
 	
-	/**
-	 * 
-	 * @return
-	 * 		A List containing all of the BuildingURIs associated with this Race.
-	 */
-	public List<BuildingDefinition> getBuildings()
+	public List<BuildingDefinition> getUnlockedBuildings()
 	{
-		return (List<BuildingDefinition>) super.getPropertyForName("buildings").getValue();
-	}
-
-	/**
-	 * 
-	 * @return
-	 * 		A List containing all of the UnitURIs associated with this Race.
-	 */
-	public List<UnitDefinition> getUnits()
-	{
-		return (List<UnitDefinition>) super.getPropertyForName("units").getValue();
+		return ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getEnabledSubList();
 	}
 	
-	/**
-	 * 
-	 * @return
-	 * 		A List containing all of the TechURIs associated with this Race.
-	 */
+	public List<BuildingDefinition> getAllBuildings()
+	{
+		return ((ListConfiguration<BuildingDefinition>)super.getPropertyForName("buildings").getValue()).getFullList();
+	}
+	
+	public List<UnitDefinition> getUnlockedUnits()
+	{
+		return ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getEnabledSubList();
+	}
+	
+	public List<UnitDefinition> getAllUnits()
+	{
+		return ((ListConfiguration<UnitDefinition>)super.getPropertyForName("units").getValue()).getFullList();
+	}
+	
 	public TechGraph getTechGraph()
 	{
 		return (TechGraph) super.getPropertyForName("techs").getValue();
 	}
 	
-	/**
-	 * 
-	 * @return
-	 * 		The CommandCenterURI associated with this Race.
-	 */
 	public BuildingDefinition getCommandCenter()
 	{
 		return (BuildingDefinition) super.getPropertyForName("commandCenter").getValue();
@@ -194,11 +184,6 @@ public strictfp class Race extends Configuration {
 		return (String)super.getPropertyForName("name").getValue();
 	}
 	
-	/**
-	 * 
-	 * @return
-	 * 		The GateURI associated with this Race.
-	 */
 	public GateDefinition getGate()
 	{
 		return (GateDefinition) super.getPropertyForName("gate").getValue();

@@ -56,6 +56,16 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		return iconConfig;
 	}
 	
+	public String getToolTip()
+	{
+		return (String)super.getPropertyForName("toolTip").getValue();
+	}
+	
+	public void setToolTip(String toolTip)
+	{
+		super.setPropertyForName("toolTip", new Property(Usage.STRING, toolTip));
+	}
+	
 	/**
 	 * 
 	 * @param cost	the new cost of this building
@@ -90,6 +100,20 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		cost = (Double)super.getPropertyForName("cost").getValue();
 		buildTime = (Double)super.getPropertyForName("buildTime").getValue();
 		iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof BuildingDefinition)
+		{
+			BuildingDefinition bd = (BuildingDefinition) obj;
+			return super.equals(obj) &&
+					cost == bd.cost &&
+					buildTime == bd.buildTime;
+		}
+		else 
+			return false;
 	}
 
 }

@@ -42,6 +42,8 @@ public strictfp abstract class MapItem implements Observer {
 	private Player owner;
 	private GameState gameState;
 	
+	private int ID;
+	
 	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
 		body = def.getBodyConfig().construct(trans);
@@ -56,6 +58,18 @@ public strictfp abstract class MapItem implements Observer {
 			if(ad.startsActive())
 				this.addActiveAbility(ad.createAbility(this));
 		
+		ID = gameState.getNextMapItemID();
+	}
+	
+	public int getID()
+	{
+		return ID;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return ID;
 	}
 	
 	public abstract MapItemDefinition<? extends MapItem> getDefinition();

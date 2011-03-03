@@ -9,6 +9,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import linewars.display.IconConfiguration;
@@ -44,6 +45,8 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	private ConfigurationEditor icons;
 	private Configuration iconConfig;
 	
+	private JTextArea toolTip;
+	
 	/**
 	 * Constructs this building editor.
 	 */
@@ -63,6 +66,14 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		buildTimePanel.add(new JLabel("Build Time (ms):"));
 		buildTimePanel.add(buildTime);
 		
+		//set up the tool tip panel
+		JPanel toolTipPanel = new JPanel();
+		toolTipPanel.add(new JLabel("Tooltip"));
+		toolTip = new JTextArea();
+		JScrollPane toolTipScroller = new JScrollPane(toolTip);
+		toolTipScroller.setPreferredSize(new Dimension(200, 100));
+		toolTipPanel.add(toolTipScroller);
+		
 		List<IconType> neededIcons = new ArrayList<IconType>();
 		List<String> iconDescriptions = new ArrayList<String>();
 		neededIcons.add(IconType.regular);
@@ -81,6 +92,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
 		innerPanel.add(costPanel);
 		innerPanel.add(buildTimePanel);
+		innerPanel.add(toolTipPanel);
 		innerPanel.add(icons.getPanel());
 		
 		JScrollPane scroller = new JScrollPane(innerPanel);
@@ -95,6 +107,7 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		buildTime.setText(bd.getBuildTime() + "");
 		iconConfig = bd.getIconConfig();
 		icons.setData(iconConfig);
+		toolTip.setText(bd.getToolTip());
 	}
 
 	@Override
@@ -122,6 +135,8 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		
 		icons.getData(iconConfig);
 		bd.setIconConfig((IconConfiguration) iconConfig);
+		
+		bd.setToolTip(toolTip.getText());
 		
 		return ConfigType.building;
 	}
