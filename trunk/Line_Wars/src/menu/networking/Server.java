@@ -79,7 +79,8 @@ public class Server implements Runnable
 			// notify the other players
 			for (ClientConnection conn : clients)
 			{
-				if (conn != client) conn.sendMessage(MessageType.playerJoin, client.playerId, players.get(conn.playerId));
+				if (conn != client)
+					conn.sendMessage(MessageType.playerJoin, client.playerId, players.get(client.playerId));
 			}
 		}	
 	}
@@ -98,7 +99,6 @@ public class Server implements Runnable
 			newObjs[i] = objs[i-1];
 		
 		for (ClientConnection c : clients)
-			if (c != sender)
 				c.sendMessage(msgType, newObjs);
 	}
 	
@@ -215,10 +215,11 @@ public class Server implements Runnable
 					}
 					break;
 				case clientCancelGame:
+					forwardToClients(this, type);
+					for (int i = playerId + 1; i < clients.size(); ++i) clients.get(i).playerId -= 1;
 					players.remove(playerId);
 					clients.remove(playerId);
 					running = false;
-					forwardToClients(this, type);
 					break;
 				case serverCancelGame:
 					Server.this.running = false;

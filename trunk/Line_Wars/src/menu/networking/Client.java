@@ -36,12 +36,13 @@ public class Client implements Runnable
 		playerIndex = (Integer) NetworkUtil.readObject(in);
 		PlayerBean[] pbs = (PlayerBean[]) NetworkUtil.readObject(in);
 		
-		gamePanel.setReplay((Boolean) NetworkUtil.readObject(in));
+		boolean isReplay = (Boolean) NetworkUtil.readObject(in);
+		gamePanel.setReplay(isReplay);
 		gamePanel.setSelection(NetworkUtil.readObject(in));
 		
 		for (int i = 0; i < pbs.length; ++i)
 		{
-			gamePanel.addPlayer((i == playerIndex));
+			gamePanel.addPlayer((i == playerIndex && !isReplay));
 			gamePanel.updatePlayerPanel(i, pbs[i]);
 		}
 	}
@@ -106,15 +107,21 @@ public class Client implements Runnable
 			break;
 		case selection:
 			gamePanel.setSelection(NetworkUtil.readObject(in));
+			gamePanel.repaint();
 			break;
 		case playerJoin:
-			gamePanel.addPlayer(false);
-			gamePanel.updatePlayerPanel(playerId, (PlayerBean) NetworkUtil.readObject(in));
+			if (playerIndex != playerId) {
+				gamePanel.addPlayer(false);
+				gamePanel.updatePlayerPanel(playerId, (PlayerBean) NetworkUtil.readObject(in));
+			}
 			break;
 		case clientCancelGame:
+			if (playerId == playerIndex)
+				running = false;
+			else
+				gamePanel.removePlayer(playerId);
+			
 			if (playerId < playerIndex) playerIndex--;
-			gamePanel.removePlayer(playerId);
-			running = false;
 			break;
 		case serverCancelGame:
 			running = false;

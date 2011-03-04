@@ -115,6 +115,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
     		PlayerPanel pp = players.get(playerId);
     		players.remove(playerId);
     		lobbyPanel.remove(pp);
+    		lobbyPanel.validate();
+    		lobbyPanel.repaint();
     	}});
     }
     
@@ -137,9 +139,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	// sends the chat message over the network
     	client.sendMessage(MessageType.chat, toAppend);
         
-        // appends it to the current chat area
-        chatArea.append(toAppend);
-        
         // sets the field to blank
         chatField.setText("");
     }
@@ -149,15 +148,18 @@ public class CreateGamePanel extends javax.swing.JPanel {
     		sendButtonActionPerformed(null);
     }
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {           
-    	client.sendMessage(MessageType.clientCancelGame);
-    	// TODO shutdown stuff if needed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (isServer)
+    		client.sendMessage(MessageType.serverCancelGame);
+    	else
+    		client.sendMessage(MessageType.clientCancelGame);
+    	
     	goBackToTitleMenu();
     }
     
     private void goBackToTitleMenu() {
-    	init();
     	wm.gotoTitleMenu();
+    	init();
     }
 
     private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {
@@ -243,6 +245,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }
      
         private void initComponents() {
+        	
+        	removeAll();
 
             slot = new javax.swing.JComboBox();
             race = new javax.swing.JComboBox();
@@ -374,6 +378,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     private void initComponents() {
 
+    	removeAll();
+    	
         replayLabel = new javax.swing.JLabel();
         selectionLabel = new javax.swing.JLabel();
         replayToggleButton = new javax.swing.JToggleButton();
