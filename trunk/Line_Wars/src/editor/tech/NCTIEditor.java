@@ -150,7 +150,13 @@ public class NCTIEditor implements ConfigurationEditor {
 		target.setTooltip(tooltipArea.getText());
 		
 		// cost
-		target.setCost(Double.valueOf(costField.getText()));
+		double cost;
+		try{
+			cost = Double.valueOf(costField.getText());
+		}catch(Exception e){
+			cost = 0;
+		}
+		target.setCost(cost);
 		
 		// icons
 		IconConfiguration icons = new IconConfiguration();

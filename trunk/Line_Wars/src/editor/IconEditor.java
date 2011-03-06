@@ -162,7 +162,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		public void setURI(String u) {
-			if(u == null)
+			if(u == null || u.length() == 0)
 			{
 				clearIcon();
 				return;
