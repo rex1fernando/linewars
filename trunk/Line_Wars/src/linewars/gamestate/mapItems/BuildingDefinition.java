@@ -97,9 +97,14 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 
 	@Override
 	protected void forceAggregateSubReloadConfigData() {
-		cost = (Double)super.getPropertyForName("cost").getValue();
-		buildTime = (Double)super.getPropertyForName("buildTime").getValue();
-		iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
+		if(super.getPropertyForName("cost")!= null && 
+				super.getPropertyForName("cost").getValue() != null)
+			cost = (Double)super.getPropertyForName("cost").getValue();
+		if(super.getPropertyForName("buildTime") != null &&
+				super.getPropertyForName("buildTime").getValue() != null)
+			buildTime = (Double)super.getPropertyForName("buildTime").getValue();
+		if(super.getPropertyForName("iconConfig") != null)
+			iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
 	}
 	
 	@Override

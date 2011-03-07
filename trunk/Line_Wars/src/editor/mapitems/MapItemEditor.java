@@ -99,20 +99,34 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor {
 		this.validate();
 		this.updateUI();
 	}
+	
+	public void resetEditor()
+	{
+		commanalities = null;
+		variabilities = null;
+		bodyEditor = null;
+		this.removeAll();
+		this.validate();
+		this.updateUI();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		Object[] possibilities = {"Unit", "Building", "Projectile", "Gate", "Turret", "Part"};
-		String type = (String) JOptionPane.showInputDialog(this,
-				"Which type of map item would you look to create?",
-				"Select type", JOptionPane.PLAIN_MESSAGE, null, possibilities,
-				"Unit");
-		
-		setUpPanels(getConfigEditor(getType(type)));
-		commanalities.instantiateNewConfiguration();
-		Configuration ret = variabilities.instantiateNewConfiguration();
-		bodyEditor.instantiateNewConfiguration();
-		bodyEditor.setData(ret);
+		Configuration ret = null;
+		if(commanalities == null || variabilities == null || bodyEditor == null)
+		{
+			Object[] possibilities = {"Unit", "Building", "Projectile", "Gate", "Turret", "Part"};
+			String type = (String) JOptionPane.showInputDialog(this,
+					"Which type of map item would you look to create?",
+					"Select type", JOptionPane.PLAIN_MESSAGE, null, possibilities,
+					"Unit");
+			
+			setUpPanels(getConfigEditor(getType(type)));
+			ret = variabilities.instantiateNewConfiguration();
+			bodyEditor.setData(ret);
+		}
+		else
+			ret = variabilities.instantiateNewConfiguration();
 		
 		return ret;
 	}
@@ -188,6 +202,7 @@ public class MapItemEditor extends JPanel implements ConfigurationEditor {
 		{
 			showBodyEditor.setText("Hide Body Editor");
 			bodyEditorFrame.setVisible(true);
+			bodyEditorFrame.pack();
 			bodyEditor.getPanel().setVisible(true);
 		}
 		else

@@ -139,7 +139,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 	public void update(Observable o, Object arg) {
 		if(o == this && arg.equals("shootCoolDown"))
 		{
-			shootCoolDown = (Long)this.getPropertyForName("shootCoolDown").getValue();
+			shootCoolDown = (long)(int)(Integer)this.getPropertyForName("shootCoolDown").getValue();
 		}
 	}
 

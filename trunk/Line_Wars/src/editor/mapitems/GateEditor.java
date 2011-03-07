@@ -54,10 +54,14 @@ public class GateEditor extends JPanel implements ConfigurationEditor {
 		GateDefinition gd = (GateDefinition)cd;
 		maxHP.setText(gd.getMaxHP() + "");
 	}
+	
+	public void resetEditor()
+	{
+		maxHP.setText("");
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		maxHP.setText("");
 		return new GateDefinition();
 	}
 

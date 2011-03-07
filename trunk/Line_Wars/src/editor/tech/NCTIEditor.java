@@ -120,14 +120,17 @@ public class NCTIEditor implements ConfigurationEditor {
 		costField.setText("" + source.getCost());
 		iconEditor.setData(source.getIcons());
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		nameField.setText(null);
 		tooltipArea.setText(null);
 		costField.setText(null);
-		iconEditor.instantiateNewConfiguration();
-		
+		iconEditor.resetEditor();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return new TechConfiguration();
 	}
 
@@ -147,7 +150,13 @@ public class NCTIEditor implements ConfigurationEditor {
 		target.setTooltip(tooltipArea.getText());
 		
 		// cost
-		target.setCost(Double.valueOf(costField.getText()));
+		double cost;
+		try{
+			cost = Double.valueOf(costField.getText());
+		}catch(Exception e){
+			cost = 0;
+		}
+		target.setCost(cost);
 		
 		// icons
 		IconConfiguration icons = new IconConfiguration();

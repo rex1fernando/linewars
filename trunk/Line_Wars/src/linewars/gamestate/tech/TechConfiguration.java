@@ -41,12 +41,16 @@ public class TechConfiguration extends Configuration implements Observer {
 	//The Configuration object that stores the Race that will be modified.
 	private Race race;
 
+	public TechConfiguration(){
+		this.addObserver(this);
+	}
+	
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		if(arg0 != this) return;
 		if(!(arg1 instanceof String)) return;
 		String propertyName = (String) arg1;
-		Object value = this.getPropertyForName(propertyName);
+		Object value = this.getPropertyForName(propertyName).getValue();
 
 		if(propertyName == modificationKey){
 			modification = (ModifierConfiguration) value;

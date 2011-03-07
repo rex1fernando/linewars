@@ -21,7 +21,8 @@ public class TurretEditor extends JPanel implements ConfigurationEditor {
 	public TurretEditor(BigFrameworkGuy bfg)
 	{
 		turretStrat = new GenericSelector<Configuration>("Turret Strategy", 
-					new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.turretStrategy));
+					new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.turretStrategy),
+					new GenericSelector.ShowBFGName<Configuration>());
 		this.add(turretStrat);
 	}
 
@@ -30,10 +31,14 @@ public class TurretEditor extends JPanel implements ConfigurationEditor {
 		TurretDefinition td = (TurretDefinition)cd;
 		turretStrat.setSelectedObject(td.getTurretStratConfig());
 	}
+	
+	public void resetEditor()
+	{
+		turretStrat.setSelectedObject(null);
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		turretStrat.setSelectedObject(null);
 		return new TurretDefinition();
 	}
 

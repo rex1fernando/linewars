@@ -91,7 +91,10 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 
 	@Override
 	public String getName() {
-		return "Construct Unit: " + unitDefinition.getName();
+		if(unitDefinition != null)
+			return "Construct Unit: " + unitDefinition.getName();
+		else
+			return "Construct Unit: undefinded";
 	}
 
 	@Override
@@ -124,7 +127,7 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 			if(arg.equals("unitDefinition"))
 				unitDefinition = (UnitDefinition)super.getPropertyForName("unitDefinition").getValue();
 			if(arg.equals("buildtime"))
-				buildtime = (Long)super.getPropertyForName("buildtime").getValue();
+				buildtime = (long)(int)(Integer)super.getPropertyForName("buildtime").getValue();
 		}
 	}
 

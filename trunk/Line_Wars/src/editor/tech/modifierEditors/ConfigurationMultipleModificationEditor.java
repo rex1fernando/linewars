@@ -52,4 +52,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		return null;
 	}
 
+	@Override
+	public void resetEditor() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

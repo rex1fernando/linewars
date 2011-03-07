@@ -100,6 +100,8 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			public void selectionChanged(Animation newSelection) {
 				if(validStates.getHighlightedObjects().size() == 1)
 					animationMap.put(validStates.getHighlightedObjects().get(0), newSelection);
+				else if(newSelection == null)
+					return;
 				else
 					animations.setSelectedObject(null);
 			}
@@ -185,9 +187,9 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		this.validate();
 		this.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		//reset the name
 		name.setText("");
 		
@@ -204,7 +206,10 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		
 		this.validate();
 		this.updateUI();
-		
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return null;
 	}
 	
@@ -231,7 +236,7 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		mid.setValidStates(validStates.getSelectedObjects());
 		
 		//set the display config
-		mid.setDisplayConfiguration((DisplayConfiguration) mid.getDisplayConfiguration());
+		mid.setDisplayConfiguration(constructDisplayConfiguration((DisplayConfiguration) mid.getDisplayConfiguration()));
 		
 		//get the abilities
 		mid.setAbilities(abilities.getSelectedObjects());

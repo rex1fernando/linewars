@@ -45,9 +45,9 @@ public class Frame extends JPanel implements ItemListener{
 	 * @param filePath	the file path to the image
 	 * @throws IOException
 	 */
-	public Frame(String filePath) throws IOException
+	public Frame(String filePath, String imagePath) throws IOException
 	{
-		frame = new Sprite(filePath, true);
+		frame = new Sprite(filePath, new File(filePath).getParentFile().equals(new File(imagePath)));
 		ImageIcon icon = new ImageIcon(filePath);
 		Image img = icon.getImage();
 		img = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);

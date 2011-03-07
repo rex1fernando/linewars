@@ -254,7 +254,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	            for(File f : file)
 	            {
 	            	try {
-						newList.add(new Frame(f.getAbsolutePath()));
+						newList.add(new Frame(f.getAbsolutePath(), animationFolder));
 					} catch (Exception e) {
 						errors += f.getAbsolutePath() + "\n";
 					}
@@ -393,7 +393,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         {
         	Frame f;
 			try {
-				f = new Frame(new File(new File(animationFolder), an.getImage(i)).getAbsolutePath());
+				f = new Frame(new File(new File(animationFolder), an.getImage(i)).getAbsolutePath(), animationFolder);
 				f.setTime("" + an.getImageTime(i));
 	        	newList.add(f);
 	        	scrollPanel.add(f);
@@ -404,12 +404,16 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
         
         this.newList = newList;
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		scrollPanel.removeAll();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
         newList = new ArrayList<Frame>();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
         return new Animation();
 	}
 

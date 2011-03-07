@@ -87,10 +87,14 @@ public class RaceChooser implements ConfigurationEditor {
 		});
 		return ret;
 	}
+	
+	public void resetEditor()
+	{
+		myPanel = constructRaceChooserPanel();
+	}
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		myPanel = constructRaceChooserPanel();
 		return null;
 	}
 

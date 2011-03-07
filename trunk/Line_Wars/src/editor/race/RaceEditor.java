@@ -41,7 +41,7 @@ public class RaceEditor implements ConfigurationEditor
 	public void setData(Configuration cd) {
 		Race race = (Race) cd;
 		
-		reset();
+		resetEditor();
 		
 		racePanel.nameBox.name.setText(race.getName());
 		racePanel.commandCenter.setSelectedObject(race.getCommandCenter());
@@ -56,11 +56,10 @@ public class RaceEditor implements ConfigurationEditor
 
 	@Override
 	public Configuration instantiateNewConfiguration() {
-		reset();
 		return new Race();
 	}
 	
-	private void reset()
+	public void resetEditor()
 	{
 		racePanel.nameBox.name.setText("");
 		racePanel.commandCenter.setSelectedObject(null);

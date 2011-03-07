@@ -6,19 +6,26 @@ import java.util.Scanner;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
+import editor.GenericSelector;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
+import editor.GenericSelector.*;
 
-public class ConfigurationField extends Field implements SelectorOptions {
+public class ConfigurationField extends Field  {
 
 	private BigFrameworkGuy bfg;
 	private ConfigType type;
-	private URISelector selector;
+	private GenericSelector<Configuration> selector;
 	
 	private List<Configuration> lastGeneratedConfigs;
 	
 	public ConfigurationField(String name, String description, 
 			EditorUsage usage, BigFrameworkGuy bfg) {
+		this(name, description, usage, bfg, null);
+	}
+	
+	public ConfigurationField(String name, String description, 
+			EditorUsage usage, BigFrameworkGuy bfg, Configuration initialConfig) {
 		super(name, description);
 		this.bfg = bfg;
 		switch (usage)
@@ -36,30 +43,16 @@ public class ConfigurationField extends Field implements SelectorOptions {
 				type = ConfigType.tech;
 				break;
 		}
-		selector = new URISelector("Select " + type.toString() 
-				+ " configuration", this);
+		selector = new GenericSelector<Configuration>("Select " + type.toString() 
+				+ " configuration", new SelectConfigurations<Configuration>(bfg, type),
+				new ShowBFGName<Configuration>());
+		selector.setSelectedObject(initialConfig);
 		this.add(selector);
 	}
 
 	@Override
 	public Object getValue() {
-		Scanner s = new Scanner(selector.getSelectedURI());
-		s.useDelimiter(":");
-		int i = s.nextInt();
-		return lastGeneratedConfigs.get(i);
+		return selector.getSelectedObject();
 	}
-
-	@Override
-	public String[] getOptions() {
-		lastGeneratedConfigs = bfg.getConfigurationsByType(type);
-		String[] ret = new String[lastGeneratedConfigs.size()];
-		for(int i = 0; i < lastGeneratedConfigs.size(); i++)
-			ret[i] = i + ":" + ((String) lastGeneratedConfigs.get(i)
-							.getPropertyForName("bfgName").getValue());
-		return ret;
-	}
-
-	@Override
-	public void uriSelected(String uri) {}
 
 }

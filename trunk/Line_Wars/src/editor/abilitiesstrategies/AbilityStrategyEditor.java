@@ -26,6 +26,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 	{
 		this.bfg = bfg;
 		this.toInstantiate = toInstantiate;
+		setData(instantiateNewConfiguration());
 	}
 
 	@Override
@@ -55,8 +56,12 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case NaturalNumber:
 				case PositiveReal:
 				case Real:
-					f = new TextField(field, prop.getDescription(), 
-							prop.getEditorUsage());
+					if(prop.getValue() != null)
+						f = new TextField(field, prop.getDescription(), 
+								prop.getEditorUsage(), prop.getValue().toString());
+					else
+						f = new TextField(field, prop.getDescription(), 
+								prop.getEditorUsage());
 					break;
 			}
 			
@@ -68,6 +73,11 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 		
 		this.validate();
 		this.updateUI();
+	}
+	
+	public void resetEditor()
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -88,7 +98,6 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-		setData(c);
 		return c;
 	}
 

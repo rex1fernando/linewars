@@ -61,8 +61,11 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 
 	@Override
 	protected void forceAggregateSubReloadConfigData() {
-		velocity = (Double)super.getPropertyForName("velocity").getValue();
-		iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
+		if(super.getPropertyForName("velocity") != null && 
+				super.getPropertyForName("velocity").getValue() != null)
+			velocity = (Double)super.getPropertyForName("velocity").getValue();
+		if(super.getPropertyForName("iStrat") != null)
+			iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
 	}
 	
 	@Override

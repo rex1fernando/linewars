@@ -80,7 +80,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		IconConfiguration ic = (IconConfiguration) cd;
 		
-		this.instantiateNewConfiguration();
+		this.resetEditor();
 		
 		for(IconType name : ic.getIconTypes())
 		{
@@ -92,14 +92,17 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		this.validate();
 		this.updateUI();
 	}
-
-	@Override
-	public Configuration instantiateNewConfiguration() {
+	
+	public void resetEditor()
+	{
 		for(IconPanel ip : panels.values())
 			ip.clearIcon();
 		this.validate();
 		this.updateUI();
-		
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
 		return new IconConfiguration();
 	}
 
@@ -159,6 +162,11 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		public void setURI(String u) {
+			if(u == null || u.length() == 0)
+			{
+				clearIcon();
+				return;
+			}
 			if(u.charAt(0) == '/')
 				u = u.substring(1, u.length());
 			
