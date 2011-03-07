@@ -11,6 +11,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemAggregate;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
 
@@ -65,6 +66,10 @@ public strictfp class GameState
 		}
 	}
 	
+	public GameState(Map map, List<PlayerData> players) {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * 
 	 * @return	the dimensions of the map
