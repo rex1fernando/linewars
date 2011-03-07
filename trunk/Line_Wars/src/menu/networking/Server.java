@@ -11,12 +11,13 @@ import java.util.List;
 
 public class Server implements Runnable
 {
+	private ServerSocket serverSocket;
 	private boolean isReplay;
 	private Object selection;
-	private List<PlayerBean> players;
 	
-	private ServerSocket serverSocket;
-	private List<ClientConnection> clients;	// TODO make thread safe
+	private List<PlayerBean> players;
+	private List<ClientConnection> clients;
+	private Object clientLock = new Object();
 	
 	private boolean running;
 	
@@ -53,42 +54,46 @@ public class Server implements Runnable
 		while (running)
 		{
 			// accepts a new client
+			ClientConnection client = null;
 			Socket clientSocket = null;
 			try {
 				clientSocket = serverSocket.accept();
+				client = new ClientConnection(clientSocket, clients.size());
 			} catch (IOException e) {
 				// keep trying
 				continue;
 			}
 			
-			// now we have a new socket to work with
-			ClientConnection client = new ClientConnection(clientSocket, clients.size());
-			
-			// add the new connection to our list of clients
-			clients.add(client);
-			
-			// adds the new player
-			players.add(getDefaultPlayerBean());
-			
-			// send the info needed to the new client
-			NetworkUtil.writeObject(client.out, client.playerId);
-			NetworkUtil.writeObject(client.out, players.toArray(new PlayerBean[0]));
-			NetworkUtil.writeObject(client.out, isReplay);
-			NetworkUtil.writeObject(client.out, selection);
-			
-			// notify the other players
-			for (ClientConnection conn : clients)
+			synchronized (clientLock)
 			{
-				if (conn != client)
-					conn.sendMessage(MessageType.playerJoin, client.playerId, players.get(client.playerId));
+				clients.add(client);
+				players.add(getDefaultPlayerBean());
+				
+				// send the info needed to the new client
+				NetworkUtil.writeObject(client.out, client.playerId);
+				NetworkUtil.writeObject(client.out, players.toArray(new PlayerBean[0]));
+				NetworkUtil.writeObject(client.out, isReplay);
+				NetworkUtil.writeObject(client.out, selection);
+				
+				// notify the other players
+				for (ClientConnection conn : clients)
+				{
+					if (conn != client)
+						conn.sendMessage(MessageType.playerJoin, client.playerId, players.get(client.playerId));
+				}
 			}
 		}	
 	}
 	
 	private PlayerBean getDefaultPlayerBean()
 	{
-		// TODO implement
-		return new PlayerBean("Default Name", Color.black, 1, "Race 1");
+		PlayerBean pb = null;
+		synchronized (clientLock)
+		{
+			// TODO actually implement
+			pb = new PlayerBean("Default Name", Color.black, 1, "Race 1");
+		}
+		return pb;
 	}
 	
 	private void forwardToClients(ClientConnection sender, MessageType msgType, Object ... objs)
@@ -98,8 +103,10 @@ public class Server implements Runnable
 		for (int i = 1; i < newObjs.length; ++i)
 			newObjs[i] = objs[i-1];
 		
-		for (ClientConnection c : clients)
-				c.sendMessage(msgType, newObjs);
+		synchronized (clientLock)
+		{
+			for (ClientConnection c : clients) c.sendMessage(msgType, newObjs);	
+		}
 	}
 	
 	private class ClientConnection implements Runnable
@@ -107,20 +114,17 @@ public class Server implements Runnable
 		private ObjectInputStream in;
 		private ObjectOutputStream out;
 		
+		private Object privateLock = new Object();
+		
 		private int playerId;
 		private boolean running;
 		
-		public ClientConnection(Socket socket, int playerId)
+		public ClientConnection(Socket socket, int playerId) throws IOException
 		{
 			this.playerId = playerId;
 			
-			try {
-				in = new ObjectInputStream(socket.getInputStream());
-				out = new ObjectOutputStream(socket.getOutputStream());
-			} catch (IOException e) {
-				// TODO handle this problem getting IO for socket
-				e.printStackTrace();
-			}
+			in = new ObjectInputStream(socket.getInputStream());
+			out = new ObjectOutputStream(socket.getOutputStream());
 			
 			// starts the server in its own thread
 			Thread th = new Thread(this);
@@ -136,7 +140,7 @@ public class Server implements Runnable
 			while (running)
 			{
 				MessageType type = (MessageType) NetworkUtil.readObject(in);
-				handleMessage(type);
+				if (type != null) handleMessage(type); else running = false;
 			}
 		}
 		
@@ -156,16 +160,22 @@ public class Server implements Runnable
 		
 		public void sendMessage(MessageType type, Object ... obj)
 		{
-			NetworkUtil.writeObject(out, type);
-			for (int i = 0; i < obj.length; ++i)
+			synchronized (privateLock)
 			{
-				NetworkUtil.writeObject(out, obj[i]);
+				NetworkUtil.writeObject(out, type);
+				for (int i = 0; i < obj.length; ++i)
+				{
+					NetworkUtil.writeObject(out, obj[i]);
+				}
 			}
 		}
 		
 		private void handleMessage(MessageType type)
 		{
-			PlayerBean pb = players.get(playerId);
+			PlayerBean pb = null;
+			synchronized (clientLock) {
+				pb = players.get(playerId);
+			}
 			
 			switch (type)
 			{
@@ -216,12 +226,15 @@ public class Server implements Runnable
 					break;
 				case clientCancelGame:
 					forwardToClients(this, type);
-					for (int i = playerId + 1; i < clients.size(); ++i) clients.get(i).playerId -= 1;
-					players.remove(playerId);
-					clients.remove(playerId);
+					synchronized (clientLock) {
+						for (int i = playerId + 1; i < clients.size(); ++i) clients.get(i).playerId -= 1;
+						players.remove(playerId);
+						clients.remove(playerId);
+					}
 					running = false;
 					break;
 				case serverCancelGame:
+					forwardToClients(this, type);
 					Server.this.running = false;
 					try {
 						serverSocket.close();
@@ -229,7 +242,6 @@ public class Server implements Runnable
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					forwardToClients(this, type);
 					break;
 			}
 		}

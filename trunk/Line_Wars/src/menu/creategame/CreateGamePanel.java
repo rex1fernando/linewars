@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ComboBoxModel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
@@ -19,7 +18,7 @@ import menu.networking.PlayerBean;
 import menu.networking.Server;
 
 public class CreateGamePanel extends javax.swing.JPanel {
-	
+	private static final long serialVersionUID = 1L;
 	private static final int PORT = 9001;
 	private static final int ENTER_KEY = 10;
 	
@@ -48,6 +47,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	if (!isServer) {
     		replayToggleButton.setEnabled(false);
     		selectionComboBox.setEnabled(false);
+    		startButton.setEnabled(false);
     	}
     }
 
@@ -157,7 +157,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	goBackToTitleMenu();
     }
     
-    private void goBackToTitleMenu() {
+    public void goBackToTitleMenu() {
     	wm.gotoTitleMenu();
     	init();
     }
@@ -200,9 +200,9 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	return (client != null && players.size() > client.getPlayerIndex() &&  p == players.get(client.getPlayerIndex()));
     }
 
-    public class PlayerPanel extends javax.swing.JPanel {
-        
-        public PlayerPanel() {
+    private class PlayerPanel extends javax.swing.JPanel {
+		private static final long serialVersionUID = 1L;
+		public PlayerPanel() {
             initComponents();
         }        
 

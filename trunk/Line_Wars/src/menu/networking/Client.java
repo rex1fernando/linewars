@@ -125,6 +125,7 @@ public class Client implements Runnable
 			break;
 		case serverCancelGame:
 			running = false;
+			gamePanel.goBackToTitleMenu();
 			break;
 		}
 	}
