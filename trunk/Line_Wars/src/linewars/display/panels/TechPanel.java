@@ -10,11 +10,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -54,6 +57,7 @@ public class TechPanel extends Panel
 	
 	private TechDisplay activeTech;
 	
+	private JCheckBox enabledBox;
 	private GenericSelector<Configuration> techSelector;
 	private URISelector unlockStrategySelector;
 	
@@ -135,24 +139,65 @@ public class TechPanel extends Panel
 	
 	public void setAllTechGraphs(List<TechGraph> graphs)
 	{
-		// TODO implement
+		for(JButton tab : tabs)
+			tabPanel.remove(tab);
+		for(TechDisplay disp : techs)
+			techPanel.remove(disp);
+		
+		for(TechGraph graph : graphs)
+		{
+			TechDisplay tech = new TechDisplay(graph);
+			tech.setTechSelector(techSelector);
+			tech.setUnlockStrategySelector(unlockStrategySelector);
+			
+			activeTech = tech;
+			techs.add(tech);
+			techPanel.add(tech);
+			techLayout.addLayoutComponent(tech, c);
+			
+			JButton tab = new JButton(graph.getName());
+			tab.addActionListener(new TabButtonHandler(tech));
+			tabs.add(tab);
+			tabPanel.add(tab);
+		}
+		
+		TechPanel.this.validate();
 	}
 	
 	public void setEnabledTechGraphs(List<TechGraph> graphs)
 	{
-		// TODO implement
+		for(TechDisplay disp : techs)
+			disp.getTechGraph().setEnabled(false);
+		
+		for(TechGraph graph : graphs)
+			graph.setEnabled(true);
 	}
 	
 	public List<TechGraph> getAllTechGraphs()
 	{
-		// TODO implement
-		return null;
+		ArrayList<TechGraph> graphs = new ArrayList<TechGraph>();
+		
+		for(TechDisplay disp : techs)
+		{
+			graphs.add(disp.getTechGraph());
+		}
+		
+		return graphs;
 	}
 	
 	public List<TechGraph> getEnabledTechGraphs()
 	{
-		// TODO implement
-		return null;
+		ArrayList<TechGraph> graphs = new ArrayList<TechGraph>();
+		
+		for(TechDisplay disp : techs)
+		{
+			if(disp.getTechGraph().isEnabled())
+			{
+				graphs.add(disp.getTechGraph());
+			}
+		}
+		
+		return graphs;
 	}
 	
 	public void resetTechGraphs()
@@ -203,6 +248,10 @@ public class TechPanel extends Panel
 		JButton addTechGraph = new JButton("Add Tech Graph");
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
+		
+		enabledBox = new JCheckBox("Enabled");
+		enabledBox.addItemListener(new EnabledBoxListener());
+		editorComponents.add(enabledBox);
 		
 		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
 		techSelector.addSelectionChangeListener(new TechSelectionListener());
@@ -291,6 +340,8 @@ public class TechPanel extends Panel
 		{
 			activeTech = tech;
 			setAllTechGraphsInvisible();
+
+			enabledBox.setSelected(activeTech.getTechGraph().isEnabled());
 			
 			TechNode activeTechNode = activeTech.getActiveTech();
 			if(activeTechNode != null)
@@ -322,7 +373,7 @@ public class TechPanel extends Panel
 			if(s.equals(""))
 				return;
 			
-			TechDisplay tech = new TechDisplay(new TechGraph());
+			TechDisplay tech = new TechDisplay(new TechGraph(s));
 			tech.setTechSelector(techSelector);
 			tech.setUnlockStrategySelector(unlockStrategySelector);
 			
@@ -337,6 +388,15 @@ public class TechPanel extends Panel
 			tabPanel.add(tab);
 			
 			TechPanel.this.validate();
+		}
+	}
+	
+	private class EnabledBoxListener implements ItemListener
+	{
+		@Override
+		public void itemStateChanged(ItemEvent e)
+		{
+			activeTech.getTechGraph().setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 		}
 	}
 	

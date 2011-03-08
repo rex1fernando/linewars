@@ -19,12 +19,19 @@ public class TechGraph implements Serializable
 	private int maxX;
 	private int maxY;
 	private String name;
+	private boolean enabled;
 	
 	public TechGraph()
 	{
+		this("tech");
+	}
+	
+	public TechGraph(String name)
+	{
 		roots = new ArrayList<TechNode>();
 		rootIterator = roots.iterator();
-		name = "tech";
+		this.name = name;
+		enabled = true;
 	}
 	
 	public TechNode addNode()
@@ -57,6 +64,16 @@ public class TechGraph implements Serializable
 	public String getName()
 	{
 		return name;
+	}
+	
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+	
+	public boolean isEnabled()
+	{
+		return enabled;
 	}
 	
 	public void unmarkAll()
