@@ -98,41 +98,13 @@ public class TechPanel extends Panel
 		this.display = display;
 		this.displayed = false;
 		
-//TEST CODE
-		TechGraph tech1 = new TechGraph();
-		TechNode parent1 = tech1.addNode();
-		TechNode child1 = tech1.addNode();
+		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
 		
-		parent1.setPosition(1, 1);
-		child1.setPosition(15, 5);
-		
-		try {
-			parent1.addChild(child1);
-		} catch (CycleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(TechGraph graph : graphs)
+		{
+			tabs.add(new JButton(graph.getName()));
+			techs.add(new TechDisplay(pID, graph));
 		}
-		
-		TechGraph tech2 = new TechGraph();
-		TechNode parent2 = tech2.addNode();
-		TechNode child2 = tech2.addNode();
-		
-		parent2.setPosition(1, 5);
-		child2.setPosition(15, 1);
-		
-		try {
-			parent2.addChild(child2);
-		} catch (CycleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		this.tabs.add(new JButton("TECH1"));
-		this.techs.add(new TechDisplay(pID, tech1));
-		
-		this.tabs.add(new JButton("TECH2"));
-		this.techs.add(new TechDisplay(pID ,tech2));
-//END TEST CODE
 		
 		initialize();
 	}
