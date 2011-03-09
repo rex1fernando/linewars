@@ -1,7 +1,6 @@
 package linewars.display.panels;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -313,9 +312,9 @@ public class TechDisplay extends JViewport
 			setMinimumSize(size);
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
 		public void setTech(TechNode tech)
@@ -323,12 +322,12 @@ public class TechDisplay extends JViewport
 			this.tech = tech;
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
-		private void setIcons(TechConfiguration tech)
+		private void setInfoFromTech(TechConfiguration tech)
 		{
 			if(tech != null)
 			{
@@ -339,6 +338,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
 				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted)));
 				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled)));
+				
+				setToolTipText(tech.getTooltip());
 			}
 			else
 			{
@@ -347,6 +348,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, null));
 				setSelectedIcon(new ButtonIcon(this, null));
 				setDisabledIcon(new ButtonIcon(this, null));
+				
+				setToolTipText(null);
 			}
 		}
 		
@@ -579,7 +582,7 @@ public class TechDisplay extends JViewport
 				return;
 			
 			//TODO send message to resarch tech
-//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
+//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTechConfig().getID);
 		}
 	}
 }
