@@ -98,7 +98,7 @@ public class Server implements Runnable
 		synchronized (clientLock)
 		{
 			// TODO actually implement
-			pb = new PlayerBean("Player", Color.black, 1, ContentProvider.getAvailableRaces()[0]);
+			pb = new PlayerBean("Player", Color.black, 1, null); // FIXME
 		}
 		return pb;
 	}

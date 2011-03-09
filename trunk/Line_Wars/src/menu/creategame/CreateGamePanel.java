@@ -11,7 +11,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
-import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import menu.ContentProvider;
 import menu.WindowManager;
@@ -179,7 +179,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }
     }                                              
 
-    private Map[] getAvailableMaps() {
+    private MapConfiguration[] getAvailableMaps() {
         return ContentProvider.getAvailableMaps();
     }
 

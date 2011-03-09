@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 
 public class ContentProvider
@@ -16,7 +16,17 @@ public class ContentProvider
 	{
 		String from = "resources/races";
 		String ext = "cfg";
-		return (Race[]) deserializeObjects(from, ext);
+		Object[] objs = deserializeObjects(from, ext);
+		List<Race> maps = new ArrayList<Race>();
+		for (int i = 0; i < objs.length; ++i)
+		{
+			try {
+				Race r = (Race) objs[i];
+				maps.add(r);
+			} catch (ClassCastException e) {}
+		}
+		
+		return maps.toArray(new Race[0]);
 	}
 	
 	public static Color[] getAvailableColors()
@@ -33,21 +43,21 @@ public class ContentProvider
 		return new String[] {"Replay 1", "Replay 2" };
 	}
 	
-	public static Map[] getAvailableMaps()
+	public static MapConfiguration[] getAvailableMaps()
 	{	
 		String from = "resources/maps";
 		String ext = "cfg";
 		Object[] objs = deserializeObjects(from, ext);
-		List<Map> maps = new ArrayList<Map>();
+		List<MapConfiguration> maps = new ArrayList<MapConfiguration>();
 		for (int i = 0; i < objs.length; ++i)
 		{
 			try {
-				Map m = (Map) objs[i];
+				MapConfiguration m = (MapConfiguration) objs[i];
 				maps.add(m);
 			} catch (ClassCastException e) {}
 		}
 		
-		return maps.toArray(new Map[0]);
+		return maps.toArray(new MapConfiguration[0]);
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)
