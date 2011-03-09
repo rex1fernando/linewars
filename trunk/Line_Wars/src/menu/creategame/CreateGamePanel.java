@@ -11,6 +11,9 @@ import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
+import linewars.gamestate.Map;
+import linewars.gamestate.Race;
+import menu.ContentProvider;
 import menu.WindowManager;
 import menu.networking.Client;
 import menu.networking.MessageType;
@@ -34,7 +37,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }
     
     public void startServer() {
-    	Server s = new Server(PORT, replayToggleButton.isSelected(), selectionComboBox.getSelectedItem());
+    	Server s = new Server(PORT, replayToggleButton.isSelected(), selectionComboBox.getSelectedItem(), this);
     	s.start();
     	isServer = true;
     	startClient("127.0.0.1");
@@ -176,24 +179,20 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }
     }                                              
 
-    private String[] getAvailableMaps() {
-    	// TODO implement
-        return new String[]{"Map 1", "Map 2", "Map 3"};
+    private Map[] getAvailableMaps() {
+        return ContentProvider.getAvailableMaps();
     }
 
-    private String[] getAvailableReplays() {
-    	// TODO implement
-        return new String[]{"Replay 1", "Replay 2"};
+    private Object[] getAvailableReplays() {
+        return ContentProvider.getAvailableReplays();
     }
 
-    private String[] getAvailableRaces() {
-    	// TODO implement
-        return new String[]{"Race 1", "Race 2", "Race 3", "Race 4"};
+    public Race[] getAvailableRaces() {
+        return ContentProvider.getAvailableRaces();
     }
     
     private Color[] getAvailableColors() {
-    	// TODO implement
-    	return new Color[] { Color.black, Color.white, Color.red, Color.blue, Color.green };
+    	return ContentProvider.getAvailableColors();
     }
     
     private boolean allIsWell(PlayerPanel p) {

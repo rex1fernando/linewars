@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import linewars.gamestate.Race;
 import menu.creategame.CreateGamePanel;
 
 public class Client implements Runnable
@@ -94,7 +95,7 @@ public class Client implements Runnable
 			gamePanel.setPlayerSlot(playerId, (Integer) NetworkUtil.readObject(in));
 			break;
 		case race:
-			gamePanel.setPlayerRace(playerId, (String) NetworkUtil.readObject(in));
+			gamePanel.setPlayerRace(playerId, (Race) NetworkUtil.readObject(in));
 			break;
 		case color:
 			gamePanel.setPlayerColor(playerId, (Color) NetworkUtil.readObject(in));

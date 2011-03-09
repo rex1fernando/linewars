@@ -3,16 +3,18 @@ package menu.networking;
 import java.awt.Color;
 import java.io.Serializable;
 
+import linewars.gamestate.Race;
+
 
 public class PlayerBean implements Serializable
 {
 	private static final long serialVersionUID = 4002707351260107011L;
 	private String name;
 	private int slot;
-	private String race;
+	private Race race;
 	private Color color;
 	
-	public PlayerBean(String n, Color c, int s, String r)
+	public PlayerBean(String n, Color c, int s, Race r)
 	{
 		name = n;
 		color = c;
@@ -32,10 +34,10 @@ public class PlayerBean implements Serializable
 	public void setSlot(int slot) {
 		this.slot = slot;
 	}
-	public String getRace() {
+	public Race getRace() {
 		return race;
 	}
-	public void setRace(String race) {
+	public void setRace(Race race) {
 		this.race = race;
 	}
 	public Color getColor() {

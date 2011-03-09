@@ -9,6 +9,10 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import linewars.gamestate.Race;
+import menu.ContentProvider;
+import menu.creategame.CreateGamePanel;
+
 public class Server implements Runnable
 {
 	private ServerSocket serverSocket;
@@ -19,10 +23,13 @@ public class Server implements Runnable
 	private List<ClientConnection> clients;
 	private Object clientLock = new Object();
 	
+	private CreateGamePanel gamePanel;
+	
 	private boolean running;
 	
-	public Server(int port, boolean isReplay, Object selection)
+	public Server(int port, boolean isReplay, Object selection, CreateGamePanel gp)
 	{
+		gamePanel = gp;
 		clients = new ArrayList<ClientConnection>();
 		players = new ArrayList<PlayerBean>();
 		
@@ -91,7 +98,7 @@ public class Server implements Runnable
 		synchronized (clientLock)
 		{
 			// TODO actually implement
-			pb = new PlayerBean("Default Name", Color.black, 1, "Race 1");
+			pb = new PlayerBean("Player", Color.black, 1, ContentProvider.getAvailableRaces()[0]);
 		}
 		return pb;
 	}
@@ -201,7 +208,7 @@ public class Server implements Runnable
 					}
 					break;
 				case race:
-					String race = (String) NetworkUtil.readObject(in);
+					Race race = (Race) NetworkUtil.readObject(in);
 					if (!race.equals(pb.getRace())) {
 						pb.setRace((race));
 						forwardToClients(this, MessageType.race, race);	
