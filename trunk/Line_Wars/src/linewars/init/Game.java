@@ -7,6 +7,7 @@ import java.util.List;
 import linewars.display.Display;
 import linewars.gameLogic.TimingManager;
 import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
 import linewars.network.Client;
 import linewars.network.MessageHandler;
 import linewars.network.Server;
@@ -48,7 +49,7 @@ public strictfp class Game {
 		disp.start();
 	}
 	
-	public Game(Map map, List<UserData> users){
+	public Game(MapConfiguration map, List<UserData> users){
 		//TODO handle extra data!
 		//each player may be an observer
 		//players are referred to by ids sometimes... how do we need to handle things here so that observers don't mess shit up?

@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
 import linewars.init.PlayerData;
 import linewars.network.Client;
 import linewars.network.MessageProvider;
@@ -29,7 +30,7 @@ public class TimingManager implements Runnable{
 	private int nextTickID;
 	private long nextUpdateTime;
 	
-	public TimingManager(Map map, List<PlayerData> players){
+	public TimingManager(MapConfiguration map, List<PlayerData> players){
 		manager = new LogicBlockingManager(map, players);
 		nextTickID = 1;
 	}

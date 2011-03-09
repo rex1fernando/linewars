@@ -5,6 +5,7 @@ import java.util.List;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
 import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
@@ -29,7 +30,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	private boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
 	private boolean locked;//true if users have locked the viewableState
 
-	public LogicBlockingManager(Map map, List<PlayerData> players){
+	public LogicBlockingManager(MapConfiguration map, List<PlayerData> players){
 		orders = new HashMap<Integer, Message[]>();
 		viewableState = new GameState(map, players);
 		freeState = new GameState(map, players);
