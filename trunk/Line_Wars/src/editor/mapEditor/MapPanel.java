@@ -551,6 +551,9 @@ public class MapPanel extends JPanel
 	{
 		if(createLane)
 		{
+			if(selectedLane == null)
+				return;
+			
 			selectedLane.getNode(0).attachedLanes().remove(selectedLane);
 			selectedLane.getNode(1).attachedLanes().remove(selectedLane);
 			lanes.remove(selectedLane);
@@ -558,6 +561,9 @@ public class MapPanel extends JPanel
 		}
 		else if(createNode)
 		{
+			if(selectedNode == null)
+				return;
+			
 			List<LaneConfiguration> attachedLanes = selectedNode.attachedLanes();
 			for(LaneConfiguration l : attachedLanes)
 			{
@@ -580,6 +586,9 @@ public class MapPanel extends JPanel
 		}
 		else if(createBuilding)
 		{
+			if(selectedBuilding == null)
+				return;
+			
 			for(NodeConfiguration n : nodes)
 			{
 				n.buildingSpots().remove(selectedBuilding);
@@ -593,6 +602,9 @@ public class MapPanel extends JPanel
 		}
 		else if(createCC)
 		{
+			if(selectedCommandCenter == null)
+				return;
+			
 			for(NodeConfiguration n : nodes)
 			{
 				if(n.getCommandCenterSpot() == selectedCommandCenter)

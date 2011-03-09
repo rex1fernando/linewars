@@ -3,7 +3,9 @@ package linewars.gameLogic;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
+import linewars.gamestate.Map;
+import linewars.gamestate.MapConfiguration;
+import linewars.init.PlayerData;
 import linewars.network.Client;
 import linewars.network.MessageProvider;
 import linewars.network.messages.Message;
@@ -28,17 +30,8 @@ public class TimingManager implements Runnable{
 	private int nextTickID;
 	private long nextUpdateTime;
 	
-	//per game:
-	//map configuration
-	
-	//per player:
-	//name
-	//color
-	//spot
-	//race configuration
-	
-	public TimingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException{
-		manager = new LogicBlockingManager(mapURI, numPlayers, raceURIs, players);
+	public TimingManager(MapConfiguration map, List<PlayerData> players){
+		manager = new LogicBlockingManager(map, players);
 		nextTickID = 1;
 	}
 	

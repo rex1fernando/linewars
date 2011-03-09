@@ -3,6 +3,8 @@ package editor.tech.modifierEditors;
 import java.util.HashMap;
 import java.util.Map;
 
+import configuration.Property;
+
 import linewars.gamestate.tech.ModifierConfiguration;
 import utility.ForceLoadPackage;
 import editor.ConfigurationEditor;
@@ -10,6 +12,8 @@ import editor.ConfigurationEditor;
 public abstract class NewModifierEditor implements ConfigurationEditor {	
 
 	public abstract ModifierConfiguration getData();
+	
+	public abstract void setToModify(Property toModify);
 	
 	private static Map<Class<? extends ModifierConfiguration>, Class<? extends NewModifierEditor>> editorForModifier;
 	

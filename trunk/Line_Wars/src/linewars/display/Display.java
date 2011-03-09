@@ -285,19 +285,6 @@ public class Display extends JFrame implements Runnable
 			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.LANEBORDER, Display.this));
 
-			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, rightUIPanel);
-			add(commandCardPanel);
-			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
-			add(nodeStatusPanel);
-			resourceDisplayPanel = new ResourceDisplayPanel(gameStateProvider, playerIndex);
-			add(resourceDisplayPanel);
-			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
-			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
-			add(techPanel);
-			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
-			add(techButtonPanel);
-
 			addComponentListener(new ResizeListener());
 
 			// adds the mouse input handler

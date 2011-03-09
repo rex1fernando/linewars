@@ -1,7 +1,6 @@
 package linewars.display.panels;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -35,6 +34,7 @@ import configuration.Configuration;
 import editor.GenericSelector;
 import editor.URISelector;
 
+@SuppressWarnings("serial")
 public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;
@@ -313,9 +313,9 @@ public class TechDisplay extends JViewport
 			setMinimumSize(size);
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
 		public void setTech(TechNode tech)
@@ -323,12 +323,12 @@ public class TechDisplay extends JViewport
 			this.tech = tech;
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
-		private void setIcons(TechConfiguration tech)
+		private void setInfoFromTech(TechConfiguration tech)
 		{
 			if(tech != null)
 			{
@@ -339,6 +339,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
 				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted)));
 				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled)));
+				
+				setToolTipText(tech.getTooltip());
 			}
 			else
 			{
@@ -347,6 +349,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, null));
 				setSelectedIcon(new ButtonIcon(this, null));
 				setDisabledIcon(new ButtonIcon(this, null));
+				
+				setToolTipText(null);
 			}
 		}
 		
@@ -578,8 +582,10 @@ public class TechDisplay extends JViewport
 			if(!buttons[index].tech.isUnlocked())
 				return;
 			
-			//TODO send message to resarch tech
-//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
+			if(buttons[index].tech.isResearched())
+				return;
+			
+			buttons[index].tech.research();
 		}
 	}
 }

@@ -10,20 +10,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
-import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategyNoSyblings;
+import linewars.gamestate.tech.UnlockStrategyOne;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import linewars.gamestate.tech.UnlockStrategyAll;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
@@ -32,6 +37,7 @@ import editor.GenericSelector.SelectionChangeListener;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
+@SuppressWarnings("serial")
 public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;
@@ -54,6 +60,7 @@ public class TechPanel extends Panel
 	
 	private TechDisplay activeTech;
 	
+	private JCheckBox enabledBox;
 	private GenericSelector<Configuration> techSelector;
 	private URISelector unlockStrategySelector;
 	
@@ -94,65 +101,78 @@ public class TechPanel extends Panel
 		this.display = display;
 		this.displayed = false;
 		
-//TEST CODE
-		TechGraph tech1 = new TechGraph();
-		TechNode parent1 = tech1.addNode();
-		TechNode child1 = tech1.addNode();
+		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
 		
-		parent1.setPosition(1, 1);
-		child1.setPosition(15, 5);
-		
-		try {
-			parent1.addChild(child1);
-		} catch (CycleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(TechGraph graph : graphs)
+		{
+			tabs.add(new JButton(graph.getName()));
+			techs.add(new TechDisplay(pID, graph));
 		}
-		
-		TechGraph tech2 = new TechGraph();
-		TechNode parent2 = tech2.addNode();
-		TechNode child2 = tech2.addNode();
-		
-		parent2.setPosition(1, 5);
-		child2.setPosition(15, 1);
-		
-		try {
-			parent2.addChild(child2);
-		} catch (CycleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		this.tabs.add(new JButton("TECH1"));
-		this.techs.add(new TechDisplay(pID, tech1));
-		
-		this.tabs.add(new JButton("TECH2"));
-		this.techs.add(new TechDisplay(pID ,tech2));
-//END TEST CODE
 		
 		initialize();
 	}
 	
 	public void setAllTechGraphs(List<TechGraph> graphs)
 	{
-		// TODO implement
+		for(JButton tab : tabs)
+			tabPanel.remove(tab);
+		for(TechDisplay disp : techs)
+			techPanel.remove(disp);
+		
+		for(TechGraph graph : graphs)
+		{
+			TechDisplay tech = new TechDisplay(graph);
+			tech.setTechSelector(techSelector);
+			tech.setUnlockStrategySelector(unlockStrategySelector);
+			
+			activeTech = tech;
+			techs.add(tech);
+			techPanel.add(tech);
+			techLayout.addLayoutComponent(tech, c);
+			
+			JButton tab = new JButton(graph.getName());
+			tab.addActionListener(new TabButtonHandler(tech));
+			tabs.add(tab);
+			tabPanel.add(tab);
+		}
+		
+		TechPanel.this.validate();
 	}
 	
 	public void setEnabledTechGraphs(List<TechGraph> graphs)
 	{
-		// TODO implement
+		for(TechDisplay disp : techs)
+			disp.getTechGraph().setEnabled(false);
+		
+		for(TechGraph graph : graphs)
+			graph.setEnabled(true);
 	}
 	
 	public List<TechGraph> getAllTechGraphs()
 	{
-		// TODO implement
-		return null;
+		ArrayList<TechGraph> graphs = new ArrayList<TechGraph>();
+		
+		for(TechDisplay disp : techs)
+		{
+			graphs.add(disp.getTechGraph());
+		}
+		
+		return graphs;
 	}
 	
 	public List<TechGraph> getEnabledTechGraphs()
 	{
-		// TODO implement
-		return null;
+		ArrayList<TechGraph> graphs = new ArrayList<TechGraph>();
+		
+		for(TechDisplay disp : techs)
+		{
+			if(disp.getTechGraph().isEnabled())
+			{
+				graphs.add(disp.getTechGraph());
+			}
+		}
+		
+		return graphs;
 	}
 	
 	public void resetTechGraphs()
@@ -203,6 +223,10 @@ public class TechPanel extends Panel
 		JButton addTechGraph = new JButton("Add Tech Graph");
 		addTechGraph.addActionListener(new AddTechGraphHandler());
 		editorComponents.add(addTechGraph);
+		
+		enabledBox = new JCheckBox("Enabled");
+		enabledBox.addItemListener(new EnabledBoxListener());
+		editorComponents.add(enabledBox);
 		
 		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
 		techSelector.addSelectionChangeListener(new TechSelectionListener());
@@ -291,12 +315,14 @@ public class TechPanel extends Panel
 		{
 			activeTech = tech;
 			setAllTechGraphsInvisible();
+
+			enabledBox.setSelected(activeTech.getTechGraph().isEnabled());
 			
 			TechNode activeTechNode = activeTech.getActiveTech();
 			if(activeTechNode != null)
 			{
 				techSelector.setSelectedObject(activeTechNode.getTechConfig());
-				//TODO unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
 			}
 		}	
 	}
@@ -322,7 +348,7 @@ public class TechPanel extends Panel
 			if(s.equals(""))
 				return;
 			
-			TechDisplay tech = new TechDisplay(new TechGraph());
+			TechDisplay tech = new TechDisplay(new TechGraph(s));
 			tech.setTechSelector(techSelector);
 			tech.setUnlockStrategySelector(unlockStrategySelector);
 			
@@ -337,6 +363,15 @@ public class TechPanel extends Panel
 			tabPanel.add(tab);
 			
 			TechPanel.this.validate();
+		}
+	}
+	
+	private class EnabledBoxListener implements ItemListener
+	{
+		@Override
+		public void itemStateChanged(ItemEvent e)
+		{
+			activeTech.getTechGraph().setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 		}
 	}
 	
@@ -369,7 +404,12 @@ public class TechPanel extends Panel
 		@Override
 		public void uriSelected(String uri)
 		{
-			//TODO set the correct UnlockStrategy to the active tech button for the selection
+			if(uri.equals("All"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyAll());
+			else if(uri.equals("One"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyOne());
+			else if(uri.equals("No Syblings"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyNoSyblings());
 		}
 	}
 }

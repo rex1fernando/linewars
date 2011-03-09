@@ -7,6 +7,10 @@ import linewars.gamestate.shapes.Rectangle;
 
 public class BuildingSpot implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1107812883640713531L;
 	private Rectangle rect;
 	
 	public BuildingSpot()

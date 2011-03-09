@@ -58,4 +58,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		
 	}
 
+	@Override
+	public void setToModify(Property toModify) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

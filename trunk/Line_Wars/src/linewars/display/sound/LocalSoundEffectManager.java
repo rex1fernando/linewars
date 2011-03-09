@@ -4,10 +4,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import configuration.Configuration;
-
 import linewars.display.DisplayConfiguration;
-import linewars.display.layers.MapItemLayer;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.display.sound.SoundPlayer.Channel;
 import linewars.gamestate.GameState;
@@ -16,7 +13,6 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
-import linewars.gamestate.shapes.Shape;
 
 public class LocalSoundEffectManager
 {

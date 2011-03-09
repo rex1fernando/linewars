@@ -69,6 +69,8 @@ public class RaceChooser implements ConfigurationEditor {
 			throw new RuntimeException("Something went wrong invoking the one-argument constructor of " + editorType + " that should exist but might not.");
 		}
 		
+		subEditor.setData(modification);
+		
 		return subEditor.getPanel();
 	}
 

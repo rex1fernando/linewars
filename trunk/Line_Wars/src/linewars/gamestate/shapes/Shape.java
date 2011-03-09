@@ -1,5 +1,7 @@
 package linewars.gamestate.shapes;
 
+import java.io.Serializable;
+
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -9,8 +11,13 @@ import linewars.gamestate.Transformation;
  * @author Taylor Bergquist
  *
  */
-public strictfp abstract class Shape {
+public strictfp abstract class Shape implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5336545043378845718L;
+
 	/**
 	 * Computes whether this Shape and the given Shape intersect.  Two Shapes are defined to intersect if the area of their intersection is nonzero.
 	 * @param other
