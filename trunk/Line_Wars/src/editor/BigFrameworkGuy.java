@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import javax.swing.JButton;
@@ -65,7 +67,7 @@ public class BigFrameworkGuy
 	
 	private List<ConfigurationEditor> editors;
 	
-	public static class BFGSavedData implements Serializable {
+	public static class BFGSavedData implements Serializable  {
 		/**
 		 * 
 		 */
@@ -107,27 +109,94 @@ public class BigFrameworkGuy
 		
 		private void saveData()
 		{
+			//TODO
 			if(saveFile != null)
 			{
 				try {
 					FileCopy.copy(saveFile, saveFile + ".bak");
-					ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile));
-					oos.writeObject(this);
-					oos.flush();
-					oos.close();
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
+				ObjectOutputStream oos = null;
+				try {
+					oos = new ObjectOutputStream(new FileOutputStream(saveFile));
+				} catch (FileNotFoundException e2) {
+					e2.printStackTrace();
+					return;
+				} catch (IOException e2) {
+					e2.printStackTrace();
+					return;
+				}
+				
+				for(Entry<ConfigType, List<Configuration>> e : masterList.entrySet())
+				{
+					for(Configuration c : e.getValue())
+					{
+						c.setPropertyForName("bfgType", new Property(Usage.IMMUTABLE, e.getKey()));
+						try {
+							oos.writeObject(c);
+							oos.flush();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+				
+				try {
+					oos.writeObject(loadedConfigs);
+					oos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
 			}
 		}
 		
+		private BFGSavedData(String file) throws FileNotFoundException, IOException
+		{
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			
+			while(true)
+			{
+				Object o = null;
+				try {
+					o = ois.readObject();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+					continue;
+				} catch (EOFException e) {
+					break;
+				}
+				
+				if(o instanceof Configuration)
+				{
+					Configuration c = (Configuration)o;
+					ConfigType type = (ConfigType)c.getPropertyForName("bfgType").getValue();
+					if(masterList.get(type) == null)
+						masterList.put(type, new ArrayList<Configuration>());
+					masterList.get(type).add(c);
+				}
+				else if(o instanceof HashMap<?, ?>)
+					loadedConfigs = (HashMap<Integer, Configuration>) o;
+				else
+					System.err.println("Unrecognized object:" + o);
+			}
+			
+			ois.close();
+		}
+		
+		private BFGSavedData() {}
+		
 		public static BFGSavedData getSavedData(String file) throws FileNotFoundException, IOException, ClassNotFoundException
 		{
-			return (BFGSavedData) new ObjectInputStream(
-					new FileInputStream(new File(file)))
-					.readObject();
+			return new BFGSavedData(file);
+//			//TODO
+//			return (BFGSavedData) new ObjectInputStream(
+//					new FileInputStream(new File(file)))
+//					.readObject();
 		}
 	}
 	
@@ -236,7 +305,7 @@ public class BigFrameworkGuy
 		frame.setVisible(true);
 		
 		//can't start the animation editors display loop until the panel is added to the frame
-		new Thread(toStart).run();
+		//new Thread(toStart).run();
 		
 	}
 	
@@ -407,11 +476,12 @@ public class BigFrameworkGuy
 						if(selectedIndices.contains(i))
 						{
 							String name = (String) listItems.get(i).getPropertyForName("bfgName").getValue();
-							recursivelyMarkTypes(listItems.get(i), type);
 							while(writtenNames.contains(name))
 								name += "_";
 							try {
 								ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(fc.getSelectedFile(), name + ".cfg")));
+								oos.flush();
+								oos.close();
 							} catch (FileNotFoundException e1) {
 								e1.printStackTrace();
 							} catch (IOException e1) {
@@ -424,28 +494,6 @@ public class BigFrameworkGuy
 				}
 			});
 			
-		}
-		
-		private void recursivelyMarkTypes(Configuration c, ConfigType type)
-		{
-			c.setPropertyForName("bfgType", new Property(Usage.IMMUTABLE, type));
-			for(String name : c.getPropertyNames())
-			{
-				ConfigType t = null;
-				if(c.getPropertyForName(name).getValue() instanceof Configuration &&
-						(t = getCategory((Configuration) c.getPropertyForName(name).getValue())) != null)
-					recursivelyMarkTypes((Configuration) c.getPropertyForName(name).getValue(), t);
-			}
-		}
-		
-		private ConfigType getCategory(Configuration c)
-		{
-			for(ConfigType type : ConfigType.values())
-				for(Configuration config : saveData.getConfigsOfType(type))
-					if(config == c)
-						return type;
-			
-			return null;
 		}
 	}
 	
