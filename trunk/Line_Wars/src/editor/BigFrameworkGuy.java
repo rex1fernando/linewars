@@ -480,6 +480,7 @@ public class BigFrameworkGuy
 								name += "_";
 							try {
 								ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(fc.getSelectedFile(), name + ".cfg")));
+								oos.writeObject(listItems.get(i));
 								oos.flush();
 								oos.close();
 							} catch (FileNotFoundException e1) {
