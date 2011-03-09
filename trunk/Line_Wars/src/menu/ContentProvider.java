@@ -15,7 +15,7 @@ public class ContentProvider
 	public static Race[] getAvailableRaces()
 	{
 		String from = "resources/races";
-		String ext = "race";
+		String ext = "cfg";
 		return (Race[]) deserializeObjects(from, ext);
 	}
 	
@@ -29,23 +29,38 @@ public class ContentProvider
 	{
 		String from = "resources/replays";
 		String ext = "replay";
-		return (Object[]) deserializeObjects(from, ext);
+		//return (Object[]) deserializeObjects(from, ext);
+		return new String[] {"Replay 1", "Replay 2" };
 	}
 	
 	public static Map[] getAvailableMaps()
-	{
+	{	
 		String from = "resources/maps";
-		String ext = "map";
-		return (Map[]) deserializeObjects(from, ext);
+		String ext = "cfg";
+		Object[] objs = deserializeObjects(from, ext);
+		List<Map> maps = new ArrayList<Map>();
+		for (int i = 0; i < objs.length; ++i)
+		{
+			try {
+				Map m = (Map) objs[i];
+				maps.add(m);
+			} catch (ClassCastException e) {}
+		}
+		
+		return maps.toArray(new Map[0]);
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)
 	{
 		File[] files = getFiles(from, extension);
-		Object[] objs = new Object[files.length];
+		List<Object> objs = new ArrayList<Object>();
 		for (int i = 0; i < files.length; ++i)
-			objs[i] = deserialize(files[i]);
-		return objs;
+		{
+			Object o = deserialize(files[i]);
+			if (o != null)
+				objs.add(o);
+		}
+		return objs.toArray();
 	}
 	
 	private static File[] getFiles(String from, String extension)
