@@ -25,7 +25,10 @@ import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategyNoSyblings;
+import linewars.gamestate.tech.UnlockStrategyOne;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import linewars.gamestate.tech.UnlockStrategyAll;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
@@ -319,7 +322,7 @@ public class TechPanel extends Panel
 			if(activeTechNode != null)
 			{
 				techSelector.setSelectedObject(activeTechNode.getTechConfig());
-				//TODO unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
 			}
 		}	
 	}
@@ -401,7 +404,12 @@ public class TechPanel extends Panel
 		@Override
 		public void uriSelected(String uri)
 		{
-			//TODO set the correct UnlockStrategy to the active tech button for the selection
+			if(uri.equals("All"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyAll());
+			else if(uri.equals("One"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyOne());
+			else if(uri.equals("No Syblings"))
+				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyNoSyblings());
 		}
 	}
 }

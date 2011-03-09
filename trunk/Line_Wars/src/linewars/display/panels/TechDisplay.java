@@ -582,8 +582,10 @@ public class TechDisplay extends JViewport
 			if(!buttons[index].tech.isUnlocked())
 				return;
 			
-			//TODO send message to resarch tech
-//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTechConfig().getID);
+			if(buttons[index].tech.isResearched())
+				return;
+			
+			buttons[index].tech.research();
 		}
 	}
 }

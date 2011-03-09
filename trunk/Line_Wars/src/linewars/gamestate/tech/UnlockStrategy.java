@@ -2,7 +2,20 @@ package linewars.gamestate.tech;
 
 import linewars.gamestate.tech.TechGraph.TechNode;
 
-public interface UnlockStrategy
+public abstract class UnlockStrategy
 {
-	public boolean isUnlocked(TechNode node);
+	private String name;
+	
+	public UnlockStrategy(String name)
+	{
+		this.name = name;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
+	}
+	
+	public abstract boolean isUnlocked(TechNode node);
 }
