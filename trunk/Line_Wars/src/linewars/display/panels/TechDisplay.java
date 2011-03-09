@@ -1,6 +1,7 @@
 package linewars.display.panels;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -371,17 +372,20 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-//			if(tech == null)
-//				g.setColor(Color.red);
-//			else if(tech == activeTech)
-//				g.setColor(Color.blue);
-//			else
-//				g.setColor(Color.orange);
-//			
-//			g.fillRect(0, 0, getWidth(), getHeight());
-//			
-//			g.setColor(Color.black);
-//			g.drawRect(0, 0, getWidth(), getHeight());
+			if(editorNOTgame)
+			{
+				if(tech == null)
+					g.setColor(Color.red);
+				else if(tech == activeTech)
+					g.setColor(Color.blue);
+				else
+					g.setColor(Color.orange);
+				
+				g.fillRect(0, 0, getWidth(), getHeight());
+				
+				g.setColor(Color.black);
+				g.drawRect(0, 0, getWidth(), getHeight());
+			}
 			
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
 			if(tech != null && !tech.isUnlocked())
