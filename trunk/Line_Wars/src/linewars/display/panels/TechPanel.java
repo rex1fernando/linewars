@@ -23,7 +23,6 @@ import javax.swing.JPanel;
 
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
-import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -35,6 +34,7 @@ import editor.GenericSelector.SelectionChangeListener;
 import editor.URISelector;
 import editor.URISelector.SelectorOptions;
 
+@SuppressWarnings("serial")
 public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;

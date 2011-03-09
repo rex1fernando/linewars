@@ -1,6 +1,5 @@
 package linewars.display;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import configuration.Configuration;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import linewars.display.sound.Sound;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItemState;
 import configuration.Configuration;

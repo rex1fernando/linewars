@@ -34,6 +34,7 @@ import configuration.Configuration;
 import editor.GenericSelector;
 import editor.URISelector;
 
+@SuppressWarnings("serial")
 public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;

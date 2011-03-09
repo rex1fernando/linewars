@@ -14,6 +14,7 @@ import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 
+@SuppressWarnings("serial")
 public class TechButtonPanel extends Panel
 {
 	/**
