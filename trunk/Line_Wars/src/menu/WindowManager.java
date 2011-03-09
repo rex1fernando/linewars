@@ -11,6 +11,8 @@ import menu.creategame.CreateGamePanel;
 
 public class WindowManager extends JFrame
 {	
+	private static final long serialVersionUID = 6285963785850922274L;
+
 	private InnerPanel innerPanel;
 	
 	private TitlePanel titleMenu;
@@ -46,6 +48,7 @@ public class WindowManager extends JFrame
 	public void gotoCreateGame()
 	{
 		createMenu.startServer();
+
 		changeContentPane(createMenu);
 	}
 	

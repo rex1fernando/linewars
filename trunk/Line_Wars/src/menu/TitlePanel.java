@@ -2,6 +2,7 @@ package menu;
 
 public class TitlePanel extends javax.swing.JPanel {
 
+	private static final long serialVersionUID = -8190374307173604577L;
 	private WindowManager windowManager;
 	
     public TitlePanel(WindowManager windowManager) {
@@ -104,6 +105,5 @@ public class TitlePanel extends javax.swing.JPanel {
     private javax.swing.JButton exitButton;
     private javax.swing.JButton joinGameButton;
     private javax.swing.JButton launchEditorButton;
-    private javax.swing.JButton optionsButton;   
-
+    private javax.swing.JButton optionsButton;
 }
