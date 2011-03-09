@@ -11,6 +11,11 @@ import linewars.gamestate.Transformation;
 public strictfp class Circle extends Shape {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 862721029054393913L;
+
 	//the position of the Circle's center
 	private final Transformation position;
 	
