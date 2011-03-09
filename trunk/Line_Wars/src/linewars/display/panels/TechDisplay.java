@@ -388,16 +388,28 @@ public class TechDisplay extends JViewport
 			}
 			
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			
+			Icon disabledIcon = getDisabledIcon();
+			Icon pressedIcon = getPressedIcon();
+			Icon selectedIcon = getSelectedIcon();
+			Icon rolloverIcon = getRolloverIcon();
+			Icon icon = getIcon();
+			
 			if(tech != null && !tech.isUnlocked())
-				getDisabledIcon().paintIcon(this, g, 0, 0);
+				if(disabledIcon != null)
+					disabledIcon.paintIcon(this, g, 0, 0);
 			else if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
+				if(pressedIcon != null)
+					pressedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
+				if(selectedIcon != null)
+					selectedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
+				if(rolloverIcon != null)
+					rolloverIcon.paintIcon(this, g, 0, 0);
 			else
-				getIcon().paintIcon(this, g, 0, 0);
+				if(icon != null)
+					icon.paintIcon(this, g, 0, 0);
 		}
 	}
 	
