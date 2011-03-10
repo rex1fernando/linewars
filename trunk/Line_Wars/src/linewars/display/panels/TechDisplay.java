@@ -30,6 +30,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.TechGraph.TechNode;
 import configuration.Configuration;
 import editor.GenericSelector;
@@ -52,7 +53,7 @@ public class TechDisplay extends JViewport
 	
 	private TechNode activeTech;
 	private GenericSelector<Configuration> techSelector;
-	private URISelector unlockStrategySelector;
+	private GenericSelector<UnlockStrategy> unlockStrategySelector;
 	
 	/**
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
@@ -213,7 +214,7 @@ public class TechDisplay extends JViewport
 		this.techSelector = techSelector;
 	}
 	
-	public void setUnlockStrategySelector(URISelector unlockStrategySelector)
+	public void setUnlockStrategySelector(GenericSelector<UnlockStrategy> unlockStrategySelector)
 	{
 		this.unlockStrategySelector = unlockStrategySelector;
 	}
@@ -388,16 +389,28 @@ public class TechDisplay extends JViewport
 			}
 			
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			
+			Icon disabledIcon = getDisabledIcon();
+			Icon pressedIcon = getPressedIcon();
+			Icon selectedIcon = getSelectedIcon();
+			Icon rolloverIcon = getRolloverIcon();
+			Icon icon = getIcon();
+			
 			if(tech != null && !tech.isUnlocked())
-				getDisabledIcon().paintIcon(this, g, 0, 0);
+				if(disabledIcon != null)
+					disabledIcon.paintIcon(this, g, 0, 0);
 			else if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
+				if(pressedIcon != null)
+					pressedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
+				if(selectedIcon != null)
+					selectedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
+				if(rolloverIcon != null)
+					rolloverIcon.paintIcon(this, g, 0, 0);
 			else
-				getIcon().paintIcon(this, g, 0, 0);
+				if(icon != null)
+					icon.paintIcon(this, g, 0, 0);
 		}
 	}
 	
@@ -492,7 +505,7 @@ public class TechDisplay extends JViewport
 			if(activeTech != null)
 			{
 				techSelector.setSelectedObject(activeTech.getTechConfig());
-				unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedObject(activeTech.getUnlockStrategy());
 			}
 		}
 
