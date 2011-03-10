@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;

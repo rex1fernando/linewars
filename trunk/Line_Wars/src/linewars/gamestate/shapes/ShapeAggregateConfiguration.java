@@ -2,8 +2,8 @@ package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
