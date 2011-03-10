@@ -76,10 +76,10 @@ public class BigFrameworkGuy
 		private HashMap<Integer, Configuration> loadedConfigs = new HashMap<Integer, Configuration>();
 		private String saveFile;
 		
-		public void addConfigToList(ConfigType t, Configuration c)
+		public boolean addConfigToList(ConfigType t, Configuration c)
 		{
 			masterList.get(t).add(c);
-			this.saveData();
+			return this.saveData();
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -107,9 +107,8 @@ public class BigFrameworkGuy
 			return loadedConfigs.get(ce.hashCode());
 		}
 		
-		private void saveData()
+		private boolean saveData()
 		{
-			//TODO
 			if(saveFile != null)
 			{
 				try {
@@ -120,83 +119,78 @@ public class BigFrameworkGuy
 					e.printStackTrace();
 				}
 				
-				ObjectOutputStream oos = null;
-				try {
-					oos = new ObjectOutputStream(new FileOutputStream(saveFile));
-				} catch (FileNotFoundException e2) {
-					e2.printStackTrace();
-					return;
-				} catch (IOException e2) {
-					e2.printStackTrace();
-					return;
-				}
-				
 				for(Entry<ConfigType, List<Configuration>> e : masterList.entrySet())
 				{
 					for(Configuration c : e.getValue())
 					{
 						c.setPropertyForName("bfgType", new Property(Usage.IMMUTABLE, e.getKey()));
-						try {
-							oos.writeObject(c);
-							oos.flush();
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
 					}
 				}
 				
+				ObjectOutputStream oos = null;
 				try {
-					oos.writeObject(loadedConfigs);
+					oos = new ObjectOutputStream(new FileOutputStream(saveFile));
+					oos.writeObject(this);
+					oos.flush();
 					oos.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				} catch (Exception e2) {
+					try {
+						FileCopy.copy(saveFile + ".bak", saveFile);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					e2.printStackTrace();
+					return false;
 				}
-				
+					
+				return true;
 			}
+			else
+				return false;
 		}
 		
-		private BFGSavedData(String file) throws FileNotFoundException, IOException
-		{
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			
-			while(true)
-			{
-				Object o = null;
-				try {
-					o = ois.readObject();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-					continue;
-				} catch (EOFException e) {
-					break;
-				}
-				
-				if(o instanceof Configuration)
-				{
-					Configuration c = (Configuration)o;
-					ConfigType type = (ConfigType)c.getPropertyForName("bfgType").getValue();
-					if(masterList.get(type) == null)
-						masterList.put(type, new ArrayList<Configuration>());
-					masterList.get(type).add(c);
-				}
-				else if(o instanceof HashMap<?, ?>)
-					loadedConfigs = (HashMap<Integer, Configuration>) o;
-				else
-					System.err.println("Unrecognized object:" + o);
-			}
-			
-			ois.close();
-		}
+//		private BFGSavedData(String file) throws FileNotFoundException, IOException
+//		{
+//			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+//			
+//			while(true)
+//			{
+//				Object o = null;
+//				try {
+//					o = ois.readObject();
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//					continue;
+//				} catch (EOFException e) {
+//					break;
+//				}
+//				
+//				if(o instanceof Configuration)
+//				{
+//					Configuration c = (Configuration)o;
+//					ConfigType type = (ConfigType)c.getPropertyForName("bfgType").getValue();
+//					if(masterList.get(type) == null)
+//						masterList.put(type, new ArrayList<Configuration>());
+//					masterList.get(type).add(c);
+//				}
+//				else if(o instanceof HashMap<?, ?>)
+//					loadedConfigs = (HashMap<Integer, Configuration>) o;
+//				else
+//					System.err.println("Unrecognized object:" + o);
+//			}
+//			
+//			ois.close();
+//		}
 		
 		private BFGSavedData() {}
 		
 		public static BFGSavedData getSavedData(String file) throws FileNotFoundException, IOException, ClassNotFoundException
 		{
-			return new BFGSavedData(file);
-//			//TODO
-//			return (BFGSavedData) new ObjectInputStream(
-//					new FileInputStream(new File(file)))
-//					.readObject();
+			return (BFGSavedData) new ObjectInputStream(
+					new FileInputStream(new File(file)))
+					.readObject();
 		}
 	}
 	
@@ -410,14 +404,20 @@ public class BigFrameworkGuy
 			for(Configuration c : saveData.getConfigsOfType(type))
 				found |= (c == saveData.getConfigForEditor(ce));
 			
+			boolean success;
 			if(!found)
-				saveData.addConfigToList(type, saveData.getConfigForEditor(ce));
+				success = saveData.addConfigToList(type, saveData.getConfigForEditor(ce));
 			else
-				saveData.saveData();
+				success = saveData.saveData();
 			
-			JOptionPane.showMessageDialog(frame,
+			if(success)
+				JOptionPane.showMessageDialog(frame,
 				    "Save successfull.", 
-				    "Message", JOptionPane.INFORMATION_MESSAGE);	
+				    "Message", JOptionPane.INFORMATION_MESSAGE);
+			else
+				JOptionPane.showMessageDialog(frame,
+					    "Save failed.", 
+					    "Message", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
