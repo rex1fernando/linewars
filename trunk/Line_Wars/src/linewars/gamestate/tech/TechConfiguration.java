@@ -1,7 +1,7 @@
 package linewars.gamestate.tech;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.display.IconConfiguration;
 import linewars.gamestate.Player;

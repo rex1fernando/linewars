@@ -2,8 +2,8 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.display.DisplayConfiguration;
 import linewars.gamestate.GameState;

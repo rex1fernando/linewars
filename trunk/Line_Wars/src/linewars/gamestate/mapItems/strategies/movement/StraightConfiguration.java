@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
