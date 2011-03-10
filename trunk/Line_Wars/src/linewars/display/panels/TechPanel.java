@@ -25,6 +25,7 @@ import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.UnlockStrategyNoSyblings;
 import linewars.gamestate.tech.UnlockStrategyOne;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -62,7 +63,7 @@ public class TechPanel extends Panel
 	
 	private JCheckBox enabledBox;
 	private GenericSelector<Configuration> techSelector;
-	private URISelector unlockStrategySelector;
+	private GenericSelector<UnlockStrategy> unlockStrategySelector;
 	
 	private boolean displayed;
 	
@@ -232,7 +233,8 @@ public class TechPanel extends Panel
 		techSelector.addSelectionChangeListener(new TechSelectionListener());
 		editorComponents.add(techSelector);
 		
-		unlockStrategySelector = new URISelector("Unlock Strategy", new UnlockStrategySelector());
+		unlockStrategySelector = new GenericSelector<UnlockStrategy>("Unlock Strategy", new UnlockStrategyListCallback());
+		unlockStrategySelector.addSelectionChangeListener(new UnlockStrategySelectionListener());
 		editorComponents.add(unlockStrategySelector);
 	}
 
@@ -322,7 +324,7 @@ public class TechPanel extends Panel
 			if(activeTechNode != null)
 			{
 				techSelector.setSelectedObject(activeTechNode.getTechConfig());
-				unlockStrategySelector.setSelectedURI(activeTechNode.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedObject(activeTechNode.getUnlockStrategy());
 			}
 		}	
 	}
@@ -393,23 +395,26 @@ public class TechPanel extends Panel
 		}
 	}
 	
-	private class UnlockStrategySelector implements SelectorOptions
+	private class UnlockStrategyListCallback implements GenericListCallback<UnlockStrategy>
 	{
 		@Override
-		public String[] getOptions()
+		public List<UnlockStrategy> getSelectionList()
 		{
-			return new String[]{"All", "One", "No Syblings"};
-		}
-
+			ArrayList<UnlockStrategy> stratList = new ArrayList<UnlockStrategy>();
+			stratList.add(new UnlockStrategyAll());
+			stratList.add(new UnlockStrategyOne());
+			stratList.add(new UnlockStrategyNoSyblings());
+			
+			return stratList;
+		}	
+	}
+	
+	private class UnlockStrategySelectionListener implements SelectionChangeListener<UnlockStrategy>
+	{
 		@Override
-		public void uriSelected(String uri)
+		public void selectionChanged(UnlockStrategy newSelection)
 		{
-			if(uri.equals("All"))
-				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyAll());
-			else if(uri.equals("One"))
-				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyOne());
-			else if(uri.equals("No Syblings"))
-				activeTech.getActiveTech().setUnlockStrategy(new UnlockStrategyNoSyblings());
+			activeTech.getActiveTech().setUnlockStrategy(newSelection);
 		}
 	}
 }

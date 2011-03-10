@@ -30,6 +30,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.TechGraph.TechNode;
 import configuration.Configuration;
 import editor.GenericSelector;
@@ -52,7 +53,7 @@ public class TechDisplay extends JViewport
 	
 	private TechNode activeTech;
 	private GenericSelector<Configuration> techSelector;
-	private URISelector unlockStrategySelector;
+	private GenericSelector<UnlockStrategy> unlockStrategySelector;
 	
 	/**
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
@@ -213,7 +214,7 @@ public class TechDisplay extends JViewport
 		this.techSelector = techSelector;
 	}
 	
-	public void setUnlockStrategySelector(URISelector unlockStrategySelector)
+	public void setUnlockStrategySelector(GenericSelector<UnlockStrategy> unlockStrategySelector)
 	{
 		this.unlockStrategySelector = unlockStrategySelector;
 	}
@@ -504,7 +505,7 @@ public class TechDisplay extends JViewport
 			if(activeTech != null)
 			{
 				techSelector.setSelectedObject(activeTech.getTechConfig());
-				unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedObject(activeTech.getUnlockStrategy());
 			}
 		}
 
