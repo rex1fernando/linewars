@@ -139,6 +139,7 @@ public class TechGraph implements Serializable
 		private Iterator<TechNode> childIterator;
 		
 		private boolean marked;
+		private boolean researched;
 		
 		private int x;
 		private int y;
@@ -214,6 +215,19 @@ public class TechGraph implements Serializable
 				child.unmarkAll();
 				child = getNextChild();
 			}
+		}
+		
+		public boolean isResearched()
+		{
+			return researched;
+		}
+		
+		public void research()
+		{
+			//TODO send message to resarch tech
+//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTechConfig().getID);
+
+			researched = true;
 		}
 		
 		public void setPosition(int x, int y)

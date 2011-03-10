@@ -2,8 +2,9 @@ package configuration;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Observable;
 import java.util.Set;
+
+import utility.Observable;
 
 /**
  * This class encapsulates the way in which a configurable game object is configured in a generic way.

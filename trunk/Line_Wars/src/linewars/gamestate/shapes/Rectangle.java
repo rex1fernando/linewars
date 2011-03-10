@@ -1,5 +1,7 @@
 package linewars.gamestate.shapes;
 
+import java.io.Serializable;
+
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -10,6 +12,10 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class Rectangle extends Shape {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5089963326851525171L;
 	//the width and height of the Rectangle
 	private double width, height;
 	//the center and rotation of the Rectangle

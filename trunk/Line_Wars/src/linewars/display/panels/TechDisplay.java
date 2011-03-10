@@ -30,11 +30,13 @@ import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.TechGraph.TechNode;
 import configuration.Configuration;
 import editor.GenericSelector;
 import editor.URISelector;
 
+@SuppressWarnings("serial")
 public class TechDisplay extends JViewport
 {
 	private final static int TECH_BUTTON_SIZE = 50;
@@ -51,7 +53,7 @@ public class TechDisplay extends JViewport
 	
 	private TechNode activeTech;
 	private GenericSelector<Configuration> techSelector;
-	private URISelector unlockStrategySelector;
+	private GenericSelector<UnlockStrategy> unlockStrategySelector;
 	
 	/**
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
@@ -212,7 +214,7 @@ public class TechDisplay extends JViewport
 		this.techSelector = techSelector;
 	}
 	
-	public void setUnlockStrategySelector(URISelector unlockStrategySelector)
+	public void setUnlockStrategySelector(GenericSelector<UnlockStrategy> unlockStrategySelector)
 	{
 		this.unlockStrategySelector = unlockStrategySelector;
 	}
@@ -313,9 +315,9 @@ public class TechDisplay extends JViewport
 			setMinimumSize(size);
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
 		public void setTech(TechNode tech)
@@ -323,12 +325,12 @@ public class TechDisplay extends JViewport
 			this.tech = tech;
 			
 			if(tech != null)
-				setIcons(tech.getTechConfig());
+				setInfoFromTech(tech.getTechConfig());
 			else
-				setIcons(null);
+				setInfoFromTech(null);
 		}
 		
-		private void setIcons(TechConfiguration tech)
+		private void setInfoFromTech(TechConfiguration tech)
 		{
 			if(tech != null)
 			{
@@ -339,6 +341,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
 				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted)));
 				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled)));
+				
+				setToolTipText(tech.getTooltip());
 			}
 			else
 			{
@@ -347,6 +351,8 @@ public class TechDisplay extends JViewport
 				setRolloverIcon(new ButtonIcon(this, null));
 				setSelectedIcon(new ButtonIcon(this, null));
 				setDisabledIcon(new ButtonIcon(this, null));
+				
+				setToolTipText(null);
 			}
 		}
 		
@@ -367,29 +373,44 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-//			if(tech == null)
-//				g.setColor(Color.red);
-//			else if(tech == activeTech)
-//				g.setColor(Color.blue);
-//			else
-//				g.setColor(Color.orange);
-//			
-//			g.fillRect(0, 0, getWidth(), getHeight());
-//			
-//			g.setColor(Color.black);
-//			g.drawRect(0, 0, getWidth(), getHeight());
+			if(editorNOTgame)
+			{
+				if(tech == null)
+					g.setColor(Color.red);
+				else if(tech == activeTech)
+					g.setColor(Color.blue);
+				else
+					g.setColor(Color.orange);
+				
+				g.fillRect(0, 0, getWidth(), getHeight());
+				
+				g.setColor(Color.black);
+				g.drawRect(0, 0, getWidth(), getHeight());
+			}
 			
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			
+			Icon disabledIcon = getDisabledIcon();
+			Icon pressedIcon = getPressedIcon();
+			Icon selectedIcon = getSelectedIcon();
+			Icon rolloverIcon = getRolloverIcon();
+			Icon icon = getIcon();
+			
 			if(tech != null && !tech.isUnlocked())
-				getDisabledIcon().paintIcon(this, g, 0, 0);
+				if(disabledIcon != null)
+					disabledIcon.paintIcon(this, g, 0, 0);
 			else if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
+				if(pressedIcon != null)
+					pressedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
+				if(selectedIcon != null)
+					selectedIcon.paintIcon(this, g, 0, 0);
 			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
+				if(rolloverIcon != null)
+					rolloverIcon.paintIcon(this, g, 0, 0);
 			else
-				getIcon().paintIcon(this, g, 0, 0);
+				if(icon != null)
+					icon.paintIcon(this, g, 0, 0);
 		}
 	}
 	
@@ -484,7 +505,7 @@ public class TechDisplay extends JViewport
 			if(activeTech != null)
 			{
 				techSelector.setSelectedObject(activeTech.getTechConfig());
-				unlockStrategySelector.setSelectedURI(activeTech.getUnlockStrategy().toString());
+				unlockStrategySelector.setSelectedObject(activeTech.getUnlockStrategy());
 			}
 		}
 
@@ -578,8 +599,10 @@ public class TechDisplay extends JViewport
 			if(!buttons[index].tech.isUnlocked())
 				return;
 			
-			//TODO send message to resarch tech
-//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTech().g);
+			if(buttons[index].tech.isResearched())
+				return;
+			
+			buttons[index].tech.research();
 		}
 	}
 }

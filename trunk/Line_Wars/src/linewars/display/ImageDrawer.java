@@ -120,6 +120,9 @@ public class ImageDrawer
 	public void draw(Graphics g, String uri, Position position, double scale)
 	{
 		GameImage image = images.get(uri);
+		if(image == null)
+			return;
+		
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
 		g.drawImage(image.scaleImage(scale), x, y, null);

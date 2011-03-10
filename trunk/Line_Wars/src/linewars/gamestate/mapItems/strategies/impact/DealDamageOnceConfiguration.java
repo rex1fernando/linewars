@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.strategies.impact;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;

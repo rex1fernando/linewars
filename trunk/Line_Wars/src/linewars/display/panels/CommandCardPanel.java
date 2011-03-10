@@ -16,20 +16,16 @@ import javax.swing.JPanel;
 import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.IconConfiguration;
-import linewars.display.ImageDrawer;
 import linewars.display.IconConfiguration.IconType;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
-import linewars.network.messages.UpgradeMessage;
 
 /**
  * Encapsulates command card GUI information.

@@ -1,7 +1,7 @@
 package linewars.gamestate.mapItems.abilities;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;

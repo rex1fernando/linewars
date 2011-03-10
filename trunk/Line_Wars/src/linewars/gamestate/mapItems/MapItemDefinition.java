@@ -2,8 +2,8 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import linewars.display.DisplayConfiguration;
 import linewars.gamestate.GameState;
@@ -31,6 +31,10 @@ import configuration.Usage;
  */
 public strictfp abstract class MapItemDefinition<T extends MapItem> extends Configuration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1578880084450994552L;
 	private ArrayList<MapItemState> validStates;
 	private String name;
 	protected ArrayList<AbilityDefinition> abilities;

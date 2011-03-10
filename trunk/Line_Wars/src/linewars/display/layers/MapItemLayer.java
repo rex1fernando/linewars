@@ -14,6 +14,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
@@ -77,7 +78,7 @@ public class MapItemLayer implements ILayer
 				Animation anim = ((DisplayConfiguration)(mapItem.getDefinition().getDisplayConfiguration())).getAnimation(mapItem.getState());
 				if(anim == null)
 				{
-					continue;
+					anim = ((DisplayConfiguration)(mapItem.getDefinition().getDisplayConfiguration())).getAnimation(MapItemState.Idle);
 				}
 
 				// get the items coordinates based on the visible screen

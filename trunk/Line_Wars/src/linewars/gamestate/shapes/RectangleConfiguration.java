@@ -1,7 +1,7 @@
 package linewars.gamestate.shapes;
 
-import java.util.Observable;
-import java.util.Observer;
+import utility.Observable;
+import utility.Observer;
 
 import configuration.Property;
 import configuration.Usage;

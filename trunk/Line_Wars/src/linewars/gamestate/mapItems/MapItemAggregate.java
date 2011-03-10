@@ -3,7 +3,7 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
+import utility.Observable;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;

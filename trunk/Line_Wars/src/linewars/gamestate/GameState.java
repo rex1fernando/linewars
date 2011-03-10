@@ -49,25 +49,38 @@ public strictfp class GameState
 		return players.get(playerID);
 	}
 	
-	public GameState(MapConfiguration mapConfig, int numPlayers, List<Race> races, List<String> playerNames)
-	{
+//	public GameState(MapConfiguration mapConfig, int numPlayers, List<Race> races, List<String> playerNames)
+//	{
+//		map = mapConfig.createMap(this);
+//		players = new HashMap<Integer, Player>();
+//		this.numPlayers = numPlayers;
+//		timerTick = 0;
+//		
+//		this.races = races;
+//		for(int i = 0; i < races.size(); i++)
+//		{
+//			Race r = races.get(i);
+//			Node[] startNode = { map.getStartNode(i) };
+//			Player p = new Player(this, startNode, r, playerNames.get(i), i);
+//			players.put(i, p);
+//		}
+//	}
+	
+	public GameState(MapConfiguration mapConfig, List<PlayerData> players) {
 		map = mapConfig.createMap(this);
-		players = new HashMap<Integer, Player>();
-		this.numPlayers = numPlayers;
+		this.players = new HashMap<Integer, Player>();
+		this.numPlayers = players.size();
 		timerTick = 0;
 		
-		this.races = races;
-		for(int i = 0; i < races.size(); i++)
+		this.races = new ArrayList<Race>();
+		for(int i = 0; i < players.size(); i++)
 		{
-			Race r = races.get(i);
-			Node[] startNode = { map.getStartNode(i) };
-			Player p = new Player(this, startNode, r, playerNames.get(i), i);
-			players.put(i, p);
+			Race r = players.get(i).getRace();
+			this.races.add(r);
+			Node[] startNodes = { map.getStartNode(players.get(i).getStartingSlot()) };
+			Player p = new Player(this, startNodes, r, players.get(i).getName(), i);
+			this.players.put(i, p);
 		}
-	}
-	
-	public GameState(Map map, List<PlayerData> players) {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
