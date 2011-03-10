@@ -14,6 +14,7 @@ import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
+import editor.GenericSelector.CustomToString;
 
 /**
  * Wraps the top-level ModificationEditor, asking the player to choose a race before allowing them to start setting up the guts of the Tech.
@@ -77,7 +78,8 @@ public class RaceChooser implements ConfigurationEditor {
 	private JPanel constructRaceChooserPanel() {
 		JPanel ret = new JPanel();
 		
-		GenericSelector<Race> selector = new GenericSelector<Race>("Choose a race for this Tech to modify.", new GenericSelector.SelectConfigurations<Race>(bfg, ConfigType.race));
+		GenericSelector<Race> selector = new GenericSelector<Race>("Choose a race for this Tech to modify.", new GenericSelector.SelectConfigurations<Race>(bfg, ConfigType.race),
+				new GenericSelector.ShowBFGName<Race>());
 		ret.add(selector);
 		selector.addSelectionChangeListener(new GenericSelector.SelectionChangeListener<Race>() {
 
