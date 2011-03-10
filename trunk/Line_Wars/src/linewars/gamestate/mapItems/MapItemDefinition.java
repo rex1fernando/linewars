@@ -31,6 +31,10 @@ import configuration.Usage;
  */
 public strictfp abstract class MapItemDefinition<T extends MapItem> extends Configuration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1578880084450994552L;
 	private ArrayList<MapItemState> validStates;
 	private String name;
 	protected ArrayList<AbilityDefinition> abilities;
