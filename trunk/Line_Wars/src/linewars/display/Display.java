@@ -42,7 +42,10 @@ import linewars.gamestate.Map;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
+import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.AdjustFlowDistributionMessage;
@@ -158,6 +161,21 @@ public class Display extends JFrame implements Runnable
 		double scale = gamePanel.getWidth() / gamePanel.viewport.getWidth();
 		return new Position((gameCoord.getX() - gamePanel.viewport.getX()) * scale,
 				(gameCoord.getY() - gamePanel.viewport.getY()) * scale);
+	}
+	
+	public void loadDisplayResources()
+	{
+		GameState state = gameStateProvider.getCurrentGameState();
+		
+		for(Player p : state.getPlayers())
+		{
+			//TODO call a recursive method that looks for all configurations within the configuration given to it
+			//for each configuration do one of two things:
+			//	1. if it is a display configuration load all of its resources
+			//	2. otherwise call the recursive function on that configuration
+			//
+			// make sure you keep a record of what configurations have already been loaded
+		}
 	}
 
 	/**
