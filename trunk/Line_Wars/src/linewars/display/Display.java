@@ -20,8 +20,13 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import configuration.Configuration;
+import configuration.Property;
+import configuration.Usage;
 
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
@@ -34,6 +39,7 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
@@ -44,8 +50,7 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.Building;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.AdjustFlowDistributionMessage;
@@ -166,15 +171,75 @@ public class Display extends JFrame implements Runnable
 	public void loadDisplayResources()
 	{
 		GameState state = gameStateProvider.getCurrentGameState();
+		ArrayList<Configuration> loadedConfigs = new ArrayList<Configuration>();
 		
 		for(Player p : state.getPlayers())
 		{
-			//TODO call a recursive method that looks for all configurations within the configuration given to it
-			//for each configuration do one of two things:
-			//	1. if it is a display configuration load all of its resources
-			//	2. otherwise call the recursive function on that configuration
-			//
-			// make sure you keep a record of what configurations have already been loaded
+			Race race = p.getRace();
+
+			ArrayList<Configuration> configs = new ArrayList<Configuration>();
+			configs.addAll(race.getAllBuildings());
+			configs.addAll(race.getAllUnits());
+			
+			for(Configuration c : configs)
+			{
+				loadDisplayResourcesRecursive(c, loadedConfigs);
+			}
+		}
+	}
+	
+	private void loadDisplayResourcesRecursive(Configuration config, ArrayList<Configuration> loadedConfigs)
+	{
+		if(loadedConfigs.contains(config))
+			return;
+		
+		loadedConfigs.add(config);
+		
+		for(String s : config.getPropertyNames())
+		{
+			Property p = config.getPropertyForName(s);
+			if(p.getUsage() == Usage.CONFIGURATION)
+			{
+				Configuration c = (Configuration)p.getValue();
+				if(c instanceof DisplayConfiguration)
+				{
+					loadDisplayResourcesFromConfiguration((DisplayConfiguration)c);
+				}
+				else
+				{
+					loadDisplayResourcesRecursive(config, loadedConfigs);
+				}
+			}
+		}
+	}
+	
+	private void loadDisplayResourcesFromConfiguration(DisplayConfiguration config)
+	{
+		for(MapItemState state : config.getDefinedStates())
+		{
+			Animation anim = config.getAnimation(state);
+			String sound = config.getSound(state);
+			
+			if(anim != null)
+			{
+				anim.loadAnimationResources(config.getDimensions());
+			}
+			
+			if(sound != null)
+			{
+				try
+				{
+					SoundPlayer.getInstance().addSound(sound);
+				}
+				catch (UnsupportedAudioFileException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -259,6 +324,8 @@ public class Display extends JFrame implements Runnable
 			}
 
 			gameStateProvider.lockViewableGameState();
+			
+			loadDisplayResources();
 
 			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, rightUIPanel);
 			add(commandCardPanel);
@@ -288,7 +355,7 @@ public class Display extends JFrame implements Runnable
 			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
 			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
 
-			// add the map image to the MapItemDrawer
+			// add the map image to the TerrainLayer
 			String mapURI = map.getConfig().getImageURI();
 
 			gameStateProvider.unlockViewableGameState();

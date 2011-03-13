@@ -91,7 +91,8 @@ public class MapItemLayer implements ILayer
 
 				// draw the animation
 				ImageDrawer.getInstance().draw(g,
-						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()) + mapItem.getName(),
+						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()),
+						(int)mapItem.getWidth(), (int)mapItem.getHeight(),
 						upperLeftPos, scale);
 
 				// set the graphics to not be rotated anymore

@@ -61,18 +61,19 @@ public abstract class Panel extends JPanel
 		setSize(panelWidth, panelHeight);
 
 		// check for correct animations
-		// if (animations == null || animations.length !=
-		// ANIMATION.values().length)
+		// if (animations == null || animations.length != ANIMATION.values().length)
 		// {
-		// throw new IllegalArgumentException("A Panel requires exactly " +
-		// ANIMATION.values().length + " animations!");
+		// 		throw new IllegalArgumentException("A Panel requires exactly " +
+		// 						ANIMATION.values().length + " animations!");
 		// }
 
 		this.stateManager = stateManager;
 
+		Position size = new Position(panelWidth, panelHeight);
 		this.animations = new Animation[animations.length];
 		for(int i = 0; i < animations.length; ++i)
 		{
+			animations[i].loadAnimationResources(size);
 			this.animations[i] = animations[i];
 		}
 
@@ -101,6 +102,7 @@ public abstract class Panel extends JPanel
 		if(curAnimation != null)
 		{
 			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0),
+					panelWidth, panelHeight,
 					new Position(0, 0), scaleFactor);
 		}
 		

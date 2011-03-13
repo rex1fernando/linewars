@@ -52,10 +52,10 @@ public strictfp class Player {
 		startPoints = new HashMap<Lane, Node>();
 		flowSetup();
 		
+		race = r;
+		
 		for(Node n : startingNodes)
 			n.setOwner(this);
-		
-		race = r;
 	}
 	
 	/**

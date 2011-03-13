@@ -108,9 +108,9 @@ public class TechButtonPanel extends Panel
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
 			if(techPanel.isDisplayed())
-				ImageDrawer.getInstance().draw(g, upImageURI, new Position(x, y), 1);
+				ImageDrawer.getInstance().draw(g, upImageURI, getIconWidth(), getIconHeight(), new Position(x, y), 1);
 			else
-				ImageDrawer.getInstance().draw(g, downImageURI, new Position(x, y), 1);
+				ImageDrawer.getInstance().draw(g, downImageURI, getIconWidth(), getIconHeight(), new Position(x, y), 1);
 		}
 	}
 }

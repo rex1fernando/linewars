@@ -1,6 +1,9 @@
 package linewars.display;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import linewars.gamestate.Position;
 
 import configuration.Configuration;
 
@@ -56,6 +59,21 @@ public class Animation extends Configuration
 		this.next = next;
 	}
 
+	public void loadAnimationResources(Position size)
+	{
+		for(int i = 0; i < getNumImages(); ++i)
+		{
+			try
+			{
+				ImageDrawer.getInstance().addImage(getImage(i), (int)size.getX(), (int)size.getY());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * Returns the image to be displayed at the current game time.
 	 * 
