@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 D:\programming\linewars\linewars\trunk\Line_Wars\resources\animations
+=======
+C:\Users\Public\Pictures\Sample Pictures
+>>>>>>> 8f9c141b08d9230b03f3ff9e2055df465f56e231

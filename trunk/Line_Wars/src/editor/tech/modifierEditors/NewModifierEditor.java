@@ -13,8 +13,6 @@ public abstract class NewModifierEditor implements ConfigurationEditor {
 
 	public abstract ModifierConfiguration getData();
 	
-	public abstract void setToModify(Property toModify);
-	
 	private static Map<Class<? extends ModifierConfiguration>, Class<? extends NewModifierEditor>> editorForModifier;
 	
 	static{

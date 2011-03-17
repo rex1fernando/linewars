@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Race;
+import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.init.Game;
 import linewars.init.UserData;
 
@@ -25,6 +26,7 @@ public class SingleUserStart
 		
 		//get the race
 		Race testRace = (Race)(new ObjectInputStream(new FileInputStream(new File("resources/races/testRace.cfg"))).readObject());
+//		Race testRace = createRace();
 		
 		//construct the player
 		UserData testPlayer = new UserData();
@@ -49,4 +51,14 @@ public class SingleUserStart
 		testGame.initializeClient("127.0.0.1", 0);
 		testGame.run();
 	}
+	
+//	private static Race createRace()
+//	{
+//		BuildingDefinition b = new BuildingDefinition();
+//		b.se
+//		Race r = new Race();
+//		r.addBuilding(b, true);
+//		
+//		return r;
+//	}
 }

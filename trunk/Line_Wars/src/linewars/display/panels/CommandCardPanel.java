@@ -180,10 +180,10 @@ public class CommandCardPanel extends Panel
 			{
 				int width = buttons[i].getWidth();
 				int height = buttons[i].getHeight();
-				ImageDrawer.getInstance().addImage(iconURI, "" + width + height, width, height);
-				ImageDrawer.getInstance().addImage(pressedURI, "" + width + height, width, height);
-				ImageDrawer.getInstance().addImage(rolloverURI, "" + width + height, width, height);
-				ImageDrawer.getInstance().addImage(selectedURI, "" + width + height, width, height);
+				ImageDrawer.getInstance().addImage(iconURI, width, height);
+				ImageDrawer.getInstance().addImage(pressedURI, width, height);
+				ImageDrawer.getInstance().addImage(rolloverURI, width, height);
+				ImageDrawer.getInstance().addImage(selectedURI, width, height);
 			}
 			catch (IOException e)
 			{
@@ -273,7 +273,7 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			ImageDrawer.getInstance().draw(g, uri + button.getWidth() + button.getHeight(), new Position(x, y), 1);
+			ImageDrawer.getInstance().draw(g, uri, button.getWidth(), button.getHeight(), new Position(x, y), 1);
 		}
 	}
 

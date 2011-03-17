@@ -12,16 +12,29 @@ import configuration.Usage;
 
 public class ShapeAggregateConfiguration extends ShapeConfiguration implements Observer{
 
+	private ListConfiguration<ShapeConfiguration> shapesList;
+	
 	private ArrayList<ShapeConfiguration> allShapes;
 	private ArrayList<ShapeConfiguration> initialShapes;
 	
 	private String shapesListKey = "shapes";
 	private Usage shapesListUsage = Usage.CONFIGURATION;
 	
-	public ShapeAggregateConfiguration(ArrayList<Shape> allShapes, ArrayList<Shape> enabledSubList){
+	public ShapeAggregateConfiguration(ArrayList<ShapeConfiguration> allShapes, ArrayList<ShapeConfiguration> enabledSubList, ArrayList<String> names){
 		this.addObserver(this);
-		//TODO set up that subconfiguration
-		//TODO observe that configuration?
+		
+		
+		ArrayList<Usage> usages = new ArrayList<Usage>();
+		for(int i = 0; i < allShapes.size(); i++){
+			usages.add(Usage.CONFIGURATION);
+		}
+		
+		shapesList = new ListConfiguration<ShapeConfiguration>(allShapes, names, usages);
+		shapesList.addObserver(this);
+		
+		//Set the list of ShapeConfigurations that start enabled
+		//This updates our internal state as a side effect
+		shapesList.setEnabledSubList(enabledSubList);
 	}
 	
 	public ShapeAggregateConfiguration()
@@ -29,15 +42,18 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 		//TODO
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<ShapeConfiguration> getAllShapes(){
 		return (ArrayList<ShapeConfiguration>) allShapes.clone();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList<ShapeConfiguration> getInitialShapes(){
 		return (ArrayList<ShapeConfiguration>) initialShapes.clone();
 	}
 	
 	public void setAllShapes(ArrayList<ShapeConfiguration> newFullList){
+		@SuppressWarnings("unchecked")
 		ArrayList<ShapeConfiguration> newInitialList = (ArrayList<ShapeConfiguration>) initialShapes.clone();
 		newInitialList.retainAll(newFullList);
 		//TODO set up the configuration and set it
@@ -117,6 +133,7 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		//we can ignore these arguments and just update our state...
+		@SuppressWarnings("unchecked")
 		ListConfiguration<ShapeConfiguration> subConfig = (ListConfiguration<ShapeConfiguration>) this.getPropertyForName(shapesListKey).getValue();
 		allShapes = subConfig.getFullList();
 		initialShapes = subConfig.getEnabledSubList();
