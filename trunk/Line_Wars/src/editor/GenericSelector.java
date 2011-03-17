@@ -195,7 +195,10 @@ public class GenericSelector<T> extends JPanel {
 		
 		@Override
 		public String toString() {
-			return customToString.toString(wrapped);
+			if(wrapped == null)
+				return "NULL";
+			else
+				return customToString.toString(wrapped);
 		}
 	}
 	
