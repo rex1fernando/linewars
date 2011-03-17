@@ -27,12 +27,13 @@ public class RaceChooser implements ConfigurationEditor {
 	private Race selectedRace;
 	private NewModifierEditor subEditor;
 	
-	private JPanel myPanel;
+	private JPanel wrapperPanel;
 	
 	private BigFrameworkGuy bfg;
 	
 	public RaceChooser(BigFrameworkGuy bfg){
 		this.bfg = bfg;
+		wrapperPanel = new JPanel();
 	}
 
 	@Override
@@ -46,13 +47,14 @@ public class RaceChooser implements ConfigurationEditor {
 		//get the race being modified
 		selectedRace = toCopy.getRace();
 		
+		wrapperPanel.removeAll();
 		//if no race is defined for this tech
 		if(selectedRace == null){
 			//set up a panel so the user can pick a race
-			myPanel = constructRaceChooserPanel();
+			wrapperPanel.add(constructRaceChooserPanel());
 		}else{
 			//otherwise make this transparent
-			myPanel = constructSubEditorPanel(toCopy.getModification());
+			wrapperPanel.add(constructSubEditorPanel(toCopy.getModification()));
 		}
 	}
 
@@ -86,7 +88,10 @@ public class RaceChooser implements ConfigurationEditor {
 			@Override
 			public void selectionChanged(Race newSelection) {
 				selectedRace = newSelection;
-				myPanel = constructSubEditorPanel(null);
+				wrapperPanel.removeAll();
+				wrapperPanel.add(constructSubEditorPanel(null));
+				wrapperPanel.validate();
+				wrapperPanel.updateUI();
 			}
 		});
 		return ret;
@@ -94,7 +99,8 @@ public class RaceChooser implements ConfigurationEditor {
 	
 	public void resetEditor()
 	{
-		myPanel = constructRaceChooserPanel();
+		wrapperPanel.removeAll();
+		wrapperPanel.add(constructRaceChooserPanel());
 	}
 
 	@Override
@@ -124,6 +130,6 @@ public class RaceChooser implements ConfigurationEditor {
 
 	@Override
 	public JPanel getPanel() {
-		return myPanel;
+		return wrapperPanel;
 	}
 }

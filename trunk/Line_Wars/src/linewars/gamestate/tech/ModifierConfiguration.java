@@ -25,7 +25,7 @@ public abstract class ModifierConfiguration extends Configuration {
 	}
 	
 	public static Class<? extends ModifierConfiguration> promptUserToSelectModificationType(JPanel location, List<ModifierMetaData> validModifications){
-		
+		return null;
 	}
 	
 	public static void addModifierForUsage(Usage key, Class<? extends ModifierConfiguration> modifierType, String description){

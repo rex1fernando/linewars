@@ -18,11 +18,10 @@ public abstract class NewModifierEditor implements ConfigurationEditor {
 	static{
 		editorForModifier = new HashMap<Class<? extends ModifierConfiguration>, Class<? extends NewModifierEditor>>();
 		ForceLoadPackage.forceLoadClassesInPackage(NewModifierEditor.class.getPackage());
-		//TODO put a 'choose how to modify this' at null?
 	}
 	
 	public static void setEditorForModifier(Class<? extends ModifierConfiguration> key, Class<? extends NewModifierEditor> toAdd){
-		if(editorForModifier.get(key) == null){
+		if(editorForModifier.get(key) != null){
 			throw new IllegalStateException("An editor already exists for the Modifier " + key);
 		}
 		editorForModifier.put(key, toAdd);

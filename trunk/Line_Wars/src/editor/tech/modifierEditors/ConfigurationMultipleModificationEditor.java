@@ -1,5 +1,6 @@
 package editor.tech.modifierEditors;
 
+import java.awt.BorderLayout;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 	
 	private String highlightedString;
 	private NewModifierEditor subEditor;
+	
+	static{
+		NewModifierEditor.setEditorForModifier(MultipleSubModificationModification.class, ConfigurationMultipleModificationEditor.class);
+	}
 
 	public ConfigurationMultipleModificationEditor(Property property) {
 		if(property.getUsage() != validUsage){
@@ -36,9 +41,11 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		}
 		
 		template = (Configuration) property.getValue();
+		data = new MultipleSubModificationModification();
 		
 		//set up the editor's JPanel
 		panel = new JPanel();
+		panel.setLayout(new BorderLayout());
 		//FIXME use the appropriate layout manager here
 		
 		//it should have a ListGenericSelector that lets the user pick things from Template to modify
@@ -47,6 +54,7 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		//anything in the list of selected items should have a modification associated with it
 		//the highlighted item's associated modification should be opened for editing in the sub-editor
 		itemsToModify.addListChangeListener(new ItemsToModifyChangeListener());
+		panel.add(itemsToModify, BorderLayout.PAGE_START);
 		
 		//nothing is highlighted, so subEditor should be null
 		setSubEditor(null);
@@ -59,12 +67,12 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		//cd should me of the appropriate type
 		MultipleSubModificationModification source = (MultipleSubModificationModification) cd;
 		
-		//FIXME first should we make sure that this modification is valid for this template
-		
 		//empty this editor's data by clearing the ListGenericSelector
-		//FIXME are both of these lines needed, or only the second one?
-		itemsToModify.setHighlightedObjects(new ArrayList<String>());
 		itemsToModify.setSelectedObjects(new ArrayList<String>());
+		
+		if(cd == null){
+			return;
+		}
 		
 		//now load the data in source into this editor
 		//we will do this by setting things in ListGenericSelector
@@ -73,6 +81,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 			sourceNames.add(toAdd);
 		}
 		itemsToModify.setSelectedObjects(sourceNames);
+		
+		for(String toCopy : sourceNames){
+			data.setSubModification(toCopy, source.getSubModification(toCopy));
+		}
 	}
 
 	@Override
@@ -124,16 +136,19 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 	}
 	
 	private void saveSubEditorData(){
+		System.out.println("Saved " + highlightedString + " in " + this.hashCode());
 		if(highlightedString == null){
 			return;
 		}
 		
 		if(subEditor == null){
 			data.setSubModification(highlightedString, null);
+		}else{
+			//save the data in the current sub editor into 'data'
+			data.setSubModification(highlightedString, subEditor.getData());
+			System.out.println(((MultipleSubModificationModification) subEditor.getData()).getModifiedPropertyNames());
 		}
 		
-		//save the data in the current sub editor into 'data'
-		data.setSubModification(highlightedString, subEditor.getData());
 	}
 	
 	private void setSubEditor(NewModifierEditor newSubEditor){
@@ -142,7 +157,11 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		}
 		subEditor = newSubEditor;
 		if(subEditor != null){
-			panel.add(subEditor.getPanel());
+			ModifierConfiguration temp = data.getSubModification(highlightedString);
+			subEditor.setData(temp);
+			panel.add(subEditor.getPanel(), BorderLayout.CENTER);
+			panel.updateUI();
+			panel.validate();
 		}
 	}
 	
@@ -150,6 +169,11 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 
 		@Override
 		public void objectsRemoved(List<String> removed) {
+
+			saveSubEditorData();
+			highlightedString = null;
+			setSubEditor(null);
+			
 			for(String toRemove : removed){
 				data.removeSubModification(toRemove);
 			}
@@ -161,9 +185,16 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		}
 
 		@Override
-		public void HighlightChange(List<String> highlighted) {
+		public void HighlightChange(List<String> highlighted) {			
 			//If 0 or 2 or more things are highlighted, do nothing and return
 			if(highlighted.size() != 1){
+				saveSubEditorData();
+				highlightedString = null;
+				setSubEditor(null);
+				return;
+			}
+			
+			if(highlighted.get(0).equals(highlightedString)){
 				return;
 			}
 			
@@ -178,12 +209,13 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 			Class<? extends ModifierConfiguration> selectedModificationType;
 			
 			Class<? extends NewModifierEditor> newSubEditorType;
-			
-			if(validModifications.size() == 1){
+			if(validModifications == null){
+				return;
+			}else if(validModifications.size() == 1){
 				selectedModificationType = validModifications.get(0).getModifier();
-				}else{
+			}else{
+				//prompt the user to choose a way to modify this property
 				selectedModificationType = ModifierConfiguration.promptUserToSelectModificationType(panel, validModifications);
-				//TODO prompt the user to choose a way to modify this property
 				newSubEditorType = null;
 				System.err.println("There are multiple modifications that can be made to " + highlightedString + " which is of Usage type " + typeToModify + ".");
 				highlightedString = null;

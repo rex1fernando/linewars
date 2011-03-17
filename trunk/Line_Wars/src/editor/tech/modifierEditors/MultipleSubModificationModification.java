@@ -47,6 +47,7 @@ public class MultipleSubModificationModification extends ModifierConfiguration {
 	}
 
 	public ModifierConfiguration removeSubModification(String key){
+		removeProperty(key);
 		return subModifications.remove(key);
 	}
 	
@@ -55,6 +56,7 @@ public class MultipleSubModificationModification extends ModifierConfiguration {
 	}
 	
 	public ModifierConfiguration setSubModification(String key, ModifierConfiguration config){
+		setPropertyForName(key, new Property(Usage.CONFIGURATION, config));
 		ModifierConfiguration ret = subModifications.get(key);
 		subModifications.put(key, config);
 		return ret;

@@ -16,6 +16,10 @@ import utility.Observable;
  *
  */
 public abstract class Configuration extends Observable implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2482810578956653165L;
 	private HashMap<String, Property> props;
 	//generic access methods for techs
 		//collection of properties
@@ -43,6 +47,12 @@ public abstract class Configuration extends Observable implements Serializable {
 		setChanged();
 		notifyObservers(name);
 		return ret;
+	}
+	
+	public void removeProperty(String name){
+		props.remove(name);
+		setChanged();
+		notifyObservers(name);
 	}
 	
 	@Override
