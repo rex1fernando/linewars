@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import linewars.gamestate.tech.ModifierConfiguration;
+import linewars.gamestate.tech.ModifierConfiguration.ModifierMetaData;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -39,8 +40,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		//set up the editor's JPanel
 		panel = new JPanel();
 		//FIXME use the appropriate layout manager here
+		
 		//it should have a ListGenericSelector that lets the user pick things from Template to modify
 		itemsToModify = new ListGenericSelector<String>("", new templateNameFetcher());
+		
 		//anything in the list of selected items should have a modification associated with it
 		//the highlighted item's associated modification should be opened for editing in the sub-editor
 		itemsToModify.addListChangeListener(new ItemsToModifyChangeListener());
@@ -170,18 +173,22 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 			
 			//find out what modifications can be made to this property
 			Usage typeToModify = template.getPropertyForName(highlightedString).getUsage();
-			List<Class<? extends ModifierConfiguration>> validModifications = ModifierConfiguration.getModifiersForUsage(typeToModify);
+			List<ModifierMetaData> validModifications = ModifierConfiguration.getModifiersForUsage(typeToModify);
+			
+			Class<? extends ModifierConfiguration> selectedModificationType;
 			
 			Class<? extends NewModifierEditor> newSubEditorType;
 			
 			if(validModifications.size() == 1){
-				newSubEditorType = NewModifierEditor.getEditorForModifier(validModifications.get(0));
-			}else{
+				selectedModificationType = validModifications.get(0).getModifier();
+				}else{
+				selectedModificationType = ModifierConfiguration.promptUserToSelectModificationType(panel, validModifications);
 				//TODO prompt the user to choose a way to modify this property
 				newSubEditorType = null;
 				System.err.println("There are multiple modifications that can be made to " + highlightedString + " which is of Usage type " + typeToModify + ".");
 				highlightedString = null;
 			}
+			newSubEditorType = NewModifierEditor.getEditorForModifier(selectedModificationType);
 			
 			setSubEditor(instantiateSubEditor(newSubEditorType));
 		}

@@ -16,6 +16,11 @@ public class MultipleSubModificationModification extends ModifierConfiguration {
 	 */
 	private static final long serialVersionUID = 7996061891926409553L;
 	
+	private static final String description = "Modify sub-configurations of this configuration.";
+	
+	static{
+		ModifierConfiguration.addModifierForUsage(Usage.CONFIGURATION, MultipleSubModificationModification.class, description);
+	}
 	
 	//modifies a configuration
 	private Usage validUsage = Usage.CONFIGURATION;
