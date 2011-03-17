@@ -141,11 +141,18 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 	
 	public void setAbilities(List<AbilityDefinition> abilities)
 	{
-		ArrayList<AbilityDefinition> validAbilites = new ArrayList<AbilityDefinition>(abilities); 
+		ArrayList<AbilityDefinition> validAbilities = new ArrayList<AbilityDefinition>(abilities); 
 		ArrayList<String> names = new ArrayList<String>();
 		ArrayList<Usage> usages = new ArrayList<Usage>();
-		for(AbilityDefinition ad : abilities)
+		for(int i = 0; i < validAbilities.size(); i++)
 		{
+			AbilityDefinition ad = validAbilities.get(i);
+			if(ad == null)
+			{
+				validAbilities.remove(i);
+				i--;
+				continue;
+			}
 			String name = ad.getName();
 			while(names.contains(name))
 				name += "_";
@@ -154,7 +161,7 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 		}
 		super.setPropertyForName("abilities", new Property(
 				Usage.CONFIGURATION, new ListConfiguration<AbilityDefinition>(
-						validAbilites, names, usages)));
+						validAbilities, names, usages)));
 	}
 	
 	public void setCollisionStrategy(CollisionStrategyConfiguration csc)

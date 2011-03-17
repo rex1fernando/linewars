@@ -1,1 +1,1 @@
-/home/titus/Pictures/Titus Pictures
+D:\programming\linewars\linewars\trunk\Line_Wars\resources\animations

@@ -201,6 +201,8 @@ public class ListGenericSelector<T> extends GenericSelector<T> {
 			if (!(selectable.size() == 0))
 			{
 				T o = showSelectionDialog(selectable);
+				if(o == null)
+					return;
 				List<T> selected = getSelectedObjects();
 				selected.add(o);
 				setSelectedObjects(selected);
