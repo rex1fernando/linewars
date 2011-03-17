@@ -11,9 +11,16 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.CircleConfiguration;
+import linewars.gamestate.shapes.ShapeAggregateConfiguration;
+import linewars.gamestate.shapes.ShapeConfiguration;
 
 public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> extends MapItemDefinition<MapItemAggregate> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1178398010204822228L;
 	private List<MapItemDefinition<? extends MapItem>> containedItems = new ArrayList<MapItemDefinition<? extends MapItem>>();
 	private List<Transformation> relativeTrans = new ArrayList<Transformation>();
 
@@ -37,6 +44,14 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 	}
 	
 	protected abstract T createMapItemAggregate(Transformation t, Player owner, GameState gameState);
+	
+	@Override
+	public ShapeConfiguration getBodyConfig()
+	{
+		//TODO this may need to be changed
+		//return new ShapeAggregateConfiguration();
+		return new CircleConfiguration(10, new Transformation(new Position(0, 0), 0));
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override

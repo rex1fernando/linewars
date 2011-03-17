@@ -25,7 +25,7 @@ public class SingleUserStart
 			n.setStartNode(true);
 		
 		//get the race
-		Race testRace = (Race)(new ObjectInputStream(new FileInputStream(new File("resources/races/testRace.cfg"))).readObject());
+		Race testRace = (Race)(new ObjectInputStream(new FileInputStream(new File("resources/races/testRace2.cfg"))).readObject());
 //		Race testRace = createRace();
 		
 		//construct the player
