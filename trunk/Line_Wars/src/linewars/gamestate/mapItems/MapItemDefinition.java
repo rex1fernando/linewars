@@ -225,7 +225,7 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 						name.equals(mid.name) &&
 						abilities.equals(mid.abilities) &&
 						cStrat.equals(mid.cStrat) &&
-						body.equals(mid.body);
+						(body == mid.body || body.equals(mid.body));
 			} catch(NullPointerException e) {
 				return false;
 			}

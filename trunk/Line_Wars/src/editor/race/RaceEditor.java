@@ -79,10 +79,14 @@ public class RaceEditor implements ConfigurationEditor
 		
 		race.setCommandCenter((BuildingDefinition) racePanel.commandCenter.getSelectedObject());
 		race.setGate((GateDefinition) racePanel.gate.getSelectedObject());
+		
+		race.removeAllUnits();
 		for (UnitDefinition def : racePanel.allUnits.getSelectedObjects()) {
 			boolean enabled = racePanel.enabledUnits.getSelectedObjects().contains(def);
 			race.addUnit(def, enabled);
 		}
+		
+		race.removeAllBuildings();
 		for (BuildingDefinition def : racePanel.allBuildings.getSelectedObjects()) {
 			boolean enabled = racePanel.enabledBuildings.getSelectedObjects().contains(def);
 			race.addBuilding(def, enabled);

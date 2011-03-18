@@ -178,6 +178,7 @@ public class Display extends JFrame implements Runnable
 			Race race = p.getRace();
 
 			ArrayList<Configuration> configs = new ArrayList<Configuration>();
+			configs.add(race.getCommandCenter());
 			configs.addAll(race.getAllBuildings());
 			configs.addAll(race.getAllUnits());
 			
@@ -190,7 +191,7 @@ public class Display extends JFrame implements Runnable
 	
 	private void loadDisplayResourcesRecursive(Configuration config, ArrayList<Configuration> loadedConfigs)
 	{
-		if(loadedConfigs.contains(config))
+		if(loadedConfigs.contains(config) || config == null)
 			return;
 		
 		loadedConfigs.add(config);
@@ -201,13 +202,14 @@ public class Display extends JFrame implements Runnable
 			if(p.getUsage() == Usage.CONFIGURATION)
 			{
 				Configuration c = (Configuration)p.getValue();
+				
 				if(c instanceof DisplayConfiguration)
 				{
 					loadDisplayResourcesFromConfiguration((DisplayConfiguration)c);
 				}
 				else
 				{
-					loadDisplayResourcesRecursive(config, loadedConfigs);
+					loadDisplayResourcesRecursive(c, loadedConfigs);
 				}
 			}
 		}
@@ -644,11 +646,14 @@ public class Display extends JFrame implements Runnable
 				if(zoomLevel <= ZOOM_THRESHOLD && cc != null)
 				{
 					Position p = cc.getPosition();
+					Position size = ((DisplayConfiguration)cc.getDefinition().getDisplayConfiguration()).getDimensions();
+					double width = size.getX();
+					double height = size.getY();
 
-					recX = (int)(p.getX() - cc.getWidth() / 2);
-					recY = (int)(p.getY() - cc.getHeight() / 2);
-					recW = (int)(cc.getWidth() * scale);
-					recH = (int)(cc.getHeight() * scale);
+					recX = (int)(p.getX() - width / 2);
+					recY = (int)(p.getY() - height / 2);
+					recW = (int)(width * scale);
+					recH = (int)(height * scale);
 				}
 				else
 				{

@@ -23,6 +23,11 @@ import configuration.Usage;
 public strictfp class Race extends Configuration {
 	
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3751813555858676197L;
+
+	/**
 	 * Creates a new Race object based on the information in the given ConfigData.
 	 * @param p
 	 * 		The ConfigData object to be used to create this Race.
@@ -132,6 +137,20 @@ public strictfp class Race extends Configuration {
 		names.add(name);
 		
 		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, new ListConfiguration<BuildingDefinition>(buildings, names, usages, enabledList)));
+	}
+	
+	public void removeAllBuildings()
+	{
+		super.setPropertyForName("buildings", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<BuildingDefinition>(new ArrayList<BuildingDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+	}
+	
+	public void removeAllUnits()
+	{
+		super.setPropertyForName("units", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<UnitDefinition>(new ArrayList<UnitDefinition>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
 	}
 	
 	@SuppressWarnings("unchecked")

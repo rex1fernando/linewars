@@ -59,11 +59,12 @@ public class MapItemLayer implements ILayer
 		for(MapItem mapItem : gamestate.getMapItemsOfType(mapItemType))
 		{
 			Position pos = mapItem.getPosition();
+			Position size = ((DisplayConfiguration)mapItem.getDefinition().getDisplayConfiguration()).getDimensions();
 			double rotation = mapItem.getRotation();
+			int width = (int)size.getX();
+			int height = (int)size.getY();
 
-			Shape itemShape = mapItem.getBody();// new Rectangle(pos.getX() -
-												// width / 2, pos.getY() -
-												// height / 2, width, height);
+			Shape itemShape = new Rectangle(mapItem.getTransformation(), width, height);
 
 			if(screenRect.isCollidingWith(itemShape))
 			{
@@ -82,8 +83,8 @@ public class MapItemLayer implements ILayer
 				}
 
 				// get the items coordinates based on the visible screen
-				Position upperLeftPos = new Position(pos.getX() - visibleScreen.getX() - (mapItem.getWidth() / 2),
-						pos.getY() - visibleScreen.getY() - (mapItem.getHeight() / 2));
+				Position upperLeftPos = new Position(pos.getX() - visibleScreen.getX() - (width / 2),
+						pos.getY() - visibleScreen.getY() - (height / 2));
 				pos = display.toScreenCoord(pos);
 
 				// rotate the image
@@ -92,7 +93,7 @@ public class MapItemLayer implements ILayer
 				// draw the animation
 				ImageDrawer.getInstance().draw(g,
 						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()),
-						(int)mapItem.getWidth(), (int)mapItem.getHeight(),
+						width, height,
 						upperLeftPos, scale);
 
 				// set the graphics to not be rotated anymore

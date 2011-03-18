@@ -60,8 +60,9 @@ public class MapDrawer
 			return new Position(100, 100);
 		}
 
-		String absURI = "file:" + System.getProperty("user.dir") + mapURI.replace("/", File.separator);
-
+		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + mapURI;
+		absURI = absURI.replace("/", File.separator);
+		
 		try
 		{
 			map = ImageIO.read(new URL(absURI));

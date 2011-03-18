@@ -258,7 +258,7 @@ public class MapPanel extends JPanel
 			fileFound = !file.exists();
 		}
 
-		mapURI = "/resources/images/map" + i + ".png";
+		mapURI = "map" + i + ".png";
 		try
 		{
 			ImageIO.write(map, "png", file);

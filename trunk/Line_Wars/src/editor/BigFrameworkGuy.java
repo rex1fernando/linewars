@@ -54,7 +54,7 @@ import editor.tech.TechEditor;
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
-	private static final String AMIMATION_FOLDER = "resources/images";
+	public static final String AMIMATION_FOLDER = "resources/images";
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,

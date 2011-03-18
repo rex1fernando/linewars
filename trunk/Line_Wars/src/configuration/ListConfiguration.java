@@ -105,9 +105,7 @@ public class ListConfiguration<T> extends Configuration implements Observer{
 		
 		fullTList = new ArrayList<T>();
 		for(ListObject toCheck : dataList){
-			if(toCheck.enabled){
-				fullTList.add(toCheck.data);
-			}
+			fullTList.add(toCheck.data);
 		}
 		return (ArrayList<T>) fullTList.clone();
 	}

@@ -86,7 +86,7 @@ public class ImageDrawer
 	 */
 	public BufferedImage loadImage(String uri) throws IOException
 	{
-		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" +uri;
+		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + uri;
 		absURI = absURI.replace("/", File.separator);
 
 		BufferedImage image;

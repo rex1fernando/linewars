@@ -31,10 +31,19 @@ public strictfp class RectangleRectangleStrategy extends ShapeCollisionStrategy{
 		//works for all convex polygons - should we define such a Shape?  Would reduce the number of ShapeCollisionStrategies that must be implemented.
 		Rectangle f = (Rectangle) first;
 		Rectangle s = (Rectangle) second;
-		return separatedByAxis(f, s, f.position().getPosition())
-			|| separatedByAxis(f, s, s.position().getPosition())
-			|| separatedByAxis(f, s, f.position().getPosition().orthogonal())
-			|| separatedByAxis(f, s, s.position().getPosition().orthogonal());
+		
+		boolean colliding = false;
+		for(Position p : s.getVertexPositions())
+			if(f.positionIsInShape(p))
+				colliding = true;
+		
+		return colliding;
+		
+// TODO this did not work
+//		return separatedByAxis(f, s, f.position().getPosition())
+//			|| separatedByAxis(f, s, s.position().getPosition())
+//			|| separatedByAxis(f, s, f.position().getPosition().orthogonal())
+//			|| separatedByAxis(f, s, s.position().getPosition().orthogonal());
 	}
 	
 	
