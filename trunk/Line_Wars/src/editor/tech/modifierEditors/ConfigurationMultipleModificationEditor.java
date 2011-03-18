@@ -18,7 +18,7 @@ import editor.GenericSelector.GenericListCallback;
 import editor.ListGenericSelector;
 import editor.ListGenericSelector.ListChangeListener;
 
-public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
+public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 	
 	private Usage validUsage = Usage.CONFIGURATION;
 	private Configuration template;
@@ -29,10 +29,10 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 	private ListGenericSelector<String> itemsToModify;
 	
 	private String highlightedString;
-	private NewModifierEditor subEditor;
+	private ModifierEditor subEditor;
 	
 	static{
-		NewModifierEditor.setEditorForModifier(MultipleSubModificationModification.class, ConfigurationMultipleModificationEditor.class);
+		ModifierEditor.setEditorForModifier(MultipleSubModificationModification.class, ConfigurationMultipleModificationEditor.class);
 	}
 
 	public ConfigurationMultipleModificationEditor(Property property) {
@@ -136,7 +136,6 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 	}
 	
 	private void saveSubEditorData(){
-		System.out.println("Saved " + highlightedString + " in " + this.hashCode());
 		if(highlightedString == null){
 			return;
 		}
@@ -146,12 +145,11 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 		}else{
 			//save the data in the current sub editor into 'data'
 			data.setSubModification(highlightedString, subEditor.getData());
-			System.out.println(((MultipleSubModificationModification) subEditor.getData()).getModifiedPropertyNames());
 		}
 		
 	}
 	
-	private void setSubEditor(NewModifierEditor newSubEditor){
+	private void setSubEditor(ModifierEditor newSubEditor){
 		if(subEditor != null){
 			panel.remove(subEditor.getPanel());			
 		}
@@ -208,7 +206,7 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 			
 			Class<? extends ModifierConfiguration> selectedModificationType;
 			
-			Class<? extends NewModifierEditor> newSubEditorType;
+			Class<? extends ModifierEditor> newSubEditorType;
 			if(validModifications == null){
 				return;
 			}else if(validModifications.size() == 1){
@@ -220,14 +218,14 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 				System.err.println("There are multiple modifications that can be made to " + highlightedString + " which is of Usage type " + typeToModify + ".");
 				highlightedString = null;
 			}
-			newSubEditorType = NewModifierEditor.getEditorForModifier(selectedModificationType);
+			newSubEditorType = ModifierEditor.getEditorForModifier(selectedModificationType);
 			
 			setSubEditor(instantiateSubEditor(newSubEditorType));
 		}
 
-		private NewModifierEditor instantiateSubEditor(Class<? extends NewModifierEditor> newSubEditorType) {
+		private ModifierEditor instantiateSubEditor(Class<? extends ModifierEditor> newSubEditorType) {
 			//ick, necessary reflection to construct an instance of the editor
-			Constructor<? extends NewModifierEditor> newSubEditorConstructor = null;
+			Constructor<? extends ModifierEditor> newSubEditorConstructor = null;
 			
 			try {
 				newSubEditorConstructor = newSubEditorType.getConstructor(Property.class);
@@ -236,7 +234,7 @@ public class ConfigurationMultipleModificationEditor extends NewModifierEditor {
 			}
 			
 			Property arg1 = template.getPropertyForName(highlightedString);
-			NewModifierEditor ret = null;
+			ModifierEditor ret = null;
 			try {
 				ret = newSubEditorConstructor.newInstance(arg1);
 			} catch (Exception e) {

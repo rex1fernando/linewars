@@ -25,7 +25,7 @@ import editor.GenericSelector.CustomToString;
 public class RaceChooser implements ConfigurationEditor {
 	
 	private Race selectedRace;
-	private NewModifierEditor subEditor;
+	private ModifierEditor subEditor;
 	
 	private JPanel wrapperPanel;
 	
@@ -64,7 +64,7 @@ public class RaceChooser implements ConfigurationEditor {
 			//define an empty modification that can contain multiple sub-modifications
 			modification = new MultipleSubModificationModification();
 		}
-		Class<? extends NewModifierEditor> editorType = NewModifierEditor.getEditorForModifier(modification.getClass());
+		Class<? extends ModifierEditor> editorType = ModifierEditor.getEditorForModifier(modification.getClass());
 		try {
 			subEditor = editorType.getConstructor(Property.class).newInstance(new Property(Usage.CONFIGURATION, selectedRace));
 		} catch (Exception e) {
