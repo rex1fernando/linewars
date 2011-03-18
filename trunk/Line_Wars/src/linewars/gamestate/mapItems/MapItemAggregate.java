@@ -28,7 +28,9 @@ public abstract class MapItemAggregate extends MapItem {
 	
 	public void addMapItem(MapItem m, Transformation t)
 	{
-		m.setTransformation(new Transformation(this.getPosition().add(t.getPosition()), t.getRotation()));
+		m.setTransformation(new Transformation(this.getPosition().add(
+				t.getPosition().rotateAboutPosition(new Position(0, 0), this.getRotation())), 
+				t.getRotation() + this.getRotation()));
 		containedItems.add(m);
 		body = null;
 	}
@@ -52,14 +54,14 @@ public abstract class MapItemAggregate extends MapItem {
 			}
 		}
 		List<Turret> ret = new ArrayList<Turret>();
-		Collections.copy(ret, turrets);
+		ret.addAll(turrets);
 		return ret;
 	}
 	
 	public List<MapItem> getContainedItems()
 	{
 		List<MapItem> ret = new ArrayList<MapItem>();
-		Collections.copy(ret, containedItems);
+		ret.addAll(containedItems);
 		return ret;
 	}
 	
@@ -101,7 +103,7 @@ public abstract class MapItemAggregate extends MapItem {
 		for(MapItem m : containedItems)
 		{
 			m.setPosition(m.getPosition().rotateAboutPosition(getPosition(), rot));
-			m.setRotation(rot);
+			m.setRotation(rot + m.getRotation());
 		}
 		transform = new Transformation(transform.getPosition(), newRot);
 		body = null;
@@ -149,9 +151,12 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public void setState(MapItemState state)
 	{
-		for(MapItem m : containedItems)
-			if(m.getDefinition().isValidState(state))
-				m.setState(state);
+		if(containedItems != null)
+		{
+			for(MapItem m : containedItems)
+				if(m.getDefinition().isValidState(state))
+					m.setState(state);
+		}
 		super.setState(state);
 	}
 	

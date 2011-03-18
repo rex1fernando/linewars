@@ -27,4 +27,9 @@ public class Turret extends MapItem {
 		return turretStrat;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		this.def = (TurretDefinition) def;
+	}
+
 }

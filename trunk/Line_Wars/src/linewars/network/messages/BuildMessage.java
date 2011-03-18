@@ -1,19 +1,20 @@
 package linewars.network.messages;
 
 import linewars.gamestate.GameState;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.abilities.ConstructBuildingDefinition;
 
 public class BuildMessage extends Message
 {
 
 	private int nodeID;
-	private int abilityID;
+	private int buildingID;
 	
-	public BuildMessage(int pID, int nodeID, int abilityID) {
+	public BuildMessage(int pID, int nodeID, int buildingID) {
 		super(pID);
 		
 		this.nodeID = nodeID;
-		this.abilityID = abilityID;
+		this.buildingID = buildingID;
 	}
 
 	/**
@@ -23,11 +24,10 @@ public class BuildMessage extends Message
 
 	@Override
 	public void apply(GameState gameState) {
-		AbilityDefinition ad = gameState.getMap().getNodes()[nodeID].getCommandCenter().getAvailableAbilities()[abilityID];	
+		BuildingDefinition bd = gameState.getPlayer(this.getPlayerId()).getRace().getAllBuildings().get(buildingID);
+		ConstructBuildingDefinition cbd = new ConstructBuildingDefinition(bd);
 		gameState.getMap().getNodes()[nodeID].getCommandCenter()
-				.addActiveAbility(
-						ad.createAbility(gameState.getMap().getNodes()[nodeID]
-								.getCommandCenter()));
+				.addActiveAbility(cbd.createAbility(gameState.getMap().getNodes()[nodeID].getCommandCenter()));
 	}
 
 }

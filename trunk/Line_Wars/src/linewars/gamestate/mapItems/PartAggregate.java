@@ -19,4 +19,9 @@ public class PartAggregate extends MapItemAggregate {
 		return def;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		this.def = (PartAggregateDefinition) def;
+	}
+
 }

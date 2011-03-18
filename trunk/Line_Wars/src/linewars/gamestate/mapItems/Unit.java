@@ -143,6 +143,11 @@ public strictfp class Unit extends MapItemAggregate {
 		return positionOnCurve;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (UnitDefinition) def;
+	}
+
 	//This should be very strict; true iff the two objects are bit-identical
 //	@Override
 //	public boolean equals(Object o){
