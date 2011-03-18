@@ -46,6 +46,7 @@ public strictfp abstract class MapItem implements Observer {
 	
 	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
+		setDefinition(def);
 		body = def.getBodyConfig().construct(trans);
 		state = MapItemState.Idle;
 		stateStart = (long) (gameState.getTime()*1000);
@@ -60,6 +61,8 @@ public strictfp abstract class MapItem implements Observer {
 		
 		ID = gameState.getNextMapItemID();
 	}
+	
+	protected abstract void setDefinition(MapItemDefinition<? extends MapItem> def);
 	
 	public int getID()
 	{

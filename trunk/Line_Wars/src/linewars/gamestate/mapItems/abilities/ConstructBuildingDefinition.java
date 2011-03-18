@@ -91,6 +91,13 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition impl
 				null, EditorUsage.BuildingConfig, "The building to build"));
 		this.addObserver(this);
 	}
+	
+	public ConstructBuildingDefinition(BuildingDefinition bd)
+	{
+		this.addObserver(this);
+		super.setPropertyForName("buildingDefinition", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.BuildingConfig, "The building to build").makeCopy(bd));
+	}
 
 	@Override
 	public boolean startsActive() {

@@ -146,4 +146,9 @@ public strictfp class Projectile extends MapItemAggregate {
 		//TODO test other things in here
 		return true;
 	}
+
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (ProjectileDefinition) def;
+	}
 }

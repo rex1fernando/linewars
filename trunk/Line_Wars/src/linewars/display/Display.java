@@ -179,6 +179,7 @@ public class Display extends JFrame implements Runnable
 
 			ArrayList<Configuration> configs = new ArrayList<Configuration>();
 			configs.add(race.getCommandCenter());
+			configs.add(race.getGate());
 			configs.addAll(race.getAllBuildings());
 			configs.addAll(race.getAllUnits());
 			

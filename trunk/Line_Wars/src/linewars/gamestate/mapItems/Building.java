@@ -50,4 +50,9 @@ public strictfp class Building extends MapItemAggregate {
 		return node;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (BuildingDefinition) def;
+	}
+
 }
