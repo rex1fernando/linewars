@@ -1,17 +1,30 @@
 package editor.mapitems;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
+import linewars.display.sound.SoundInfo;
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.Channel;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
@@ -28,6 +41,7 @@ import editor.GenericSelector.SelectionChangeListener;
 import editor.GenericSelector.ShowBFGName;
 import editor.ListGenericSelector;
 import editor.ListGenericSelector.ListChangeListener;
+import editor.animations.FileCopy;
 import editor.mapitems.MapItemEditor.Wrapper;
 import editor.mapitems.body.BodyEditor.DisplayConfigurationCallback;
 
@@ -47,7 +61,10 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 	//variables for the states and corresponding animations
 	private ListGenericSelector<MapItemState> validStates;
 	private GenericSelector<Animation> animations;
+	private JLabel sounds;
+	
 	private HashMap<MapItemState, Animation> animationMap = new HashMap<MapItemState, Animation>();
+	private HashMap<MapItemState, String> soundMap = new HashMap<MapItemState, String>();
 	
 	//variable for the abilities and collision strategies
 	private ListGenericSelector<AbilityDefinition> abilities;
@@ -79,16 +96,28 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			@Override
 			public void objectsRemoved(List<MapItemState> removed) {
 				for(MapItemState mis : removed)
+				{
 					animationMap.remove(mis);
+					soundMap.remove(mis);
+				}
 			}
 			@Override
 			public void objectAdded(MapItemState added) {}
 			@Override
 			public void HighlightChange(List<MapItemState> highlighted) {
 				if(highlighted.size() == 1)
+				{
 					animations.setSelectedObject(animationMap.get(highlighted.get(0)));
+					if(soundMap.containsKey(highlighted.get(0)))
+						sounds.setText(soundMap.get(highlighted.get(0)));
+					else
+						sounds.setText("");
+				}
 				else
+				{
 					animations.setSelectedObject(null);
+					sounds.setText("");
+				}
 			}
 		});
 		
@@ -107,10 +136,100 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 			}
 		});
 		
+		//set up the sounds
+		soundMap = new HashMap<MapItemState, String>();
+		sounds = new JLabel();
+		JButton soundButton = new JButton("Select Sound");
+		soundButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = null;
+				try {
+					fc = new JFileChooser(new Scanner(new File("lastDirectory.txt")).nextLine());
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				fc.setMultiSelectionEnabled(false);
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				if(fc.showOpenDialog(MapItemCommanalitiesEditor.this) == JFileChooser.APPROVE_OPTION)
+				{
+					if(validStates.getHighlightedObjects().size() == 1)
+					{
+						File f = fc.getSelectedFile();
+						//if the file is not already in the sound folder
+						if(!f.getParentFile().getAbsolutePath().equals(new File(BigFrameworkGuy.SOUND_FOLDER).getAbsolutePath()))
+						{
+							try {
+								FileCopy.copy(f.getAbsolutePath(), new File(new File(BigFrameworkGuy.SOUND_FOLDER), f.getName()).getAbsolutePath());
+							} catch (IOException e) {
+								e.printStackTrace();
+								return;
+							}
+						}
+						soundMap.put(validStates.getHighlightedObjects().get(0), f.getName());
+						sounds.setText(f.getName());
+					}
+					else
+						sounds.setText("");
+					
+					//update lastDirectory.txt
+					FileWriter fw;
+					try {
+						fw = new FileWriter("lastDirectory.txt");
+						fw.write(fc.getSelectedFile().getParent());
+						fw.flush();
+						fw.close();
+					} catch (IOException e) {}
+					
+					
+					sounds.validate();
+					sounds.updateUI();
+				}
+			}
+		});
+		JButton playSound = new JButton("Play");
+		playSound.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(sounds.getText().equals(""))
+					return;
+				SoundPlayer sp = SoundPlayer.getInstance();
+				try {
+					sp.addSound(sounds.getText());
+				} catch (UnsupportedAudioFileException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				final String uri = sounds.getText();
+				sp.playSound(new SoundInfo() {
+					@Override
+					public double getVolume(Channel c) {
+						return 1;
+					}
+					
+					@Override
+					public String getURI() {
+						return uri;
+					}
+				});
+			}
+		});
+		JPanel soundPanel = new JPanel();
+		soundPanel.add(soundButton);
+		soundPanel.add(sounds);
+		soundPanel.add(playSound);
+		
+		//set up the sound/animation panel
+		JPanel soundAnimPanel = new JPanel();
+		soundAnimPanel.setLayout(new BoxLayout(soundAnimPanel, BoxLayout.Y_AXIS));
+		soundAnimPanel.add(animations);
+		soundAnimPanel.add(soundPanel);
+		
 		//add the panel for states/animations
 		JPanel statesPanel = new JPanel();
 		statesPanel.add(validStates);
-		statesPanel.add(animations);
+		statesPanel.add(soundAnimPanel);
 		
 		//set up the abilities and collision strat panel
 		abilities = new ListGenericSelector<AbilityDefinition>("Abilities", 
@@ -173,10 +292,14 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		
 		//set up the animations
 		animationMap.clear();
+		soundMap.clear();
 		DisplayConfiguration dc = (DisplayConfiguration)mic.getDisplayConfiguration();
 		List<MapItemState> states = mic.getValidStates();
 		for(MapItemState mis : states)
+		{
 			animationMap.put(mis, dc.getAnimation(mis));
+			soundMap.put(mis, dc.getSound(mis));
+		}
 		
 		//set up the abilities
 		abilities.setSelectedObjects(mic.getAbilityDefinitions());
@@ -197,8 +320,12 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		List<MapItemState> initialStates = new ArrayList<MapItemState>();
 		initialStates.add(MapItemState.Idle);
 		validStates.setSelectedObjects(initialStates);
+		
 		animationMap.clear();
 		animations.setSelectedObject(null);
+		
+		soundMap.clear();
+		sounds.setText("");
 		
 		//reset the abilities and collision strat
 		abilities.setSelectedObjects(new ArrayList<AbilityDefinition>());
@@ -218,9 +345,14 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 		//add the valid states and their animations
 		if(dc == null)
 			dc = new DisplayConfiguration();
+		dc.clearStateMappings();
 		for(MapItemState mis : validStates.getSelectedObjects())
+		{
 			if(animationMap.containsKey(mis))
 				dc.setAnimation(mis, animationMap.get(mis));
+			if(soundMap.containsKey(mis))
+				dc.setSound(mis, soundMap.get(mis));
+		}
 		return dc;
 	}
 

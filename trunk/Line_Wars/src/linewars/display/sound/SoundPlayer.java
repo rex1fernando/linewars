@@ -2,6 +2,8 @@ package linewars.display.sound;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -72,7 +74,11 @@ public class SoundPlayer implements Runnable
 
 	public void addSound(String uri) throws UnsupportedAudioFileException, IOException
 	{
-		File file = new File(uri);
+		String absURI = System.getProperty("user.dir") + "/resources/sounds/" + uri;
+		absURI = absURI.replace("/", File.separator);
+
+		File file = new File(absURI);
+		
 		AudioInputStream in = AudioSystem.getAudioInputStream(file);
 		AudioInputStream din = AudioSystem.getAudioInputStream(format, in);
 		sounds.put(uri, new Sound(din));
@@ -130,8 +136,6 @@ public class SoundPlayer implements Runnable
 
 	private void play()
 	{
-		// TODO add in channel info
-
 		int samples = (int)(SAMPLE_RATE / (loopTime / 1000));
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
 		byte[][] channelData = new byte[Channel.values().length][bytes];

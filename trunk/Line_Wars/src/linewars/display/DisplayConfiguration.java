@@ -80,6 +80,12 @@ public class DisplayConfiguration extends Configuration
 		return (Position)super.getPropertyForName("dimensions").getValue();
 	}
 	
+	public void clearStateMappings()
+	{
+		for(MapItemState mis : getDefinedStates())
+			super.removeProperty(mis.toString());
+	}
+	
 	private class DisplayState extends Configuration
 	{
 		/**

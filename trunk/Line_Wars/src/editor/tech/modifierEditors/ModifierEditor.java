@@ -3,8 +3,6 @@ package editor.tech.modifierEditors;
 import java.util.HashMap;
 import java.util.Map;
 
-import configuration.Property;
-
 import linewars.gamestate.tech.ModifierConfiguration;
 import utility.ForceLoadPackage;
 import editor.ConfigurationEditor;

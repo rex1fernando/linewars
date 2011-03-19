@@ -14,7 +14,6 @@ import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
-import editor.GenericSelector.CustomToString;
 
 /**
  * Wraps the top-level ModificationEditor, asking the player to choose a race before allowing them to start setting up the guts of the Tech.
