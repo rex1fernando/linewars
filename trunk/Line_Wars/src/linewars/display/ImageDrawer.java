@@ -69,6 +69,8 @@ public class ImageDrawer
 			return;
 
 		Image image = loadImage(uri);
+		if(image == null)
+			return;
 
 		GameImage scaledImage = new GameImage(image, width, height);
 

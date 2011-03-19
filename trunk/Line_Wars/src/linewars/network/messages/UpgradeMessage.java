@@ -2,6 +2,7 @@ package linewars.network.messages;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.tech.TechConfiguration;
 
 public class UpgradeMessage extends Message
 {
@@ -10,33 +11,30 @@ public class UpgradeMessage extends Message
 	 * 
 	 */
 	private static final long serialVersionUID = 4351357585865137619L;
-	private int nodeID;
-	private int abilityID;
+	private int techGraphID;
+	private int techID;
 	
-	public UpgradeMessage(int pID, int nodeID, int abilityID) {
+	public UpgradeMessage(int pID, int TechGraphID, int techID) {
 		super(pID);
 		
-		this.nodeID = nodeID;
-		this.abilityID = abilityID;
+		this.techGraphID = TechGraphID;
+		this.techID = techID;
 	}
 	
-	public int getNodeID()
+	public int getTechGraphID()
 	{
-		return nodeID;
+		return techGraphID;
 	}
 	
-	public int getAbilityID()
+	public int getTechID()
 	{
-		return abilityID;
+		return techID;
 	}
 
 	@Override
 	public void apply(GameState gameState) {
-		AbilityDefinition ad = gameState.getMap().getNodes()[nodeID].getCommandCenter().getAvailableAbilities()[abilityID];	
-		gameState.getMap().getNodes()[nodeID].getCommandCenter()
-				.addActiveAbility(
-						ad.createAbility(gameState.getMap().getNodes()[nodeID]
-								.getCommandCenter()));
+		TechConfiguration tech = gameState.getPlayer(getPlayerId()).getRace().getAllTechGraphs().get(techGraphID).getOrderedList().get(techID).getTechConfig();
+		tech.research(gameState.getPlayer(getPlayerId()));
 	}
 
 }

@@ -30,6 +30,7 @@ import linewars.gamestate.tech.UnlockStrategyNoSyblings;
 import linewars.gamestate.tech.UnlockStrategyOne;
 import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.gamestate.tech.UnlockStrategyAll;
+import linewars.network.MessageReceiver;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
@@ -95,19 +96,23 @@ public class TechPanel extends Panel
 	 * @param stateManager The GameStateProvider for the current session of the game.
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 */
-	public TechPanel(Display display, GameStateProvider stateManager, int pID)
+	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
 		this.display = display;
 		this.displayed = false;
 		
+		tabs = new ArrayList<JButton>();
+		techs = new ArrayList<TechDisplay>();
+		
 		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
 		
-		for(TechGraph graph : graphs)
+		for(int i = 0; i < graphs.size(); ++i)
 		{
+			TechGraph graph = graphs.get(i);
 			tabs.add(new JButton(graph.getName()));
-			techs.add(new TechDisplay(pID, graph));
+			techs.add(new TechDisplay(pID, receiver, graph, i));
 		}
 		
 		initialize();
@@ -184,9 +189,6 @@ public class TechPanel extends Panel
 	
 	private void initialize()
 	{
-		this.tabs = new ArrayList<JButton>();
-		this.techs = new ArrayList<TechDisplay>();
-	
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		techLayout = new GridBagLayout();
@@ -318,13 +320,15 @@ public class TechPanel extends Panel
 			activeTech = tech;
 			setAllTechGraphsInvisible();
 
-			enabledBox.setSelected(activeTech.getTechGraph().isEnabled());
-			
-			TechNode activeTechNode = activeTech.getActiveTech();
-			if(activeTechNode != null)
+			if(bfg != null)
 			{
-				techSelector.setSelectedObject(activeTechNode.getTechConfig());
-				unlockStrategySelector.setSelectedObject(activeTechNode.getUnlockStrategy());
+				TechNode activeTechNode = activeTech.getActiveTech();
+				if(activeTechNode != null)
+				{
+					enabledBox.setSelected(activeTech.getTechGraph().isEnabled());
+					techSelector.setSelectedObject(activeTechNode.getTechConfig());
+					unlockStrategySelector.setSelectedObject(activeTechNode.getUnlockStrategy());
+				}
 			}
 		}	
 	}

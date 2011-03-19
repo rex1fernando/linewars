@@ -36,7 +36,7 @@ public class MultipleSubModificationModification extends ModifierConfiguration {
 		Configuration config = (Configuration) toModify.getValue();
 		
 		for(String key : subModifications.keySet()){
-			subModifications.get(key).applyTo(config.getPropertyForName(key));
+			config.setPropertyForName(key, subModifications.get(key).applyTo(config.getPropertyForName(key)));
 		}
 		
 		return toModify;
