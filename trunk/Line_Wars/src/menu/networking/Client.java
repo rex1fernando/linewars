@@ -140,6 +140,7 @@ public class Client implements Runnable
 			Object selection = NetworkUtil.readObject(in);
 			PlayerBean[] players = (PlayerBean[]) NetworkUtil.readObject(in);
 			String[] ipAddresses = (String[]) NetworkUtil.readObject(in);
+			boolean isServer = (Boolean) NetworkUtil.readObject(in);
 			boolean isObserver = false;  // TODO implement observing
 			
 			List<PlayerData> playerList = convertToPlayerData(players);
@@ -156,7 +157,7 @@ public class Client implements Runnable
 				String serverIp = socket.getInetAddress().getHostAddress();
 				
 				Game g = new Game(map, playerList);
-				g.initializeServer(clientList);
+				if (isServer) g.initializeServer(clientList);
 				g.initializeClient(serverIp, playerId, isObserver);
 				g.run();
 			}

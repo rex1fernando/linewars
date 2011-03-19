@@ -261,20 +261,24 @@ public class Server implements Runnable
 		{
 			synchronized (clientLock)
 			{
+				String serverIp = serverSocket.getInetAddress().getHostAddress();
 				List<Object> list = new ArrayList<Object>();
-				list.add(playerId);
 				list.add(isReplay);
 				list.add(selection);
 				list.add(players.toArray(new PlayerBean[0]));
 				
 				List<String> ipAddresses = new ArrayList<String>();
-				for (ClientConnection c : clients) ipAddresses.add(c.ipAddress);
+				for (ClientConnection c : clients)
+				{
+					ipAddresses.add(c.ipAddress);
+				}
 				list.add(ipAddresses.toArray(new String[0]));
 				
 				// TODO implement observer
 				
 				for (ClientConnection c : clients)
 				{
+					list.add(serverIp.equals(c.ipAddress));
 					c.sendMessage(MessageType.startGame, list.toArray());
 				}
 			}
