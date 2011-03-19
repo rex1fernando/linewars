@@ -23,10 +23,10 @@ public class Sound
 	
 	public int getNextFrame(byte[][] buffer, int progress, int size)
 	{
-		if(progress + size > data.length)
-			size = data.length - progress;
-		if(buffer.length < size)
-			size = buffer.length;
+		if(progress + size > data[0].length)
+			size = data[0].length - progress;
+		if(buffer[0].length < size)
+			size = buffer[0].length;
 		
 		for(int c = 0; c < data.length; ++c)
 		{

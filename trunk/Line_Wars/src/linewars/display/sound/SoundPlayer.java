@@ -17,13 +17,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundPlayer implements Runnable
 {
-	private static final int SAMPLE_RATE = 44000;
+	private static final int SAMPLE_RATE = 44100;
 
 	/*
 	 * TODO the code in this class only supports 8 bit encoding, it will have to
 	 * be modified to handle larger sizes if this number is increased.
 	 */
-	private static final int SAMPLE_SIZE_IN_BYTES = 1;
+	private static final int SAMPLE_SIZE_IN_BYTES = 2;
 
 	/*
 	 * TODO if the channels are changed then the sound managers may need to
@@ -53,7 +53,7 @@ public class SoundPlayer implements Runnable
 		sounds = new HashMap<String, Sound>();
 		playing = new LinkedList<SoundPair>();
 		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
-		loopTime = 0.0f;
+		loopTime = 0.001f;
 	}
 
 	public static SoundPlayer getInstance()
@@ -136,8 +136,12 @@ public class SoundPlayer implements Runnable
 
 	private void play()
 	{
-		int samples = (int)(SAMPLE_RATE / (loopTime / 1000));
+		int samples = (int)(SAMPLE_RATE * (loopTime / 1000));
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
+		System.out.println(samples + "\t\t" + bytes);
+		if(bytes <= 0)
+			return;
+		
 		byte[][] channelData = new byte[Channel.values().length][bytes];
 
 		int index = 0;
