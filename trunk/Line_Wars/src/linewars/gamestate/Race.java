@@ -224,5 +224,9 @@ public strictfp class Race extends Configuration {
 	{
 		return (GateDefinition) super.getPropertyForName("gate").getValue();
 	}
+	
+	public String toString() {
+		return getPropertyForName("bfgName").getValue().toString();
+	}
 
 }
