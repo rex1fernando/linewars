@@ -286,6 +286,7 @@ public class Server implements Runnable
 				{
 					list.add(0, c.playerId);
 					c.sendMessage(MessageType.startGame, list.toArray());
+					list.remove(0);
 				}
 			}
 		}
