@@ -1,9 +1,16 @@
 package linewars.gamestate.tech;
 
+import java.io.Serializable;
+
 import linewars.gamestate.tech.TechGraph.TechNode;
 
-public abstract class UnlockStrategy
+public abstract class UnlockStrategy implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5543783626381261723L;
+	
 	private String name;
 	
 	public UnlockStrategy(String name)

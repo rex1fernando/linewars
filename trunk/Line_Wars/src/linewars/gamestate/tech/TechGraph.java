@@ -6,16 +6,20 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import linewars.network.MessageReceiver;
+import linewars.network.messages.Message;
+import linewars.network.messages.UpgradeMessage;
+
 
 public class TechGraph implements Serializable
 {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1615922455457654069L;
+	private static final long serialVersionUID = 2266882489087536100L;
 	
 	private List<TechNode> roots;
-	private Iterator<TechNode> rootIterator;
+	private int rootIndex;
 	private int maxX;
 	private int maxY;
 	private String name;
@@ -29,7 +33,7 @@ public class TechGraph implements Serializable
 	public TechGraph(String name)
 	{
 		roots = new ArrayList<TechNode>();
-		rootIterator = roots.iterator();
+		rootIndex = 0;
 		this.name = name;
 		enabled = true;
 	}
@@ -43,15 +47,15 @@ public class TechGraph implements Serializable
 	
 	public TechNode getRoot()
 	{
-		rootIterator = roots.iterator();
+		rootIndex = 0;
 		
 		return getNextRoot();
 	}
 	
 	public TechNode getNextRoot()
 	{
-		if(rootIterator.hasNext())
-			return rootIterator.next();
+		if(rootIndex < roots.size())
+			return roots.get(rootIndex++);
 		
 		return null;		
 	}
@@ -127,16 +131,21 @@ public class TechGraph implements Serializable
 		return maxY;
 	}
 	
-	public class TechNode implements Comparable<TechNode>
+	public class TechNode implements Comparable<TechNode>, Serializable
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3939573324785222598L;
+		
 		private TechConfiguration techConfig;
 		private UnlockStrategy strat;
 		
 		private List<TechNode> parents;
 		private List<TechNode> children;
 		
-		private Iterator<TechNode> parentIterator;
-		private Iterator<TechNode> childIterator;
+		private int parentIndex;
+		private int childIndex;
 		
 		private boolean marked;
 		private boolean researched;
@@ -152,8 +161,8 @@ public class TechGraph implements Serializable
 			this.strat = null;
 			this.parents = new ArrayList<TechNode>();
 			this.children = new ArrayList<TechNode>();
-			this.parentIterator = parents.iterator();
-			this.childIterator = children.iterator();
+			this.parentIndex = 0;
+			this.childIndex = 0;
 		}
 		
 		private TechNode(int x, int y)
@@ -224,9 +233,6 @@ public class TechGraph implements Serializable
 		
 		public void research()
 		{
-			//TODO send message to resarch tech
-//			Message message = new UpgradeMessage(pID, null, buttons[index].tech.getTechConfig().getID);
-
 			researched = true;
 		}
 		
@@ -296,30 +302,30 @@ public class TechGraph implements Serializable
 		
 		public TechNode getParent()
 		{
-			parentIterator = parents.iterator();
+			parentIndex = 0;
 			
 			return getNextParent();
 		}
 
 		public TechNode getChild()
 		{
-			childIterator = children.iterator();
+			childIndex = 0;
 			
 			return getNextChild();
 		}
 		
 		public TechNode getNextParent()
 		{
-			if(parentIterator.hasNext())
-				return parentIterator.next();
+			if(parentIndex < parents.size())
+				return parents.get(parentIndex++);
 			
 			return null;		
 		}
 		
 		public TechNode getNextChild()
 		{
-			if(childIterator.hasNext())
-				return childIterator.next();
+			if(childIndex < children.size())
+				return children.get(childIndex++);
 			
 			return null;
 		}

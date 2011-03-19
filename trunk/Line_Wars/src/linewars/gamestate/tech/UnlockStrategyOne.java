@@ -4,6 +4,11 @@ import linewars.gamestate.tech.TechGraph.TechNode;
 
 public class UnlockStrategyOne extends UnlockStrategy
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7370668742131520084L;
+
 	public UnlockStrategyOne()
 	{
 		super("One");

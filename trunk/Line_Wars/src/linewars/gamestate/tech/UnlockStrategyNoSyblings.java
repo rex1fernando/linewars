@@ -4,6 +4,11 @@ import linewars.gamestate.tech.TechGraph.TechNode;
 
 public class UnlockStrategyNoSyblings extends UnlockStrategy
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5616821409870208741L;
+
 	public UnlockStrategyNoSyblings()
 	{
 		super("No Syblings");
