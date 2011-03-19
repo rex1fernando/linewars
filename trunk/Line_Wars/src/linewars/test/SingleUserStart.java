@@ -13,6 +13,7 @@ import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.init.Game;
+import linewars.init.PlayerData;
 import linewars.init.UserData;
 
 public class SingleUserStart 
@@ -21,8 +22,8 @@ public class SingleUserStart
 	{
 		//get the map
 		MapConfiguration testMap = (MapConfiguration)(new ObjectInputStream(new FileInputStream(new File("resources/maps/testMap.cfg"))).readObject());
-		for(NodeConfiguration n : testMap.nodes())
-			n.setStartNode(true);
+//		for(NodeConfiguration n : testMap.nodes())
+//			n.setStartNode(true);
 		
 		//get the race
 		Race testRace = (Race)(new ObjectInputStream(new FileInputStream(new File("resources/races/testRace.cfg"))).readObject());
@@ -38,7 +39,7 @@ public class SingleUserStart
 		testPlayer.setObserver(false);
 		
 		//create the list of players
-		ArrayList<UserData> playerList = new ArrayList<UserData>();
+		ArrayList<PlayerData> playerList = new ArrayList<PlayerData>();
 		playerList.add(testPlayer);
 		
 		//create the list of clients
@@ -46,10 +47,10 @@ public class SingleUserStart
 		clientList.add("127.0.0.1");
 		
 		//construct the game
-//		Game testGame = new Game(testMap, playerList);
-//		testGame.initializeServer(clientList);
-//		testGame.initializeClient("127.0.0.1", 0);
-//		testGame.run();
+		Game testGame = new Game(testMap, playerList);
+		testGame.initializeServer(clientList);
+		testGame.initializeClient("127.0.0.1", 0, false);
+		testGame.run();
 	}
 	
 //	private static Race createRace()
