@@ -9,5 +9,11 @@
 	<classpathentry kind="lib" path="D:/downloads/tritonus_jorbis-0.3.6.jar"/>
 	<classpathentry kind="lib" path="D:/downloads/tritonus_share-0.3.6.jar"/>
 	<classpathentry kind="lib" path="D:/downloads/vorbisspi1.0.3.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik-rasterizer.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik-slideshow.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik-squiggle.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik-svgpp.jar"/>
+	<classpathentry kind="lib" path="D:/portable_apps/windows/batik-1.7/batik-ttf2svg.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
