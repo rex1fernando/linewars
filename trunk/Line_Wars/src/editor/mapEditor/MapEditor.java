@@ -820,7 +820,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 					fileSelected = true;
 			}
 
-			String relativePath = "resources" + File.separator + "maps" + File.separator + mapURI;
+			String relativePath = "resources" + File.separator + "images" + File.separator + mapURI;
 			String moveTo = System.getProperty("user.dir") + File.separator + relativePath;
 			if(!mapFile.getAbsolutePath().equals(moveTo))
 			{
@@ -836,7 +836,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 				}
 			}
 
-			map.setMapImage("/resources/maps/" + mapURI);
+			map.setMapImage(mapURI);
 		}
 	}
 

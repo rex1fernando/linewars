@@ -110,7 +110,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	public ConfigType getData(Configuration toSet) {
 		IconConfiguration ic = (IconConfiguration) toSet;
 		for(IconPanel ip : panels.values())
-			ic.setIcon(ip.getType(), ip.getURI());
+			ic.setIcon(ip.getType(), new File(ip.getURI()).getName());
 		return ConfigType.icon;
 	}
 
@@ -207,7 +207,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 					return;
 				}
 				
-				File to = new File(new File("resources/animations"), f.getName());
+				File to = new File(new File(BigFrameworkGuy.AMIMATION_FOLDER), f.getName());
 				if(!to.exists())
 				{
 					try {

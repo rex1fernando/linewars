@@ -254,11 +254,11 @@ public class MapPanel extends JPanel
 		boolean fileFound = false;
 		while(!fileFound)
 		{
-			file = new File("resources/maps/map" + ++i + ".png");
+			file = new File("resources/images/map" + ++i + ".png");
 			fileFound = !file.exists();
 		}
 
-		mapURI = "/resources/maps/map" + i + ".png";
+		mapURI = "map" + i + ".png";
 		try
 		{
 			ImageIO.write(map, "png", file);

@@ -64,7 +64,7 @@ public class DisplayConfiguration extends Configuration
 		List<MapItemState> ret = new ArrayList<MapItemState>();
 		Set<String> definedKeys = super.getPropertyNames();
 		for(MapItemState mis : MapItemState.values())
-			if(definedKeys.contains(mis.toString() + "Animation"))
+			if(definedKeys.contains(mis.toString()))
 				ret.add(mis);
 
 		return ret;

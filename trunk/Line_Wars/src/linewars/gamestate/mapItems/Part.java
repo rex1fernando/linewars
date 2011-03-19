@@ -19,4 +19,9 @@ public class Part extends MapItem {
 		return def;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		this.def = (PartDefinition) def;
+	}
+
 }

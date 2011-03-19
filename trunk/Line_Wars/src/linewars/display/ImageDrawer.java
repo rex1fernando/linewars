@@ -56,8 +56,6 @@ public class ImageDrawer
 	 * 
 	 * @param uri
 	 *            The URI of the image to load.
-	 * @param mapItemName
-	 *            The URI of the MapItem this image is for.
 	 * @param width
 	 *            The width of the image in game units.
 	 * @param height
@@ -65,16 +63,16 @@ public class ImageDrawer
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, String mapItemName, int width, int height) throws IOException
+	public void addImage(String uri, int width, int height) throws IOException
 	{
-		if(images.get(uri + mapItemName) != null)
+		if(images.get(uri + width + height) != null)
 			return;
 
 		Image image = loadImage(uri);
 
 		GameImage scaledImage = new GameImage(image, width, height);
 
-		images.put(uri + mapItemName, scaledImage);
+		images.put(uri + width + height, scaledImage);
 	}
 
 	/**
@@ -88,7 +86,8 @@ public class ImageDrawer
 	 */
 	public BufferedImage loadImage(String uri) throws IOException
 	{
-		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
+		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + uri;
+		absURI = absURI.replace("/", File.separator);
 
 		BufferedImage image;
 		try
@@ -117,9 +116,9 @@ public class ImageDrawer
 	 * @param scaleY
 	 *            The amount to scale the image on the y-axis.
 	 */
-	public void draw(Graphics g, String uri, Position position, double scale)
+	public void draw(Graphics g, String uri, int width, int height, Position position, double scale)
 	{
-		GameImage image = images.get(uri);
+		GameImage image = images.get(uri + width + height);
 		if(image == null)
 			return;
 		

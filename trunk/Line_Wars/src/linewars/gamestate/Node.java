@@ -53,6 +53,7 @@ public strictfp class Node {
 		containedUnits = new ArrayList<Unit>();
 		lastSpawnTime = (long) (gameState.getTime()*1000);
 		containedBuildings = new ArrayList<Building>();
+		this.config = config;
 		
 		this.gameState = gameState;
 		

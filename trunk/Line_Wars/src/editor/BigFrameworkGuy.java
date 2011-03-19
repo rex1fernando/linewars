@@ -54,7 +54,7 @@ import editor.tech.TechEditor;
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
-	private static final String AMIMATION_FOLDER = "resources/animations";
+	public static final String AMIMATION_FOLDER = "resources/images";
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,
@@ -299,7 +299,7 @@ public class BigFrameworkGuy
 		frame.setVisible(true);
 		
 		//can't start the animation editors display loop until the panel is added to the frame
-		//new Thread(toStart).run();
+		new Thread(toStart).run();
 		
 	}
 	

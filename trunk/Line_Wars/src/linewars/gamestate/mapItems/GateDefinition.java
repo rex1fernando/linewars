@@ -18,6 +18,10 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfigura
  */
 public strictfp class GateDefinition extends UnitDefinition {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2038792087029880725L;
 	private MovementStrategyConfiguration mStrat;
 	private CombatStrategyConfiguration combatStrat;
 
@@ -47,6 +51,12 @@ public strictfp class GateDefinition extends UnitDefinition {
 	public CombatStrategyConfiguration getCombatStratConfig()
 	{
 		return combatStrat;
+	}
+	
+	@Override
+	protected Unit createMapItemAggregate(Transformation t, Player owner, GameState gameState) {
+		Unit u = new Gate(t, this, owner, gameState);
+		return u;
 	}
 	
 	public Gate createGate(Transformation t, Player owner, GameState gameState)

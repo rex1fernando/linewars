@@ -146,10 +146,13 @@ public strictfp class GameState
 		{
 			case UNIT:
 				list = getUnits();
+				break;
 			case PROJECTILE:
 				list = getProjectiles();
+				break;
 			case BUILDING:
 				list = getBuildings();
+				break;
 			default:
 				list = new ArrayList<MapItem>(0);
 		}
@@ -163,7 +166,6 @@ public strictfp class GameState
 			if(ret.get(i) instanceof MapItemAggregate)
 			{
 				ret.addAll(((MapItemAggregate)ret.get(i)).getContainedItems());
-				ret.remove(i);
 			}
 		}
 		return ret;

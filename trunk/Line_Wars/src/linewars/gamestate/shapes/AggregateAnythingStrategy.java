@@ -28,7 +28,7 @@ public strictfp class AggregateAnythingStrategy extends ShapeCollisionStrategy {
 	private boolean collidesAg(ShapeAggregate first, Shape second) {
 		for(int i = 0; i < first.getMembers().length; i++){
 			ShapeCollisionStrategy detector = ShapeCollisionStrategy.getStrategyForShapes(first.getMembers()[i].getClass(), second.getClass());
-			if(detector.collides(first, second)){
+			if(detector.collides(first.getMembers()[i], second)){
 				return true;
 			}
 		}
