@@ -3,5 +3,11 @@
 	<classpathentry excluding="linewars/test/ConnorTest.java|linewars/test/GameLogicTest.java|linewars/test/GameStateTest.java|linewars/test/InitializerTest.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="D:/downloads/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="D:/downloads/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="D:/downloads/tritonus_jorbis-0.3.6 (1).jar"/>
+	<classpathentry kind="lib" path="D:/downloads/tritonus_jorbis-0.3.6.jar"/>
+	<classpathentry kind="lib" path="D:/downloads/tritonus_share-0.3.6.jar"/>
+	<classpathentry kind="lib" path="D:/downloads/vorbisspi1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
