@@ -55,6 +55,7 @@ public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
 	public static final String AMIMATION_FOLDER = "resources/images";
+	public static final String SOUND_FOLDER = "resources/sounds";
 	
 	public enum ConfigType {
 		race, animation, ability, gate, tech, map, unit,
