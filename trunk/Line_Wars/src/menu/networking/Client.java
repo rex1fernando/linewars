@@ -6,8 +6,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
+import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
+import linewars.init.Game;
+import linewars.init.PlayerData;
 import menu.creategame.CreateGamePanel;
 
 public class Client implements Runnable
@@ -128,6 +133,52 @@ public class Client implements Runnable
 			running = false;
 			gamePanel.goBackToTitleMenu();
 			break;
+		case startGame:
+			System.out.println("The game is starting!");
+			
+			boolean isReplay = (Boolean) NetworkUtil.readObject(in);
+			Object selection = NetworkUtil.readObject(in);
+			PlayerBean[] players = (PlayerBean[]) NetworkUtil.readObject(in);
+			String[] ipAddresses = (String[]) NetworkUtil.readObject(in);
+			boolean isServer = (Boolean) NetworkUtil.readObject(in);
+			boolean isObserver = false;  // TODO implement observing
+			
+			List<PlayerData> playerList = convertToPlayerData(players);
+			List<String> clientList = new ArrayList<String>();
+			for (int i = 0; i < ipAddresses.length; ++i) clientList.add(ipAddresses[i]);
+			
+			if (isReplay)
+			{
+				// TODO implement
+			}
+			else
+			{
+				MapConfiguration map = (MapConfiguration) selection;
+				String serverIp = socket.getInetAddress().getHostAddress();
+				
+				Game g = new Game(map, playerList);
+				if (isServer) g.initializeServer(clientList);
+				g.initializeClient(serverIp, playerId, isObserver);
+				g.run();
+			}
+			
+			// TODO close the lobby system
+			
+			break;
 		}
+	}
+	
+	private List<PlayerData> convertToPlayerData(PlayerBean[] players)
+	{
+		List<PlayerData> playerList = new ArrayList<PlayerData>();
+		for (int i = 0; i < players.length; ++i)
+		{
+			PlayerData pd = new PlayerData();
+			pd.setColor(players[i].getColor());
+			pd.setName(players[i].getName());
+			pd.setRace(players[i].getRace());
+			pd.setStartingSlot(players[i].getSlot());
+		}
+		return playerList;
 	}
 }

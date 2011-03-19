@@ -67,4 +67,9 @@ public class MapConfiguration extends Configuration {
 		return m;
 	}
 
+	@Override
+	public String toString()
+	{
+		return getPropertyForName("bfgName").getValue().toString();
+	}
 }

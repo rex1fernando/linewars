@@ -46,10 +46,10 @@ public class SingleUserStart
 		clientList.add("127.0.0.1");
 		
 		//construct the game
-		Game testGame = new Game(testMap, playerList);
-		testGame.initializeServer(clientList);
-		testGame.initializeClient("127.0.0.1", 0);
-		testGame.run();
+//		Game testGame = new Game(testMap, playerList);
+//		testGame.initializeServer(clientList);
+//		testGame.initializeClient("127.0.0.1", 0);
+//		testGame.run();
 	}
 	
 //	private static Race createRace()
