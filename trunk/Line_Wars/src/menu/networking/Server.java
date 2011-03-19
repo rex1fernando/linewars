@@ -261,11 +261,17 @@ public class Server implements Runnable
 		{
 			synchronized (clientLock)
 			{
-				String serverIp = serverSocket.getInetAddress().getHostAddress();
 				List<Object> list = new ArrayList<Object>();
 				list.add(isReplay);
 				list.add(selection);
 				list.add(players.toArray(new PlayerBean[0]));
+				
+				List<Race> races = new ArrayList<Race>();
+				for (PlayerBean pb : players)
+				{
+					races.add(pb.getRace());
+				}
+				list.add(races.toArray(new Race[0]));
 				
 				List<String> ipAddresses = new ArrayList<String>();
 				for (ClientConnection c : clients)
@@ -278,7 +284,7 @@ public class Server implements Runnable
 				
 				for (ClientConnection c : clients)
 				{
-					list.add(serverIp.equals(c.ipAddress));
+					list.add(0, c.playerId);
 					c.sendMessage(MessageType.startGame, list.toArray());
 				}
 			}

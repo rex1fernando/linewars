@@ -8,20 +8,18 @@ import linewars.gamestate.Race;
 
 public class PlayerBean implements Serializable
 {
-	private static final long serialVersionUID = 4002707351260107011L;
+	private static final long serialVersionUID = -7857078559659192694L;
 	private String name;
 	private int slot;
 	private Race race;
 	private Color color;
 	
-	public PlayerBean(String n, Color c, int s, Race r)
-	{
+	public PlayerBean(String n, Color c, int s, Race r) {
 		name = n;
 		color = c;
 		slot = s;
 		race = r;
 	}
-	
 	public String getName() {
 		return name;
 	}
@@ -48,12 +46,19 @@ public class PlayerBean implements Serializable
 	}
 	@Override
 	public boolean equals(Object o) {
-		// implement
-		return o == this;
+		if (!(o instanceof PlayerBean)) return false;
+		
+		PlayerBean p = (PlayerBean) o;
+		return color.equals(p.color)
+			&& name.equals(p.name)
+			&& slot == p.slot
+			&& race.equals(p.race);
 	}
 	@Override
 	public int hashCode() {
-		// implement
-		return 0;
+		return name.hashCode() * 7 +
+			color.hashCode() * 23 +
+			slot * 41 +
+			race.hashCode() * 57;
 	}
 }

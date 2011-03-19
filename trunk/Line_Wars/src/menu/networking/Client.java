@@ -139,8 +139,9 @@ public class Client implements Runnable
 			boolean isReplay = (Boolean) NetworkUtil.readObject(in);
 			Object selection = NetworkUtil.readObject(in);
 			PlayerBean[] players = (PlayerBean[]) NetworkUtil.readObject(in);
+			Race[] races = (Race[]) NetworkUtil.readObject(in);
+			for (int i = 0; i < players.length; i++) players[i].setRace(races[i]);
 			String[] ipAddresses = (String[]) NetworkUtil.readObject(in);
-			boolean isServer = (Boolean) NetworkUtil.readObject(in);
 			boolean isObserver = false;  // TODO implement observing
 			
 			List<PlayerData> playerList = convertToPlayerData(players);
@@ -157,7 +158,7 @@ public class Client implements Runnable
 				String serverIp = socket.getInetAddress().getHostAddress();
 				
 				Game g = new Game(map, playerList);
-				if (isServer) g.initializeServer(clientList);
+				if (playerId == 0) g.initializeServer(clientList);
 				g.initializeClient(serverIp, playerId, isObserver);
 				g.run();
 			}
@@ -178,6 +179,7 @@ public class Client implements Runnable
 			pd.setName(players[i].getName());
 			pd.setRace(players[i].getRace());
 			pd.setStartingSlot(players[i].getSlot());
+			playerList.add(pd);
 		}
 		return playerList;
 	}

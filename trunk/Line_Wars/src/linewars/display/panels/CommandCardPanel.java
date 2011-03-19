@@ -131,7 +131,10 @@ public class CommandCardPanel extends Panel
 			selectedIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setSelectedIcon(selectedIcons[i]);
 
-			clickEvents[i] = new ClickHandler(stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllBuildings());
+			clickEvents[i] = new ClickHandler(stateManager.getCurrentGameState()
+					.getPlayer(pID)
+					.getRace()
+					.getAllBuildings());
 			buttons[i].addActionListener(clickEvents[i]);
 		}
 
