@@ -257,6 +257,14 @@ public class Server implements Runnable
 			}
 		}
 		
+		List<PlayerBean> createCopyOfBeans(List<PlayerBean> lst)
+		{
+			List<PlayerBean> ret = new ArrayList<PlayerBean>();
+			for(PlayerBean pb : lst)
+				ret.add(pb.copy());
+			return ret;
+		}
+		
 		private void beginGameInitialization()
 		{
 			synchronized (clientLock)
@@ -264,14 +272,7 @@ public class Server implements Runnable
 				List<Object> list = new ArrayList<Object>();
 				list.add(isReplay);
 				list.add(selection);
-				list.add(players.toArray(new PlayerBean[0]));
-				
-				List<Race> races = new ArrayList<Race>();
-				for (PlayerBean pb : players)
-				{
-					races.add(pb.getRace());
-				}
-				list.add(races.toArray(new Race[0]));
+				list.add(createCopyOfBeans(players).toArray(new PlayerBean[0]));
 				
 				List<String> ipAddresses = new ArrayList<String>();
 				for (ClientConnection c : clients)

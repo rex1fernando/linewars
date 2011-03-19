@@ -61,4 +61,10 @@ public class PlayerBean implements Serializable
 			slot * 41 +
 			race.hashCode() * 57;
 	}
+	
+	public PlayerBean copy()
+	{
+		PlayerBean ret = new PlayerBean(name, color, slot, race);
+		return ret;
+	}
 }

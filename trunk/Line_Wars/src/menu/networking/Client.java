@@ -139,8 +139,7 @@ public class Client implements Runnable
 			boolean isReplay = (Boolean) NetworkUtil.readObject(in);
 			Object selection = NetworkUtil.readObject(in);
 			PlayerBean[] players = (PlayerBean[]) NetworkUtil.readObject(in);
-			Race[] races = (Race[]) NetworkUtil.readObject(in);
-			for (int i = 0; i < players.length; i++) players[i].setRace(races[i]);
+			
 			String[] ipAddresses = (String[]) NetworkUtil.readObject(in);
 			boolean isObserver = false;  // TODO implement observing
 			
