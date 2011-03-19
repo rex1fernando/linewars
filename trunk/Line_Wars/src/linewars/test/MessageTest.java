@@ -58,8 +58,8 @@ public class MessageTest {
 	public void testUpgradeMessage()
 	{
 		UpgradeMessage um = new UpgradeMessage(pid, nodeid, abilityid);
-		assertEquals(3456, um.getNodeID());
-		assertEquals(54, um.getAbilityID());
+		assertEquals(3456, um.getTechGraphID());
+		assertEquals(54, um.getTechID());
 	}
 }
 
