@@ -230,18 +230,18 @@ public class Display extends JFrame implements Runnable
 			
 			if(sound != null)
 			{
-				try
-				{
-					SoundPlayer.getInstance().addSound(sound);
-				}
-				catch (UnsupportedAudioFileException e)
-				{
-					e.printStackTrace();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+//				try
+//				{
+//					SoundPlayer.getInstance().addSound(sound);
+//				}
+//				catch (UnsupportedAudioFileException e)
+//				{
+//					e.printStackTrace();
+//				}
+//				catch (IOException e)
+//				{
+//					e.printStackTrace();
+//				}
 			}
 		}
 	}
@@ -338,7 +338,7 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver);
 			add(techPanel);
 			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
 			add(techButtonPanel);

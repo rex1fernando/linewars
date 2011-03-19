@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import menu.creategame.CreateGamePanel;
@@ -54,12 +55,12 @@ public class WindowManager extends JFrame
 	
 	public void gotoJoinGame()
 	{
-		String serverIp = "127.0.0.1";
+		String serverIp = JOptionPane.showInputDialog("Enter the server's ip address:");
 		
-		// TODO get server ip somehow
-		
-		createMenu.startClient(serverIp);
-		changeContentPane(createMenu);
+		if (serverIp != null) {
+			createMenu.startClient(serverIp);
+			changeContentPane(createMenu);
+		}
 	}
 	
 	public void gotoEditor()

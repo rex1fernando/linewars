@@ -122,6 +122,7 @@ public class Server implements Runnable
 		private ObjectOutputStream out;
 		
 		private Object privateLock = new Object();
+		private String ipAddress;
 		
 		private int playerId;
 		private boolean running;
@@ -129,6 +130,7 @@ public class Server implements Runnable
 		public ClientConnection(Socket socket, int playerId) throws IOException
 		{
 			this.playerId = playerId;
+			ipAddress = socket.getLocalSocketAddress().toString();  // TODO possible fix?
 			
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -209,7 +211,7 @@ public class Server implements Runnable
 					break;
 				case race:
 					Race race = (Race) NetworkUtil.readObject(in);
-					if (!race.equals(pb.getRace())) {
+					if (race != null && !race.equals(pb.getRace())) {
 						pb.setRace((race));
 						forwardToClients(this, MessageType.race, race);	
 					}
@@ -250,6 +252,43 @@ public class Server implements Runnable
 						e.printStackTrace();
 					}
 					break;
+				case startGame:
+					beginGameInitialization();
+			}
+		}
+		
+		List<PlayerBean> createCopyOfBeans(List<PlayerBean> lst)
+		{
+			List<PlayerBean> ret = new ArrayList<PlayerBean>();
+			for(PlayerBean pb : lst)
+				ret.add(pb.copy());
+			return ret;
+		}
+		
+		private void beginGameInitialization()
+		{
+			synchronized (clientLock)
+			{
+				List<Object> list = new ArrayList<Object>();
+				list.add(isReplay);
+				list.add(selection);
+				list.add(createCopyOfBeans(players).toArray(new PlayerBean[0]));
+				
+				List<String> ipAddresses = new ArrayList<String>();
+				for (ClientConnection c : clients)
+				{
+					ipAddresses.add(c.ipAddress);
+				}
+				list.add(ipAddresses.toArray(new String[0]));
+				
+				// TODO implement observer
+				
+				for (ClientConnection c : clients)
+				{
+					list.add(0, c.playerId);
+					c.sendMessage(MessageType.startGame, list.toArray());
+					list.remove(0);
+				}
 			}
 		}
 	}

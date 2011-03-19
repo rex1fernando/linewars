@@ -183,8 +183,8 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 		}
 
 		@Override
-		public void HighlightChange(List<String> highlighted) {			
-			//If 0 or 2 or more things are highlighted, do nothing and return
+		public void HighlightChange(List<String> highlighted) {
+			//If 0 or 2 or more things are highlighted, clear the sub-editor and return
 			if(highlighted.size() != 1){
 				saveSubEditorData();
 				highlightedString = null;
@@ -196,9 +196,20 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 				return;
 			}
 			
+			//now we know that precisely one thing is highlighted... we need to create a sub-editor to modify that thing
+			
 			saveSubEditorData();
 			
 			highlightedString = highlighted.get(0);
+			
+			//if there is already an existing modification for this, out job is easy
+			if(data.getSubModification(highlightedString) != null){
+				ModifierConfiguration modification = data.getSubModification(highlightedString);
+				Class<? extends ModifierEditor> newSubEditorType = ModifierEditor.getEditorForModifier(modification.getClass());
+				setSubEditor(instantiateSubEditor(newSubEditorType));
+				subEditor.setData(modification);
+				return;
+			}
 			
 			//find out what modifications can be made to this property
 			Usage typeToModify = template.getPropertyForName(highlightedString).getUsage();
@@ -212,11 +223,9 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 			}else if(validModifications.size() == 1){
 				selectedModificationType = validModifications.get(0).getModifier();
 			}else{
-				//prompt the user to choose a way to modify this property
+				//now we don't know what to do
+				//we have to prompt the user to choose a way to modify this property
 				selectedModificationType = ModifierConfiguration.promptUserToSelectModificationType(panel, validModifications);
-				newSubEditorType = null;
-				System.err.println("There are multiple modifications that can be made to " + highlightedString + " which is of Usage type " + typeToModify + ".");
-				highlightedString = null;
 			}
 			newSubEditorType = ModifierEditor.getEditorForModifier(selectedModificationType);
 			

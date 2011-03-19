@@ -49,16 +49,7 @@ public strictfp class Game {
 		disp.start();
 	}
 	
-	public Game(MapConfiguration map, List<UserData> users){
-		//TODO handle extra data!
-		//each player may be an observer
-		//players are referred to by ids sometimes... how do we need to handle things here so that observers don't mess shit up?
-		
-		List<PlayerData> players = new ArrayList<PlayerData>();
-		for(UserData toAdd : users){
-			players.add(toAdd);
-		}
-		
+	public Game(MapConfiguration map, List<PlayerData> players){
 		logic = new TimingManager(map, players);
 	}
 	
@@ -86,7 +77,7 @@ public strictfp class Game {
 	 * @param serverAddress The address of the server computer.
 	 * @param playerIndex This player's player index.
 	 */
-	public void initializeClient(String serverAddress, int playerIndex)
+	public void initializeClient(String serverAddress, int playerIndex, boolean isObserver)
 	{
 		try {
 			networking = new Client(serverAddress, SOCKET_PORT);

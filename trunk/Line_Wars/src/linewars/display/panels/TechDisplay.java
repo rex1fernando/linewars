@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,6 +33,9 @@ import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import linewars.network.MessageReceiver;
+import linewars.network.messages.Message;
+import linewars.network.messages.UpgradeMessage;
 import configuration.Configuration;
 import editor.GenericSelector;
 import editor.URISelector;
@@ -43,12 +47,15 @@ public class TechDisplay extends JViewport
 	private final static int BUTTON_BORDER_SIZE = 5;
 	
 	private int pID;
+	private int graphID;
 	private TechGraph techGraph;
 	private JPanel treeDisplay;
 	private TechButton[] buttons;
 	
 	private GridBagLayout treeLayout;
 
+	private MessageReceiver receiver;
+	
 	private boolean editorNOTgame;
 	
 	private TechNode activeTech;
@@ -76,11 +83,13 @@ public class TechDisplay extends JViewport
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 * @param techGraph The TechGraph this TechDisplay will show.
 	 */
-	public TechDisplay(int pID, TechGraph techGraph)
+	public TechDisplay(int pID, MessageReceiver receiver, TechGraph techGraph, int graphID)
 	{
 		this.editorNOTgame = false;
 		this.pID = pID;
+		this.receiver = receiver;
 		this.techGraph = techGraph;
+		this.graphID = graphID;
 		
 		initializeDisplay();
 		
@@ -140,10 +149,10 @@ public class TechDisplay extends JViewport
 		treeConstraints.gridheight = 1;
 		treeConstraints.gridy = 0;
 		int i = 0;
-		for(int r = 0; r < ySize; ++r)
+		for(int r = 0; r <= ySize; ++r)
 		{
 			treeConstraints.gridx = 0;
-			for(int c = 0; c < xSize; ++c)
+			for(int c = 0; c <= xSize; ++c)
 			{
 				if(current != null && current.getX() == c && current.getY() == r)
 				{
@@ -336,6 +345,18 @@ public class TechDisplay extends JViewport
 			{
 				IconConfiguration icons = tech.getIcons();
 				
+				for(IconType type : icons.getIconTypes())
+				{
+					try
+					{
+						ImageDrawer.getInstance().addImage(icons.getIconURI(type), TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				
 				setIcon(new ButtonIcon(this, icons.getIconURI(IconType.regular)));
 				setPressedIcon(new ButtonIcon(this, icons.getIconURI(IconType.pressed)));
 				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
@@ -397,20 +418,30 @@ public class TechDisplay extends JViewport
 			Icon icon = getIcon();
 			
 			if(tech != null && !tech.isUnlocked())
+			{
 				if(disabledIcon != null)
 					disabledIcon.paintIcon(this, g, 0, 0);
+			}
 			else if(model.isPressed())
+			{
 				if(pressedIcon != null)
 					pressedIcon.paintIcon(this, g, 0, 0);
+			}
 			else if(model.isSelected())
+			{
 				if(selectedIcon != null)
 					selectedIcon.paintIcon(this, g, 0, 0);
+			}
 			else if(model.isRollover())
+			{
 				if(rolloverIcon != null)
 					rolloverIcon.paintIcon(this, g, 0, 0);
+			}
 			else
+			{
 				if(icon != null)
 					icon.paintIcon(this, g, 0, 0);
+			}
 		}
 	}
 	
@@ -602,6 +633,10 @@ public class TechDisplay extends JViewport
 			if(buttons[index].tech.isResearched())
 				return;
 			
+			int techID = techGraph.getOrderedList().indexOf(buttons[index].tech);
+			Message message = new UpgradeMessage(pID, graphID, techID);
+			receiver.addMessage(message);
+
 			buttons[index].tech.research();
 		}
 	}
