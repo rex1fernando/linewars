@@ -20,10 +20,10 @@ public strictfp class Map {
 		this.config = config;
 		nodes = new ArrayList<Node>();
 		int id = 0;
-		for(NodeConfiguration nc : config.nodes())
+		for(NodeConfiguration nc : config.getNodes())
 			nodes.add(nc.createNode(gameState, id++));
 		lanes = new ArrayList<Lane>();
-		for(LaneConfiguration lc : config.lanes())
+		for(LaneConfiguration lc : config.getLanes())
 			lanes.add(lc.createLane(gameState));
 	}
 	

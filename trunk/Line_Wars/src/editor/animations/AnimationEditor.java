@@ -421,6 +421,7 @@ public class AnimationEditor implements ActionListener, ConfigurationEditor, Run
 	public ConfigType getData(Configuration toSet) {
 		Animation an = (Animation)toSet;
 		
+		an.clearImages();
 		File dir = new File(animationFolder);
 		for(Frame f : list)
 		{

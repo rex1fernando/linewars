@@ -585,6 +585,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		if(!(toSet instanceof MapConfiguration))
 			throw new IllegalArgumentException(toSet + " is not a MapConfiguration");
 		
+		((MapConfiguration)toSet).clearMap();
 		return map.getData((MapConfiguration)toSet);
 	}
 

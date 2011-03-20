@@ -195,8 +195,8 @@ public class MapPanel extends JPanel
 		if(mapSize != null)
 			setMapSize(mapSize, true);
 		
-		lanes = map.lanes();
-		nodes = map.nodes();
+		lanes = map.getLanes();
+		nodes = map.getNodes();
 		
 		commandCenters = new ArrayList<BuildingSpot>();
 		buildingSpots = new ArrayList<BuildingSpot>();
@@ -219,8 +219,8 @@ public class MapPanel extends JPanel
 
 		toSet.setImageURI(mapURI);
 		toSet.setImageSize(mapSize);
-		toSet.lanes().addAll(lanes);
-		toSet.nodes().addAll(nodes);
+		toSet.setLanes(lanes);
+		toSet.setNodes(nodes);
 
 		return BigFrameworkGuy.ConfigType.map;
 	}

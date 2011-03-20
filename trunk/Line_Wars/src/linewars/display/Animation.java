@@ -74,6 +74,13 @@ public class Animation extends Configuration
 		}
 	}
 	
+	public void clearImages()
+	{
+		imageURIs.clear();
+		displayTimes.clear();
+		size = 0;
+	}
+	
 	/**
 	 * Returns the image to be displayed at the current game time.
 	 * 

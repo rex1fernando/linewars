@@ -6,6 +6,13 @@ import java.util.List;
 
 import configuration.Configuration;
 
+/**
+ * 
+ * WARNING: Does not properly implement configuration
+ * 
+ * @author Connor Schenck
+ *
+ */
 public class MapConfiguration extends Configuration {
 	/**
 	 * 
@@ -14,8 +21,8 @@ public class MapConfiguration extends Configuration {
 	
 	private Position imageSize;
 	private String imageURI;
-	private List<NodeConfiguration> nodes = new ArrayList<NodeConfiguration>();
-	private List<LaneConfiguration> lanes = new ArrayList<LaneConfiguration>();
+	private ArrayList<NodeConfiguration> nodes = new ArrayList<NodeConfiguration>();
+	private ArrayList<LaneConfiguration> lanes = new ArrayList<LaneConfiguration>();
 	
 	
 	public Position getImageSize() {
@@ -34,14 +41,26 @@ public class MapConfiguration extends Configuration {
 		this.imageURI = imageURI;
 	}
 	
-	public List<NodeConfiguration> nodes()
+	public List<NodeConfiguration> getNodes()
 	{
-		return nodes;
+		return (ArrayList<NodeConfiguration>)nodes.clone();
 	}
 	
-	public List<LaneConfiguration> lanes()
+	public List<LaneConfiguration> getLanes()
 	{
-		return lanes;
+		return (List<LaneConfiguration>) lanes.clone();
+	}
+	
+	public void setNodes(List<NodeConfiguration> ns)
+	{
+		nodes.clear();
+		nodes.addAll(ns);
+	}
+	
+	public void setLanes(List<LaneConfiguration> ls)
+	{
+		lanes.clear();
+		lanes.addAll(ls);
 	}
 	
 	public Map createMap(GameState gameState)
@@ -65,6 +84,12 @@ public class MapConfiguration extends Configuration {
 		}
 		
 		return m;
+	}
+	
+	public void clearMap()
+	{
+		nodes.clear();
+		lanes.clear();
 	}
 
 	@Override
