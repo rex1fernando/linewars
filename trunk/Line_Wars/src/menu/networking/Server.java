@@ -130,7 +130,8 @@ public class Server implements Runnable
 		public ClientConnection(Socket socket, int playerId) throws IOException
 		{
 			this.playerId = playerId;
-			ipAddress = socket.getLocalSocketAddress().toString();  // TODO possible fix?
+//			ipAddress = socket.getLocalSocketAddress().toString();  // TODO possible fix?
+			ipAddress = socket.getInetAddress().toString(); //fixed this
 			
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
