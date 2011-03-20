@@ -157,7 +157,8 @@ public class Client implements Runnable
 				String serverIp = socket.getInetAddress().getHostAddress();
 				
 				Game g = new Game(map, playerList);
-				if (playerId == 0) g.initializeServer(clientList);
+				if (playerId == 0) 
+					g.initializeServer(clientList);
 				g.initializeClient(serverIp, playerId, isObserver);
 				g.run();
 			}

@@ -45,6 +45,11 @@ public class GateKeeper
 	private static final long SLEEP_TIME = 10;
 	
 	/**
+	 * The number of milliseconds the thread waits between sending resend requests
+	 */
+	private static final long RESEND_REQUEST_DELAY = 100;
+	
+	/**
  	 * The number of miliseconds the gate keeper checks the sockets for messages
  	 * before giving up.
 	 */
@@ -90,6 +95,8 @@ public class GateKeeper
 	 * A list of addresses that the server uses to send out messages to.
 	 */
 	private String[] listeningAddresses;
+	
+	private long lastResendRequestTime = 0;
 	
 	/**
 	 * Creates a new GateKeeper with the specified listening addressess, listening port,
@@ -144,7 +151,11 @@ public class GateKeeper
 		
 		if (toReturn == null)
 		{
-			sendMessageResendRequest(tickID, address);
+			long currentTime = System.currentTimeMillis();
+			if(currentTime - RESEND_REQUEST_DELAY > lastResendRequestTime){
+				sendMessageResendRequest(tickID, address);
+				lastResendRequestTime = currentTime;				
+			}
 		}
 		
 		return toReturn;
@@ -178,6 +189,7 @@ public class GateKeeper
 	public void pushMessagesForTick(Message[] msgs, String targetAddress)
 	{
 		if (msgs == null || msgs.length == 0) return;
+		System.out.println("Pushing messages for tick " + msgs[0].getTimeStep());
 		
 		MessagePacket[] packets = MessageConstructor.createMessagePackets(msgs);
 		for (MessagePacket p : packets)
@@ -324,9 +336,10 @@ public class GateKeeper
 					}
 				}
 			}
-			
 			// sends the messages back to the requester
 			pushMessagesForTick(toSend, packet.getAddress().getHostAddress());
+			
+			System.out.println(Thread.currentThread().getName() + " responded to a resend request from address " + packet.getAddress().getHostAddress());
 			
 			return true;
 			
