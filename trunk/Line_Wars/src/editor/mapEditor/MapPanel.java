@@ -202,7 +202,10 @@ public class MapPanel extends JPanel
 		buildingSpots = new ArrayList<BuildingSpot>();
 		for(NodeConfiguration n : nodes)
 		{
-			commandCenters.add(n.getCommandCenterSpot());
+			BuildingSpot cc = n.getCommandCenterSpot();
+			if(cc != null)
+				commandCenters.add(cc);
+			
 			buildingSpots.addAll(n.buildingSpots());
 		}
 	}
