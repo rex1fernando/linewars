@@ -132,6 +132,7 @@ public class Server implements Runnable
 			this.playerId = playerId;
 //			ipAddress = socket.getLocalSocketAddress().toString();  // TODO possible fix?
 			ipAddress = socket.getInetAddress().toString(); //fixed this
+			ipAddress = ipAddress.substring(ipAddress.lastIndexOf("/") + 1); //remove the host name
 			
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
