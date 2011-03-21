@@ -55,7 +55,6 @@ public class TimingManager implements Runnable{
 	public void run() {
 		nextUpdateTime = System.currentTimeMillis();
 		while(true){
-			System.out.println(nextTickID + ", " + nextUpdateTime);
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
 			

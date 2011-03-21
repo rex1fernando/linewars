@@ -277,6 +277,18 @@ public strictfp class Lane
 			}
 		});
 		
+		//sort units in descending order by range
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() < 0)
+					return 1;
+				else if((u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() > 0))
+					return -1;
+				else
+					return 0;
+			}
+		});
+		
 		Gate closestGate = this.getGate(n);
 		//start represents if we're going up the lane (0 -> 1) or down (1 -> 0)
 		boolean forward = true;
@@ -299,6 +311,8 @@ public strictfp class Lane
 		//while minForward hasn't reached the forward bound (depending on if we're going up or down the lane) and there are still units to place
 		while(((minForward < forwardBound && forward) || (minForward > forwardBound && !forward)) && !units.isEmpty())
 		{
+			if(!lastRow.isEmpty())
+				System.out.println();
 			lastRow.clear();
 			startWidth = this.getWidth()/2; //restart the lateral placement
 			for(int i = 0; i < units.size() && startWidth > -this.getWidth()/2;) //look for the biggest unit that will fit

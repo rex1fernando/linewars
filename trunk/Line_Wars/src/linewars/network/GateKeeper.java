@@ -189,7 +189,6 @@ public class GateKeeper
 	public void pushMessagesForTick(Message[] msgs, String targetAddress)
 	{
 		if (msgs == null || msgs.length == 0) return;
-		System.out.println("Pushing messages for tick " + msgs[0].getTimeStep());
 		
 		MessagePacket[] packets = MessageConstructor.createMessagePackets(msgs);
 		for (MessagePacket p : packets)
