@@ -138,6 +138,7 @@ public class SoundPlayer implements Runnable
 	{
 		int samples = (int)(SAMPLE_RATE * (loopTime / 1000));
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
+		bytes = (bytes / 4) * 4;
 		System.out.println(samples + "\t\t" + bytes);
 		if(bytes <= 0)
 			return;
