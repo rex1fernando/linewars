@@ -44,8 +44,8 @@ public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;
 
-	private static final int DEFAULT_WIDTH = 1500;
-	static final int DEFAULT_HEIGHT = 750;
+	private static final int DEFAULT_WIDTH = 1000;
+	static final int DEFAULT_HEIGHT = 500;
 	
 	private Display display;
 	private BigFrameworkGuy bfg;
@@ -83,6 +83,9 @@ public class TechPanel extends Panel
 		
 		this.bfg = bfg;
 
+		tabs = new ArrayList<JButton>();
+		techs = new ArrayList<TechDisplay>();
+		
 		initialize();
 		
 		addEditorElements();
