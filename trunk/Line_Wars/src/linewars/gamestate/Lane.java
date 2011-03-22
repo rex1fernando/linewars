@@ -301,6 +301,8 @@ public strictfp class Lane
 		double minForward = (forward ? 0 : 1);
 		//the place to put the next min forward, is calculated as this line is placed based off the largest radius unit, (ie the next row)
 		double nextMinForward = minForward;
+		//the biggest radius of a unit in one row
+		double biggestRadius = 0;
 		//this is the farthest forward from the node [0,1] along the curve units are allowed to spawn
 		double forwardBound = findForwardBound(n); //TODO make this not related to next closest unit
 		//this represents the position along the lateral part of the lane a unit must be placed below
@@ -337,21 +339,19 @@ public strictfp class Lane
 					Position dir = Position.getUnitVector(tpos.getRotation());
 					tpos = new Transformation(dir.orthogonal().scale(w).add(tpos.getPosition()), tpos.getRotation());
 					u.setTransformation(tpos);
-					startWidth -= 2*u.getRadius(); //update the startWidth so the next placed unit will be moved laterally from this unit
+					startWidth -= 2.05*u.getRadius(); //update the startWidth so the next placed unit will be moved laterally from this unit
 					
 					units.remove(i); //the unit has been placed, get it out of here
 					lastRow.add(u);
-					if(forward) //if we're going up the lane
+					if(u.getRadius() > biggestRadius)
 					{
-						if(2*u.getRadius()/this.getLength() + minForward > nextMinForward) //if this unit has a bigger radius than any other unit
-						{
-							nextMinForward = 2*u.getRadius()/this.getLength() + minForward; //that's already been placed in this row
-						}
-					}
-					else //if we're going down the lane
-					{
-						if(minForward - 2*u.getRadius()/this.getLength() < nextMinForward) //same as above
-							nextMinForward = minForward - 2*u.getRadius()/this.getLength();
+						biggestRadius = u.getRadius();
+						Transformation backPos = this.getPosition(minForward);
+						if(!forward) //if we're going up the lane
+							backPos = new Transformation(backPos.getPosition(), backPos.getRotation() + Math.PI); //flip the direction backwards
+						
+						nextMinForward = this.getClosestPointRatio(backPos.getPosition()
+								.add(Position.getUnitVector(backPos.getRotation()).scale(2.05*biggestRadius)));
 					}
 				}
 				else //if there's not enough room, check the next biggest unit
