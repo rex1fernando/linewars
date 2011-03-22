@@ -5,11 +5,9 @@ import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 
-import linewars.display.sound.SoundPlayer.Channel;
-
 public class Sound
 {
-	private byte[][] data;
+	private byte[] data;
 	
 	public Sound(AudioInputStream in) throws IOException
 	{
@@ -21,27 +19,24 @@ public class Sound
 		return progress >= data.length;
 	}
 	
-	public int getNextFrame(byte[][] buffer, int progress, int size)
+	public int getNextFrame(byte[] buffer, int progress, int size)
 	{
-		if(progress + size > data[0].length)
-			size = data[0].length - progress;
-		if(buffer[0].length < size)
-			size = buffer[0].length;
+		if(progress + size > data.length)
+			size = data.length - progress;
+		if(buffer.length < size)
+			size = buffer.length;
 		
-		for(int c = 0; c < data.length; ++c)
+		for(int i = 0; i < size; ++i)
 		{
-			for(int i = 0; i < size; ++i)
-			{
-				buffer[c][i] = data[c][progress + i];
-			}
+			buffer[i] = data[progress + i];
 		}
 		
 		return progress + size;
 	}
-
-	private byte[][] read(AudioInputStream in) throws IOException
+	
+	private byte[] read(AudioInputStream in) throws IOException
 	{
-		byte[][] allData = new byte[Channel.values().length][4096];
+		byte[] allData = new byte[4096];
 		
 		int offset = 0;
 		
@@ -59,24 +54,20 @@ public class Sound
 		
 		in.close();
 		
-		for(Channel c : Channel.values())
-			allData[c.ordinal()] = Arrays.copyOf(allData[c.ordinal()], offset / allData.length);
+		allData = Arrays.copyOf(allData, offset);
 		
 		return allData;
 	}
 	
-	private byte[][] append(byte[][] target, byte[] source, int offset)
+	private byte[] append(byte[] target, byte[] source, int offset)
 	{
-		byte[][] ofTheJedi = null;
-		if(target[0].length < offset + source.length / target.length)
+		byte[] ofTheJedi = null;
+		if(target.length < offset + source.length)
 		{
-			ofTheJedi = new byte[target.length][2 * (source.length + offset)];
+			ofTheJedi = new byte[2 * (source.length + offset)];
 			for(int i = 0; i < target.length; ++i)
 			{
-				for(int j = 0; j < target[i].length; ++j)
-				{
-					ofTheJedi[i][j] = target[i][j];
-				}
+				ofTheJedi[i] = target[i];
 			}
 		}
 		else
@@ -84,9 +75,9 @@ public class Sound
 			ofTheJedi = target;
 		}
 		
-		for(int i = 0; i < source.length; i++)
+		for(int i = 0; i < source.length; ++i)
 		{
-			ofTheJedi[(i + offset) % ofTheJedi.length][(i + offset) / ofTheJedi.length] = source[i];
+			ofTheJedi[i + offset] = source[i];
 		}
 		
 		return ofTheJedi;
