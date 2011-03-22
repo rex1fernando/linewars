@@ -205,11 +205,8 @@ public class SoundPlayer implements Runnable
 					{
 						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
 						
-						channelSample *= 256;
-						dataSample *= 256;
-
-						channelSample += channelData[byteNum];
-						dataSample += dataFromSource[byteNum];
+						channelSample = (channelSample << 8) | (channelData[byteNum] & 255L);
+						dataSample = (dataSample << 8) | (dataFromSource[byteNum] & 255L);
 					}
 					
 					channelSample = (long)((channelSample * (double)(index / (index + 1))) + ((dataSample * p.sound.getVolume(channel)) * (double)(1 / (index + 1))));
@@ -217,8 +214,9 @@ public class SoundPlayer implements Runnable
 					for(int j = 0; j < SAMPLE_SIZE_IN_BYTES; ++j)
 					{
 						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
-						channelData[byteNum] = (byte)(channelSample % 256);
-						channelSample /= 256;
+						byte toSave = (byte)(channelSample & 255L);
+						channelData[byteNum] = toSave;
+						channelSample = channelSample >> 8;
 					}
 				}
 			}
