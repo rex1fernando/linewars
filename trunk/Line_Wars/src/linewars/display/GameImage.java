@@ -4,6 +4,11 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 /**
  * Encapsulates Image scaling.
@@ -28,20 +33,51 @@ public class GameImage
 	 *            The width of the image in game units.
 	 * @param height
 	 *            The height of the image in game units.
+	 * @throws IOException 
 	 */
-	public GameImage(Image image, int width, int height)
+	public GameImage(String uri, int width, int height) throws IOException
 	{
-		originalImage = image;
+		originalImage = loadImage(uri);
+		if(originalImage == null)
+			throw new IOException(uri + " was not loaded properly from the game resources.");
 
-		scaleX = (double)width / image.getWidth(null);
-		scaleY = (double)height / image.getHeight(null);
+		scaleX = (double)width / originalImage.getWidth(null);
+		scaleY = (double)height / originalImage.getHeight(null);
 
 		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = lastScaledImage.getGraphics();
-		g.drawImage(image, 0, 0, width, height, null);
+		g.drawImage(originalImage, 0, 0, width, height, null);
 
 		lastScale = 1.0;
 	}
+
+	/**
+	 * Loads the specified image URI.
+	 * 
+	 * @param uri
+	 *            The URI of the image to load.
+	 * @return The image stored in the file with the given URI.
+	 * @throws IOException
+	 *             If the image could not be loaded.
+	 */
+	private BufferedImage loadImage(String uri) throws IOException
+	{
+		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + uri;
+		absURI = absURI.replace("/", File.separator);
+
+		BufferedImage image;
+		try
+		{
+			image = ImageIO.read(new URL(absURI));
+		}
+		catch (IOException e)
+		{
+			throw new IOException("Unable to load " + uri + " from the game resources.");
+		}
+
+		return image;
+	}
+
 
 	/**
 	 * Scales the image. If scale is the same as the last call to this method it
