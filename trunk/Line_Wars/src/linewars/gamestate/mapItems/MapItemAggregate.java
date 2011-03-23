@@ -123,7 +123,8 @@ public abstract class MapItemAggregate extends MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		for(MapItem c : containedItems)
-			if(c.getBody().isCollidingWith(m.getBody()))
+//			if(c.getBody().isCollidingWith(m.getBody()))
+			if(c.isCollidingWith(m))
 				return true;
 		
 		return false;
