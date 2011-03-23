@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
@@ -67,9 +68,12 @@ public class CompressionTest
 		System.out.println("byte length: " + pixels * channels * bytes);
 		
 		
-//		Deflater compresser = new Deflater();
-//		compresser.setInput(original.getData().);
-//		compresser.finish();
-//		int compressedDataLength = compresser.deflate(output);
+		Deflater compresser = new Deflater();
+		compresser.setInput(imageBytes);
+		compresser.finish();
+		
+		byte[] compressed = new byte[(int)length * 2];
+		int compressedDataLength = compresser.deflate(compressed);
+		System.out.println("comp length: " + compressedDataLength);
 	}
 }

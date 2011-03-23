@@ -24,6 +24,8 @@ public class SoundPlayer implements Runnable
 	 * be modified to handle larger sizes if this number is increased.
 	 */
 	private static final int SAMPLE_SIZE_IN_BYTES = 2;
+	
+	private static final int MIN_LOOP_TIME = 1;
 
 	/*
 	 * TODO if the channels are changed then the sound managers may need to
@@ -53,7 +55,7 @@ public class SoundPlayer implements Runnable
 		sounds = new HashMap<String, Sound>();
 		playing = new LinkedList<SoundPair>();
 		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
-		loopTime = 0.001f;
+		loopTime = MIN_LOOP_TIME;
 	}
 
 	public static SoundPlayer getInstance()
@@ -91,6 +93,15 @@ public class SoundPlayer implements Runnable
 
 		playing.add(new SoundPair(0, playMe));
 	}
+	
+	public void stop()
+	{
+		running = false;
+
+		line.drain();
+		line.stop();
+		line.close();
+	}
 
 	@Override
 	public void run()
@@ -103,6 +114,10 @@ public class SoundPlayer implements Runnable
 				if(running)
 				{
 					return;
+				}
+				else
+				{
+					running = true;
 				}
 			}
 		}
@@ -121,29 +136,46 @@ public class SoundPlayer implements Runnable
 			e.printStackTrace();
 			return;
 		}
+		
+		line.start();
 
-		while(true)
+		while(running)
 		{
 			lastTime = System.currentTimeMillis();
-
+			
 			play();
 
 			long curTime = System.currentTimeMillis();
 			long elapsedTime = curTime - lastTime;
+			
+			if(elapsedTime < MIN_LOOP_TIME)
+			{
+				try
+				{
+					Thread.sleep(MIN_LOOP_TIME);
+				}
+				catch(InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				
+				curTime = System.currentTimeMillis();
+				elapsedTime = curTime - lastTime;
+			}
+			
 			loopTime = (loopTime * 0.875f) + (elapsedTime * 0.125f);
 		}
 	}
-
+	
 	private void play()
 	{
-		int samples = (int)(SAMPLE_RATE * (loopTime / 1000));
+		int samples = (int)(SAMPLE_RATE * (loopTime / 1000.0f)) * Channel.values().length;
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
-		bytes = (bytes / 4) * 4;
-		System.out.println(samples + "\t\t" + bytes);
+		bytes = (bytes / (SAMPLE_SIZE_IN_BYTES * Channel.values().length)) * (SAMPLE_SIZE_IN_BYTES * Channel.values().length);
 		if(bytes <= 0)
 			return;
 		
-		byte[][] channelData = new byte[Channel.values().length][bytes];
+		byte[] channelData = new byte[bytes];
 
 		int index = 0;
 		while(index < playing.size())
@@ -157,29 +189,42 @@ public class SoundPlayer implements Runnable
 				continue;
 			}
 
-			byte[][] dataFromSource = new byte[Channel.values().length][bytes];
+			byte[] dataFromSource = new byte[bytes];
 			p.progress = current.getNextFrame(dataFromSource, p.progress, bytes);
 
-			// TODO this loop will have to be modified if we choose to use an
-			// encoding larger than 8 bits.
-			for(Channel channel : Channel.values())
+			for(int i = 0; i < bytes / Channel.values().length / SAMPLE_SIZE_IN_BYTES; ++i)
 			{
-				int c = channel.ordinal();
-				for(int i = 0; i < bytes; ++i)
+				for(Channel channel : Channel.values())
 				{
-					channelData[c][i] = (byte)((((int)channelData[c][i]) * index / (index + 1)) +
-										((((int)dataFromSource[c][i]) * p.sound.getVolume(channel)) * 1 / (index + 1)));
+					int c = channel.ordinal();
+					int sampleNum = (i * Channel.values().length) + c;
+					long channelSample = 0;
+					long dataSample = 0;
+					
+					for(int j = SAMPLE_SIZE_IN_BYTES - 1; j >= 0; --j)
+					{
+						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
+						
+						channelSample = (channelSample << 8) | (channelData[byteNum] & 255L);
+						dataSample = (dataSample << 8) | (dataFromSource[byteNum] & 255L);
+					}
+					
+					channelSample = (long)((channelSample * (double)(index / (index + 1))) + ((dataSample * p.sound.getVolume(channel)) * (double)(1 / (index + 1))));
+					
+					for(int j = 0; j < SAMPLE_SIZE_IN_BYTES; ++j)
+					{
+						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
+						byte toSave = (byte)(channelSample & 255L);
+						channelData[byteNum] = toSave;
+						channelSample = channelSample >> 8;
+					}
 				}
 			}
 
 			++index;
 		}
 
-		byte[] dataForStream = new byte[channelData.length * bytes];
-		for(int i = 0; i < dataForStream.length; ++i)
-			dataForStream[i] = channelData[i % channelData.length][i / channelData.length];
-		
-		line.write(dataForStream, 0, channelData.length * bytes);
+		line.write(channelData, 0, channelData.length);
 	}
 
 	private static SourceDataLine getLine(AudioFormat audioFormat) throws LineUnavailableException

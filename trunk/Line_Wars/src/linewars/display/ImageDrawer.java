@@ -68,40 +68,9 @@ public class ImageDrawer
 		if(images.get(uri + width + height) != null)
 			return;
 
-		Image image = loadImage(uri);
-		if(image == null)
-			return;
-
-		GameImage scaledImage = new GameImage(image, width, height);
+		GameImage scaledImage = new GameImage(uri, width, height);
 
 		images.put(uri + width + height, scaledImage);
-	}
-
-	/**
-	 * Loads the specified image URI.
-	 * 
-	 * @param uri
-	 *            The URI of the image to load.
-	 * @return The image stored in the file with the given URI.
-	 * @throws IOException
-	 *             If the image could not be loaded.
-	 */
-	public BufferedImage loadImage(String uri) throws IOException
-	{
-		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + uri;
-		absURI = absURI.replace("/", File.separator);
-
-		BufferedImage image;
-		try
-		{
-			image = ImageIO.read(new URL(absURI));
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Unable to load " + uri + " from the game resources.");
-		}
-
-		return image;
 	}
 
 	/**
@@ -126,7 +95,14 @@ public class ImageDrawer
 		
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
-		g.drawImage(image.scaleImage(scale), x, y, null);
+		try
+		{
+			g.drawImage(image.scaleImage(scale), x, y, null);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**

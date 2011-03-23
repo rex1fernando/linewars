@@ -15,10 +15,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import linewars.display.sound.SoundInfo;
 import linewars.display.sound.SoundPlayer;
 import linewars.display.sound.SoundPlayer.Channel;
-import linewars.gamestate.Wave;
 
 public class SoundTest {
-	private static final String SOUND = "TankTread.wav";
+	private static final String SOUND = "Guitar_test_riff.wav";
 	
 	public static void main(String[] args){
 //		testPlay("resources\\sounds\\" + SOUND);
@@ -169,14 +168,27 @@ public class SoundTest {
 			}
 		});
 		
-//		try
-//		{
-//			Thread.sleep(10000);
-//		}
-//		catch (InterruptedException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try
+		{
+			Thread.sleep(120000);
+		}
+		catch(InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		sp.stop();
+		System.out.println("DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		
+		try
+		{
+			Thread.sleep(10000);
+		}
+		catch(InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
