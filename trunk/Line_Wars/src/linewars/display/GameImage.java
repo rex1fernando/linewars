@@ -4,8 +4,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 
@@ -26,7 +26,8 @@ public class GameImage
 //	private byte[] originalImage;
 	private int originalWidth;
 	private int originalHeight;
-	private Image lastScaledImage;
+//	private Image lastScaledImage;
+	private byte[] lastScaledImage;
 
 	/**
 	 * Constructs this game image.
@@ -42,7 +43,7 @@ public class GameImage
 	public GameImage(String uri, int width, int height) throws IOException
 	{
 		Image image = loadImage(uri);
-		if(originalImage == null)
+		if(image == null)
 			throw new IOException(uri + " was not loaded properly from the game resources.");
 		
 		originalWidth = image.getWidth(null);
@@ -53,9 +54,15 @@ public class GameImage
 
 		originalImage = image;
 
-		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = lastScaledImage.getGraphics();
+//		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//		Graphics g = lastScaledImage.getGraphics();
+		Graphics g = temp.getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
+		
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		ImageIO.write(temp, "png", outStream);
+		lastScaledImage = outStream.toByteArray();
 
 		lastScale = 1.0;
 	}
@@ -71,7 +78,8 @@ public class GameImage
 	 */
 	private BufferedImage loadImage(String uri) throws IOException
 	{
-		String absURI = System.getProperty("user.dir") + "/resources/images/" + uri;
+//		String absURI = System.getProperty("user.dir") + "/resources/images/" + uri;
+		String absURI = "File:" + System.getProperty("user.dir") + "/resources/images/" + uri;
 		absURI = absURI.replace("/", File.separator);
 
 		BufferedImage image;
@@ -111,6 +119,7 @@ public class GameImage
 	 */
 	public Image scaleImage(double scale) throws IOException
 	{
+		BufferedImage temp;
 		if(scale != lastScale)
 		{
 			int width = (int)(originalWidth * scaleX * scale);
@@ -121,16 +130,28 @@ public class GameImage
 //			if(image == null)
 //				throw new IOException("Could not read byte stream for image");
 
-			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-			Graphics g = lastScaledImage.getGraphics();
+//			Graphics g = lastScaledImage.getGraphics();
+			Graphics g = temp.getGraphics();
 			g.drawImage(originalImage, 0, 0, width, height, null);
 //			g.drawImage(image, 0, 0, width, height, null);
+			
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			ImageIO.write(temp, "png", outStream);
+			lastScaledImage = outStream.toByteArray();
 
 			lastScale = scale;
 		}
+		else
+		{
+			ByteArrayInputStream inStream = new ByteArrayInputStream(lastScaledImage);
+			temp = ImageIO.read(inStream);
+		}
 
-		return lastScaledImage;
+//		return lastScaledImage;
+		return temp;
 	}
 
 	/**
