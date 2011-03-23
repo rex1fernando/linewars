@@ -46,7 +46,6 @@ public class TechButtonPanel extends Panel
 		techButton = new JButton();
 		techButton.setFocusable(false);
 		techButton.setIcon(new ArrowIcon(animations[0].getImage(0, 0.0), animations[1].getImage(0, 0.0)));
-		techButton.setPressedIcon(new ArrowIcon(animations[2].getImage(0, 0.0), animations[3].getImage(0, 0.0)));
 		techButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)

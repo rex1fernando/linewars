@@ -21,8 +21,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import linewars.display.Animation;
 import linewars.display.Display;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.Position;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.UnlockStrategy;
@@ -72,9 +75,9 @@ public class TechPanel extends Panel
 	 * Constructs the TechPanel for the editors, allows all elements to be edited.
 	 * @param bfg The BigFrameworkGuy that contains this panel.
 	 */
-	public TechPanel(BigFrameworkGuy bfg)
+	public TechPanel(BigFrameworkGuy bfg, Animation... anims)
 	{
-		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 		
 		Dimension size = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		setPreferredSize(size);
@@ -99,9 +102,9 @@ public class TechPanel extends Panel
 	 * @param stateManager The GameStateProvider for the current session of the game.
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 */
-	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver)
+	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver, Animation... anims)
 	{
-		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims[0]);
 		
 		this.display = display;
 		this.displayed = false;
@@ -115,7 +118,7 @@ public class TechPanel extends Panel
 		{
 			TechGraph graph = graphs.get(i);
 			tabs.add(new JButton(graph.getName()));
-			techs.add(new TechDisplay(pID, receiver, graph, i));
+			techs.add(new TechDisplay(pID, receiver, graph, i, anims[1]));
 		}
 		
 		initialize();
@@ -279,10 +282,19 @@ public class TechPanel extends Panel
 	@Override
 	public void paint(Graphics g)
 	{
-		g.setColor(Color.pink);
-		g.fillRect(0, 0, getWidth(), getHeight());		
-		
-		super.paint(g);
+		if(bfg != null)
+		{
+			if(curAnimation != null)
+			{
+				ImageDrawer.getInstance().draw(g, curAnimation.getImage(0.0, 0.0),
+						getWidth(), getHeight(),
+						new Position(0, 0), scaleFactor);
+			}
+		}
+		else
+		{
+			super.paint(g);
+		}
 	}
 	
 	private class ResizeListener extends ComponentAdapter

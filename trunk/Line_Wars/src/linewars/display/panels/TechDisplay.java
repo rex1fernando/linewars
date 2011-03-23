@@ -24,6 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import linewars.display.Animation;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
 import linewars.display.ImageDrawer;
@@ -58,6 +59,8 @@ public class TechDisplay extends JViewport
 	
 	private boolean editorNOTgame;
 	
+	private Animation arrow;
+	
 	private TechNode activeTech;
 	private GenericSelector<Configuration> techSelector;
 	private GenericSelector<UnlockStrategy> unlockStrategySelector;
@@ -83,13 +86,14 @@ public class TechDisplay extends JViewport
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 * @param techGraph The TechGraph this TechDisplay will show.
 	 */
-	public TechDisplay(int pID, MessageReceiver receiver, TechGraph techGraph, int graphID)
+	public TechDisplay(int pID, MessageReceiver receiver, TechGraph techGraph, int graphID, Animation arrow)
 	{
 		this.editorNOTgame = false;
 		this.pID = pID;
 		this.receiver = receiver;
 		this.techGraph = techGraph;
 		this.graphID = graphID;
+		this.arrow = arrow;
 		
 		initializeDisplay();
 		
@@ -239,7 +243,7 @@ public class TechDisplay extends JViewport
 		TechNode root = techGraph.getRoot();
 		while(root != null)
 		{
-			drawDependencyLines(g, root);
+			drawDependencyLines((Graphics2D)g, root);
 			root = techGraph.getNextRoot();
 		}
 		
@@ -247,7 +251,7 @@ public class TechDisplay extends JViewport
 		
 	}
 	
-	private void drawDependencyLines(Graphics g, TechNode node)
+	private void drawDependencyLines(Graphics2D g, TechNode node)
 	{
 		if(node.isMarked())
 			return;
@@ -265,6 +269,20 @@ public class TechDisplay extends JViewport
 			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
 			
 			Position vector = new Position(startX - endX, startY - endY);
+			
+			
+			
+//			Position halfVector = vector.scale(0.5);
+//			double rotation = vector.getAngle();
+//			g.rotate(rotation, halfVector.getX() + startX, halfVector.getY() + startY);
+//			
+//			g.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, observer)
+			
+			
+			
+			
+			
+			
 			vector = vector.normalize().scale(15);
 			
 			g.drawLine(startX, startY, endX, endY);	
