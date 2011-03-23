@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl http://brokenlightbulbentertainment.com/linewars/update_beta
