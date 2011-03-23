@@ -26,8 +26,7 @@ public class GameImage
 //	private byte[] originalImage;
 	private int originalWidth;
 	private int originalHeight;
-//	private Image lastScaledImage;
-	private byte[] lastScaledImage;
+	private Image lastScaledImage;
 
 	/**
 	 * Constructs this game image.
@@ -54,15 +53,9 @@ public class GameImage
 
 		originalImage = image;
 
-//		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		BufferedImage temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-//		Graphics g = lastScaledImage.getGraphics();
-		Graphics g = temp.getGraphics();
+		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = lastScaledImage.getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
-		
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		ImageIO.write(temp, "png", outStream);
-		lastScaledImage = outStream.toByteArray();
 
 		lastScale = 1.0;
 	}
@@ -119,7 +112,6 @@ public class GameImage
 	 */
 	public Image scaleImage(double scale) throws IOException
 	{
-		BufferedImage temp;
 		if(scale != lastScale)
 		{
 			int width = (int)(originalWidth * scaleX * scale);
@@ -130,28 +122,16 @@ public class GameImage
 //			if(image == null)
 //				throw new IOException("Could not read byte stream for image");
 
-//			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			temp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-//			Graphics g = lastScaledImage.getGraphics();
-			Graphics g = temp.getGraphics();
+			Graphics g = lastScaledImage.getGraphics();
 			g.drawImage(originalImage, 0, 0, width, height, null);
 //			g.drawImage(image, 0, 0, width, height, null);
-			
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			ImageIO.write(temp, "png", outStream);
-			lastScaledImage = outStream.toByteArray();
 
 			lastScale = scale;
 		}
-		else
-		{
-			ByteArrayInputStream inStream = new ByteArrayInputStream(lastScaledImage);
-			temp = ImageIO.read(inStream);
-		}
 
-//		return lastScaledImage;
-		return temp;
+		return lastScaledImage;
 	}
 
 	/**
