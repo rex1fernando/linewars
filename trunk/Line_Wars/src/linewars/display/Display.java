@@ -20,18 +20,14 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import configuration.Configuration;
-import configuration.Property;
-import configuration.Usage;
 
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
 import linewars.display.layers.MapItemLayer.MapItemType;
+import linewars.display.layers.SoundLayer;
 import linewars.display.layers.TerrainLayer;
 import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
@@ -39,7 +35,6 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
-import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
@@ -54,6 +49,9 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.AdjustFlowDistributionMessage;
+import configuration.Configuration;
+import configuration.Property;
+import configuration.Usage;
 
 /**
  * Encapsulates the display information.
@@ -362,11 +360,15 @@ public class Display extends JFrame implements Runnable
 			String mapURI = map.getConfig().getImageURI();
 
 			gameStateProvider.unlockViewableGameState();
+			
+			SoundLayer sound = new SoundLayer(new String[]{"Guitar_test_riff.wav"});
 
 			strategicView = new ArrayList<ILayer>(2);
+			strategicView.add(sound);
 			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
 
 			tacticalView = new ArrayList<ILayer>();
+			tacticalView.add(sound);
 			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
 			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
 			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));

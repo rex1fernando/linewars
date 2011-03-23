@@ -1,12 +1,11 @@
 package linewars.init;
 
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.List;
 
 import linewars.display.Display;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.TimingManager;
-import linewars.gamestate.Map;
 import linewars.gamestate.MapConfiguration;
 import linewars.network.Client;
 import linewars.network.MessageHandler;
@@ -22,6 +21,7 @@ public strictfp class Game {
 	private static final int SOCKET_PORT = 9001;
 	
 	private Display display;
+	private SoundPlayer sound;
 	private MessageHandler networking;
 	private TimingManager logic;
 	private Server server;
@@ -47,6 +47,11 @@ public strictfp class Game {
 		Thread disp = new Thread(display);
 		disp.setName("Display");
 		disp.start();
+		
+		Thread sp = new Thread(sound);
+		sp.setDaemon(true);
+		sp.setName("Sound");
+		sp.start();
 	}
 	
 	public Game(MapConfiguration map, List<PlayerData> players){
@@ -87,6 +92,7 @@ public strictfp class Game {
 		}
 		
 		display = new Display(logic.getGameStateManager(), networking, playerIndex);
+		sound = SoundPlayer.getInstance();
 		logic.setClientReference(networking);
 	}
 }

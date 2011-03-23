@@ -39,7 +39,7 @@ public class LocalSoundEffectManager
 		for(MapItem mapItem : items)
 		{
 			Position pos = mapItem.getPosition();
-			int id = 0; //TODO get the mapitem's id
+			int id = mapItem.getID();
 			StateSoundPair pair = currentEffects.get(id);
 			
 			double[] mapItemVol = new double[SoundPlayer.Channel.values().length];
@@ -47,7 +47,12 @@ public class LocalSoundEffectManager
 				mapItemVol[c.ordinal()] = mapItemVol(c, pos, screenRect);
 			
 			MapItemState state = mapItem.getState();
-			if(pair.state != state)
+			if(pair == null)
+			{
+				String sound = ((DisplayConfiguration)mapItem.getDefinition().getDisplayConfiguration()).getSound(state);
+				startEffect(id, sound, mapItemVol, state);
+			}
+			else if(pair.state != state)
 			{
 				//TODO do we want to cancel the current sound effect?
 				pair.sound.setDone();
@@ -55,22 +60,12 @@ public class LocalSoundEffectManager
 				String s = ((DisplayConfiguration)mapItem.getDefinition().getDisplayConfiguration()).getSound(state);
 				if(s != null)
 				{
-					LocalSoundEffectInfo newEffect = new LocalSoundEffectInfo(s);
-					for(Channel c : Channel.values())
-						newEffect.setVolume(c, mapItemVol[c.ordinal()]);
-					
-					SoundPlayer.getInstance().playSound(newEffect);						
-					currentEffects.put(id, new StateSoundPair(state, newEffect));
+					startEffect(id, s, mapItemVol, state);
 				}
 			}
 			else if(pair.sound.isDone())
 			{
-				LocalSoundEffectInfo newEffect = new LocalSoundEffectInfo(pair.sound.getURI());
-				for(Channel c : Channel.values())
-					newEffect.setVolume(c, mapItemVol[c.ordinal()]);
-				
-				SoundPlayer.getInstance().playSound(newEffect);
-				currentEffects.put(id, new StateSoundPair(state, newEffect));
+				startEffect(id, pair.sound.getURI(), mapItemVol, state);
 			}
 			else
 			{
@@ -78,6 +73,16 @@ public class LocalSoundEffectManager
 					pair.sound.setVolume(c, mapItemVol[c.ordinal()]);
 			}
 		}
+	}
+
+	private void startEffect(int id, String sound, double[] mapItemVol, MapItemState state)
+	{
+		LocalSoundEffectInfo newEffect = new LocalSoundEffectInfo(sound);
+		for(Channel c : Channel.values())
+			newEffect.setVolume(c, mapItemVol[c.ordinal()]);
+		
+		SoundPlayer.getInstance().playSound(newEffect);
+		currentEffects.put(id, new StateSoundPair(state, newEffect));
 	}
 	
 	private double mapItemVol(Channel c, Position mapItemPos, Rectangle screenRect)
