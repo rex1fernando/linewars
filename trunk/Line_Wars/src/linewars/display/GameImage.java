@@ -3,8 +3,9 @@ package linewars.display;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 
@@ -22,6 +23,9 @@ public class GameImage
 	private double scaleY;
 	private double lastScale;
 	private Image originalImage;
+//	private byte[] originalImage;
+	private int originalWidth;
+	private int originalHeight;
 	private Image lastScaledImage;
 
 	/**
@@ -37,16 +41,21 @@ public class GameImage
 	 */
 	public GameImage(String uri, int width, int height) throws IOException
 	{
-		originalImage = loadImage(uri);
+		Image image = loadImage(uri);
 		if(originalImage == null)
 			throw new IOException(uri + " was not loaded properly from the game resources.");
+		
+		originalWidth = image.getWidth(null);
+		originalHeight = image.getHeight(null);
 
-		scaleX = (double)width / originalImage.getWidth(null);
-		scaleY = (double)height / originalImage.getHeight(null);
+		scaleX = (double)width / originalWidth;
+		scaleY = (double)height / originalHeight;
+
+		originalImage = image;
 
 		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = lastScaledImage.getGraphics();
-		g.drawImage(originalImage, 0, 0, width, height, null);
+		g.drawImage(image, 0, 0, width, height, null);
 
 		lastScale = 1.0;
 	}
@@ -62,7 +71,7 @@ public class GameImage
 	 */
 	private BufferedImage loadImage(String uri) throws IOException
 	{
-		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + uri;
+		String absURI = System.getProperty("user.dir") + "/resources/images/" + uri;
 		absURI = absURI.replace("/", File.separator);
 
 		BufferedImage image;
@@ -74,6 +83,16 @@ public class GameImage
 		{
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
+		
+//		File file = new File(absURI);
+//		FileInputStream fis = new FileInputStream(file);
+//		long length = file.length();
+//		
+//		originalImage = new byte[(int)length];
+//		fis.read(originalImage);
+//				
+//		ByteArrayInputStream inStream = new ByteArrayInputStream(originalImage);
+//		BufferedImage image = ImageIO.read(inStream);
 
 		return image;
 	}
@@ -88,18 +107,25 @@ public class GameImage
 	 * @param scale
 	 *            The conversion factor from game units to screen units.
 	 * @return The scaled image.
+	 * @throws IOException 
 	 */
-	public Image scaleImage(double scale)
+	public Image scaleImage(double scale) throws IOException
 	{
 		if(scale != lastScale)
 		{
-			int width = (int)(originalImage.getWidth(null) * scaleX * scale);
-			int height = (int)(originalImage.getHeight(null) * scaleY * scale);
+			int width = (int)(originalWidth * scaleX * scale);
+			int height = (int)(originalHeight * scaleY * scale);
+
+//			ByteArrayInputStream inStream = new ByteArrayInputStream(originalImage);
+//			BufferedImage image = ImageIO.read(inStream);
+//			if(image == null)
+//				throw new IOException("Could not read byte stream for image");
 
 			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
 			Graphics g = lastScaledImage.getGraphics();
 			g.drawImage(originalImage, 0, 0, width, height, null);
+//			g.drawImage(image, 0, 0, width, height, null);
 
 			lastScale = scale;
 		}
@@ -110,24 +136,20 @@ public class GameImage
 	/**
 	 * Gets the width of the image in game units.
 	 * 
-	 * @param observer
-	 *            The image observer.
 	 * @return The width of the image.
 	 */
-	public int getWidth(ImageObserver observer)
+	public int getWidth()
 	{
-		return (int)(originalImage.getWidth(observer) * scaleX);
+		return (int)(originalWidth * scaleX);
 	}
 
 	/**
 	 * Gets the height of the image in game units.
 	 * 
-	 * @param observer
-	 *            The image observer.
 	 * @return The height of the image.
 	 */
-	public int getHeight(ImageObserver observer)
+	public int getHeight()
 	{
-		return (int)(originalImage.getHeight(observer) * scaleY);
+		return (int)(originalHeight * scaleY);
 	}
 }

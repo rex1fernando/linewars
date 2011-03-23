@@ -95,7 +95,14 @@ public class ImageDrawer
 		
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
-		g.drawImage(image.scaleImage(scale), x, y, null);
+		try
+		{
+			g.drawImage(image.scaleImage(scale), x, y, null);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
