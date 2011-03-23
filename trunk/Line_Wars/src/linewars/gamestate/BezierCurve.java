@@ -13,6 +13,10 @@ import java.util.List;
  * 
  */
 public strictfp class BezierCurve implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3745736036577147874L;
 	/*
  	 * These points represent the 4 control
 	 * points in a bezier curve, with p0 and p3 being the end points.
@@ -345,7 +349,6 @@ public strictfp class BezierCurve implements Serializable {
 	 *	by Philip J. Schneider
 	 *	from "Graphics Gems", Academic Press, 1990
 	 */
-	
 	
 	/**
 	 * Compute the parameter value of the point on a Bezier curve

@@ -385,7 +385,6 @@ public strictfp class Lane
 		}
 		
 		pendingWaves.get(n).clear();
-		
 	}
 
 	/**
