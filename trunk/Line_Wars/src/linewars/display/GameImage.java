@@ -69,7 +69,7 @@ public class GameImage
 	 * @throws IOException
 	 *             If the image could not be loaded.
 	 */
-	private BufferedImage loadImage(String uri) throws IOException
+	public static BufferedImage loadImage(String uri) throws IOException
 	{
 //		String absURI = System.getProperty("user.dir") + "/resources/images/" + uri;
 		String absURI = "File:" + System.getProperty("user.dir") + "/resources/images/" + uri;

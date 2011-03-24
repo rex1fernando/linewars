@@ -28,27 +28,25 @@ import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.gamestate.tech.UnlockStrategy;
+import linewars.gamestate.tech.UnlockStrategyAll;
 import linewars.gamestate.tech.UnlockStrategyNoSyblings;
 import linewars.gamestate.tech.UnlockStrategyOne;
-import linewars.gamestate.tech.TechGraph.TechNode;
-import linewars.gamestate.tech.UnlockStrategyAll;
 import linewars.network.MessageReceiver;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
 import editor.GenericSelector.GenericListCallback;
 import editor.GenericSelector.SelectionChangeListener;
-import editor.URISelector;
-import editor.URISelector.SelectorOptions;
 
 @SuppressWarnings("serial")
 public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;
 
-	private static final int DEFAULT_WIDTH = 1000;
-	static final int DEFAULT_HEIGHT = 500;
+	private static final int DEFAULT_WIDTH = 720;
+	static final int DEFAULT_HEIGHT = 480;
 	
 	private Display display;
 	private BigFrameworkGuy bfg;
@@ -75,14 +73,9 @@ public class TechPanel extends Panel
 	 * Constructs the TechPanel for the editors, allows all elements to be edited.
 	 * @param bfg The BigFrameworkGuy that contains this panel.
 	 */
-	public TechPanel(BigFrameworkGuy bfg, Animation... anims)
+	public TechPanel(BigFrameworkGuy bfg)
 	{
-		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
-		
-		Dimension size = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		setPreferredSize(size);
-		setMinimumSize(size);
-		setMaximumSize(size);
+		super(null, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		
 		this.bfg = bfg;
 
@@ -118,7 +111,7 @@ public class TechPanel extends Panel
 		{
 			TechGraph graph = graphs.get(i);
 			tabs.add(new JButton(graph.getName()));
-			techs.add(new TechDisplay(pID, receiver, graph, i, anims[1]));
+			techs.add(new TechDisplay(stateManager, pID, receiver, graph, i, anims[1]));
 		}
 		
 		initialize();
@@ -284,17 +277,18 @@ public class TechPanel extends Panel
 	{
 		if(bfg != null)
 		{
-			if(curAnimation != null)
-			{
-				ImageDrawer.getInstance().draw(g, curAnimation.getImage(0.0, 0.0),
-						getWidth(), getHeight(),
-						new Position(0, 0), scaleFactor);
-			}
+			g.setColor(Color.pink);
+			g.fillRect(0, 0, getWidth(), getHeight());
+//			if(techPanelAnim != null)
+//			{
+//				scaleFactor = (getWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
+//				ImageDrawer.getInstance().draw(g, techPanelAnim.getImage(0),
+//						DEFAULT_WIDTH, DEFAULT_HEIGHT,
+//						new Position(0, 0), scaleFactor);
+//			}
 		}
-		else
-		{
-			super.paint(g);
-		}
+		
+		super.paint(g);
 	}
 	
 	private class ResizeListener extends ComponentAdapter

@@ -157,7 +157,7 @@ public class RaceEditor implements ConfigurationEditor
 				e.printStackTrace();
 			}
 			
-			tech = new TechPanel(bfg, techPanelBackground);
+			tech = new TechPanel(bfg);
 			tech.setPreferredSize(new Dimension(720, 480));
 			add(tech);
 		}
