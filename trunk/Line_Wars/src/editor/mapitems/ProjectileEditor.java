@@ -44,6 +44,9 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 	//variable associated with the velocity
 	private JTextField velocity;
 	
+	//variable associated with the durability
+	private JTextField durability;
+	
 	//variables associated with the impact strategy
 	private GenericSelector<Configuration> impactStrat;
 	
@@ -56,6 +59,13 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 		velPanel.add(new JLabel("Velocity:"));
 		velPanel.add(velocity);
 		
+		//set up the durability panel
+		durability = new JTextField();
+		durability.setColumns(20);
+		JPanel durPanel = new JPanel();
+		durPanel.add(new JLabel("Base Durability:"));
+		durPanel.add(durability);
+		
 		//set up the impact strat panel
 		impactStrat = new GenericSelector<Configuration>("Impact Strategy", 
 				new GenericSelector.SelectConfigurations<Configuration>(bfg, ConfigType.impactStrategy),
@@ -64,6 +74,7 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 		//set up this panel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(velPanel);
+		this.add(durPanel);
 		this.add(impactStrat);
 	}
 	
@@ -72,12 +83,14 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 	public void setData(Configuration cd) {
 		ProjectileDefinition pd = (ProjectileDefinition)cd;
 		velocity.setText(pd.getVelocity() + "");
+		durability.setText(pd.getBaseDurability() + "");
 		impactStrat.setSelectedObject(pd.getImpactStratConfig());
 	}
 	
 	public void resetEditor()
 	{
 		velocity.setText("");
+		durability.setText("");
 		impactStrat.setSelectedObject(null);
 	}
 
@@ -95,6 +108,12 @@ public class ProjectileEditor extends JPanel implements ConfigurationEditor {
 			pd.setVelocity(s.nextDouble());
 		else
 			pd.setVelocity(0);
+		
+		s = new Scanner(durability.getText());
+		if(s.hasNextDouble())
+			pd.setBaseDurability(s.nextDouble());
+		else
+			pd.setBaseDurability(0);
 		
 		pd.setImpactStratConfig((ImpactStrategyConfiguration) impactStrat.getSelectedObject());
 		

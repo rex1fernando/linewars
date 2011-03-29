@@ -17,12 +17,16 @@ import configuration.Usage;
  */
 public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Projectile> {
 	
+	private static final long serialVersionUID = 7752872630909701946L;
+	
 	private double velocity;
+	private double baseDurability;
 	private ImpactStrategyConfiguration iStrat;
 
 	public ProjectileDefinition() {
 		super();	
 		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT));
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT));
 		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION));
 	}
 	
@@ -35,6 +39,11 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 		return velocity;
 	}
 	
+	public double getBaseDurability()
+	{
+		return baseDurability;
+	}
+	
 	/**
 	 * 
 	 * @param velocity	the new velocity of the projectile
@@ -42,6 +51,11 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 	public void setVelocity(double velocity)
 	{
 		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT, velocity));
+	}
+	
+	public void setBaseDurability(double baseDurability)
+	{
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT, baseDurability));
 	}
 
 	@Override
@@ -64,6 +78,11 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 		if(super.getPropertyForName("velocity") != null && 
 				super.getPropertyForName("velocity").getValue() != null)
 			velocity = (Double)super.getPropertyForName("velocity").getValue();
+		
+		if(super.getPropertyForName("baseDurability") != null && 
+				super.getPropertyForName("baseDurability").getValue() != null)
+			baseDurability = (Double)super.getPropertyForName("baseDurability").getValue();
+		
 		if(super.getPropertyForName("iStrat") != null)
 			iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
 	}
@@ -76,6 +95,7 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 			ProjectileDefinition pd = (ProjectileDefinition) obj;
 			return super.equals(obj) &&
 					velocity == pd.velocity &&
+					baseDurability == pd.baseDurability &&
 					iStrat.equals(pd.iStrat);
 		}
 		else

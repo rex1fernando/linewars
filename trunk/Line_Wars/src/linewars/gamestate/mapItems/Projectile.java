@@ -22,6 +22,7 @@ public strictfp class Projectile extends MapItemAggregate {
 	private ProjectileDefinition definition;
 	private ImpactStrategy iStrat;
 	private Lane lane;
+	private double durability;
 	
 	private Shape tempBody = null;
 	
@@ -40,11 +41,24 @@ public strictfp class Projectile extends MapItemAggregate {
 		super(t, def, gameState, owner);
 		definition = def;
 		iStrat = def.getImpactStratConfig().createStrategy(this);
+		durability = def.getBaseDurability();
 	}
 	
 	public void setLane(Lane l)
 	{
 		lane = l;
+	}
+	
+	public double getDurability()
+	{
+		return durability;
+	}
+	
+	public void setDurability(double d)
+	{
+		durability = d;
+		if(durability <= 0)
+			this.setState(MapItemState.Dead);
 	}
 	
 	//TODO NOTE: this will be changed to implement a projectileMovementStrategy later
@@ -54,6 +68,10 @@ public strictfp class Projectile extends MapItemAggregate {
 	 */
 	public void move()
 	{
+		//make sure we're not already dead
+		if(this.getState().equals(MapItemState.Dead))
+			return;
+		
 		//first check to see if this unit is outside the lane
 		Transformation t = lane.getPosition(lane.getClosestPointRatio(this.getPosition()));
 		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2))
