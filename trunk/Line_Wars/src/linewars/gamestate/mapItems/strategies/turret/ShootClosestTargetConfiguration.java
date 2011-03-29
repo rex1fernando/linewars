@@ -62,13 +62,13 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 		}
 	
 		@Override
-		public void fight(Unit[] availableTargets) {
-			if(availableTargets.length == 0)
+		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
+			if(availableEnemies.length == 0)
 				throw new IllegalArgumentException("Why are you asking me to fight when there is no one to fight?");
 			//first get the closest target
-			double dis = turret.getPosition().distanceSquared(availableTargets[0].getPosition());
-			Unit closest = availableTargets[0];
-			for(Unit u : availableTargets)
+			double dis = turret.getPosition().distanceSquared(availableEnemies[0].getPosition());
+			Unit closest = availableEnemies[0];
+			for(Unit u : availableEnemies)
 			{
 				double nd = turret.getPosition().distanceSquared(u.getPosition());
 				if(nd < dis && u.getState() != MapItemState.Dead)

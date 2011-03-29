@@ -184,10 +184,11 @@ public strictfp class Wave {
 		}
 		
 		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
+		List<Unit> alliesInRange = new ArrayList<Unit>();
 		//remove friendly units
 		for(int i = 0; i < unitsInRange.size();)
 			if(unitsInRange.get(i).getOwner().equals(units.get(0).getOwner()))
-				unitsInRange.remove(i);
+				alliesInRange.add(unitsInRange.remove(i));
 			else
 				i++;
 		
@@ -195,9 +196,10 @@ public strictfp class Wave {
 		if(unitsInRange.size() > 0)
 		{
 			//for efficiency reasons
-			Unit[] unitsInRangeArray = unitsInRange.toArray(new Unit[0]);
+			Unit[] unitsInRangeArray = unitsInRange.toArray(new Unit[unitsInRange.size()]);
+			Unit[] alliesInRangeArray = alliesInRange.toArray(new Unit[alliesInRange.size()]);
 			for(Unit u : units)
-				u.getCombatStrategy().fight(unitsInRangeArray);
+				u.getCombatStrategy().fight(unitsInRangeArray, alliesInRangeArray);
 		}
 		else
 		{

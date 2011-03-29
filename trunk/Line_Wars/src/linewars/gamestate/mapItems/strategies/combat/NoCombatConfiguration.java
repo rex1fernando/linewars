@@ -31,7 +31,7 @@ public strictfp class NoCombatConfiguration extends CombatStrategyConfiguration 
 		}
 	
 		@Override
-		public void fight(Unit[] a) {}
+		public void fight(Unit[] a, Unit[] availableAllies) {}
 
 		@Override
 		public String name() {

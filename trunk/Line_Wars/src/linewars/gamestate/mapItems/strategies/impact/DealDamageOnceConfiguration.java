@@ -1,17 +1,18 @@
 package linewars.gamestate.mapItems.strategies.impact;
 
-import utility.Observable;
-import utility.Observer;
-
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
+import utility.Observable;
+import utility.Observer;
 import configuration.Usage;
-import editor.abilitiesstrategies.*;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 
@@ -52,7 +53,12 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 				if(m instanceof Unit)
 				{
 					Unit u = (Unit)m;
-					u.setHP(u.getHP() - damage);
+					//modify the amount of damage done by the durabiility of the projectile
+					u.setHP(u.getHP()
+							- projectile.getDurability()
+							/ ((ProjectileDefinition) projectile
+									.getDefinition()).getBaseDurability()
+							* damage);
 				}
 			}
 		}

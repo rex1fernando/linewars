@@ -27,8 +27,9 @@ public strictfp interface CombatStrategy extends Strategy<CombatStrategyConfigur
 	 * of the unit and any other actions that may be necessary for the unit
 	 * to do in combat.
 	 * 
-	 * @param availableTargets	The list of possible targets for this unit engage
+	 * @param availableEnemies	The list of possible targets for this unit engage
+	 * @param availableAllies TODO
 	 */
-	public void fight(Unit[] availableTargets);
+	public void fight(Unit[] availableEnemies, Unit[] availableAllies);
 
 }
