@@ -1,14 +1,21 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
 import configuration.Usage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
 
-public class MeleeDamageConfiguration extends ImpactStrategyConfiguration {
+public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Melee Damage Around Turret",
+				MeleeDamageConfiguration.class, AbilityStrategyEditor.class);
+	}
 	
 	private double damage;
 	//private double //TODO how to figure out how large the hit box should be?
@@ -55,8 +62,9 @@ public class MeleeDamageConfiguration extends ImpactStrategyConfiguration {
 	}
 
 	@Override
-	public ImpactStrategy createStrategy(MapItem m) {
+	public TurretStrategy createStrategy(MapItem m) {
 		// TODO Auto-generated method stub
+		compile error
 		return null;
 	}
 
