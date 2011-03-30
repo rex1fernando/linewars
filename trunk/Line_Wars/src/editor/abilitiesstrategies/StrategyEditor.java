@@ -93,6 +93,9 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 					StrategyConfiguration.getStrategyTypeNameSet().toArray(new String[0]),
 					null);
 			
+			if(type == null)
+				return null;
+			
 			List<String> strategyList = new ArrayList<String>();
 			Class<? extends StrategyConfiguration<?>> stratType = StrategyConfiguration.getConfigType(type);
 			for(String strat : StrategyConfiguration.getStrategyNameSet())
@@ -104,6 +107,9 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 					"Strategy Selection", JOptionPane.PLAIN_MESSAGE, null,
 					strategyList.toArray(new String[0]),
 					null);
+			
+			if(name == null)
+				return null;
 			
 			try {
 				realEditor = StrategyConfiguration

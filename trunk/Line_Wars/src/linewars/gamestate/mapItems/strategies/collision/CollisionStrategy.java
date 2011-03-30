@@ -21,6 +21,7 @@ public strictfp interface CollisionStrategy extends Strategy<CollisionStrategyCo
 	 * 
 	 * NoCollision
 	 * CollidesWithAll
+	 * EnemyProjectiles
 	 * AllEnemyUnits
 	 * AllEnemies
 	 * Ground

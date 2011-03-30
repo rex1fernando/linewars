@@ -51,6 +51,11 @@ public strictfp class Projectile extends MapItemAggregate {
 		lane = l;
 	}
 	
+	public Lane getLane()
+	{
+		return lane;
+	}
+	
 	public double getDurability()
 	{
 		return durability;

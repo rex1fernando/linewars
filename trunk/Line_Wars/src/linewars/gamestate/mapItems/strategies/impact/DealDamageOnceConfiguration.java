@@ -86,7 +86,9 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 	
 	public DealDamageOnceConfiguration()
 	{
-		super.setPropertyForName("damage", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, null, EditorUsage.PositiveReal, "The damage delt on impact"));
+		super.setPropertyForName("damage", new EditorProperty(
+				Usage.NUMERIC_FLOATING_POINT, null, EditorUsage.PositiveReal,
+				"The damage delt on impact"));
 		this.addObserver(this);
 	}
 
