@@ -1,4 +1,4 @@
-package menu.creategame;
+package menu.components;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

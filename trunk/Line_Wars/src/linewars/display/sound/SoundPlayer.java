@@ -25,7 +25,11 @@ public class SoundPlayer implements Runnable
 	 */
 	private static final int SAMPLE_SIZE_IN_BYTES = 2;
 	
-	private static final int MIN_LOOP_TIME = 1;
+	private static final int MIN_LOOP_TIME_MS = 1;
+	
+	private static final double LAG_SPIKE_BUFFER_PERCENTAGE = 1.85;
+	
+	private static final double MIN_BUFFER_WRITE_SIZE = 1.00;
 
 	/*
 	 * TODO if the channels are changed then the sound managers may need to
@@ -55,7 +59,7 @@ public class SoundPlayer implements Runnable
 		sounds = new HashMap<String, Sound>();
 		playing = new LinkedList<SoundPair>();
 		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
-		loopTime = MIN_LOOP_TIME;
+		loopTime = MIN_LOOP_TIME_MS;
 	}
 
 	public static SoundPlayer getInstance()
@@ -98,6 +102,7 @@ public class SoundPlayer implements Runnable
 	{
 		running = false;
 
+		System.out.println("DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		line.drain();
 		line.stop();
 		line.close();
@@ -148,11 +153,11 @@ public class SoundPlayer implements Runnable
 			long curTime = System.currentTimeMillis();
 			long elapsedTime = curTime - lastTime;
 			
-			if(elapsedTime < MIN_LOOP_TIME)
+			if(elapsedTime < MIN_LOOP_TIME_MS)
 			{
 				try
 				{
-					Thread.sleep(MIN_LOOP_TIME);
+					Thread.sleep(MIN_LOOP_TIME_MS);
 				}
 				catch(InterruptedException e)
 				{
@@ -171,7 +176,18 @@ public class SoundPlayer implements Runnable
 	{
 		int samples = (int)(SAMPLE_RATE * (loopTime / 1000.0f)) * Channel.values().length;
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
+		
+		int calculatedBytes = bytes;
+		int bufferUsed = line.getBufferSize() - line.available();
+		bytes = (int)(calculatedBytes * LAG_SPIKE_BUFFER_PERCENTAGE) - bufferUsed;
+		
+		if(bytes < calculatedBytes * MIN_BUFFER_WRITE_SIZE)
+			bytes = (int)(calculatedBytes * MIN_BUFFER_WRITE_SIZE);
+			
 		bytes = (bytes / (SAMPLE_SIZE_IN_BYTES * Channel.values().length)) * (SAMPLE_SIZE_IN_BYTES * Channel.values().length);
+		
+		System.out.println(loopTime + "\t\t" + calculatedBytes + "\t\t" + bytes + "\t\t" + bufferUsed);
+		
 		if(bytes <= 0)
 			return;
 		
@@ -181,6 +197,9 @@ public class SoundPlayer implements Runnable
 		while(index < playing.size())
 		{
 			SoundPair p = playing.get(index);
+			if(p == null)
+				continue;
+			
 			Sound current = sounds.get(p.sound.getURI());
 			if(current == null || p.sound.isDone() || current.isFinished(p.progress))
 			{

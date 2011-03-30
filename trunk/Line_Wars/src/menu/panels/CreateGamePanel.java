@@ -1,7 +1,9 @@
 
-package menu.creategame;
+package menu.panels;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -15,6 +17,9 @@ import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import menu.ContentProvider;
 import menu.WindowManager;
+import menu.components.ComboBoxRenderer;
+import menu.components.MenuButton;
+import menu.components.MenuComboBox;
 import menu.networking.Client;
 import menu.networking.MessageType;
 import menu.networking.PlayerBean;
@@ -34,6 +39,13 @@ public class CreateGamePanel extends javax.swing.JPanel {
     public CreateGamePanel(WindowManager wm) {
     	this.wm = wm;
     	init();
+    }
+    
+    @Override
+    public void paintComponent(Graphics g)
+    {
+    	g.setColor(Color.gray);
+    	g.fillRect(0, 0, getWidth(), getHeight());
     }
     
     public void startServer() {
@@ -247,10 +259,12 @@ public class CreateGamePanel extends javax.swing.JPanel {
         	
         	removeAll();
 
-            slot = new javax.swing.JComboBox();
-            race = new javax.swing.JComboBox();
+        	setOpaque(false);
+        	
+            slot = new MenuComboBox();
+            race = new MenuComboBox();
             name = new javax.swing.JButton();
-            color = new javax.swing.JComboBox();
+            color = new MenuComboBox();
 
             setMaximumSize(new java.awt.Dimension(712, 28));
             setMinimumSize(new java.awt.Dimension(712, 28));
@@ -378,19 +392,20 @@ public class CreateGamePanel extends javax.swing.JPanel {
     private void initComponents() {
 
     	removeAll();
+    	setOpaque(false);
     	
         replayLabel = new javax.swing.JLabel();
         selectionLabel = new javax.swing.JLabel();
         replayToggleButton = new javax.swing.JToggleButton();
-        selectionComboBox = new javax.swing.JComboBox();
+        selectionComboBox = new MenuComboBox();
         previewPanel = new javax.swing.JPanel();
         chatWindow = new javax.swing.JPanel();
         chatArea = new javax.swing.JTextArea();
         chatField = new javax.swing.JTextField();
-        sendButton = new javax.swing.JButton();
+        sendButton = new MenuButton();
         buttonPanel = new javax.swing.JPanel();
-        startButton = new javax.swing.JButton();
-        cancelButton = new javax.swing.JButton();
+        startButton = new MenuButton();
+        cancelButton = new MenuButton();
         lobbyScrollPane = new javax.swing.JScrollPane();
         lobbyPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -437,6 +452,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
             .addGap(0, 250, Short.MAX_VALUE)
         );
 
+        chatWindow.setOpaque(false);
         chatWindow.setMaximumSize(new java.awt.Dimension(250, 250));
         chatWindow.setMinimumSize(new java.awt.Dimension(250, 250));
         chatWindow.setPreferredSize(new java.awt.Dimension(250, 250));
@@ -460,6 +476,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(chatArea);
 
         sendButton.setText("Send");
+        sendButton.setSize(new Dimension(50, 18));
         sendButton.setFocusable(false);
         sendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -487,6 +504,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
                     .addComponent(sendButton)))
         );
 
+        buttonPanel.setOpaque(false);
         buttonPanel.setMaximumSize(new java.awt.Dimension(100, 25));
         buttonPanel.setMinimumSize(new java.awt.Dimension(100, 25));
         buttonPanel.setPreferredSize(new java.awt.Dimension(100, 25));
@@ -510,9 +528,13 @@ public class CreateGamePanel extends javax.swing.JPanel {
         });
         buttonPanel.add(cancelButton);
 
+        lobbyScrollPane.setOpaque(false);
+        lobbyScrollPane.setBackground(Color.red);
         lobbyScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
+        //lobbyPanel.setOpaque(false);
+        lobbyPanel.setBackground(Color.black);
         lobbyPanel.setLayout(new javax.swing.BoxLayout(lobbyPanel, javax.swing.BoxLayout.Y_AXIS));
 
         lobbyScrollPane.setViewportView(lobbyPanel);

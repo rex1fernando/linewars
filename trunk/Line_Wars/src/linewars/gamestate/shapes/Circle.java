@@ -61,7 +61,7 @@ public strictfp class Circle extends Shape {
 	public Rectangle boundingRectangle() {
 		return new Rectangle(position, radius * 2, radius * 2);
 	}
-
+	
 	/**
 	 * Returns the radius of the circle.
 	 */
@@ -88,5 +88,15 @@ public strictfp class Circle extends Shape {
 		if(!otherCircle.position.equals(position)) return false;
 		if(!(otherCircle.radius == radius)) return false;
 		return true;
+	}
+	
+	@Override
+	public AABB calculateAABB()
+	{
+		Position p = position.getPosition();
+		double x = p.getX();
+		double y = p.getY();
+		
+		return new AABB(x-radius, y-radius, x+radius, y+radius);
 	}
 }

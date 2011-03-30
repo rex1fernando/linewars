@@ -39,6 +39,8 @@ public strictfp class GameState
 	
 	private int IDCounter = 0;
 	
+	private double lastLoopTime = 0;
+	
 	public int getNumPlayers()
 	{
 		return numPlayers;
@@ -121,6 +123,15 @@ public strictfp class GameState
 	public double getTime()
 	{
 		return timerTick * TimingManager.GAME_TIME_PER_TICK_S;
+	}
+	
+	/**
+	 * 
+	 * @return	the time in seconds since the last loop
+	 */
+	public double getLastLoopTime()
+	{
+		return this.getTime() - lastLoopTime;
 	}
 	
 	/**
@@ -279,6 +290,8 @@ public strictfp class GameState
 			if(n1.getOwner() == null || !n1.getOwner().equals(n.getOwner()))
 				return;
 		winningPlayer = n1.getOwner();
+		
+		lastLoopTime = this.getTime();
 	}
 	
 	/**

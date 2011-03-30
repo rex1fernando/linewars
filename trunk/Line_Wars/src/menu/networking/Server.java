@@ -11,7 +11,7 @@ import java.util.List;
 
 import linewars.gamestate.Race;
 import menu.ContentProvider;
-import menu.creategame.CreateGamePanel;
+import menu.panels.CreateGamePanel;
 
 public class Server implements Runnable
 {

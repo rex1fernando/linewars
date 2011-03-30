@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 trunk/Line_Wars/bin
 *~
 .metadata
@@ -8,3 +9,7 @@ trunk/Line_Wars/bin/
 >>>>>>> d4c4baacb4853dce56da4d51f5e4a6615e80d76b
 
 /private.ppk
+=======
+trunk/Line_Wars/bin
+*~
+>>>>>>> remotes/origin/collision-detection-fix

@@ -13,7 +13,7 @@ import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import linewars.init.Game;
 import linewars.init.PlayerData;
-import menu.creategame.CreateGamePanel;
+import menu.panels.CreateGamePanel;
 
 public class Client implements Runnable
 {

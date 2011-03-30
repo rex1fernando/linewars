@@ -343,11 +343,45 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 			}
 		});
 		
+		JMenuItem moveUp = new JMenuItem("Move up");
+		moveUp.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedNode == null || selectedNode == root)
+					return;
+				int n = selectedNode.getParent().getIndex(selectedNode);
+				if(n > 0)
+				{
+					((BodyEditorNode)selectedNode.getParent()).insert(selectedNode, n - 1);
+					containerTree.validate();
+					containerTree.updateUI();
+				}
+			}
+		});
+		
+		JMenuItem moveDown = new JMenuItem("Move down");
+		moveDown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedNode == null || selectedNode == root)
+					return;
+				int n = selectedNode.getParent().getIndex(selectedNode);
+				if(n < selectedNode.getParent().getChildCount() - 1)
+				{
+					((BodyEditorNode)selectedNode.getParent()).insert(selectedNode, n + 1);
+					containerTree.validate();
+					containerTree.updateUI();
+				}
+			}
+		});
+		
 		JPopupMenu ret = new JPopupMenu();
 		ret.add(remove);
 		ret.add(add);
 		ret.add(rename);
 		ret.add(enable);
+		ret.add(moveUp);
+		ret.add(moveDown);
 		return ret;
 	}
 	

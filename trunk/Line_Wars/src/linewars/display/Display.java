@@ -304,12 +304,20 @@ public class Display extends JFrame implements Runnable
 			Animation rightUIPanel = null;
 			Animation exitButton = null;
 			Animation exitButtonClicked = null;
+			Animation techPanelActivate = null;
+			Animation techPanelDisable = null;
+			Animation techPanelBackground = null;
+			Animation techPanelArrow = null;
 			try
 			{
 				leftUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/left_ui_panel.cfg"))).readObject();
 				rightUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/right_ui_panel.cfg"))).readObject();
 				exitButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button.cfg"))).readObject();
 				exitButtonClicked = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button_Clicked.cfg"))).readObject();
+				techPanelActivate = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_activate.cfg"))).readObject();
+				techPanelDisable = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_disable.cfg"))).readObject();
+				techPanelBackground = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel.cfg"))).readObject();
+				techPanelArrow = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_arrow.cfg"))).readObject();
 			}
 			catch (FileNotFoundException e)
 			{
@@ -336,9 +344,9 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techPanelBackground, techPanelArrow);
 			add(techPanel);
-			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, exitButton, exitButtonClicked, exitButton, exitButtonClicked);
+			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, techPanelActivate, techPanelDisable);
 			add(techButtonPanel);
 
 			GameState state = gameStateProvider.getCurrentGameState();

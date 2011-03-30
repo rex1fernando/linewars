@@ -175,6 +175,7 @@ public abstract class MapItemAggregate extends MapItem {
 				for(int i = 0; i < newItems.size(); i++)
 					this.addMapItem(newItems.get(i).createMapItem(Transformation.ORIGIN, 
 							this.getOwner(), this.getGameState()), newTrans.get(i));
+				body = null;
 			}
 		}
 	}
