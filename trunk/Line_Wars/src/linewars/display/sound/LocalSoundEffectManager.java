@@ -50,7 +50,8 @@ public class LocalSoundEffectManager
 			if(pair == null)
 			{
 				String sound = ((DisplayConfiguration)mapItem.getDefinition().getDisplayConfiguration()).getSound(state);
-				startEffect(id, sound, mapItemVol, state);
+				if(sound != null && sound != "")
+					startEffect(id, sound, mapItemVol, state);
 			}
 			else if(pair.state != state)
 			{

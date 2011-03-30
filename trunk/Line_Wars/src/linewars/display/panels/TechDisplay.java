@@ -8,14 +8,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.DefaultButtonModel;
@@ -24,9 +27,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import linewars.display.Animation;
+import linewars.display.GameImage;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
 import linewars.display.ImageDrawer;
+import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
@@ -55,8 +61,12 @@ public class TechDisplay extends JViewport
 	private GridBagLayout treeLayout;
 
 	private MessageReceiver receiver;
+	private GameStateProvider stateManager;
 	
 	private boolean editorNOTgame;
+	
+	private Animation arrow;
+	private Map<String, Image> arrowImages;
 	
 	private TechNode activeTech;
 	private GenericSelector<Configuration> techSelector;
@@ -83,13 +93,32 @@ public class TechDisplay extends JViewport
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 * @param techGraph The TechGraph this TechDisplay will show.
 	 */
-	public TechDisplay(int pID, MessageReceiver receiver, TechGraph techGraph, int graphID)
+	public TechDisplay(GameStateProvider stateManager, int pID, MessageReceiver receiver, TechGraph techGraph, int graphID, Animation arrow)
 	{
 		this.editorNOTgame = false;
 		this.pID = pID;
 		this.receiver = receiver;
 		this.techGraph = techGraph;
 		this.graphID = graphID;
+		this.arrow = arrow;
+		this.arrowImages = new HashMap<String, Image>();
+		this.stateManager = stateManager;
+		
+		for(int i = 0; i < arrow.getNumImages(); ++i)
+		{
+			String uri = arrow.getImage(i);
+			Image toAdd = null;
+			try
+			{
+				toAdd = GameImage.loadImage(uri);
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+			arrowImages.put(uri, toAdd);
+		}
 		
 		initializeDisplay();
 		
@@ -136,7 +165,7 @@ public class TechDisplay extends JViewport
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
 		
 		if(editorNOTgame)
-			buttons = new TechButton[xSize * ySize];
+			buttons = new TechButton[(xSize + 1) * (ySize + 1)];
 		else
 			buttons = new TechButton[orderedTechList.size()];
 		
@@ -239,7 +268,7 @@ public class TechDisplay extends JViewport
 		TechNode root = techGraph.getRoot();
 		while(root != null)
 		{
-			drawDependencyLines(g, root);
+			drawDependencyLines((Graphics2D)g, root);
 			root = techGraph.getNextRoot();
 		}
 		
@@ -247,7 +276,7 @@ public class TechDisplay extends JViewport
 		
 	}
 	
-	private void drawDependencyLines(Graphics g, TechNode node)
+	private void drawDependencyLines(Graphics2D g, TechNode node)
 	{
 		if(node.isMarked())
 			return;
@@ -265,18 +294,32 @@ public class TechDisplay extends JViewport
 			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
 			
 			Position vector = new Position(startX - endX, startY - endY);
-			vector = vector.normalize().scale(15);
-			
-			g.drawLine(startX, startY, endX, endY);	
 
-			vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
-			g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
-
-			vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
-			g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
-			
-			drawDependencyLines(g, child);
-			child = node.getNextChild();
+			if(editorNOTgame)
+			{
+				vector = vector.normalize().scale(15);
+				
+				g.drawLine(startX, startY, endX, endY);	
+	
+				vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
+				g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
+	
+				vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
+				g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
+				
+				drawDependencyLines(g, child);
+				child = node.getNextChild();
+			}
+			else
+			{
+				double rotation = vector.getAngle();
+				g.rotate(rotation, vector.getX() + startX, vector.getY() + startY);
+				
+				Image toDraw = arrowImages.get(arrow.getImage(stateManager.getCurrentGameState().getTime(), 0.0));
+				g.drawImage(toDraw, startX, startY, (int)vector.length(), 20, null);
+				
+				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
+			}
 		}
 	}
 	
@@ -397,11 +440,11 @@ public class TechDisplay extends JViewport
 			if(editorNOTgame)
 			{
 				if(tech == null)
-					g.setColor(Color.red);
+					g.setColor(new Color(1.0f, 0.0f, 0.0f, 0.2f));
 				else if(tech == activeTech)
-					g.setColor(Color.blue);
+					g.setColor(new Color(0.0f, 0.0f, 1.0f, 0.2f));
 				else
-					g.setColor(Color.orange);
+					g.setColor(new Color(1.0f, 0.5f, 0.0f, 0.2f));
 				
 				g.fillRect(0, 0, getWidth(), getHeight());
 				

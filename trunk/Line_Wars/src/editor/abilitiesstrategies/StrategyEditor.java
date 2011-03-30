@@ -14,6 +14,7 @@ import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfigu
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.targeting.TargetingStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.turret.TurretStrategyConfiguration;
 import utility.ForceLoadPackage;
 import configuration.Configuration;
@@ -137,6 +138,7 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 		ret.add(ConfigType.impactStrategy);
 		ret.add(ConfigType.movementStrategy);
 		ret.add(ConfigType.turretStrategy);
+		ret.add(ConfigType.targetingStrategy);
 		return ret;
 	}
 
@@ -157,6 +159,8 @@ public class StrategyEditor extends JPanel implements ConfigurationEditor {
 			return ConfigType.movementStrategy;
 		else if(config instanceof TurretStrategyConfiguration)
 			return ConfigType.turretStrategy;
+		else if(config instanceof TargetingStrategyConfiguration)
+			return ConfigType.targetingStrategy;
 		else
 			return null;
 	}

@@ -1,6 +1,11 @@
 package editor.race;
 
 import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import linewars.display.Animation;
 import linewars.display.panels.TechPanel;
 import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.BuildingDefinition;
@@ -139,6 +145,18 @@ public class RaceEditor implements ConfigurationEditor
 			add(nameBox);
 			
 			initConfigSelectors();
+			
+			Animation techPanelBackground = null;
+			try {
+				techPanelBackground = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel.cfg"))).readObject();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
 			tech = new TechPanel(bfg);
 			tech.setPreferredSize(new Dimension(720, 480));
 			add(tech);

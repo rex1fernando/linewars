@@ -4,6 +4,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.targeting.TargetingStrategyConfiguration;
 import configuration.Property;
 import configuration.Usage;
 
@@ -17,31 +18,27 @@ import configuration.Usage;
  */
 public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Projectile> {
 	
-	private double velocity;
+	private static final long serialVersionUID = 7752872630909701946L;
+	
+	private double baseDurability;
 	private ImpactStrategyConfiguration iStrat;
+	private TargetingStrategyConfiguration tStrat;
 
 	public ProjectileDefinition() {
 		super();	
-		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT));
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT));
 		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION));
+		super.setPropertyForName("tStrat", new Property(Usage.CONFIGURATION));
 	}
 	
-	/**
-	 * 
-	 * @return	the velocity of the projectile
-	 */
-	public double getVelocity()
+	public double getBaseDurability()
 	{
-		return velocity;
+		return baseDurability;
 	}
 	
-	/**
-	 * 
-	 * @param velocity	the new velocity of the projectile
-	 */
-	public void setVelocity(double velocity)
+	public void setBaseDurability(double baseDurability)
 	{
-		super.setPropertyForName("velocity", new Property(Usage.NUMERIC_FLOATING_POINT, velocity));
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT, baseDurability));
 	}
 
 	@Override
@@ -58,14 +55,28 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 	{
 		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION, isc));
 	}
+	
+	public TargetingStrategyConfiguration getTargetingStratConfig()
+	{
+		return tStrat;
+	}
+	
+	public void setTargetingStratConfig(TargetingStrategyConfiguration tsc)
+	{
+		super.setPropertyForName("tStrat", new Property(Usage.CONFIGURATION, tsc));
+	}
 
 	@Override
 	protected void forceAggregateSubReloadConfigData() {
-		if(super.getPropertyForName("velocity") != null && 
-				super.getPropertyForName("velocity").getValue() != null)
-			velocity = (Double)super.getPropertyForName("velocity").getValue();
+		if(super.getPropertyForName("baseDurability") != null && 
+				super.getPropertyForName("baseDurability").getValue() != null)
+			baseDurability = (Double)super.getPropertyForName("baseDurability").getValue();
+		
 		if(super.getPropertyForName("iStrat") != null)
 			iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
+		
+		if(super.getPropertyForName("tStrat") != null)
+			tStrat = (TargetingStrategyConfiguration)super.getPropertyForName("tStrat").getValue();
 	}
 	
 	@Override
@@ -75,8 +86,9 @@ public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Pr
 		{
 			ProjectileDefinition pd = (ProjectileDefinition) obj;
 			return super.equals(obj) &&
-					velocity == pd.velocity &&
-					iStrat.equals(pd.iStrat);
+					baseDurability == pd.baseDurability &&
+					iStrat.equals(pd.iStrat) &&
+					tStrat.equals(pd.tStrat);
 		}
 		else
 			return false;
