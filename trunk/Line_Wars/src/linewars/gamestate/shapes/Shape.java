@@ -13,6 +13,8 @@ import linewars.gamestate.Transformation;
  */
 public strictfp abstract class Shape implements Serializable {
 	
+	private AABB aabb = null;
+	
 	/**
 	 * 
 	 */
@@ -87,4 +89,14 @@ public strictfp abstract class Shape implements Serializable {
 	 * @return true if the Position is contained within the Shape, false otherwise.
 	 */
 	public abstract boolean positionIsInShape(Position toTest);
+	
+	public abstract AABB calculateAABB();
+	
+	public AABB getAABB()
+	{
+		if (aabb == null) aabb = calculateAABB();
+		
+		return aabb;
+	}
+
 }

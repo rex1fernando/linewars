@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -40,7 +41,7 @@ public strictfp class Lane
 	private double gatePos;
 	private GameState gameState;
 	
-	private LaneConfiguration config;
+	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
 	 * The width of the lane.
@@ -51,11 +52,14 @@ public strictfp class Lane
 	
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
-	
+	private LaneConfiguration config;
 	
 	
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
+		this.horizontallySortedUnits = new ArrayList<Unit>();
+		this.verticallySortedUnits = new ArrayList<Unit>();
+		
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
 		this.gates = new HashMap<Node, Gate>();
@@ -532,13 +536,16 @@ public strictfp class Lane
 		pushUnitsOntoLane();
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
-		List<Unit> allUnits = getCollidableMapItems();
-		for(MapItem first : allUnits){//for each unit in the lane
+				
+		List<Unit> potentiallyCollidingUnits = sweepAndPrune();
+		//List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
+		
+		
+		for(MapItem first : potentiallyCollidingUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
 			
-			for(MapItem second : allUnits){//for each unit it could be colliding with
+			for(MapItem second : potentiallyCollidingUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
-				if(first.getCollisionStrategy().canCollideWith(second)){//if this type of unit can collide with that type of unit
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
 						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
 						
@@ -600,12 +607,11 @@ public strictfp class Lane
 						}
 					}
 				}
-			}
-		}		
+			}		
 
 		Random rand = new Random(gameState.getTimerTick());
 		//Then resolve them by shifting stuff around
-		for(MapItem toMove : allUnits){
+		for(MapItem toMove : potentiallyCollidingUnits){
 			Position offset = collisionVectors.get(toMove);
 			if(offset.length() > 0){ 
 				double xNoise = rand.nextDouble() - 0.5;
@@ -614,6 +620,81 @@ public strictfp class Lane
 				toMove.setPosition(toMove.getPosition().add(offset));				
 			}
 		}
+	}
+	
+	private LinkedList<Unit> sweepAndPrune()
+	{
+		List<Unit> allUnits = getCollidableMapItems();
+		
+		LinkedList<Unit> potentiallyCollidingUnits = new LinkedList<Unit>();
+		
+		LinkedList<Unit> horizontallyCollidingUnits = new LinkedList<Unit>();
+		
+		//FIXME This won't always work.
+		if (horizontallySortedUnits.size() < allUnits.size())
+			initializeSortedUnits(allUnits);
+		sortUnits();
+	
+		for (int i = 0; i < horizontallySortedUnits.size()-1; i++)
+		{
+			if (horizontallySortedUnits.get(i).getBody().getAABB().getXMax() > horizontallySortedUnits.get(i+1).getBody().getAABB().getXMin())
+				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+		}
+		
+		/*if (allUnits.size() > 0)
+		{
+			System.out.println("s");
+		
+			System.out.println(allUnits.size());
+			System.out.println(verticallySortedUnits.size());
+		
+		}*/
+		
+		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
+		{
+			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
+					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
+				potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
+				
+		}
+		
+		/*if (allUnits.size() > 0) 
+		{
+			System.out.println(potentiallyCollidingUnits.size());
+		}*/
+		
+		return potentiallyCollidingUnits;
+	}
+	
+	private void initializeSortedUnits(List<Unit> allUnits)
+	{
+		horizontallySortedUnits = new ArrayList<Unit>(allUnits);
+		verticallySortedUnits = new ArrayList<Unit>(allUnits);
+	}
+	
+	private void sortUnits()
+	{
+		Collections.sort(horizontallySortedUnits, new Comparator<MapItem>()
+				{
+					public int compare(MapItem m1, MapItem m2)
+					{
+						if (m1.getBody().getAABB().getXMin() < m2.getBody().getAABB().getXMin())
+							return -1;
+						else
+							return 1;
+					}
+				});
+				
+		Collections.sort(verticallySortedUnits, new Comparator<MapItem>()
+				{
+					public int compare(MapItem m1, MapItem m2)
+					{
+						if (m1.getBody().getAABB().getYMin() < m2.getBody().getAABB().getYMin())
+							return -1;
+						else
+							return 1;
+					}
+				});
 	}
 
 	private void pushUnitsOntoLane() {
