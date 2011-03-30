@@ -7,6 +7,10 @@ import linewars.gamestate.Transformation;
 
 public strictfp class Triangle extends Shape {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8314252684618812816L;
 	private final Position[] corners;
 	private final Transformation center;
 	
@@ -49,11 +53,40 @@ public strictfp class Triangle extends Shape {
 	public Transformation position() {
 		return center;
 	}
-
+	
 	@Override
 	public Circle boundingCircle() {
-		// TODO Auto-generated method stub
-		return null;
+		double dotABAB = corners[1].subtract(corners[0]).dot(corners[1].subtract(corners[0]));
+	    double dotABAC = corners[1].subtract(corners[0]).dot(corners[2].subtract(corners[0]));
+	    double dotACAC = corners[2].subtract(corners[0]).dot(corners[2].subtract(corners[0]));
+	    double d = 2.0f*(dotABAB*dotACAC - dotABAC*dotABAC);
+	    Position referencePt = corners[0];
+	    //make sure the points aren't collinear
+	    if(new Double(0).equals(Math.abs(d))){
+	    	//they must be... let's compute the AABB and use the diagonal of that as a diameter for the circle
+	    	AABB diagonal = calculateAABB();
+	    	Position max = new Position(diagonal.getXMax(), diagonal.getYMax());
+	    	Position min = new Position(diagonal.getXMin(), diagonal.getYMin());
+	    	Position center = min.add(max).scale(0.5);
+	    	Position relativeCorner = max.subtract(center);
+	    	return new Circle(new Transformation(center, this.center.getRotation()), relativeCorner.length());
+	    }
+        double s = (dotABAB*dotACAC - dotACAC*dotABAC) / d;
+        double t = (dotACAC*dotABAB - dotABAB*dotABAC) / d;
+        Position center;
+        if(s <= 0){//if ac is the longest side
+        	center = corners[0].add(corners[2]).scale(0.5);
+        }else if(t <= 0){
+        	center = corners[0].add(corners[1]).scale(0.5);
+        }else if(s + t >= 1){
+        	center = corners[1].add(corners[2]).scale(0.5);
+        	referencePt = corners[1];
+        }else{
+        	center = corners[0].add(corners[1].subtract(corners[0]).scale(s)).add(corners[2].subtract(corners[0]).scale(t));
+        }
+        double radius = Math.sqrt(corners[2].subtract(referencePt).dot(corners[2].subtract(referencePt)));
+		
+        return new Circle(new Transformation(center, this.center.getRotation()), radius);
 	}
 
 	@Override
@@ -98,8 +131,50 @@ public strictfp class Triangle extends Shape {
 
 	@Override
 	public boolean positionIsInShape(Position toTest) {
-		// TODO Auto-generated method stub
-		return false;
+		Position[] edges = new Position[3];
+		edges[0] = corners[1].subtract(corners[0]);
+		edges[1] = corners[2].subtract(corners[1]);
+		edges[2] = corners[0].subtract(corners[2]);
+		
+		Position[] barycentricCoords = new Position[3];
+		for(int i = 0; i < 3; i++){
+			barycentricCoords[i] = toTest.subtract(corners[i]);
+		}
+		
+		boolean[] positiveSignedCrossProduct = new boolean[3];
+		for(int i = 0; i < 3; i++){
+			positiveSignedCrossProduct[i] = 0 < barycentricCoords[i].crossProduct(edges[i]);
+		}
+		boolean allPositive = true;
+		boolean allNegative = true;
+		for(int i = 0; i < 3; i++){
+			if(positiveSignedCrossProduct[i] == true){
+				allNegative = false;
+			}else{
+				allPositive = false;
+			}
+		}
+		return allPositive || allNegative;
+	}
+
+	@Override
+	public AABB calculateAABB() {
+		double leastX = corners[0].getX();
+		double leastY = corners[0].getY();
+		double mostX = leastX;
+		double mostY = leastY;
+		
+		for(int i = 1; i < 3; i++){
+			Position currentCorner = corners[i];
+			double x = currentCorner.getX();
+			double y = currentCorner.getY();
+			if(x > mostX) mostX = x;
+			if(x < leastX) leastX = x;
+			if(y > mostY) mostY = y;
+			if(y < leastY) leastY = y;
+		}
+		
+		return new AABB(leastX, leastY, mostX, mostY);
 	}
 
 }

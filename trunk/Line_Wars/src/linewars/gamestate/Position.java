@@ -250,4 +250,8 @@ public strictfp class Position implements Serializable {
 	{
 		return new Position(Math.cos(theta), Math.sin(theta));
 	}
+
+	public double crossProduct(Position other) {
+		return this.x * other.y - this.y * other.x;
+	}
 }
