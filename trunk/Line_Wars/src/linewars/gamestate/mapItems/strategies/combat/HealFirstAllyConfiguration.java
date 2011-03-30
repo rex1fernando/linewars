@@ -31,6 +31,8 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 		
 		private Unit unit;
 		private Unit beingHealed = null;
+		private Unit carrier;
+		private int lastFightTick = 0;
 		
 		private HealFirstAlly(Unit u)
 		{
@@ -49,51 +51,24 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 
 		@Override
 		public double getRange() {
-			return Double.MAX_VALUE;
+			return carrier.getCombatStrategy().getRange();
 		}
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			//check to see if unit needs a new healing target
-			if (beingHealed == null
-					|| beingHealed.getState().equals(MapItemState.Dead)
-					|| !contains(availableAllies, beingHealed)
-					|| beingHealed.getHP()/((UnitDefinition)beingHealed.getDefinition()).getMaxHP() >= 0.99)
+			lastFightTick = unit.getGameState().getTimerTick();
+			if(beingHealed == null)
 			{
-				if(beingHealed != null)
-					unitsBeingHealed.remove(beingHealed);
-					
-				Arrays.sort(availableAllies, new Comparator<Unit>() {
-					@Override
-					public int compare(Unit o1, Unit o2) {
-						double ret = o1.getHP()/((UnitDefinition)o1.getDefinition()).getMaxHP() -
-						o2.getHP()/((UnitDefinition)o2.getDefinition()).getMaxHP();
-						if(ret < 0)
-							return -1;
-						else if(ret > 0)
-							return 1;
-						else
-							return 0;
-					}
-				});
-				
-				for(Unit u : availableAllies)
-				{
-					if(!contains(unitsBeingHealed, u))
-					{
-						beingHealed = u;
-						break;
-					}
-				}
-				
-				if(beingHealed == null)
-					return;
-				
-				unitsBeingHealed.add(beingHealed);
+				unit.setState(MapItemState.Idle);
+				return;
 			}
 			
-			//TODO move the unit and check range
+			//move the drone
+			unit.getMovementStrategy().setTarget(beingHealed.getTransformation());
+			//heal the target
 			beingHealed.setHP(beingHealed.getHP() + hps*unit.getGameState().getLastLoopTime());
+			
+			unit.setState(MapItemState.Firing);
 		}
 		
 		private boolean contains(Unit[] list, Unit u)
@@ -116,20 +91,52 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 
 		@Override
 		public void setTarget(Unit target) {
-			// TODO Auto-generated method stub
-			
+			beingHealed = target;
 		}
 
 		@Override
 		public boolean isFinishedOnTarget() {
-			// TODO Auto-generated method stub
-			return false;
+			return (beingHealed == null
+					|| beingHealed.getState().equals(MapItemState.Dead)
+					|| beingHealed.getHP()/((UnitDefinition)beingHealed.getDefinition()).getMaxHP() >= 0.99);
 		}
 
 		@Override
 		public Unit pickBestTarget(Unit[] targets) {
-			// TODO Auto-generated method stub
+			Arrays.sort(targets, new Comparator<Unit>() {
+				@Override
+				public int compare(Unit o1, Unit o2) {
+					double ret = o1.getHP()/((UnitDefinition)o1.getDefinition()).getMaxHP() -
+					o2.getHP()/((UnitDefinition)o2.getDefinition()).getMaxHP();
+					if(ret < 0)
+						return -1;
+					else if(ret > 0)
+						return 1;
+					else
+						return 0;
+				}
+			});
+			
+			for(Unit u : targets)
+				if(u.getOwner().equals(unit.getOwner()))
+					return u;
+			
 			return null;
+		}
+
+		@Override
+		public void setDroneCarrier(Unit carrier) {
+			this.carrier = carrier;
+		}
+
+		@Override
+		public Unit getDroneCarrier() {
+			return carrier;
+		}
+
+		@Override
+		public int getLastFightTick() {
+			return lastFightTick;
 		}
 		
 	}
