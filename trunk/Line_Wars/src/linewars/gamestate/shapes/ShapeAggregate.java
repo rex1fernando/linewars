@@ -31,9 +31,10 @@ public strictfp class ShapeAggregate extends Shape {
 			
 			//final - initial
 			Transformation change = new Transformation(target.getPosition().subtract(current.getPosition()), target.getRotation() - current.getRotation());
-			members.add(currentShape.transform(change));
+			members.add(currentShape.transform(change).transform(center));
 		}
-		this.transform(center);
+		this.center = center.getPosition();
+		this.rotation = center.getRotation();
 	}
 
 	private ShapeAggregate() {
@@ -175,5 +176,10 @@ public strictfp class ShapeAggregate extends Shape {
 			}
 		}
 		return false;
+	}
+	
+	public AABB calculateAABB()
+	{
+		return boundingRectangle().calculateAABB();
 	}
 }

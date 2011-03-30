@@ -170,7 +170,7 @@ public class SoundTest {
 		
 		try
 		{
-			Thread.sleep(120000);
+			Thread.sleep(10000);
 		}
 		catch(InterruptedException e)
 		{
@@ -179,7 +179,6 @@ public class SoundTest {
 		}
 		
 		sp.stop();
-		System.out.println("DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		
 		try
 		{

@@ -123,7 +123,8 @@ public abstract class MapItemAggregate extends MapItem {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		for(MapItem c : containedItems)
-			if(c.getBody().isCollidingWith(m.getBody()))
+//			if(c.getBody().isCollidingWith(m.getBody()))
+			if(c.isCollidingWith(m))
 				return true;
 		
 		return false;
@@ -174,6 +175,7 @@ public abstract class MapItemAggregate extends MapItem {
 				for(int i = 0; i < newItems.size(); i++)
 					this.addMapItem(newItems.get(i).createMapItem(Transformation.ORIGIN, 
 							this.getOwner(), this.getGameState()), newTrans.get(i));
+				body = null;
 			}
 		}
 	}

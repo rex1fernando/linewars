@@ -338,8 +338,6 @@ public class GateKeeper
 			// sends the messages back to the requester
 			pushMessagesForTick(toSend, packet.getAddress().getHostAddress());
 			
-			System.out.println(Thread.currentThread().getName() + " responded to a resend request from address " + packet.getAddress().getHostAddress());
-			
 			return true;
 			
 		}

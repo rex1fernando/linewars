@@ -1,17 +1,58 @@
 package menu;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Image;
+import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 
 public class ContentProvider
 {
+	private static Map<MenuImage, Image> imageResources = new HashMap<MenuImage, Image>();
+	
+	private static Map<MenuImage, String> filenames;
+	
+	static
+	{
+		filenames = new HashMap<MenuImage, String>();
+		filenames.put(MenuImage.buttonDefault, "resources/ui/UIButtonRough2.png");
+		filenames.put(MenuImage.buttonRollover, "resources/ui/UIButtonMouseoverRough2.png");
+		filenames.put(MenuImage.titleBackground, "resources/ui/PossibleUI2.png");
+	}
+	
+	public enum MenuImage
+	{
+		buttonDefault,
+		buttonRollover,
+		buttonPressed,
+		buttonDisabled,
+		
+		titleBackground,
+	}
+	
+	public static Point centerText(FontMetrics f, String text, int width, int height)
+	{
+		int w = f.stringWidth(text);
+		int h = f.getAscent();
+
+		Point p = new Point();
+		p.x = (int) ((width - w) / 2);
+		p.y = (int) ((height - h) / 2) + h;
+		return p;
+	}
+	
 	public static Race[] getAvailableRaces()
 	{
 		String from = "resources/races";
@@ -58,6 +99,21 @@ public class ContentProvider
 		}
 		
 		return maps.toArray(new MapConfiguration[0]);
+	}
+	
+	public static Image getImageResource(MenuImage img)
+	{
+		if (imageResources.containsKey(img) == false)
+		{
+			try {
+				imageResources.put(img, ImageIO.read(new File(filenames.get(img))));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return imageResources.get(img);
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)

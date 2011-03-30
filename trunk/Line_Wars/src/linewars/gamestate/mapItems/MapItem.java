@@ -272,7 +272,7 @@ public strictfp abstract class MapItem implements Observer {
 		if(!this.getCollisionStrategy().canCollideWith(m))
 			return false;
 		
-		return this.getBody().isCollidingWith(m.body);
+		return this.getBody().isCollidingWith(m.getBody());
 	}
 
 	/**
