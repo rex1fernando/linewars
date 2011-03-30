@@ -1,4 +1,10 @@
-package menu;
+package menu.panels;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+import menu.WindowManager;
+import menu.components.MenuButton;
 
 public class TitlePanel extends javax.swing.JPanel {
 
@@ -12,12 +18,12 @@ public class TitlePanel extends javax.swing.JPanel {
                       
     private void initComponents() {
 
-        createGameButton = new javax.swing.JButton();
-        joinGameButton = new javax.swing.JButton();
-        launchEditorButton = new javax.swing.JButton();
-        optionsButton = new javax.swing.JButton();
-        creditsButton = new javax.swing.JButton();
-        exitButton = new javax.swing.JButton();
+        createGameButton = new MenuButton();
+        joinGameButton = new MenuButton();
+        launchEditorButton = new MenuButton();
+        optionsButton = new MenuButton();
+        creditsButton = new MenuButton();
+        exitButton = new MenuButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(100, 200, 100, 200));
         setMaximumSize(new java.awt.Dimension(1024, 640));
@@ -74,7 +80,9 @@ public class TitlePanel extends javax.swing.JPanel {
             }
         });
         add(exitButton);
-    }// </editor-fold>                        
+        
+        setOpaque(false);
+    }                  
 
     private void createGameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
         windowManager.gotoCreateGame();
@@ -98,7 +106,7 @@ public class TitlePanel extends javax.swing.JPanel {
 
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {                                     
     	windowManager.exitGame();
-    }                                    
+    }
           
     private javax.swing.JButton createGameButton;
     private javax.swing.JButton creditsButton;
