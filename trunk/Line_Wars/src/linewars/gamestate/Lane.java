@@ -134,6 +134,7 @@ public strictfp class Lane
 	 */
 	public MapItem[] getCollisions(MapItem m)
 	{
+		//TODO use prune-and-sweep's data structures for performance optimization
 		ArrayList<MapItem> collisions = new ArrayList<MapItem>();
 		MapItem[] ms = this.getMapItemsIn(
 				m.getPosition().subtract(m.getRadius() / 2, m.getRadius() / 2),
@@ -257,37 +258,7 @@ public strictfp class Lane
 		for(Entry<Player, Wave> e : waveSet)
 			waves.add(e.getValue());
 		
-		ArrayList<Unit> units = new ArrayList<Unit>();
-		for(Wave w : waves)
-			for(Unit u : w.getUnits())
-			{
-				units.add(u);
-				u.setWave(w); //set the unit's wave
-			}
-		
-		//sort units in descending order by radius
-		Collections.sort(units, new Comparator<Unit>() {
-			public int compare(Unit u1, Unit u2){
-				if(u1.getRadius() - u2.getRadius() < 0)
-					return 1;
-				else if((u1.getRadius() - u2.getRadius() > 0))
-					return -1;
-				else
-					return 0;
-			}
-		});
-		
-		//sort units in descending order by range
-		Collections.sort(units, new Comparator<Unit>() {
-			public int compare(Unit u1, Unit u2){
-				if(u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() < 0)
-					return 1;
-				else if((u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() > 0))
-					return -1;
-				else
-					return 0;
-			}
-		});
+		ArrayList<Unit> units = extractAndSortUnits(waves);
 		
 		Gate closestGate = this.getGate(n);
 		//start represents if we're going up the lane (0 -> 1) or down (1 -> 0)
@@ -388,6 +359,41 @@ public strictfp class Lane
 		
 	}
 
+	private ArrayList<Unit> extractAndSortUnits(ArrayList<Wave> waves) {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		for(Wave w : waves)
+			for(Unit u : w.getUnits())
+			{
+				units.add(u);
+				u.setWave(w); //set the unit's wave
+			}
+		
+		//sort units in descending order by radius
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getRadius() - u2.getRadius() < 0)
+					return 1;
+				else if((u1.getRadius() - u2.getRadius() > 0))
+					return -1;
+				else
+					return 0;
+			}
+		});
+		
+		//sort units in descending order by range
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() < 0)
+					return 1;
+				else if((u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() > 0))
+					return -1;
+				else
+					return 0;
+			}
+		});
+		return units;
+	}
+
 	/**
 	 * Finds the farthest point at which units can be spawned, defined as the position
 	 * farthest away from the gate that units are allowed to spawn
@@ -427,7 +433,7 @@ public strictfp class Lane
 	
 	/**
 	 * Gets the map items intersecting with the rectangle
-	 * TODO Refactor this to use Shapes?
+	 * TODO use prune-and-sweep's data structures to optimize this?
 	 * 
 	 * @param upperLeft	the upper left of the rectangle
 	 * @param width		the width of the rectangle	
