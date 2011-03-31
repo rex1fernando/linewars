@@ -253,7 +253,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
 
         private void slotChangeActionPerformed(java.awt.event.ActionEvent evt) {
         	if (allIsWell(this))
-        		client.sendMessage(MessageType.slot, Integer.parseInt((String) slot.getSelectedItem()));
+        		client.sendMessage(MessageType.slot, (Integer) slot.getSelectedItem());
         }                                          
 
         private void colorChangeActionPerformed(java.awt.event.ActionEvent evt) {
