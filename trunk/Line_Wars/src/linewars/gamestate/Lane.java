@@ -15,6 +15,7 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Part;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.Circle;
@@ -32,7 +33,7 @@ public strictfp class Lane
 	private static final double LANE_BORDER_RESOLUTION = 0.05;
 	private static final int NUM_COLLISION_FIXES = 1;
 	
-	
+	private boolean sweepAndPruneStructuresNeedUpdate;
 	
 	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
@@ -40,7 +41,7 @@ public strictfp class Lane
 	private ArrayList<Node> nodes;
 	private double gatePos;
 	private GameState gameState;
-	
+		
 	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
@@ -53,8 +54,7 @@ public strictfp class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
 	private LaneConfiguration config;
-	
-	
+		
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
 		this.horizontallySortedUnits = new ArrayList<Unit>();
@@ -69,6 +69,8 @@ public strictfp class Lane
 		pathFinder = new PathFinding(gameState);
 		
 		this.config = config;
+		
+		this.sweepAndPruneStructuresNeedUpdate = true;
 	}
 	
 	public boolean isInLane(MapItem m)
@@ -159,6 +161,7 @@ public strictfp class Lane
 	 */
 	public MapItem[] getCollisions(MapItem m)
 	{
+		//TODO use prune-and-sweep's data structures for performance optimization
 		ArrayList<MapItem> collisions = new ArrayList<MapItem>();
 		MapItem[] ms = this.getMapItemsIn(
 				m.getPosition().subtract(m.getRadius() / 2, m.getRadius() / 2),
@@ -282,37 +285,7 @@ public strictfp class Lane
 		for(Entry<Player, Wave> e : waveSet)
 			waves.add(e.getValue());
 		
-		ArrayList<Unit> units = new ArrayList<Unit>();
-		for(Wave w : waves)
-			for(Unit u : w.getUnits())
-			{
-				units.add(u);
-				u.setWave(w); //set the unit's wave
-			}
-		
-		//sort units in descending order by radius
-		Collections.sort(units, new Comparator<Unit>() {
-			public int compare(Unit u1, Unit u2){
-				if(u1.getRadius() - u2.getRadius() < 0)
-					return 1;
-				else if((u1.getRadius() - u2.getRadius() > 0))
-					return -1;
-				else
-					return 0;
-			}
-		});
-		
-		//sort units in descending order by range
-		Collections.sort(units, new Comparator<Unit>() {
-			public int compare(Unit u1, Unit u2){
-				if(u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() < 0)
-					return 1;
-				else if((u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() > 0))
-					return -1;
-				else
-					return 0;
-			}
-		});
+		ArrayList<Unit> units = extractAndSortUnits(waves);
 		
 		Gate closestGate = this.getGate(n);
 		//start represents if we're going up the lane (0 -> 1) or down (1 -> 0)
@@ -412,6 +385,41 @@ public strictfp class Lane
 		pendingWaves.get(n).clear();
 	}
 
+	private ArrayList<Unit> extractAndSortUnits(ArrayList<Wave> waves) {
+		ArrayList<Unit> units = new ArrayList<Unit>();
+		for(Wave w : waves)
+			for(Unit u : w.getUnits())
+			{
+				units.add(u);
+				u.setWave(w); //set the unit's wave
+			}
+		
+		//sort units in descending order by radius
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getRadius() - u2.getRadius() < 0)
+					return 1;
+				else if((u1.getRadius() - u2.getRadius() > 0))
+					return -1;
+				else
+					return 0;
+			}
+		});
+		
+		//sort units in descending order by range
+		Collections.sort(units, new Comparator<Unit>() {
+			public int compare(Unit u1, Unit u2){
+				if(u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() < 0)
+					return 1;
+				else if((u1.getCombatStrategy().getRange() - u2.getCombatStrategy().getRange() > 0))
+					return -1;
+				else
+					return 0;
+			}
+		});
+		return units;
+	}
+
 	/**
 	 * Finds the farthest point at which units can be spawned, defined as the position
 	 * farthest away from the gate that units are allowed to spawn
@@ -451,7 +459,7 @@ public strictfp class Lane
 	
 	/**
 	 * Gets the map items intersecting with the rectangle
-	 * TODO Refactor this to use Shapes?
+	 * TODO use prune-and-sweep's data structures to optimize this?
 	 * 
 	 * @param upperLeft	the upper left of the rectangle
 	 * @param width		the width of the rectangle	
@@ -460,6 +468,10 @@ public strictfp class Lane
 	 */
 	public MapItem[] getMapItemsIn(Position upperLeft, double width, double height)
 	{
+		updateSweepAndPruneStructures();
+		
+		
+		
 		ArrayList<MapItem> items = new ArrayList<MapItem>();
 		for(Wave w : waves)
 		{
@@ -538,10 +550,12 @@ public strictfp class Lane
 			p.move();
 			p.updateMapItem();
 			//get rid of dead projectiles
-			if(p.getState() == MapItemState.Dead && p.finished())
+			if(p.getState() == MapItemState.Dead && p.finished()) {
 				projectiles.remove(i);
-			else
+				notifySweepAndPruneStructuresNeedUpdate();
+			} else {
 				i++;
+			}
 		}
 		
 		for(int i = 0; i < NUM_COLLISION_FIXES; i++){
@@ -645,21 +659,22 @@ public strictfp class Lane
 	
 	private LinkedList<Unit> sweepAndPrune()
 	{
-		List<Unit> allUnits = getCollidableMapItems();
 		
 		LinkedList<Unit> potentiallyCollidingUnits = new LinkedList<Unit>();
 		
 		LinkedList<Unit> horizontallyCollidingUnits = new LinkedList<Unit>();
 		
-		//FIXME This won't always work.
-		if (horizontallySortedUnits.size() < allUnits.size())
-			initializeSortedUnits(allUnits);
-		sortUnits();
+		updateSweepAndPruneStructures();
 	
+		boolean addedLastUnit = false;
 		for (int i = 0; i < horizontallySortedUnits.size()-1; i++)
 		{
 			if (horizontallySortedUnits.get(i).getBody().getAABB().getXMax() > horizontallySortedUnits.get(i+1).getBody().getAABB().getXMin())
-				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+			{	
+				if (!addedLastUnit)
+					horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i+1));
+			}
 		}
 		
 		/*if (allUnits.size() > 0)
@@ -671,12 +686,16 @@ public strictfp class Lane
 		
 		}*/
 		
+		addedLastUnit = false;
 		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
 		{
 			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
 					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
+			{
+				if (!addedLastUnit)
+					potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
 				potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
-				
+			}	
 		}
 		
 		/*if (allUnits.size() > 0) 
@@ -692,6 +711,7 @@ public strictfp class Lane
 		horizontallySortedUnits = new ArrayList<Unit>(allUnits);
 		verticallySortedUnits = new ArrayList<Unit>(allUnits);
 	}
+	
 	
 	private void sortUnits()
 	{
@@ -894,4 +914,20 @@ public strictfp class Lane
 		else
 			return false;
 	}
+	
+	public void notifySweepAndPruneStructuresNeedUpdate() {
+		this.sweepAndPruneStructuresNeedUpdate = false;
+	}
+	
+	private void updateSweepAndPruneStructures() 
+	{
+		if (this.sweepAndPruneStructuresNeedUpdate) 
+		{
+			List<Unit> allUnits = getCollidableMapItems();
+			initializeSortedUnits(allUnits);
+			this.sweepAndPruneStructuresNeedUpdate = false;
+		}
+		sortUnits();
+	}
+
 }

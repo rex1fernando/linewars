@@ -5,14 +5,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import linewars.init.Game;
 import linewars.init.PlayerData;
+import menu.ContentProvider;
 import menu.panels.CreateGamePanel;
 
 public class Client implements Runnable
@@ -24,19 +28,15 @@ public class Client implements Runnable
 	private CreateGamePanel gamePanel;
 	private boolean running;
 	
-	public Client(int port, String serverIp, CreateGamePanel gamePanel)
+	public Client(int port, String serverIp, CreateGamePanel gamePanel) throws SocketException
 	{
 		this.gamePanel = gamePanel;
 		try {
 			socket = new Socket(serverIp, port);
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in = new ObjectInputStream(socket.getInputStream());
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new SocketException();
 		}
 		
 		playerIndex = (Integer) NetworkUtil.readObject(in);
@@ -100,7 +100,7 @@ public class Client implements Runnable
 			gamePanel.setPlayerSlot(playerId, (Integer) NetworkUtil.readObject(in));
 			break;
 		case race:
-			gamePanel.setPlayerRace(playerId, (Race) NetworkUtil.readObject(in));
+			gamePanel.setPlayerRace(playerId, (Integer) NetworkUtil.readObject(in));
 			break;
 		case color:
 			gamePanel.setPlayerColor(playerId, (Color) NetworkUtil.readObject(in));
@@ -131,6 +131,9 @@ public class Client implements Runnable
 			break;
 		case serverCancelGame:
 			running = false;
+			if (socket.getInetAddress().getHostAddress().toString().equals("127.0.0.1") == false)
+				JOptionPane.showMessageDialog(gamePanel, "The host left the game.");
+			
 			gamePanel.goBackToTitleMenu();
 			break;
 		case startGame:
@@ -172,12 +175,13 @@ public class Client implements Runnable
 	private List<PlayerData> convertToPlayerData(PlayerBean[] players)
 	{
 		List<PlayerData> playerList = new ArrayList<PlayerData>();
+		Race[] races = ContentProvider.getAvailableRaces();
 		for (int i = 0; i < players.length; ++i)
 		{
 			PlayerData pd = new PlayerData();
 			pd.setColor(players[i].getColor());
 			pd.setName(players[i].getName());
-			pd.setRace(players[i].getRace());
+			pd.setRace(races[players[i].getRaceIndex()]);
 			pd.setStartingSlot(players[i].getSlot());
 			playerList.add(pd);
 		}

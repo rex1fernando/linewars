@@ -13,6 +13,11 @@ import java.util.Scanner;
  */
 public strictfp class Position implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1353848648582707930L;
+
 	public static final Position ORIGIN = new Position(0, 0);
 	
 	private double x;
@@ -249,5 +254,9 @@ public strictfp class Position implements Serializable {
 	static public Position getUnitVector(double theta)
 	{
 		return new Position(Math.cos(theta), Math.sin(theta));
+	}
+
+	public double crossProduct(Position other) {
+		return this.x * other.y - this.y * other.x;
 	}
 }

@@ -27,4 +27,16 @@ public class Property implements Serializable {
 	public Object getValue(){
 		return data;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o instanceof Property)
+		{
+			Property p = (Property) o;
+			if (data.equals(p.data) && type.equals(p.type))
+				return true;
+		}
+		return false;
+	}
 }

@@ -99,4 +99,9 @@ public strictfp class Circle extends Shape {
 		
 		return new AABB(x-radius, y-radius, x+radius, y+radius);
 	}
+
+	@Override
+	public Shape scale(double scaleFactor) {
+		return new Circle(position, radius * scaleFactor);
+	}
 }

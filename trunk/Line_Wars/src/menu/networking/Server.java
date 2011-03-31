@@ -27,7 +27,7 @@ public class Server implements Runnable
 	
 	private boolean running;
 	
-	public Server(int port, boolean isReplay, Object selection, CreateGamePanel gp)
+	public Server(int port, boolean isReplay, Object selection, CreateGamePanel gp) throws IOException
 	{
 		gamePanel = gp;
 		clients = new ArrayList<ClientConnection>();
@@ -36,13 +36,7 @@ public class Server implements Runnable
 		this.isReplay = isReplay;
 		this.selection = selection;
 		
-		// try to open the socket
-		try {
-			serverSocket = new ServerSocket(port);
-		} catch (IOException e) {
-			// TODO handle exception
-			e.printStackTrace();
-		}
+		serverSocket = new ServerSocket(port);
 	}
 	
 	public void start()
@@ -97,7 +91,6 @@ public class Server implements Runnable
 		PlayerBean pb = null;
 		synchronized (clientLock)
 		{
-			// TODO actually implement
 			pb = new PlayerBean("Player", Color.black, 1, null); // FIXME
 		}
 		return pb;
@@ -130,9 +123,8 @@ public class Server implements Runnable
 		public ClientConnection(Socket socket, int playerId) throws IOException
 		{
 			this.playerId = playerId;
-//			ipAddress = socket.getLocalSocketAddress().toString();  // TODO possible fix?
-			ipAddress = socket.getInetAddress().toString(); //fixed this
-			ipAddress = ipAddress.substring(ipAddress.lastIndexOf("/") + 1); //remove the host name
+			ipAddress = socket.getInetAddress().toString();
+			ipAddress = ipAddress.substring(ipAddress.lastIndexOf("/") + 1);
 			
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
@@ -158,15 +150,18 @@ public class Server implements Runnable
 		@Override
 		public boolean equals(Object o)
 		{
-			// TODO impelemnt
-			return (o == this);
+			if ((o instanceof ClientConnection) == false)
+				return false;
+			
+			ClientConnection c = (ClientConnection) o;
+			
+			return (playerId == c.playerId && ipAddress.equals(c.ipAddress));
 		}
 		
 		@Override
 		public int hashCode()
 		{
-			// TODO implement
-			return 0;
+			return playerId * 53 + ipAddress.hashCode() * 29;
 		}
 		
 		public void sendMessage(MessageType type, Object ... obj)
@@ -212,10 +207,11 @@ public class Server implements Runnable
 					}
 					break;
 				case race:
-					Race race = (Race) NetworkUtil.readObject(in);
-					if (race != null && !race.equals(pb.getRace())) {
-						pb.setRace((race));
-						forwardToClients(this, MessageType.race, race);	
+					Integer raceIndex = (Integer) NetworkUtil.readObject(in);
+					Race race = ContentProvider.getAvailableRaces()[raceIndex];
+					if (raceIndex != null && !race.equals(pb.getRaceIndex())) {
+						pb.setRaceIndex(raceIndex);
+						forwardToClients(this, MessageType.race, raceIndex);	
 					}
 					break;
 				case chat:
@@ -249,10 +245,7 @@ public class Server implements Runnable
 					Server.this.running = false;
 					try {
 						serverSocket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					} catch (IOException e) { /* DO NOTHING */}
 					break;
 				case startGame:
 					beginGameInitialization();

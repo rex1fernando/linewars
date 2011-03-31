@@ -6,7 +6,6 @@ import java.awt.geom.Rectangle2D;
 import linewars.display.ColoredEdge;
 import linewars.display.ColoredNode;
 import linewars.display.Display;
-import linewars.display.FlowIndicator;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Node;
@@ -21,7 +20,6 @@ public class GraphLayer implements ILayer
 {
 	private ColoredNode cn;
 	private ColoredEdge ce;
-	private FlowIndicator fi;
 
 	/**
 	 * Constructs this graph layer.
@@ -37,7 +35,6 @@ public class GraphLayer implements ILayer
 	{
 		cn = new ColoredNode(d, numPlayers);
 		ce = new ColoredEdge(d, numPlayers);
-		fi = new FlowIndicator(d, pIndex);
 	}
 
 	@Override
@@ -57,7 +54,5 @@ public class GraphLayer implements ILayer
 		{
 			cn.draw(g, n, scale);
 		}
-
-		fi.draw(g, gamestate);
 	}
 }

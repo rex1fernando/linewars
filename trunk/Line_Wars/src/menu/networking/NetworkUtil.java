@@ -16,6 +16,9 @@ public class NetworkUtil
 		} catch (IOException e) {
 			// TODO handle exception
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO handle exception
+			e.printStackTrace();
 		}
 		return null;
 	}

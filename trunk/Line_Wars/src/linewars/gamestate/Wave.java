@@ -160,10 +160,12 @@ public strictfp class Wave {
 	{
 		//first check for dead units
 		for(int i = 0; i < units.size();)
-			if(units.get(i).getState() == MapItemState.Dead)
+			if(units.get(i).getState() == MapItemState.Dead) {
 				units.remove(i);
-			else
+				owner.notifySweepAndPruneStructuresNeedUpdate();
+			} else {
 				i++;
+			}
 		
 		//don't do anything if there are no units
 		if(units.size() <= 0)
@@ -236,6 +238,7 @@ public strictfp class Wave {
 					u.setTransformation(target.getTransformation());
 					target.addUnit(u);
 					units.remove(i);
+					owner.notifySweepAndPruneStructuresNeedUpdate();
 					continue;
 				}
 				//if we're close enough but the gate isn't down

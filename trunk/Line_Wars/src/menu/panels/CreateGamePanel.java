@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,8 @@ import menu.WindowManager;
 import menu.components.ComboBoxRenderer;
 import menu.components.MenuButton;
 import menu.components.MenuComboBox;
+import menu.components.MenuScrollPane;
+import menu.components.MenuTextArea;
 import menu.networking.Client;
 import menu.networking.MessageType;
 import menu.networking.PlayerBean;
@@ -44,18 +48,20 @@ public class CreateGamePanel extends javax.swing.JPanel {
     @Override
     public void paintComponent(Graphics g)
     {
-    	g.setColor(Color.gray);
+    	// TODO FIX THE OPACITY
+    	Color filter = new Color(255, 255, 255, 50);
+    	g.setColor(filter);
     	g.fillRect(0, 0, getWidth(), getHeight());
     }
     
-    public void startServer() {
+    public void startServer() throws IOException {
     	Server s = new Server(PORT, replayToggleButton.isSelected(), selectionComboBox.getSelectedItem(), this);
     	s.start();
     	isServer = true;
     	startClient("127.0.0.1");
     }
     
-    public void startClient(String serverIp) {
+    public void startClient(String serverIp) throws SocketException {
     	client = new Client(PORT, serverIp, this);
     	client.start();
     	
@@ -91,9 +97,10 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	}});
     }
     
-    public void setPlayerRace(final int playerId, final Object race) {
+    public void setPlayerRace(final int playerId, final Object raceIndex) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
-    		players.get(playerId).race.setSelectedItem(race);
+    		if (raceIndex != null)
+    			players.get(playerId).race.setSelectedIndex((Integer) raceIndex);
     	}});
     }
     
@@ -112,7 +119,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     public void updatePlayerPanel(final int playerId, final PlayerBean info) {
     	setPlayerName(playerId, info.getName());
     	setPlayerSlot(playerId, info.getSlot());
-    	setPlayerRace(playerId, info.getRace());
+    	setPlayerRace(playerId, info.getRaceIndex());
     	setPlayerColor(playerId, info.getColor());
     }
     
@@ -174,7 +181,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     public void goBackToTitleMenu() {
     	wm.gotoTitleMenu();
-    	init();
     }
 
     private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {
@@ -204,7 +210,15 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }
     
     private Color[] getAvailableColors() {
+    	// FIXME
     	return ContentProvider.getAvailableColors();
+    }
+    
+    private Integer[] getAvailableSlots() {
+    	// FIXME
+    	Integer[] s = new Integer[10];
+    	for (int i = 1; i <= 10; ++i) s[i-1] = i;
+    	return s;
     }
     
     private boolean allIsWell(PlayerPanel p) {
@@ -219,7 +233,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
 
         private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {         
         	if (allIsWell(this))
-        		client.sendMessage(MessageType.race, race.getSelectedItem());
+        		client.sendMessage(MessageType.race, race.getSelectedIndex());
         }                                          
 
         private void nameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -270,7 +284,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
             setMinimumSize(new java.awt.Dimension(712, 28));
             setPreferredSize(new java.awt.Dimension(712, 28));
 
-            slot.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
+            slot.setModel(new javax.swing.DefaultComboBoxModel(getAvailableSlots()));
             slot.setBorder(null);
             slot.setEditor(null);
             slot.setFocusable(false);
@@ -349,11 +363,19 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }
     
     private class SelectionComboBoxModel implements ComboBoxModel {
-        private int map = 0;
-        private int replay = 0;
+        private int map;
+        private int replay;
         
-        private boolean isReplay = false;
-        private Object[] choices = getAvailableMaps();
+        private boolean isReplay;
+        private Object[] choices;
+        
+        public SelectionComboBoxModel()
+        {
+        	map = 0;
+        	replay = 0;
+        	isReplay = false;
+        	choices = getAvailableMaps();
+        }
 
         public void setSelectedItem(Object anItem) {
             Object[] str =  getItems();
@@ -400,15 +422,15 @@ public class CreateGamePanel extends javax.swing.JPanel {
         selectionComboBox = new MenuComboBox();
         previewPanel = new javax.swing.JPanel();
         chatWindow = new javax.swing.JPanel();
-        chatArea = new javax.swing.JTextArea();
+        chatArea = new MenuTextArea();
         chatField = new javax.swing.JTextField();
         sendButton = new MenuButton();
         buttonPanel = new javax.swing.JPanel();
         startButton = new MenuButton();
         cancelButton = new MenuButton();
-        lobbyScrollPane = new javax.swing.JScrollPane();
+        lobbyScrollPane = new MenuScrollPane();
         lobbyPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        chatScrollPane1 = new MenuScrollPane();
 
         setMaximumSize(new java.awt.Dimension(1024, 640));
         setMinimumSize(new java.awt.Dimension(1024, 640));
@@ -438,7 +460,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
             }
         });
 
-        previewPanel.setBackground(new java.awt.Color(254, 254, 254));
         previewPanel.setPreferredSize(new java.awt.Dimension(250, 250));
 
         javax.swing.GroupLayout previewPanelLayout = new javax.swing.GroupLayout(previewPanel);
@@ -452,12 +473,13 @@ public class CreateGamePanel extends javax.swing.JPanel {
             .addGap(0, 250, Short.MAX_VALUE)
         );
 
-        chatWindow.setOpaque(false);
         chatWindow.setMaximumSize(new java.awt.Dimension(250, 250));
         chatWindow.setMinimumSize(new java.awt.Dimension(250, 250));
         chatWindow.setPreferredSize(new java.awt.Dimension(250, 250));
+        chatWindow.setOpaque(false);
 
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        chatScrollPane1.setOpaque(false);
+        chatScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         chatField.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent e) {}
@@ -473,7 +495,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         chatArea.setRows(5);
         chatArea.setBorder(null);
         chatArea.setFocusable(false);
-        jScrollPane1.setViewportView(chatArea);
+        chatScrollPane1.setViewportView(chatArea);
 
         sendButton.setText("Send");
         sendButton.setSize(new Dimension(50, 18));
@@ -492,12 +514,12 @@ public class CreateGamePanel extends javax.swing.JPanel {
                 .addComponent(chatField, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sendButton))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+            .addComponent(chatScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
         );
         chatWindowLayout.setVerticalGroup(
             chatWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chatWindowLayout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+                .addComponent(chatScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(chatWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chatField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -529,12 +551,10 @@ public class CreateGamePanel extends javax.swing.JPanel {
         buttonPanel.add(cancelButton);
 
         lobbyScrollPane.setOpaque(false);
-        lobbyScrollPane.setBackground(Color.red);
         lobbyScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        //lobbyPanel.setOpaque(false);
-        lobbyPanel.setBackground(Color.black);
+        lobbyPanel.setOpaque(false);
         lobbyPanel.setLayout(new javax.swing.BoxLayout(lobbyPanel, javax.swing.BoxLayout.Y_AXIS));
 
         lobbyScrollPane.setViewportView(lobbyPanel);
@@ -592,7 +612,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     private javax.swing.JTextArea chatArea;
     private javax.swing.JTextField chatField;
     private javax.swing.JPanel chatWindow;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane chatScrollPane1;
     private javax.swing.JPanel lobbyPanel;
     private javax.swing.JScrollPane lobbyScrollPane;
     private javax.swing.JPanel previewPanel;

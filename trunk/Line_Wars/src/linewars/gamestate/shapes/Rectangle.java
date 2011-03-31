@@ -1,7 +1,5 @@
 package linewars.gamestate.shapes;
 
-import java.io.Serializable;
-
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -183,5 +181,10 @@ public strictfp class Rectangle extends Shape {
 		}
 		
 		return new AABB(xmin, ymin, xmax, ymax);
+	}
+
+	@Override
+	public Shape scale(double scaleFactor) {
+		return new Rectangle(position, width * scaleFactor, height * scaleFactor);
 	}
 }
