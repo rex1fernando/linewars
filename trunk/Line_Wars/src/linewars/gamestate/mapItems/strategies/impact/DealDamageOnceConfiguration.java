@@ -48,18 +48,15 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 			{
 				hit = true;
 				projectile.setState(MapItemState.Dead);
-				projectile.setDurability(0);
 				projectile.setPosition(m.getPosition());
 				if(m instanceof Unit)
 				{
 					Unit u = (Unit)m;
 					//modify the amount of damage done by the durabiility of the projectile
-					u.setHP(u.getHP()
-							- projectile.getDurability()
-							/ ((ProjectileDefinition) projectile
-									.getDefinition()).getBaseDurability()
-							* damage);
+					u.setHP(u.getHP() - projectile.getDurability()/((ProjectileDefinition) projectile
+							.getDefinition()).getBaseDurability()*damage);
 				}
+				projectile.setDurability(0);
 			}
 		}
 	

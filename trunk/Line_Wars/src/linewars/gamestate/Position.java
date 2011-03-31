@@ -3,6 +3,8 @@ package linewars.gamestate;
 import java.io.Serializable;
 import java.util.Scanner;
 
+import utility.AugmentedMath;
+
 /**
  * 
  * @author Connor Schenck, Taylor Bergquist
@@ -233,7 +235,7 @@ public strictfp class Position implements Serializable {
 	
 	@Override
 	public String toString(){
-		return "(" + (int)x + ", " + (int)y + ")";
+		return "(" + (Math.floor(1000*x))/1000.0 + ", " + (Math.floor(1000*y))/1000.0 + ")";
 	}
 
 	/**
