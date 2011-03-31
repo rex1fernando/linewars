@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.IOException;
+import java.net.SocketException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -42,7 +44,6 @@ public class WindowManager extends JFrame
 		setSize(Toolkit.getDefaultToolkit().getScreenSize());
 		
 		setVisible(true);
-		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
 	public Dimension getPanelSize()
@@ -52,14 +53,20 @@ public class WindowManager extends JFrame
 	
 	public void gotoTitleMenu()
 	{
+		if (innerPanel.panel == createMenu)
+			createMenu = new CreateGamePanel(this);
+		
 		changeContentPane(titleMenu);
 	}
 	
 	public void gotoCreateGame()
 	{
-		createMenu.startServer();
-
-		changeContentPane(createMenu);
+		try {
+			createMenu.startServer();
+			changeContentPane(createMenu);
+		} catch (IOException e) {
+			
+		}
 	}
 	
 	public void gotoJoinGame()
@@ -67,8 +74,12 @@ public class WindowManager extends JFrame
 		String serverIp = JOptionPane.showInputDialog("Enter the server's ip address:");
 		
 		if (serverIp != null) {
-			createMenu.startClient(serverIp);
-			changeContentPane(createMenu);
+			try {
+				createMenu.startClient(serverIp);
+				changeContentPane(createMenu);
+			} catch (SocketException e) {
+				JOptionPane.showMessageDialog(this, "Could not connect to the server hosted by " + serverIp);
+			}
 		}
 	}
 	
@@ -142,13 +153,6 @@ public class WindowManager extends JFrame
 		public void paintComponent(Graphics g)
 		{
 			Image img = ContentProvider.getImageResource(image);
-//			Image flt = null;
-//			try {
-//				flt = ImageIO.read(new File("resources/ui/OverBar1.png"));
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 			
 			int sx1 = 0, sy1 = 0, sx2 = img.getWidth(null), sy2 = img.getHeight(null);
 			double this_ratio = getWidth() / (double) getHeight();
@@ -162,7 +166,6 @@ public class WindowManager extends JFrame
 			}
 			
 			g.drawImage(img, 0, 0, getWidth(), getHeight(), sx1, sy1, sx2, sy2, null);
-//			g.drawImage(flt, 0, 0, getWidth(), getHeight(), 0, 0, flt.getWidth(null), flt.getHeight(null), null);
 		}
 	}
 }

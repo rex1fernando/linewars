@@ -11,14 +11,14 @@ public class PlayerBean implements Serializable
 	private static final long serialVersionUID = -7857078559659192694L;
 	private String name;
 	private int slot;
-	private Race race;
+	private Integer raceIndex;
 	private Color color;
 	
-	public PlayerBean(String n, Color c, int s, Race r) {
+	public PlayerBean(String n, Color c, int s, Integer r) {
 		name = n;
 		color = c;
 		slot = s;
-		race = r;
+		raceIndex = r;
 	}
 	public String getName() {
 		return name;
@@ -32,11 +32,11 @@ public class PlayerBean implements Serializable
 	public void setSlot(int slot) {
 		this.slot = slot;
 	}
-	public Race getRace() {
-		return race;
+	public Integer getRaceIndex() {
+		return raceIndex;
 	}
-	public void setRace(Race race) {
-		this.race = race;
+	public void setRaceIndex(Integer raceIndex) {
+		this.raceIndex = raceIndex;
 	}
 	public Color getColor() {
 		return color;
@@ -52,19 +52,19 @@ public class PlayerBean implements Serializable
 		return color.equals(p.color)
 			&& name.equals(p.name)
 			&& slot == p.slot
-			&& race.equals(p.race);
+			&& raceIndex.equals(p.raceIndex);
 	}
 	@Override
 	public int hashCode() {
 		return name.hashCode() * 7 +
 			color.hashCode() * 23 +
 			slot * 41 +
-			race.hashCode() * 57;
+			raceIndex.hashCode() * 57;
 	}
 	
 	public PlayerBean copy()
 	{
-		PlayerBean ret = new PlayerBean(name, color, slot, race);
+		PlayerBean ret = new PlayerBean(name, color, slot, raceIndex);
 		return ret;
 	}
 }
