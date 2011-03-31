@@ -177,4 +177,13 @@ public strictfp class Triangle extends Shape {
 		return new AABB(leastX, leastY, mostX, mostY);
 	}
 
+	@Override
+	public Shape scale(double scaleFactor) {
+		//translate to origin, then scale
+		Position newCorner0 = corners[0].subtract(center.getPosition()).scale(scaleFactor).add(center.getPosition());
+		Position newCorner1 = corners[1].subtract(center.getPosition()).scale(scaleFactor).add(center.getPosition());
+		
+		return new Triangle(center, newCorner0, newCorner1);
+	}
+
 }

@@ -92,6 +92,8 @@ public strictfp abstract class Shape implements Serializable {
 	
 	public abstract AABB calculateAABB();
 	
+	public abstract Shape scale(double scaleFactor);
+	
 	public AABB getAABB()
 	{
 		if (aabb == null) aabb = calculateAABB();

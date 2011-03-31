@@ -182,4 +182,15 @@ public strictfp class ShapeAggregate extends Shape {
 	{
 		return boundingRectangle().calculateAABB();
 	}
+
+	@Override
+	public Shape scale(double scaleFactor) {
+		ArrayList<Transformation> relativePositions = new ArrayList<Transformation>();
+		for(Shape toScale : members){
+			toScale.scale(scaleFactor);
+			Position relativePosition = toScale.position().getPosition().subtract(center).scale(scaleFactor).add(center);
+			relativePositions.add(new Transformation(relativePosition, toScale.position().getRotation()));
+		}
+		return new ShapeAggregate(new Transformation(center, rotation), members, relativePositions);
+	}
 }

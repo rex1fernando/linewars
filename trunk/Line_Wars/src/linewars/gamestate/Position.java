@@ -13,6 +13,11 @@ import java.util.Scanner;
  */
 public strictfp class Position implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1353848648582707930L;
+
 	public static final Position ORIGIN = new Position(0, 0);
 	
 	private double x;
