@@ -91,7 +91,7 @@ public class Server implements Runnable
 		PlayerBean pb = null;
 		synchronized (clientLock)
 		{
-			pb = new PlayerBean("Player", Color.black, 1, null); // FIXME
+			pb = new PlayerBean("Player", Color.black, 1, 0); // FIXME
 		}
 		return pb;
 	}
