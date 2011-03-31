@@ -67,7 +67,7 @@ public strictfp class Projectile extends MapItemAggregate {
 		if(durability <= 0)
 			this.setState(MapItemState.Dead);
 	}
-	
+
 	/**
 	 * This method moves the projetile forward at a constant velocity, checks for collisions,
 	 * and calls its impact strategy on those collisions.
@@ -79,8 +79,10 @@ public strictfp class Projectile extends MapItemAggregate {
 			return;
 		
 		//first check to see if this projectile is outside the lane
-		Transformation t = lane.getPosition(lane.getClosestPointRatio(this.getPosition()));
-		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2))
+		double pointRatio = lane.getClosestPointRatio(this.getPosition());
+		Transformation t = lane.getPosition(pointRatio);
+		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2) ||
+				pointRatio >= 1.0 || pointRatio <= 0.0)
 		{
 			this.setState(MapItemState.Dead);
 			return;

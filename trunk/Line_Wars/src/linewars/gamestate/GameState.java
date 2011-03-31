@@ -40,6 +40,7 @@ public strictfp class GameState
 	private int IDCounter = 0;
 	
 	private double lastLoopTime = 0;
+	private double timeAtEndOfLastLoop = 0;
 	
 	public int getNumPlayers()
 	{
@@ -79,7 +80,7 @@ public strictfp class GameState
 		{
 			Race r = players.get(i).getRace();
 			this.races.add(r);
-			Node[] startNodes = { map.getStartNode(players.get(i).getStartingSlot()) };
+			Node[] startNodes = { map.getStartNode(players.get(i).getStartingSlot() - 1) };
 			Player p = new Player(this, startNodes, r, players.get(i).getName(), i);
 			this.players.put(i, p);
 		}
@@ -131,7 +132,7 @@ public strictfp class GameState
 	 */
 	public double getLastLoopTime()
 	{
-		return this.getTime() - lastLoopTime;
+		return lastLoopTime;
 	}
 	
 	/**
@@ -284,14 +285,15 @@ public strictfp class GameState
 		
 		timerTick++;
 		
+		lastLoopTime = this.getTime() - timeAtEndOfLastLoop;
+		timeAtEndOfLastLoop = this.getTime();
+		
 		//check for win
 		Node n1 = map.getNodes()[0];
 		for(Node n : map.getNodes())
 			if(n1.getOwner() == null || !n1.getOwner().equals(n.getOwner()))
 				return;
 		winningPlayer = n1.getOwner();
-		
-		lastLoopTime = this.getTime();
 	}
 	
 	/**

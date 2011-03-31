@@ -44,15 +44,7 @@ public abstract class MapItemAggregate extends MapItem {
 	public List<Turret> getTurrets()
 	{
 		if(checkForContainedItemsChange(this))
-		{
-			for(MapItem m : containedItems)
-			{
-				if(m instanceof Turret)
-					turrets.add((Turret)m);
-				else if(m instanceof MapItemAggregate)
-					turrets.addAll(((MapItemAggregate)m).getTurrets());
-			}
-		}
+			updateInternalVariables();
 		List<Turret> ret = new ArrayList<Turret>();
 		ret.addAll(turrets);
 		return ret;
@@ -92,8 +84,11 @@ public abstract class MapItemAggregate extends MapItem {
 			Position diff = m.getPosition().subtract(oldPos);
 			m.setPosition(newPos.add(diff));
 		}
+		
+		if(body != null)
+			body = body.transform(new Transformation(newPos.subtract(oldPos), transform.getRotation()));
+		
 		transform = new Transformation(newPos, getRotation());
-		body = null;
 	}
 	
 	@Override
@@ -105,8 +100,12 @@ public abstract class MapItemAggregate extends MapItem {
 			m.setPosition(m.getPosition().rotateAboutPosition(getPosition(), rot));
 			m.setRotation(rot + m.getRotation());
 		}
+		
+		if(body != null)
+			body = body.transform(new Transformation(transform.getPosition(), newRot - transform.getRotation()));
+		
 		transform = new Transformation(transform.getPosition(), newRot);
-		body = null;
+		
 	}
 	
 	@Override
@@ -114,7 +113,6 @@ public abstract class MapItemAggregate extends MapItem {
 	{
 		setPosition(t.getPosition());
 		setRotation(t.getRotation());
-		body = null;
 	}
 	
 	@Override
@@ -134,18 +132,7 @@ public abstract class MapItemAggregate extends MapItem {
 	public Shape getBody()
 	{
 		if(checkForContainedItemsChange(this))
-		{
-			ArrayList<Shape> shapes = new ArrayList<Shape>();
-			ArrayList<Transformation> pos = new ArrayList<Transformation>();
-			
-			for(MapItem m : containedItems)
-			{
-				shapes.add(m.getBody());
-				pos.add(new Transformation(m.getPosition().subtract(this.getPosition()), m.getRotation() - this.getRotation()));
-			}
-			
-			body = new ShapeAggregate(transform, shapes, pos);
-		}
+			updateInternalVariables();
 		return body;
 	}
 	
@@ -177,6 +164,29 @@ public abstract class MapItemAggregate extends MapItem {
 							this.getOwner(), this.getGameState()), newTrans.get(i));
 				body = null;
 			}
+		}
+	}
+	
+	private void updateInternalVariables()
+	{
+		ArrayList<Shape> shapes = new ArrayList<Shape>();
+		ArrayList<Transformation> pos = new ArrayList<Transformation>();
+		
+		for(MapItem m : containedItems)
+		{
+			shapes.add(m.getBody());
+			pos.add(new Transformation(m.getPosition().subtract(this.getPosition()), m.getRotation() - this.getRotation()));
+		}
+		
+		body = new ShapeAggregate(transform, shapes, pos);
+		
+		turrets.clear();
+		for(MapItem m : containedItems)
+		{
+			if(m instanceof Turret)
+				turrets.add((Turret)m);
+			else if(m instanceof MapItemAggregate)
+				turrets.addAll(((MapItemAggregate)m).getTurrets());
 		}
 	}
 	

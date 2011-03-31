@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems.abilities;
 import utility.Observable;
 import utility.Observer;
 
+import linewars.gamestate.Lane;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
@@ -32,13 +33,15 @@ public strictfp class ShootDefinition extends AbilityDefinition implements Obser
 	
 	public strictfp class Shoot implements Ability {
 		
-		private Shoot(Unit u)
+		private Shoot(MapItem m)
 		{
-			Transformation t = u.getTransformation();
+			Transformation t = m.getTransformation();
 			//TODO figure out how to move the position of the bullet spawning
 			//position out in front of the unit that's shooting it
-			Projectile p = ammo.createMapItem(t, u.getOwner(), u.getGameState());
-			u.getWave().getLane().addProjectile(p);
+			Projectile p = ammo.createMapItem(t, m.getOwner(), m.getGameState());
+			for(Lane l : m.getGameState().getMap().getLanes())
+				if(l.isInLane(m))
+					l.addProjectile(p);
 		}
 
 		@Override
@@ -72,10 +75,7 @@ public strictfp class ShootDefinition extends AbilityDefinition implements Obser
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		if(m instanceof Unit)
-			return new Shoot((Unit)m);
-		else
-			throw new IllegalArgumentException(m.getName() + " cannot shoot.");
+		return new Shoot(m);
 	}
 
 	@Override

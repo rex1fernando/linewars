@@ -88,7 +88,7 @@ public strictfp class Map {
 					return n;
 				else
 					current++;
-		return null;
+		throw new IllegalArgumentException(i + " is an invalid start node");
 	}
 	
 	@Override

@@ -3,8 +3,7 @@ package linewars.gamestate.mapItems;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration.NoCombat;
-import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration.Immovable;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * 
@@ -54,4 +53,8 @@ public strictfp class Gate extends Unit {
 		
 	}
 	
+	public void setBody(Shape s)
+	{
+		super.setBody(s);
+	}
 }

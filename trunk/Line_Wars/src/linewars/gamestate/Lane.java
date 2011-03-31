@@ -71,6 +71,27 @@ public strictfp class Lane
 		this.config = config;
 	}
 	
+	public boolean isInLane(MapItem m)
+	{
+		for(Wave w : waves)
+		{
+			for(Unit u : w.getUnits())
+			{
+				if(u.equals(m))
+					return true;
+				for(MapItem mi : u.getContainedItems())
+					if(mi.equals(m))
+						return true;
+			}
+		}
+		
+		for(Projectile p : projectiles)
+			if(m.equals(p))
+				return true;
+		
+		return false;
+	}
+	
 	public LaneConfiguration getConfig()
 	{
 		return config;

@@ -186,7 +186,7 @@ public class SoundPlayer implements Runnable
 			
 		bytes = (bytes / (SAMPLE_SIZE_IN_BYTES * Channel.values().length)) * (SAMPLE_SIZE_IN_BYTES * Channel.values().length);
 		
-		System.out.println(loopTime + "\t\t" + calculatedBytes + "\t\t" + bytes + "\t\t" + bufferUsed);
+//		System.out.println(loopTime + "\t\t" + calculatedBytes + "\t\t" + bytes + "\t\t" + bufferUsed);
 		
 		if(bytes <= 0)
 			return;

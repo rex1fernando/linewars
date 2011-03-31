@@ -64,9 +64,9 @@ public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguratio
 			
 			//first tell the turrets to fight
 			for(Turret t : unit.getTurrets())
-				t.getTurretStrategy().fight(availableEnemies, null);
+				t.getTurretStrategy().fight(availableEnemies, availableAllies);
 			
-			//first get the closest target
+			//next get the closest target
 			double dis = unit.getPosition().distanceSquared(availableEnemies[0].getPosition());
 			Unit closest = availableEnemies[0];
 			for(Unit u : availableEnemies)
@@ -132,7 +132,7 @@ public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguratio
 				
 				//calculate the angle from here to the next position
 				Position diff = path.peek().subtract(unit.getPosition());
-				double angle = Math.sin(diff.getY()/diff.getX());
+				double angle = diff.getAngle();
 				
 				//now move to the next position in the path
 				unit.getMovementStrategy().setTarget(new Transformation(path.peek(), angle));
