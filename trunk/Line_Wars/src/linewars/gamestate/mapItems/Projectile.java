@@ -95,8 +95,6 @@ public strictfp class Projectile extends MapItemAggregate {
 		
 		//this is the raw list of items colliding with this projetile's path
 		MapItem[] rawCollisions = lane.getCollisions(this);
-		if(rawCollisions.length > 0)
-			System.out.println(rawCollisions.length + " stuff");
 		tempBody = null;
 		//this list will be the list of how far along that path each map item is
 		double[] scores = new double[rawCollisions.length];

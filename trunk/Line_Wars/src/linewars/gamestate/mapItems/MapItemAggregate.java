@@ -86,7 +86,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 		
 		if(body != null)
-			body = body.transform(new Transformation(newPos.subtract(oldPos), transform.getRotation()));
+			body = body.transform(new Transformation(newPos.subtract(oldPos), 0));
 		
 		transform = new Transformation(newPos, getRotation());
 	}
@@ -102,7 +102,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 		
 		if(body != null)
-			body = body.transform(new Transformation(transform.getPosition(), newRot - transform.getRotation()));
+			body = body.transform(new Transformation(Position.ORIGIN, newRot - transform.getRotation()));
 		
 		transform = new Transformation(transform.getPosition(), newRot);
 		

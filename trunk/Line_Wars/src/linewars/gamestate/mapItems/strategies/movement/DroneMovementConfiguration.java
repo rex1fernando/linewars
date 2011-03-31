@@ -15,6 +15,11 @@ import editor.abilitiesstrategies.EditorUsage;
 
 public class DroneMovementConfiguration extends MovementStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4567252065436587794L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Drone Movement",
 				DroneMovementConfiguration.class, AbilityStrategyEditor.class);

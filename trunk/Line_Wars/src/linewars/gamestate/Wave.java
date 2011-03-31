@@ -158,11 +158,14 @@ public strictfp class Wave {
 	 */
 	public void update()
 	{
+		List<Unit> deadButNotFinished = new ArrayList<Unit>();
 		//first check for dead units
 		for(int i = 0; i < units.size();)
-			if(units.get(i).getState() == MapItemState.Dead) {
+			if(units.get(i).getState() == MapItemState.Dead && units.get(i).finished()) {
 				units.remove(i);
 				owner.notifySweepAndPruneStructuresNeedUpdate();
+			} else if(units.get(i).getState().equals(MapItemState.Dead)) {
+				deadButNotFinished.add(units.remove(i));
 			} else {
 				i++;
 			}
@@ -288,6 +291,14 @@ public strictfp class Wave {
 		{
 			u.getMovementStrategy().move();
 			u.updateMapItem();
+		}
+		
+		//add the dead but not finished units back in
+		//also call update for them so they may finish their abilities
+		for(Unit u : deadButNotFinished)
+		{
+			u.updateMapItem();
+			units.add(u);
 		}
 	}
 	

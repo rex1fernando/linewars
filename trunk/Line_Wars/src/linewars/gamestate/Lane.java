@@ -15,10 +15,11 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.mapItems.Part;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.Rectangle;
 
 /**
  * 
@@ -164,13 +165,14 @@ public strictfp class Lane
 		//TODO use prune-and-sweep's data structures for performance optimization
 		ArrayList<MapItem> collisions = new ArrayList<MapItem>();
 		MapItem[] ms = this.getMapItemsIn(
-				m.getPosition().subtract(m.getRadius() / 2, m.getRadius() / 2),
-				m.getRadius(), m.getRadius());
+				m.getPosition().subtract(m.getWidth() / 2, m.getHeight() / 2),
+				m.getWidth(), m.getHeight());
+		
 		for(MapItem mapItem : ms)
 			if(!(mapItem == m))
 				if(m.isCollidingWith(mapItem))
 					collisions.add(mapItem);
-		return collisions.toArray(new MapItem[0]);
+		return collisions.toArray(new MapItem[collisions.size()]);
 	}
 	
 	/**
@@ -311,8 +313,6 @@ public strictfp class Lane
 		//while minForward hasn't reached the forward bound (depending on if we're going up or down the lane) and there are still units to place
 		while(((minForward < forwardBound && forward) || (minForward > forwardBound && !forward)) && !units.isEmpty())
 		{
-			if(!lastRow.isEmpty())
-				System.out.println();
 			lastRow.clear();
 			startWidth = this.getWidth()/2; //restart the lateral placement
 			for(int i = 0; i < units.size() && startWidth > -this.getWidth()/2;) //look for the biggest unit that will fit
@@ -470,34 +470,29 @@ public strictfp class Lane
 	{
 		updateSweepAndPruneStructures();
 		
-		
-		
+		AABB box = new AABB(upperLeft.getX(), upperLeft.getY(), upperLeft.getX() + width, upperLeft.getY() + height);
 		ArrayList<MapItem> items = new ArrayList<MapItem>();
 		for(Wave w : waves)
 		{
 			Unit[] us = w.getUnits();
 			for(Unit u : us)
 			{
-				Position p = upperLeft.subtract(u.getRadius(), u.getRadius());
-				if(u.getPosition().getX() >= p.getX() &&
-						u.getPosition().getY() >= p.getY() &&
-						u.getPosition().getX() <= p.getX() + width + u.getRadius() &&
-						u.getPosition().getY() <= p.getY() + height + u.getRadius())
+				AABB ua = u.getBody().getAABB();
+				if((ua.getXMax() > box.getXMin() && ua.getYMax() > box.getYMin()) && 
+						(box.getXMax() > ua.getXMin() && box.getYMax() > ua.getYMin()))
 					items.add(u);
 			}
 		}
 		
 		for(Projectile prj : this.getProjectiles())
 		{
-			Position p = upperLeft.subtract(prj.getRadius(), prj.getRadius());
-			if(prj.getPosition().getX() >= p.getX() &&
-					prj.getPosition().getY() >= p.getY() &&
-					prj.getPosition().getX() <= p.getX() + width + prj.getRadius() &&
-					prj.getPosition().getY() <= p.getY() + height + prj.getRadius())
+			AABB ua = prj.getBody().getAABB();
+			if((ua.getXMax() > box.getXMin() && ua.getYMax() > box.getYMin()) && 
+					(box.getXMax() > ua.getXMin() && box.getYMax() > ua.getYMin()))
 				items.add(prj);
 		}
 		
-		return items.toArray(new MapItem[0]);
+		return items.toArray(new MapItem[items.size()]);
 	}
 	
 	/**

@@ -170,8 +170,6 @@ public strictfp class Node {
 		{
 			
 			Random rand = new Random(gameState.getTimerTick());
-			if(containedUnits.size() > 0)
-				System.out.println();
 			HashMap<Player, Entry<Double[], Lane[]>> flows = getAllFlow(this);
 			for(int i = 0; i < containedUnits.size();)
 			{
