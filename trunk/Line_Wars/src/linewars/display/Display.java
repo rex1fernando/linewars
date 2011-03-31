@@ -23,6 +23,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import linewars.display.layers.FlowIndicator;
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
@@ -48,7 +49,6 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
-import linewars.network.messages.AdjustFlowDistributionMessage;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -77,8 +77,6 @@ public class Display extends JFrame implements Runnable
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
 
-	private int adjustingFlowDist;
-	private boolean adjustingFlow1;
 	private boolean clicked;
 
 	private int playerIndex;
@@ -98,7 +96,6 @@ public class Display extends JFrame implements Runnable
 		super("Line Wars");
 
 		playerIndex = curPlayer;
-		adjustingFlowDist = -1;
 		clicked = false;
 
 		messageReceiver = receiver;
@@ -252,6 +249,8 @@ public class Display extends JFrame implements Runnable
 	{
 		private List<ILayer> strategicView;
 		private List<ILayer> tacticalView;
+		
+		private FlowIndicator flowLayer;
 
 		/**
 		 * Measures how much the user has zoomed in, where 100% is fully zoomed
@@ -370,10 +369,12 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 			
 			SoundLayer sound = new SoundLayer(new String[]{"Guitar_test_riff.wav"});
+			flowLayer = new FlowIndicator(Display.this, playerIndex, messageReceiver);
 
 			strategicView = new ArrayList<ILayer>(2);
 			strategicView.add(sound);
 			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
+			strategicView.add(flowLayer);
 
 			tacticalView = new ArrayList<ILayer>();
 			tacticalView.add(sound);
@@ -488,54 +489,17 @@ public class Display extends JFrame implements Runnable
 
 					if(point1.subtract(clickPos).length() <= 10)
 					{
-						adjustingFlowDist = i;
-						adjustingFlow1 = true;
+						flowLayer.setSelectedLane(i);
+						flowLayer.setAdjustingFlow1(true);
 						break;
 					}
 					else if(point2.subtract(clickPos).length() <= 10)
 					{
-						adjustingFlowDist = i;
-						adjustingFlow1 = false;
+						flowLayer.setSelectedLane(i);
+						flowLayer.setAdjustingFlow1(false);
 						break;
 					}
 				}
-			}
-			else if(adjustingFlowDist != -1)
-			{
-				double flow = 0;
-				BezierCurve curve = lanes[adjustingFlowDist].getCurve();
-				int startNode;
-				if(adjustingFlow1)
-				{
-					Position p0 = toScreenCoord(curve.getP0());
-					Position axis = toScreenCoord(curve.getP1()).subtract(p0).normalize();
-					Position ray = mousePosition.subtract(p0);
-
-					flow = ray.length() * axis.dot(ray.normalize()) / 2;
-					if(flow > 100)
-						flow = 100;
-					if(flow < 0)
-						flow = 0;
-
-					startNode = lanes[adjustingFlowDist].getNodes()[0].getID();
-				}
-				else
-				{
-					Position p3 = toScreenCoord(curve.getP3());
-					Position axis = toScreenCoord(curve.getP2()).subtract(p3).normalize();
-					Position ray = mousePosition.subtract(p3);
-
-					flow = ray.length() * axis.dot(ray.normalize()) / 2;
-					if(flow > 100)
-						flow = 100;
-					if(flow < 0)
-						flow = 0;
-
-					startNode = lanes[adjustingFlowDist].getNodes()[1].getID();
-				}
-
-				messageReceiver.addMessage(new AdjustFlowDistributionMessage(playerIndex, adjustingFlowDist, flow,
-						startNode));
 			}
 		}
 
@@ -803,7 +767,7 @@ public class Display extends JFrame implements Runnable
 			{
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				lastClickPosition = toGameCoord(p);
-				adjustingFlowDist = -1;
+				flowLayer.deselectLane();
 			}
 
 			@Override
@@ -811,12 +775,15 @@ public class Display extends JFrame implements Runnable
 			{
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				mousePosition = p;
+				flowLayer.setMousePos(p);
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent e)
 			{
-				mousePosition = new Position(e.getPoint().getX(), e.getPoint().getY());
+				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
+				mousePosition = p;
+				flowLayer.setMousePos(p);
 			}
 
 			@Override

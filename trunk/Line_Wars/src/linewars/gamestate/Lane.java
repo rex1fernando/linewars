@@ -15,6 +15,7 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Part;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.Circle;
@@ -32,7 +33,7 @@ public strictfp class Lane
 	private static final double LANE_BORDER_RESOLUTION = 0.05;
 	private static final int NUM_COLLISION_FIXES = 1;
 	
-	
+	private boolean sweepAndPruneStructuresNeedUpdate;
 	
 	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
@@ -40,7 +41,7 @@ public strictfp class Lane
 	private ArrayList<Node> nodes;
 	private double gatePos;
 	private GameState gameState;
-	
+		
 	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
@@ -53,8 +54,7 @@ public strictfp class Lane
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
 	private LaneConfiguration config;
-	
-	
+		
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
 		this.horizontallySortedUnits = new ArrayList<Unit>();
@@ -69,6 +69,8 @@ public strictfp class Lane
 		pathFinder = new PathFinding(gameState);
 		
 		this.config = config;
+		
+		this.sweepAndPruneStructuresNeedUpdate = true;
 	}
 	
 	public LaneConfiguration getConfig()
@@ -445,6 +447,10 @@ public strictfp class Lane
 	 */
 	public MapItem[] getMapItemsIn(Position upperLeft, double width, double height)
 	{
+		updateSweepAndPruneStructures();
+		
+		
+		
 		ArrayList<MapItem> items = new ArrayList<MapItem>();
 		for(Wave w : waves)
 		{
@@ -523,10 +529,12 @@ public strictfp class Lane
 			p.move();
 			p.updateMapItem();
 			//get rid of dead projectiles
-			if(p.getState() == MapItemState.Dead && p.finished())
+			if(p.getState() == MapItemState.Dead && p.finished()) {
 				projectiles.remove(i);
-			else
+				notifySweepAndPruneStructuresNeedUpdate();
+			} else {
 				i++;
+			}
 		}
 		
 		for(int i = 0; i < NUM_COLLISION_FIXES; i++){
@@ -630,21 +638,22 @@ public strictfp class Lane
 	
 	private LinkedList<Unit> sweepAndPrune()
 	{
-		List<Unit> allUnits = getCollidableMapItems();
 		
 		LinkedList<Unit> potentiallyCollidingUnits = new LinkedList<Unit>();
 		
 		LinkedList<Unit> horizontallyCollidingUnits = new LinkedList<Unit>();
 		
-		//FIXME This won't always work.
-		if (horizontallySortedUnits.size() < allUnits.size())
-			initializeSortedUnits(allUnits);
-		sortUnits();
+		updateSweepAndPruneStructures();
 	
+		boolean addedLastUnit = false;
 		for (int i = 0; i < horizontallySortedUnits.size()-1; i++)
 		{
 			if (horizontallySortedUnits.get(i).getBody().getAABB().getXMax() > horizontallySortedUnits.get(i+1).getBody().getAABB().getXMin())
-				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+			{	
+				if (!addedLastUnit)
+					horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i+1));
+			}
 		}
 		
 		/*if (allUnits.size() > 0)
@@ -656,12 +665,16 @@ public strictfp class Lane
 		
 		}*/
 		
+		addedLastUnit = false;
 		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
 		{
 			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
 					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
+			{
+				if (!addedLastUnit)
+					potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
 				potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
-				
+			}	
 		}
 		
 		/*if (allUnits.size() > 0) 
@@ -677,6 +690,7 @@ public strictfp class Lane
 		horizontallySortedUnits = new ArrayList<Unit>(allUnits);
 		verticallySortedUnits = new ArrayList<Unit>(allUnits);
 	}
+	
 	
 	private void sortUnits()
 	{
@@ -879,4 +893,20 @@ public strictfp class Lane
 		else
 			return false;
 	}
+	
+	public void notifySweepAndPruneStructuresNeedUpdate() {
+		this.sweepAndPruneStructuresNeedUpdate = false;
+	}
+	
+	private void updateSweepAndPruneStructures() 
+	{
+		if (this.sweepAndPruneStructuresNeedUpdate) 
+		{
+			List<Unit> allUnits = getCollidableMapItems();
+			initializeSortedUnits(allUnits);
+			this.sweepAndPruneStructuresNeedUpdate = false;
+		}
+		sortUnits();
+	}
+
 }
