@@ -131,24 +131,15 @@ public strictfp class Triangle extends Shape {
 
 	@Override
 	public boolean positionIsInShape(Position toTest) {
-		Position[] edges = new Position[3];
-		edges[0] = corners[1].subtract(corners[0]);
-		edges[1] = corners[2].subtract(corners[1]);
-		edges[2] = corners[0].subtract(corners[2]);
+		LineSegment[] edges = new LineSegment[3];
+		edges[0] = new LineSegment(corners[0], corners[1]);
+		edges[1] = new LineSegment(corners[1], corners[2]);
+		edges[2] = new LineSegment(corners[2], corners[0]);
 		
-		Position[] barycentricCoords = new Position[3];
-		for(int i = 0; i < 3; i++){
-			barycentricCoords[i] = toTest.subtract(corners[i]);
-		}
-		
-		boolean[] positiveSignedCrossProduct = new boolean[3];
-		for(int i = 0; i < 3; i++){
-			positiveSignedCrossProduct[i] = 0 < barycentricCoords[i].crossProduct(edges[i]);
-		}
 		boolean allPositive = true;
 		boolean allNegative = true;
 		for(int i = 0; i < 3; i++){
-			if(positiveSignedCrossProduct[i] == true){
+			if(edges[i].pointIsInLeftHalfspace(toTest)){
 				allNegative = false;
 			}else{
 				allPositive = false;

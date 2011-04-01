@@ -1,7 +1,6 @@
 package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -14,6 +13,11 @@ import linewars.gamestate.Transformation;
  *
  */
 public strictfp class ShapeAggregate extends Shape {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7842467101379834276L;
 	
 	private Position center;
 	private ArrayList<Shape> members;

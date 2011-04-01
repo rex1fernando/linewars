@@ -12,6 +12,11 @@ import configuration.Usage;
 
 public class ShapeAggregateConfiguration extends ShapeConfiguration implements Observer{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5604264713251858760L;
+
 	private ListConfiguration<ShapeConfiguration> shapesList;
 	
 	private ArrayList<ShapeConfiguration> allShapes;

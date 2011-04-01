@@ -1,13 +1,6 @@
 package linewars.gamestate.shapes;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 
 import utility.ForceLoadPackage;
 
