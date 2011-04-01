@@ -1,6 +1,7 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
@@ -9,7 +10,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
-import linewars.gamestate.tech.TechConfiguration;
+import linewars.gamestate.playerabilities.PlayerAbility;
 
 
 /**
@@ -85,6 +86,16 @@ public strictfp class Player {
 			}
 			flowDist.put(l, new Double(50));
 		}
+	}
+	
+	public List<PlayerAbility> getUnlockedPlayerAbilities()
+	{
+		return race.getUnlockedPlayerAbilites();
+	}
+	
+	public List<PlayerAbility> getAllPlayerAbilities()
+	{
+		return race.getAllPlayerAbilites();
 	}
 	
 	/**

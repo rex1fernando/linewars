@@ -6,6 +6,7 @@ import java.util.List;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.tech.TechGraph;
 import configuration.Configuration;
 import configuration.ListConfiguration;
@@ -43,6 +44,9 @@ public strictfp class Race extends Configuration {
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("techs", new Property(Usage.CONFIGURATION, 
 				new ListConfiguration<TechGraph>(new ArrayList<TechGraph>(), 
+						new ArrayList<String>(), new ArrayList<Usage>())));
+		super.setPropertyForName("playerAbilities", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<PlayerAbility>(new ArrayList<PlayerAbility>(), 
 						new ArrayList<String>(), new ArrayList<Usage>())));
 		super.setPropertyForName("commandCenter", new Property(Usage.CONFIGURATION));
 		super.setPropertyForName("gate", new Property(Usage.CONFIGURATION));
@@ -208,6 +212,16 @@ public strictfp class Race extends Configuration {
 	public BuildingDefinition getCommandCenter()
 	{
 		return (BuildingDefinition) super.getPropertyForName("commandCenter").getValue();
+	}
+	
+	public List<PlayerAbility> getAllPlayerAbilites()
+	{
+		return ((ListConfiguration<PlayerAbility>)super.getPropertyForName("playerAbilities").getValue()).getFullList();
+	}
+	
+	public List<PlayerAbility> getUnlockedPlayerAbilites()
+	{
+		return ((ListConfiguration<PlayerAbility>)super.getPropertyForName("playerAbilities").getValue()).getEnabledSubList();
 	}
 	
 	/**
