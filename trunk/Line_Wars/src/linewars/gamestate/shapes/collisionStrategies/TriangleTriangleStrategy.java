@@ -6,6 +6,11 @@ import linewars.gamestate.shapes.Triangle;
 
 public class TriangleTriangleStrategy extends ShapeCollisionStrategy {
 
+	static {
+		//Adds this Strategy to the map of Strategies for lookup
+		ShapeCollisionStrategy.addStrategy(new TriangleTriangleStrategy(), Triangle.class, Triangle.class);
+	}
+	
 	@Override
 	public boolean collides(Shape first, Shape second) {
 		if(!(first instanceof Triangle) || !(second instanceof Triangle)){

@@ -6,6 +6,11 @@ import linewars.gamestate.shapes.Shape;
 
 public class LineSegmentLineSegmentStrategy extends ShapeCollisionStrategy {
 
+	static {
+		//Adds this Strategy to the map of Strategies for lookup
+		ShapeCollisionStrategy.addStrategy(new LineSegmentLineSegmentStrategy(), LineSegment.class, LineSegment.class);
+	}
+	
 	@Override
 	public boolean collides(Shape first, Shape second) {
 		if(first.getClass() != LineSegment.class || second.getClass() != LineSegment.class){
