@@ -3,12 +3,14 @@ package linewars.display.layers;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 
 import linewars.display.Animation;
 import linewars.display.CircleDrawer;
 import linewars.display.Display;
 import linewars.display.DisplayConfiguration;
+import linewars.display.GameImage;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
@@ -89,7 +91,7 @@ public class MapItemLayer implements ILayer
 
 				// rotate the image
 				((Graphics2D)g).rotate(rotation, pos.getX(), pos.getY());
-
+				
 				// draw the animation
 				ImageDrawer.getInstance().draw(g,
 						anim.getImage(gamestate.getTime(), mapItem.getStateStartTime()),

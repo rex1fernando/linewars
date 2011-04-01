@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -119,9 +120,18 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 		scalePanel.add(new JLabel("How wide in game units should this image be?"));
 		scalePanel.add(scalingFactor);
 		
+		JButton reloadImages = new JButton("Reload Images");
+		reloadImages.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AnimationDrawer.reloadAllImages();
+			}
+		});
+		
 		JPanel southPanel = new JPanel();
 		southPanel.add(scalePanel);
 		southPanel.add(animationState);
+		southPanel.add(reloadImages);
 		
 		this.add(southPanel, BorderLayout.SOUTH);
 		

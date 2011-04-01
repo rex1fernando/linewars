@@ -80,6 +80,8 @@ public class BigFrameworkGuy
 		
 		public boolean addConfigToList(ConfigType t, Configuration c)
 		{
+			if(masterList.get(t) == null)
+				masterList.put(t, new ArrayList<Configuration>());
 			masterList.get(t).add(c);
 			return this.saveData();
 		}
