@@ -1,4 +1,7 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.collisionStrategies;
+
+import linewars.gamestate.shapes.Shape;
+import linewars.gamestate.shapes.ShapeAggregate;
 
 /**
  * Encapsulates an algorithm for determining whether an aggregate of Shapes collides with another aribtrary shape.

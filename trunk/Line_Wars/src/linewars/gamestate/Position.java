@@ -3,8 +3,6 @@ package linewars.gamestate;
 import java.io.Serializable;
 import java.util.Scanner;
 
-import utility.AugmentedMath;
-
 /**
  * 
  * @author Connor Schenck, Taylor Bergquist

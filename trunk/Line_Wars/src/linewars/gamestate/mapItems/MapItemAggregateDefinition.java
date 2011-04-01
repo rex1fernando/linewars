@@ -11,9 +11,9 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.shapes.CircleConfiguration;
-import linewars.gamestate.shapes.ShapeAggregateConfiguration;
-import linewars.gamestate.shapes.ShapeConfiguration;
+import linewars.gamestate.shapes.configurations.CircleConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeAggregateConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeConfiguration;
 
 public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> extends MapItemDefinition<MapItemAggregate> {
 	

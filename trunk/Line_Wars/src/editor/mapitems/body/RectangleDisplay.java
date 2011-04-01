@@ -7,8 +7,8 @@ import java.util.List;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.shapes.RectangleConfiguration;
-import linewars.gamestate.shapes.ShapeConfiguration;
+import linewars.gamestate.shapes.configurations.RectangleConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeConfiguration;
 import editor.mapitems.body.BodyEditor.Inputs;
 
 public class RectangleDisplay implements ShapeDisplay {
