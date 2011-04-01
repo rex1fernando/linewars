@@ -28,6 +28,11 @@ import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
  */
 public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5195933536096324821L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Shoot Closest Target",
 				ShootClosestTargetConfiguration.class, AbilityStrategyEditor.class);
@@ -116,7 +121,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 	
 	public ShootClosestTargetConfiguration()
 	{
-		this.setPropertyForName("shootCoolDown", new EditorProperty(Usage.NUMERIC_INTEGER, null, EditorUsage.NaturalNumber, "The cool down for shooting"));
+		this.setPropertyForName("shootCoolDown", new EditorProperty(Usage.NUMERIC_INTEGER, null, EditorUsage.NaturalNumber, "The cool down for shooting (ms)"));
 		this.addObserver(this);
 	}
 

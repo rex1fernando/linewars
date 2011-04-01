@@ -43,6 +43,12 @@ public class AnimationDrawer {
 		}
 	}
 	
+	public static void reloadAllImages()
+	{
+		for(String s : images.keySet())
+			loadImage(s);
+	}
+	
 	public static void drawImage(Graphics2D g, Position drawCenter, double rotation, Position canvasSize, 
 			Position fitIn, MapItemState state, DisplayConfigurationCallback dcc)
 	{
