@@ -1,11 +1,10 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
-import editor.abilitiesstrategies.AbilityStrategyEditor;
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 
 /**
  * 
@@ -15,6 +14,11 @@ import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
  */
 public strictfp class ImmovableConfiguration extends MovementStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6900872710747929102L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Immovable",
 				ImmovableConfiguration.class, AbilityStrategyEditor.class);
@@ -41,6 +45,11 @@ public strictfp class ImmovableConfiguration extends MovementStrategyConfigurati
 		@Override
 		public MovementStrategyConfiguration getConfig() {
 			return ImmovableConfiguration.this;
+		}
+
+		@Override
+		public void notifyOfCollision(Position direction) {
+			//this method should do nothing, as this unit can never move!
 		}
 	}
 

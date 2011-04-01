@@ -87,6 +87,12 @@ public class DroneMovementConfiguration extends MovementStrategyConfiguration im
 				unit.getWave().remove(unit);
 			}
 		}
+
+		@Override
+		public void notifyOfCollision(Position direction) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	

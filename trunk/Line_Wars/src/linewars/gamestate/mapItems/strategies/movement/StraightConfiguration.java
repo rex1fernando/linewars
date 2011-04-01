@@ -1,19 +1,17 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
-import utility.Observable;
-import utility.Observer;
-
-import configuration.Usage;
-import editor.abilitiesstrategies.AbilityStrategyEditor;
-import editor.abilitiesstrategies.EditorProperty;
-import editor.abilitiesstrategies.EditorUsage;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
+import utility.Observable;
+import utility.Observer;
+import configuration.Usage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 
@@ -25,6 +23,11 @@ import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
  */
 public strictfp class StraightConfiguration extends MovementStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5498076165100056492L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Straight",
 				StraightConfiguration.class, AbilityStrategyEditor.class);
@@ -78,6 +81,12 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 		@Override
 		public MovementStrategyConfiguration getConfig() {
 			return StraightConfiguration.this;
+		}
+
+		@Override
+		public void notifyOfCollision(Position direction) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
