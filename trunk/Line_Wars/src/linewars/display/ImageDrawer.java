@@ -104,6 +104,15 @@ public class ImageDrawer
 			e.printStackTrace();
 		}
 	}
+	
+	public void drawAtCenter(Graphics g, String uri, int width, int height, Position position, double scale)
+	{
+		GameImage image = images.get(uri + width + height);
+		if(image == null)
+			return;
+		
+		image.draw(g, position, scale);
+	}
 
 	/**
 	 * Retrieves the color for the specified player assuming there are

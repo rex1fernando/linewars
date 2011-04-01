@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -52,8 +53,9 @@ public class ExitButtonPanel extends Panel
 		this.frame = frame;
 
 		setLayout(new GridLayout(1, 1));
-		exitButton = new JButton();
+		exitButton = new ExitButton();
 		exitButton.setFocusable(false);
+		exitButton.setOpaque(false);
 		exitButton.setIcon(new ExitIcon(animations[0].getImage(0, 0.0)));
 		exitButton.setPressedIcon(new ExitIcon(animations[1].getImage(0, 0.0)));
 		exitButton.addActionListener(new ActionListener()
@@ -78,6 +80,25 @@ public class ExitButtonPanel extends Panel
 			}
 		});
 		add(exitButton);
+	}
+
+	/**
+	 * A button for the command card.
+	 * 
+	 * @author Ryan Tew
+	 * 
+	 */
+	private class ExitButton extends JButton
+	{
+		@Override
+		public void paint(Graphics g)
+		{
+			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			if(model.isPressed())
+				getPressedIcon().paintIcon(this, g, 0, 0);
+			else
+				getIcon().paintIcon(this, g, 0, 0);
+		}
 	}
 
 	/**

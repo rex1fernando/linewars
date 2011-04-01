@@ -11,6 +11,8 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import linewars.gamestate.Position;
+
 /**
  * Encapsulates Image scaling.
  * 
@@ -19,8 +21,7 @@ import javax.imageio.ImageIO;
  */
 public class GameImage
 {
-	private double scaleX;
-	private double scaleY;
+	private double scale;
 	private double lastScale;
 	private Image originalImage;
 //	private byte[] originalImage;
@@ -48,14 +49,14 @@ public class GameImage
 		originalWidth = image.getWidth(null);
 		originalHeight = image.getHeight(null);
 
-		scaleX = (double)width / originalWidth;
-		scaleY = (double)height / originalHeight;
+		double scaleX = (double)width / originalWidth;
+		double scaleY = (double)height / originalHeight;
 		
 		//TODO Ryan I fixed this, it was stretching the images before -Connor
-//		if(scaleY*width < originalWidth)
-//			scaleX = scaleY;
-//		else
-//			scaleY = scaleX;
+		if(scaleX < scaleY)
+			scale = scaleX;
+		else
+			scale = scaleY;
 
 		originalImage = image;
 
@@ -120,8 +121,8 @@ public class GameImage
 	{
 		if(scale != lastScale)
 		{
-			int width = (int)(originalWidth * scaleX * scale);
-			int height = (int)(originalHeight * scaleY * scale);
+			int width = (int)(originalWidth * this.scale * scale);
+			int height = (int)(originalHeight * this.scale * scale);
 
 //			ByteArrayInputStream inStream = new ByteArrayInputStream(originalImage);
 //			BufferedImage image = ImageIO.read(inStream);
@@ -139,6 +140,20 @@ public class GameImage
 
 		return lastScaledImage;
 	}
+	
+	public void draw(Graphics g, Position p, double scale)
+	{
+		int x = (int)(p.getX() - (originalWidth * this.scale * scale / 2));
+		int y = (int)(p.getY() - (originalHeight * this.scale * scale / 2));
+		try
+		{
+			g.drawImage(scaleImage(scale), x, y, null);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Gets the width of the image in game units.
@@ -147,7 +162,7 @@ public class GameImage
 	 */
 	public int getWidth()
 	{
-		return (int)(originalWidth * scaleX);
+		return (int)(originalWidth * scale);
 	}
 
 	/**
@@ -157,6 +172,6 @@ public class GameImage
 	 */
 	public int getHeight()
 	{
-		return (int)(originalHeight * scaleY);
+		return (int)(originalHeight * scale);
 	}
 }

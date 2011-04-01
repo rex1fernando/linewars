@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
@@ -43,8 +44,9 @@ public class TechButtonPanel extends Panel
 		this.techPanel = techPanel;
 
 		setLayout(new GridLayout(1, 1));
-		techButton = new JButton();
+		techButton = new ArrowButton();
 		techButton.setFocusable(false);
+		techButton.setOpaque(false);
 		techButton.setIcon(new ArrowIcon(animations[0].getImage(0, 0.0), animations[1].getImage(0, 0.0)));
 		techButton.addActionListener(new ActionListener()
 		{
@@ -67,6 +69,21 @@ public class TechButtonPanel extends Panel
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), (int)(techPanel.scaleFactor * TechPanel.DEFAULT_HEIGHT));
 		else
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
+	}
+
+	/**
+	 * A button for the command card.
+	 * 
+	 * @author Ryan Tew
+	 * 
+	 */
+	private class ArrowButton extends JButton
+	{
+		@Override
+		public void paint(Graphics g)
+		{
+			getIcon().paintIcon(this, g, 0, 0);
+		}
 	}
 
 	/**
