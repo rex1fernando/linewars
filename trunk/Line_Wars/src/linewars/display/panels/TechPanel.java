@@ -45,8 +45,8 @@ public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;
 
-	private static final int DEFAULT_WIDTH = 720;
-	static final int DEFAULT_HEIGHT = 480;
+	private static final int DEFAULT_WIDTH = 831;
+	static final int DEFAULT_HEIGHT = 491;
 	
 	private Display display;
 	private BigFrameworkGuy bfg;

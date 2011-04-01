@@ -11,6 +11,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 
 import linewars.display.Animation;
+import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
@@ -18,12 +19,15 @@ import linewars.gamestate.Position;
 @SuppressWarnings("serial")
 public class TechButtonPanel extends Panel
 {
+	private static final double ASPECT_RATIO = 0.05;
+	
 	/**
 	 * The height and width of the panel
 	 */
-	private static final int WIDTH = 75;
-	private static final int HEIGHT = 25;
+	private static final int DEFAULT_WIDTH = 104;
+	private static final int DEFAULT_HEIGHT = 42;
 
+	private Display display;
 	private TechPanel techPanel;
 	private JButton techButton;
 
@@ -37,10 +41,11 @@ public class TechButtonPanel extends Panel
 	 * @param anims
 	 *            The list of animations for the button.
 	 */
-	public TechButtonPanel(TechPanel techPanel, GameStateProvider stateManager, Animation... anims)
+	public TechButtonPanel(TechPanel techPanel, Display display, GameStateProvider stateManager, Animation... anims)
 	{
-		super(stateManager, WIDTH, HEIGHT, anims);
+		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 		
+		this.display = display;
 		this.techPanel = techPanel;
 
 		setLayout(new GridLayout(1, 1));
@@ -63,12 +68,16 @@ public class TechButtonPanel extends Panel
 	@Override
 	public void updateLocation()
 	{
+		scaleFactor = (display.getScreenWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
+
 		super.updateLocation();
 		
 		if(techPanel.isDisplayed())
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), (int)(techPanel.scaleFactor * TechPanel.DEFAULT_HEIGHT));
 		else
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
+		
+		techButton.setSize((int)(DEFAULT_WIDTH * scaleFactor), (int)(DEFAULT_HEIGHT * scaleFactor));
 	}
 
 	/**
@@ -111,22 +120,22 @@ public class TechButtonPanel extends Panel
 		@Override
 		public int getIconHeight()
 		{
-			return HEIGHT;
+			return DEFAULT_HEIGHT;
 		}
 
 		@Override
 		public int getIconWidth()
 		{
-			return WIDTH;
+			return DEFAULT_WIDTH;
 		}
 
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
 			if(techPanel.isDisplayed())
-				ImageDrawer.getInstance().draw(g, upImageURI, getIconWidth(), getIconHeight(), new Position(x, y), 1);
+				ImageDrawer.getInstance().draw(g, upImageURI, getIconWidth(), getIconHeight(), new Position(x, y), scaleFactor);
 			else
-				ImageDrawer.getInstance().draw(g, downImageURI, getIconWidth(), getIconHeight(), new Position(x, y), 1);
+				ImageDrawer.getInstance().draw(g, downImageURI, getIconWidth(), getIconHeight(), new Position(x, y), scaleFactor);
 		}
 	}
 }

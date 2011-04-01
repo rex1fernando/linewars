@@ -345,7 +345,7 @@ public class Display extends JFrame implements Runnable
 			add(exitButtonPanel);
 			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techPanelBackground, techPanelArrow);
 			add(techPanel);
-			techButtonPanel = new TechButtonPanel(techPanel, gameStateProvider, techPanelActivate, techPanelDisable);
+			techButtonPanel = new TechButtonPanel(techPanel, Display.this, gameStateProvider, techPanelActivate, techPanelDisable);
 			add(techButtonPanel);
 
 			GameState state = gameStateProvider.getCurrentGameState();

@@ -44,8 +44,8 @@ public class CommandCardPanel extends Panel
 	/**
 	 * The default height and width of the panel
 	 */
-	private static final int DEFAULT_WIDTH = 500;
-	private static final int DEFAULT_HEIGHT = 400;
+	private static final int DEFAULT_WIDTH = 486;
+	private static final int DEFAULT_HEIGHT = 374;
 
 	/**
 	 * The number of buttons on the command card
@@ -56,20 +56,20 @@ public class CommandCardPanel extends Panel
 	/**
 	 * The location of the command button panel within the command card
 	 */
-	private static final int BTN_PANEL_X = 150;
-	private static final int BTN_PANEL_Y = 133;
+	private static final int BTN_PANEL_X = 90;
+	private static final int BTN_PANEL_Y = 80;
 
 	/**
 	 * The height and width of the command button panel
 	 */
-	private static final int BTN_PANEL_WIDTH = 341;
-	private static final int BTN_PANEL_HEIGHT = 258;
+	private static final int BTN_PANEL_WIDTH = 386;
+	private static final int BTN_PANEL_HEIGHT = 284;
 
 	/**
 	 * The gaps between the command buttons
 	 */
 	private static final int BTN_PANEL_H_GAP = 10;
-	private static final int BTN_PANEL_V_GAP = 11;
+	private static final int BTN_PANEL_V_GAP = 10;
 
 	private JPanel buttonPanel;
 	private CommandButton[] buttons;
