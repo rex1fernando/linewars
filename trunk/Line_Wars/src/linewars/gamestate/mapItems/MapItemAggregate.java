@@ -136,6 +136,23 @@ public abstract class MapItemAggregate extends MapItem {
 		return body;
 	}
 	
+	public void setStateIfInState(MapItemState condition, MapItemState toSet)
+	{
+		if(this.getState().equals(condition))
+			super.setState(toSet);
+		if(containedItems != null)
+		{
+			for(MapItem m : containedItems)
+				if(m.getDefinition().isValidState(toSet) && m.getState().equals(condition))
+				{
+					if(m instanceof MapItemAggregate)
+						((MapItemAggregate)m).setStateIfInState(condition, toSet);
+					else
+						m.setState(toSet);
+				}
+		}
+	}
+	
 	@Override
 	public void setState(MapItemState state)
 	{
