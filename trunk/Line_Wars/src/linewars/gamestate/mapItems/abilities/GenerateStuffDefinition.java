@@ -5,7 +5,9 @@ import utility.Observer;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import configuration.*;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -31,16 +33,19 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition implemen
 		
 		private Player owner;
 		private double startTime;
+		private Building building;
 		
-		private GenerateStuff(Player p)
+		private GenerateStuff(Player p, Building b)
 		{
 			owner = p;
 			startTime = p.getGameState().getTime();
+			building = b;
 		}
 
 		@Override
 		public void update() {
-			owner.addStuff((owner.getGameState().getTime() - startTime)*getStuffIncome());
+			owner.addStuff((owner.getGameState().getTime() - startTime)*
+					getStuffIncome()*building.getModifier().getModifier(MapItemModifiers.buildingProductionRate));
 			startTime = owner.getGameState().getTime();
 		}
 
@@ -103,7 +108,7 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition implemen
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		return new GenerateStuff(m.getOwner());
+		return new GenerateStuff(m.getOwner(), (Building) m);
 	}	
 
 }

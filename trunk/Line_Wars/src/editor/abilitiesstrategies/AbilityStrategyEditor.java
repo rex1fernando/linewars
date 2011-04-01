@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import configuration.Configuration;
+import configuration.ListConfiguration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
@@ -51,7 +52,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case TechConfig:
 				case UnitConfig:
 					f = new ConfigurationField(field, prop.getDescription(), 
-							prop.getEditorUsage(), bfg);
+							prop.getEditorUsage(), bfg, (Configuration) prop.getValue());
 					break;
 				case NaturalNumber:
 				case PositiveReal:
@@ -62,6 +63,13 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 					else
 						f = new TextField(field, prop.getDescription(), 
 								prop.getEditorUsage());
+					break;
+				case ListBuildingConfig:
+				case ListUnitConfig:
+				case ListProjectileConfig:
+				case ListTechConfig:
+					f = new ListConfigurationField(field, prop.getDescription(),
+							prop.getEditorUsage(), bfg, (ListConfiguration<? extends Configuration>) prop.getValue());
 					break;
 			}
 			

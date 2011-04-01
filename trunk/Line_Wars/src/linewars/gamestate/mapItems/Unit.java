@@ -5,6 +5,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.Wave;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
@@ -62,8 +63,8 @@ public strictfp class Unit extends MapItemAggregate {
 			hp = 0;
 			this.setState(MapItemState.Dead);
 		}
-		else if(hp > this.getMaxHP())
-			hp = this.getMaxHP();
+		else if(hp > this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp))
+			hp = this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
 	}
 	
 	/**
@@ -81,7 +82,7 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public double getMaxHP()
 	{
-		return definition.getMaxHP();
+		return definition.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
 	}
 	
 	/**

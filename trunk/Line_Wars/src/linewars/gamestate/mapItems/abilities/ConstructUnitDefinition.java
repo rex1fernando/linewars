@@ -8,6 +8,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import configuration.*;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -44,7 +45,8 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 
 		@Override
 		public void update() {
-			if((long)(building.getGameState().getTime()*1000) - startTime > getBuildTime())
+			if((long)(building.getGameState().getTime()*1000) - startTime > 
+			getBuildTime()*building.getModifier().getModifier(MapItemModifiers.buildingProductionRate))
 			{
 				if(building.getState() != MapItemState.Active)
 					building.setState(MapItemState.Active);

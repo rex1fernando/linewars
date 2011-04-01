@@ -4,6 +4,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import utility.Observable;
 import utility.Observer;
@@ -44,7 +45,8 @@ public class GoStraightConfiguration extends TargetingStrategyConfiguration impl
 		public Transformation getTarget() {
 			Transformation ret = new Transformation(projectile.getPosition().add(
 					Position.getUnitVector(projectile.getRotation())
-					.scale(velocity*(projectile.getGameState().getLastLoopTime()))), 
+					.scale(projectile.getModifier().getModifier(MapItemModifiers.moveSpeed)*
+							velocity*(projectile.getGameState().getLastLoopTime()))), 
 					projectile.getRotation());
 			return ret;
 		}

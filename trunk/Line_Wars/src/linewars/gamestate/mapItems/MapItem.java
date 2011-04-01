@@ -8,6 +8,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.MapItemModifier.*;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
@@ -33,6 +34,8 @@ public strictfp abstract class MapItem implements Observer {
 	private MapItemState state;
 	//the time at which the map item entered its state
 	private long stateStart;
+	
+	private MapItemModifier modifier;
 	
 	private CollisionStrategy cStrat;
 	
@@ -60,6 +63,10 @@ public strictfp abstract class MapItem implements Observer {
 				this.addActiveAbility(ad.createAbility(this));
 		
 		ID = gameState.getNextMapItemID();
+		
+		modifier = new MapItemModifier();
+		for(MapItemModifiers m : MapItemModifiers.values())
+			modifier.setMapping(m, new Constant(1.0));
 	}
 	
 	protected abstract void setDefinition(MapItemDefinition<? extends MapItem> def);
@@ -73,6 +80,22 @@ public strictfp abstract class MapItem implements Observer {
 	public int hashCode()
 	{
 		return ID;
+	}
+	
+	public void pushModifier(MapItemModifier mim)
+	{
+		mim.setWrapped(modifier);
+		modifier = mim;
+	}
+	
+	public void removeModifier(MapItemModifier mim)
+	{
+		modifier = modifier.removeModifierLayer(mim);
+	}
+	
+	public MapItemModifier getModifier()
+	{
+		return modifier;
 	}
 	
 	public abstract MapItemDefinition<? extends MapItem> getDefinition();

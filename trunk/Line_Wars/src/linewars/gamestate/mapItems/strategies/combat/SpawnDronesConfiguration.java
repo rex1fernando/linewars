@@ -12,6 +12,7 @@ import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import utility.Observable;
 import utility.Observer;
+import configuration.ListConfiguration;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -25,17 +26,21 @@ public class SpawnDronesConfiguration extends
 				SpawnDronesConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
+	private static final long serialVersionUID = 8751120957207584161L;
+	
 	private double range;
-	private int numDrones;
+	private double droneCreationTime;
 	private double launchTime;
-	private UnitDefinition droneConfig;
+	private List<UnitDefinition> droneConfigs;
 	
 	public class SpawnDrones implements CombatStrategy
 	{
 		
 		private Unit droneCarrier;
 		private HashMap<Unit, Unit> dronesToTargets = new HashMap<Unit, Unit>();
+		private HashMap<UnitDefinition, Unit> ownedDrones = new HashMap<UnitDefinition, Unit>();
 		private double lastLaunchTime = 0;
+		private double lastCreateTime = 0;
 		private int lastTick = 0;
 		
 		private SpawnDrones(Unit u)
@@ -60,37 +65,40 @@ public class SpawnDronesConfiguration extends
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			//first check to see if this unit went out of combat since the last call to fight
-			if(lastTick + 1 < droneCarrier.getGameState().getTimerTick())
-			{
-				//--if we did go out of combat, check to see if any of the currently active drones were docked
-				for(Unit drone : dronesToTargets.keySet())
-				{
-					if(!droneCarrier.getWave().contains(drone))
-						dronesToTargets.remove(drone);
-				}
-			}
-			lastTick = droneCarrier.getGameState().getTimerTick();
 			
-			//next check to see if any drones are dead
-			for(Unit drone : dronesToTargets.keySet())
+			//first check to see if there are any uncreated drones and attempt
+			//to create them
+			for(UnitDefinition ud : droneConfigs)
 			{
-				if(drone.getState().equals(MapItemState.Dead))
+				if(ownedDrones.get(ud) == null)
+					ownedDrones.put(ud, createDrone(ud));
+			}
+			
+			//next check to see if there are any unlaunched drones and attempt to
+			//launch them
+			for(Unit drone : ownedDrones.values())
+			{
+				if(!droneCarrier.getWave().contains(drone) && launchDrone()) //if not in the lane, it is not launched
+				{
+					droneCarrier.getWave().addUnit(drone);
+					dronesToTargets.put(drone, null);
+				}
+				else if(!droneCarrier.getWave().contains(drone))
 					dronesToTargets.remove(drone);
 			}
 			
-			//next check to see if another drone can be spawned
-			if(dronesToTargets.size() < numDrones && 
-					droneCarrier.getGameState().getTime() - lastLaunchTime > launchTime)
+			//next check to see if there are any dead drones, and remove them
+			for(Unit drone : ownedDrones.values())
 			{
-				Unit drone = droneConfig.createMapItem(droneCarrier.getTransformation(), 
-						droneCarrier.getOwner(), droneCarrier.getGameState());
-				dronesToTargets.put(drone, null);
-				droneCarrier.getWave().addUnit(drone);
-				lastLaunchTime = droneCarrier.getGameState().getTime();
+				if(drone.getState().equals(MapItemState.Dead))
+				{
+					ownedDrones.put((UnitDefinition) drone.getDefinition(), null);
+					dronesToTargets.remove(drone);
+				}
 			}
 			
 			//next check to see if any of the current drones have finished their target
+			//and are in need of a new target
 			for(Entry<Unit, Unit> e : dronesToTargets.entrySet())
 			{
 				DroneCombatStrategy dcs = (DroneCombatStrategy) e.getKey().getCombatStrategy();
@@ -103,12 +111,37 @@ public class SpawnDronesConfiguration extends
 						targets.add(u);
 					for(Unit u : dronesToTargets.values())
 						targets.remove(u);
+					//TODO implement isSuitableTarget and use it
 					Unit newTarget = dcs.pickBestTarget(targets.toArray(new Unit[targets.size()]));
 					dcs.setTarget(newTarget);
 					dronesToTargets.put(e.getKey(), newTarget);
 				}
 			}
 			
+		}
+		
+		private Unit createDrone(UnitDefinition droneConfig)
+		{
+			if(droneCarrier.getGameState().getTime() - lastCreateTime > droneCreationTime)
+			{
+				lastCreateTime = droneCarrier.getGameState().getTime();
+				return droneConfig.createMapItem(
+						droneCarrier.getTransformation(),
+						droneCarrier.getOwner(), droneCarrier.getGameState());
+			}
+			else
+				return null;
+		}
+		
+		private boolean launchDrone()
+		{
+			if(droneCarrier.getGameState().getTime() - lastLaunchTime > launchTime)
+			{
+				lastLaunchTime = droneCarrier.getGameState().getTime();
+				return true;
+			}
+			else
+				return false;
 		}
 		
 	}
@@ -118,15 +151,15 @@ public class SpawnDronesConfiguration extends
 		super.setPropertyForName("range", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, 0, EditorUsage.PositiveReal,
 				"The maximum range to launch drones at"));
-		super.setPropertyForName("numDrones", new EditorProperty(
-				Usage.NUMERIC_INTEGER, 0, EditorUsage.NaturalNumber,
-				"The number of drones to spawn"));
 		super.setPropertyForName("launchTime", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, 0, EditorUsage.PositiveReal,
 				"The time it takes to launch a drone in seconds"));
-		super.setPropertyForName("droneConfig", new EditorProperty(
-				Usage.CONFIGURATION, null, EditorUsage.UnitConfig,
-				"The config for the drones to spawn"));
+		super.setPropertyForName("droneCreationTime", new EditorProperty(
+				Usage.NUMERIC_FLOATING_POINT, 0, EditorUsage.PositiveReal,
+				"The time it takes to create a drone in seconds"));
+		super.setPropertyForName("droneConfigs", new EditorProperty(
+				Usage.CONFIGURATION, null, EditorUsage.ListUnitConfig,
+				"The configs for the drones to spawn. Spawns one drone from each."));
 	}
 
 	@Override
@@ -142,9 +175,9 @@ public class SpawnDronesConfiguration extends
 		if(obj instanceof SpawnDronesConfiguration)
 		{
 			SpawnDronesConfiguration shdc = (SpawnDronesConfiguration) obj;
-			return shdc.droneConfig.equals(droneConfig) &&
+			return shdc.droneConfigs.equals(droneConfigs) &&
 					shdc.launchTime == launchTime &&
-					shdc.numDrones == numDrones &&
+					shdc.droneCreationTime == droneCreationTime &&
 					shdc.range == range;
 		}
 		else
@@ -157,12 +190,17 @@ public class SpawnDronesConfiguration extends
 		{ 
 			if(arg.equals("range"))
 				range = (Double)super.getPropertyForName("range").getValue();
-			else if(arg.equals("numDrones"))
-				numDrones = (Integer)super.getPropertyForName("numDrones").getValue();
+			else if(arg.equals("droneCreationTime"))
+				droneCreationTime = (Double)super.getPropertyForName("droneCreationTime").getValue();
 			else if(arg.equals("launchTime"))
 				launchTime = (Double)super.getPropertyForName("launchTime").getValue();
-			else if(arg.equals("droneConfig"))
-				droneConfig = (UnitDefinition)super.getPropertyForName("droneConfig").getValue();
+			else if(arg.equals("droneConfigs"))
+			{
+				ListConfiguration<?> lc = (ListConfiguration<?>)super.getPropertyForName("droneConfigs").getValue();
+				droneConfigs.clear();
+				for(Object o1 : lc.getEnabledSubList())
+					droneConfigs.add((UnitDefinition) o1);
+			}
 				
 		}
 	}

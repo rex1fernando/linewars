@@ -12,6 +12,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ShootDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
@@ -82,7 +83,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 			if(Math.sqrt(dis) <= shootDefinition.getRange())
 			{
 				long currentTime = (long) (turret.getGameState().getTime()*1000);
-				if(currentTime - lastShootTime < shootCoolDown)
+				if(currentTime - lastShootTime < shootCoolDown/turret.getModifier().getModifier(MapItemModifiers.fireRate))
 					return;
 				//now calculate the angle the unit needs to face to shoot the target
 				Position p = closest.getPosition().subtract(turret.getPosition());

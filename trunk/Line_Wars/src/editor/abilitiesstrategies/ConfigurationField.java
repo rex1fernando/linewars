@@ -17,8 +17,6 @@ public class ConfigurationField extends Field  {
 	private ConfigType type;
 	private GenericSelector<Configuration> selector;
 	
-	private List<Configuration> lastGeneratedConfigs;
-	
 	public ConfigurationField(String name, String description, 
 			EditorUsage usage, BigFrameworkGuy bfg) {
 		this(name, description, usage, bfg, null);
