@@ -6,6 +6,7 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import utility.Observable;
 import utility.Observer;
@@ -54,7 +55,8 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 					Unit u = (Unit)m;
 					//modify the amount of damage done by the durabiility of the projectile
 					u.setHP(u.getHP() - projectile.getDurability()/((ProjectileDefinition) projectile
-							.getDefinition()).getBaseDurability()*damage);
+							.getDefinition()).getBaseDurability()*damage*
+							projectile.getModifier().getModifier(MapItemModifiers.damageDealt));
 				}
 				projectile.setDurability(0);
 			}

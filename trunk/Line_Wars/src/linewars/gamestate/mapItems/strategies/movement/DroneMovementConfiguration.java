@@ -4,6 +4,7 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.combat.DroneCombatStrategy;
 import utility.Observable;
@@ -72,7 +73,8 @@ public class DroneMovementConfiguration extends MovementStrategyConfiguration im
 			double rot = change.getAngle();
 			
 			//now scale the change by the max moveable distance as determined by the speed
-			double maxDist = speed*unit.getGameState().getLastLoopTime();
+			double maxDist = unit.getModifier().getModifier(MapItemModifiers.moveSpeed)*
+							speed*unit.getGameState().getLastLoopTime();
 			if(change.dot(change) > maxDist*maxDist) //squaring maxDist rather than square rooting
 				change = change.normalize().scale(maxDist);
 			

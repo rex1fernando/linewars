@@ -5,11 +5,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -277,10 +277,13 @@ public class BigFrameworkGuy
 		delete.addActionListener(new DeleteButtonListener());
 		JButton export = new JButton("Export");
 		export.addActionListener(new ExportButtonListener());
+		JButton importButton = new JButton("Import");
+		importButton.addActionListener(new ImportButtonListener());
 		
 		JPanel buttonPanel = new JPanel();
 		
 		buttonPanel.add(export);
+		buttonPanel.add(importButton);
 		buttonPanel.add(newer);
 		buttonPanel.add(load);
 		buttonPanel.add(save);
@@ -550,6 +553,82 @@ public class BigFrameworkGuy
 				
 		}
 		
+	}
+	
+	private class ImportButtonListener implements ActionListener
+	{
+		
+		private List<Configuration> exploredConfigs;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fc = new JFileChooser();
+			if(new File("lastDirectory.txt").exists())
+			{
+				try {
+					fc = new JFileChooser(new Scanner(new File("lastDirectory.txt")).nextLine());
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+			
+			fc.setMultiSelectionEnabled(true);
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			if(fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+			{
+				File[] selectedFiles = fc.getSelectedFiles();
+				for(File f : selectedFiles)
+				{
+					try {
+						importConfig(f.getAbsolutePath());
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
+				}
+				
+				if(selectedFiles.length > 0)
+				{
+					FileWriter fw;
+					try {
+						fw = new FileWriter("lastDirectory.txt");
+						fw.write(selectedFiles[0].getParentFile().getAbsolutePath());
+						fw.flush();
+						fw.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		public void importConfig(String filepath) throws FileNotFoundException, IOException, ClassNotFoundException
+		{
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filepath));
+			exploredConfigs = new ArrayList<Configuration>();
+			recurseAddConfigs((Configuration) ois.readObject());
+		}
+		
+		private void recurseAddConfigs(Configuration c)
+		{
+			for(Configuration cfg : exploredConfigs)
+				if(c == cfg)
+					return;
+			
+			if(c.getPropertyNames().contains("bfgName") && c.getPropertyNames().contains("bfgType"))
+				saveData.addConfigToList((ConfigType) c.getPropertyForName("bfgType").getValue(), c);
+				
+			exploredConfigs.add(c);
+			for(String propName : c.getPropertyNames())
+			{
+				Object value = c.getPropertyForName(propName).getValue();
+				if(value instanceof Configuration)
+					recurseAddConfigs((Configuration) value);
+			}
+		}
 	}
 	
 	private ConfigurationWrapper[] createConfigList(List<ConfigType> list)

@@ -19,6 +19,11 @@ import editor.abilitiesstrategies.EditorUsage;
 
 public class HealFirstAllyConfiguration extends CombatStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2829972203266043058L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Heal First Ally",
 				HealFirstAllyConfiguration.class, AbilityStrategyEditor.class);
@@ -103,25 +108,13 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 
 		@Override
 		public Unit pickBestTarget(Unit[] targets) {
-			Arrays.sort(targets, new Comparator<Unit>() {
-				@Override
-				public int compare(Unit o1, Unit o2) {
-					double ret = o1.getHP()/((UnitDefinition)o1.getDefinition()).getMaxHP() -
-					o2.getHP()/((UnitDefinition)o2.getDefinition()).getMaxHP();
-					if(ret < 0)
-						return -1;
-					else if(ret > 0)
-						return 1;
-					else
-						return 0;
-				}
-			});
-			
+			Unit picked = null;
 			for(Unit u : targets)
-				if(u.getOwner().equals(unit.getOwner()))
-					return u;
+				if(picked != null && picked.getOwner().equals(unit.getOwner()) &&
+						picked.getHP()/picked.getMaxHP() > u.getHP()/u.getMaxHP())
+					picked = u;
 			
-			return null;
+			return picked;
 		}
 
 		@Override

@@ -5,6 +5,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import utility.Observable;
 import utility.Observer;
@@ -51,10 +52,10 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 			target = t;
 			double disSqaured = t.getPosition().distanceSquared(unit.getPosition());
 			double scale = 1;
-			if(disSqaured > speed*speed)
+			if(disSqaured > Math.pow(speed*unit.getModifier().getModifier(MapItemModifiers.moveSpeed), 2))
 			{
 				Position p = t.getPosition().subtract(unit.getPosition());
-				scale = speed/Math.sqrt(disSqaured);
+				scale = unit.getModifier().getModifier(MapItemModifiers.moveSpeed)*speed/Math.sqrt(disSqaured);
 				p = p.scale(scale);
 				p = unit.getPosition().add(p);
 				target = new Transformation(p, t.getRotation());
