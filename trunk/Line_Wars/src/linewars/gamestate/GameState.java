@@ -28,6 +28,8 @@ public strictfp class GameState
 {
 	
 	private static final double STARTING_STUFF = 10000;
+	public static final double MAX_PLAYER_ENERGY = 100;
+	private static final double ENERGY_INCREMENT_RATE = 1;
 	
 	private int timerTick;
 	private Map map;
@@ -282,6 +284,15 @@ public strictfp class GameState
 		
 		for(Lane l : map.getLanes())
 			l.update();
+		
+		
+		double energyToAdd = ENERGY_INCREMENT_RATE*this.getLastLoopTime();
+		for(Player p : players.values())
+		{
+			p.setPlayerEnergy(p.getPlayerEnergy() + energyToAdd);
+			if(p.getPlayerEnergy() > MAX_PLAYER_ENERGY)
+				p.setPlayerEnergy(MAX_PLAYER_ENERGY);
+		}
 		
 		timerTick++;
 		

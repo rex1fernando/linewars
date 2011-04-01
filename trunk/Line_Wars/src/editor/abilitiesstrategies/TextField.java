@@ -47,6 +47,8 @@ public class TextField extends Field {
 				if(!s.hasNextInt() || (Integer)(ret = s.nextInt()) < 0)
 					text.setText("Error: Must be a natural number");
 				break;
+			case text:
+				return text.getText();
 			default:
 				text.setText("Error: This editor has not been updated to support this"
 					 + "data type, please contact a programmer to fix it.");	

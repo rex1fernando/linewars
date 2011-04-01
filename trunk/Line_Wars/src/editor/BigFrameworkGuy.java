@@ -33,6 +33,7 @@ import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityEditor;
+import editor.abilitiesstrategies.PlayerAbilityEditor;
 import editor.abilitiesstrategies.StrategyEditor;
 import editor.animations.AnimationEditor;
 import editor.animations.FileCopy;
@@ -61,7 +62,7 @@ public class BigFrameworkGuy
 		race, animation, ability, gate, tech, map, unit,
 		projectile, building, part, turret, collisionStrategy, icon,
 		impactStrategy, turretStrategy, combatStrategy, movementStrategy,
-		targetingStrategy
+		targetingStrategy, playerAbility
 	}
 	
 	private JFrame frame;
@@ -233,7 +234,7 @@ public class BigFrameworkGuy
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy"};
+		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy", "Player Ability"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
@@ -251,6 +252,8 @@ public class BigFrameworkGuy
 				ce = new RaceEditor(this);
 			else if (e.equals("Strategy"))
 				ce = new StrategyEditor(this);
+			else if(e.equals("Player Ability"))
+				ce = new PlayerAbilityEditor(this);
 			//TODO add an if statement for new editors here
 			
 			tabPanel.addTab(e + " Editor", ce.getPanel());

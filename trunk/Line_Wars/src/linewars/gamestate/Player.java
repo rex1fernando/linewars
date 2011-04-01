@@ -32,6 +32,7 @@ public strictfp class Player {
 	private ArrayList<Projectile> ownedProjectiles;
 	private String name;
 	private Race race;
+	private double energy = 0;
 	
 	public Player(GameState gameState, Node[] startingNodes, Race r, String name, int ID) {
 		stuffAmount = gameState.getStartingStuffAmount();
@@ -96,6 +97,16 @@ public strictfp class Player {
 	public List<PlayerAbility> getAllPlayerAbilities()
 	{
 		return race.getAllPlayerAbilites();
+	}
+	
+	public double getPlayerEnergy()
+	{
+		return energy;
+	}
+	
+	public void setPlayerEnergy(double e)
+	{
+		energy = e;
 	}
 	
 	/**

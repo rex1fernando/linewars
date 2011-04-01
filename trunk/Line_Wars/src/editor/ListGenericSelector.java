@@ -120,12 +120,13 @@ public class ListGenericSelector<T> extends GenericSelector<T> {
 		selections.clear();
 		List<ListItemWrapper> toDisplay = new ArrayList<ListItemWrapper>();
 		
-		if (objs == null) return;
-		
-		for (T obj : objs) 
+		if (objs != null)
 		{
-			selections.add(obj);
-			toDisplay.add(new ListItemWrapper(obj));
+			for (T obj : objs) 
+			{
+				selections.add(obj);
+				toDisplay.add(new ListItemWrapper(obj));
+			}
 		}
 		list.setListData(toDisplay.toArray());
 	}

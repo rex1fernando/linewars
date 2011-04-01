@@ -58,7 +58,7 @@ public strictfp class GroundConfiguration extends CollisionStrategyConfiguration
 
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof Ground);
+		return (obj instanceof GroundConfiguration);
 	}
 
 }

@@ -57,6 +57,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case NaturalNumber:
 				case PositiveReal:
 				case Real:
+				case text:
 					if(prop.getValue() != null)
 						f = new TextField(field, prop.getDescription(), 
 								prop.getEditorUsage(), prop.getValue().toString());
@@ -71,6 +72,11 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 					f = new ListConfigurationField(field, prop.getDescription(),
 							prop.getEditorUsage(), bfg, (ListConfiguration<? extends Configuration>) prop.getValue());
 					break;
+				case IconConfig:
+					f = new IconConfigurationField(field, prop.getDescription(), (Configuration) prop.getValue());
+					break;
+				default:
+					throw new IllegalArgumentException(prop.getEditorUsage().toString() + " is not supported by this editor");
 			}
 			
 			this.add(f);

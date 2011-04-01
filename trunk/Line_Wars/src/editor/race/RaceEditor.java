@@ -21,6 +21,7 @@ import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.GateDefinition;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.tech.TechGraph;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
@@ -56,6 +57,8 @@ public class RaceEditor implements ConfigurationEditor
 		racePanel.enabledUnits.setSelectedObjects(race.getUnlockedUnits());
 		racePanel.allBuildings.setSelectedObjects(race.getAllBuildings());
 		racePanel.enabledBuildings.setSelectedObjects(race.getUnlockedBuildings());
+		racePanel.allPlayerAbilities.setSelectedObjects(race.getAllPlayerAbilites());
+		racePanel.enabledPlayerAbilities.setSelectedObjects(race.getUnlockedPlayerAbilites());
 		racePanel.tech.setAllTechGraphs(race.getAllTechGraphs());
 		racePanel.tech.setEnabledTechGraphs(race.getUnlockedTechGraphs());
 	}
@@ -74,6 +77,8 @@ public class RaceEditor implements ConfigurationEditor
 		racePanel.enabledUnits.setSelectedObjects(null);
 		racePanel.allBuildings.setSelectedObjects(null);
 		racePanel.enabledBuildings.setSelectedObjects(null);
+		racePanel.allPlayerAbilities.setSelectedObjects(null);
+		racePanel.enabledPlayerAbilities.setSelectedObjects(null);
 		racePanel.tech.resetTechGraphs();
 	}
 
@@ -86,6 +91,7 @@ public class RaceEditor implements ConfigurationEditor
 		race.setCommandCenter((BuildingDefinition) racePanel.commandCenter.getSelectedObject());
 		race.setGate((GateDefinition) racePanel.gate.getSelectedObject());
 		
+		
 		race.removeAllUnits();
 		for (UnitDefinition def : racePanel.allUnits.getSelectedObjects()) {
 			boolean enabled = racePanel.enabledUnits.getSelectedObjects().contains(def);
@@ -97,6 +103,16 @@ public class RaceEditor implements ConfigurationEditor
 			boolean enabled = racePanel.enabledBuildings.getSelectedObjects().contains(def);
 			race.addBuilding(def, enabled);
 		}
+		
+		List<PlayerAbility> playerAbilities = new ArrayList<PlayerAbility>();
+		List<Boolean> flags = new ArrayList<Boolean>();
+		for(PlayerAbility pa : racePanel.allPlayerAbilities.getSelectedObjects())
+		{
+			boolean enabled = racePanel.enabledPlayerAbilities.getSelectedObjects().contains(pa);
+			playerAbilities.add(pa);
+			flags.add(enabled);
+		}
+		race.setPlayerAbilities(playerAbilities, flags);
 		
 		List<TechGraph> allGraphs = racePanel.tech.getAllTechGraphs();
 		List<TechGraph> enabledGraphs = racePanel.tech.getEnabledTechGraphs();
@@ -134,6 +150,8 @@ public class RaceEditor implements ConfigurationEditor
 		private ListGenericSelector<UnitDefinition> enabledUnits;
 		private ListGenericSelector<BuildingDefinition> allBuildings;
 		private ListGenericSelector<BuildingDefinition> enabledBuildings;
+		private ListGenericSelector<PlayerAbility> allPlayerAbilities;
+		private ListGenericSelector<PlayerAbility> enabledPlayerAbilities;
 		
 		private TechPanel tech;
 		
@@ -190,6 +208,18 @@ public class RaceEditor implements ConfigurationEditor
 			};
 			enabledBuildings = new ListGenericSelector<BuildingDefinition>("Enabled Buildings", buildingCallback, buildingString);
 			initConfigSelector(enabledBuildings);
+			
+			allPlayerAbilities = initListGenericSelector("Player Ability", ConfigType.playerAbility);
+			initConfigSelector(allPlayerAbilities);
+			CustomToString<PlayerAbility> playerAbilityString = new GenericSelector.ShowBFGName<PlayerAbility>();
+			GenericListCallback<PlayerAbility> playerAbilityCallback = new GenericListCallback<PlayerAbility>() {
+				public List<PlayerAbility> getSelectionList() {
+					return allPlayerAbilities.getSelectedObjects();
+				}
+			};
+			enabledPlayerAbilities = new ListGenericSelector<PlayerAbility>(
+					"Enabled Player Abilities", playerAbilityCallback, playerAbilityString);
+			initConfigSelector(enabledPlayerAbilities);
 		}
 		
 		private <T extends Configuration> GenericSelector<T> initGenericSelector(String label, ConfigType c)

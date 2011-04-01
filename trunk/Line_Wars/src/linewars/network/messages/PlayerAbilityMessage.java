@@ -1,10 +1,15 @@
 package linewars.network.messages;
 
 import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 
 public class PlayerAbilityMessage extends Message {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4758021008848918453L;
 	private int abilityID;
 	private Position pos;
 	
@@ -41,8 +46,8 @@ public class PlayerAbilityMessage extends Message {
 
 	@Override
 	public void apply(GameState gameState) {
-		// TODO Auto-generated method stub
-
+		Player p = gameState.getPlayer(this.getPlayerId());
+		p.getAllPlayerAbilities().get(abilityID).apply(pos, p);
 	}
 
 }

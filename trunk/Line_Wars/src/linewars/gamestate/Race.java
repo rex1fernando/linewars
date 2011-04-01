@@ -216,12 +216,37 @@ public strictfp class Race extends Configuration {
 	
 	public List<PlayerAbility> getAllPlayerAbilites()
 	{
+		//for backwards compatability
+		if(super.getPropertyForName("playerAbilities") == null || 
+				super.getPropertyForName("playerAbilities").getValue() == null)
+			return new ArrayList<PlayerAbility>();
 		return ((ListConfiguration<PlayerAbility>)super.getPropertyForName("playerAbilities").getValue()).getFullList();
 	}
 	
 	public List<PlayerAbility> getUnlockedPlayerAbilites()
 	{
+		//for backwards compatability
+		if(super.getPropertyForName("playerAbilities") == null || 
+				super.getPropertyForName("playerAbilities").getValue() == null)
+			return new ArrayList<PlayerAbility>();
 		return ((ListConfiguration<PlayerAbility>)super.getPropertyForName("playerAbilities").getValue()).getEnabledSubList();
+	}
+	
+	public void setPlayerAbilities(List<PlayerAbility> abilities, List<Boolean> enabledFlags)
+	{
+		List<Usage> usages = new ArrayList<Usage>();
+		List<String> names = new ArrayList<String>();
+		for(PlayerAbility pa : abilities)
+		{
+			usages.add(Usage.CONFIGURATION);
+			String name = pa.getPropertyForName("bfgName").getValue().toString();
+			while(names.contains(name))
+				name += "_";
+			names.add(name);
+		}
+		
+		super.setPropertyForName("playerAbilities", new Property(Usage.CONFIGURATION, 
+				new ListConfiguration<PlayerAbility>(abilities, names, usages, enabledFlags)));
 	}
 	
 	/**
