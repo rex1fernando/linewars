@@ -1,6 +1,7 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.configurations;
 
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.Shape;
 import configuration.Configuration;
 
 public abstract class ShapeConfiguration extends Configuration {

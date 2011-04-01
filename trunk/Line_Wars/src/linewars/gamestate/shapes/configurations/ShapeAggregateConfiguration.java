@@ -1,4 +1,4 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.configurations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import utility.Observer;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.Shape;
+import linewars.gamestate.shapes.ShapeAggregate;
 import configuration.ListConfiguration;
 import configuration.Usage;
 

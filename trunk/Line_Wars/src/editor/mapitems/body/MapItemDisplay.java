@@ -11,10 +11,10 @@ import javax.swing.JTextField;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItemDefinition;
-import linewars.gamestate.shapes.CircleConfiguration;
-import linewars.gamestate.shapes.RectangleConfiguration;
-import linewars.gamestate.shapes.ShapeAggregateConfiguration;
-import linewars.gamestate.shapes.ShapeConfiguration;
+import linewars.gamestate.shapes.configurations.CircleConfiguration;
+import linewars.gamestate.shapes.configurations.RectangleConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeAggregateConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeConfiguration;
 import editor.mapitems.body.BodyEditor.Inputs;
 
 public class MapItemDisplay implements ShapeDisplay {

@@ -1,6 +1,9 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.collisionStrategies;
 
 import java.util.HashMap;
+
+import linewars.gamestate.shapes.Shape;
+import linewars.gamestate.shapes.ShapeAggregate;
 
 import utility.ForceLoadPackage;
 

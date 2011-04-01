@@ -1,4 +1,4 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.configurations;
 
 import utility.Observable;
 import utility.Observer;
@@ -6,6 +6,8 @@ import utility.Observer;
 import configuration.Property;
 import configuration.Usage;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.Shape;
 
 public class CircleConfiguration extends ShapeConfiguration implements Observer {
 

@@ -1,6 +1,9 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.collisionStrategies;
 
 import linewars.gamestate.Position;
+import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.Rectangle;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * Encapsulates an algorithm for computing whether a Rectangle and a Circle collide

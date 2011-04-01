@@ -1,4 +1,7 @@
-package linewars.gamestate.shapes;
+package linewars.gamestate.shapes.collisionStrategies;
+
+import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * Encapsulates an algorithm for computing whether two Circles are colliding.

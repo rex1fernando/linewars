@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.collisionStrategies.ShapeCollisionStrategy;
 
 /**
  * Represents an area in 2D space.

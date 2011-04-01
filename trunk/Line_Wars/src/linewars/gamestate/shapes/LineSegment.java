@@ -17,6 +17,14 @@ public class LineSegment extends Shape {
 		end = p2;
 	}
 	
+	public Position start(){
+		return start;
+	}
+	
+	public Position end(){
+		return end;
+	}
+	
 	public boolean pointIsInLeftHalfspace(Position query){
 		Position segmentVector = end.subtract(start);
 		Position queryVector = query.subtract(start);
@@ -105,5 +113,22 @@ public class LineSegment extends Shape {
 		Position newStart = start.subtract(center).scale(scaleFactor).add(center);
 		Position newEnd = end.subtract(center).scale(scaleFactor).add(center);
 		return new LineSegment(newStart, newEnd);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		if(other == null){
+			return false;
+		}
+		if(!(other instanceof LineSegment)){
+			return false;
+		}
+		LineSegment ls = (LineSegment) other;
+		if(ls.start().equals(start()) && ls.end().equals(end())){
+			return true;
+		}else if(ls.start().equals(end()) && ls.end().equals(start())){
+			return true;
+		}
+		return false;
 	}
 }

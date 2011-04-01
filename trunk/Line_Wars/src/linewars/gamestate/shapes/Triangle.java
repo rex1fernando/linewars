@@ -14,6 +14,8 @@ public strictfp class Triangle extends Shape {
 	private final Position[] corners;
 	private final Transformation center;
 	
+	private LineSegment[] edges = null;
+	
 	public Triangle(Transformation center, Position cornerOne, Position cornerTwo){
 		Position partialAverage = cornerOne.add(cornerTwo).scale(.5);
 		Position offset = center.getPosition().subtract(partialAverage).scale(2);
@@ -175,6 +177,17 @@ public strictfp class Triangle extends Shape {
 		Position newCorner1 = corners[1].subtract(center.getPosition()).scale(scaleFactor).add(center.getPosition());
 		
 		return new Triangle(center, newCorner0, newCorner1);
+	}
+
+	public LineSegment[] getEdges() {
+		if(edges == null){
+			edges = new LineSegment[3];
+			edges[0] = new LineSegment(corners[0], corners[1]);
+			edges[1] = new LineSegment(corners[1], corners[2]);
+			edges[2] = new LineSegment(corners[2], corners[0]);
+		}
+
+		return edges;
 	}
 
 }

@@ -11,7 +11,7 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
-import linewars.gamestate.shapes.ShapeConfiguration;
+import linewars.gamestate.shapes.configurations.ShapeConfiguration;
 import configuration.Configuration;
 import configuration.ListConfiguration;
 import configuration.Property;
