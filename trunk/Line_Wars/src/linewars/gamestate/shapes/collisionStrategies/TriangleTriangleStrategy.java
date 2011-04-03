@@ -31,7 +31,7 @@ public class TriangleTriangleStrategy extends ShapeCollisionStrategy {
 		for(LineSegment fSegment : fSegments){
 			for(LineSegment sSegment : sSegments){
 				//if these line segments collide, the triangles collide
-				if(ShapeCollisionStrategy.getStrategyForShapes(LineSegment.class, LineSegment.class).collides(fSegment, sSegment)){
+				if(fSegment.isCollidingWith(sSegment)){
 					return true;
 				}
 			}

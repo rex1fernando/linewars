@@ -29,34 +29,14 @@ public strictfp class RectangleRectangleStrategy extends ShapeCollisionStrategy{
 			return false;
 		}
 		
-		//separating axis
-		//works for all convex polygons - should we define such a Shape?  Would reduce the number of ShapeCollisionStrategies that must be implemented.
 		Rectangle f = (Rectangle) first;
 		Rectangle s = (Rectangle) second;
+		Position[] fVertices = f.getVertexPositions();
+		Position[] sVertices = s.getVertexPositions();
 				
-		return !(separatedByAxis(f, s, f.getEdgeVectors()[0])
-			|| separatedByAxis(f, s, s.getEdgeVectors()[0])
-			|| separatedByAxis(f, s, f.getEdgeVectors()[0].orthogonal())
-			|| separatedByAxis(f, s, s.getEdgeVectors()[0].orthogonal()));
-	}
-	
-	
-	private boolean separatedByAxis(Rectangle first, Rectangle second, Position axis){
-		Position[] fVertices = first.getVertexPositions();
-		Position[] sVertices = second.getVertexPositions();
-		
-		//TODO optimize
-		boolean fGreater = true;
-		boolean sGreater = true;
-		for(Position f : fVertices){
-			for(Position s : sVertices){
-				if(f.scalarProjection(axis) > s.scalarProjection(axis)){
-					sGreater = false;
-				}else{
-					fGreater = false;
-				}
-			}
-		}
-		return fGreater || sGreater;
+		return !(SeparatingAxisHelper.separatedByAxis(fVertices, sVertices, f.getEdgeVectors()[0])
+			|| SeparatingAxisHelper.separatedByAxis(fVertices, sVertices, s.getEdgeVectors()[0])
+			|| SeparatingAxisHelper.separatedByAxis(fVertices, sVertices, f.getEdgeVectors()[0].orthogonal())
+			|| SeparatingAxisHelper.separatedByAxis(fVertices, sVertices, s.getEdgeVectors()[0].orthogonal()));
 	}
 }
