@@ -190,4 +190,8 @@ public strictfp class Triangle extends Shape {
 		return edges;
 	}
 
+	public Position[] getVertices() {
+		return corners.clone();
+	}
+
 }
