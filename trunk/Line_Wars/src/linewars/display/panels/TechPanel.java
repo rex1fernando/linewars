@@ -23,9 +23,8 @@ import javax.swing.JPanel;
 
 import linewars.display.Animation;
 import linewars.display.Display;
-import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
-import linewars.gamestate.Position;
+import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -47,6 +46,20 @@ public class TechPanel extends Panel
 
 	private static final int DEFAULT_WIDTH = 831;
 	static final int DEFAULT_HEIGHT = 491;
+	
+	private static final int TAB_PANEL_X = 84;
+	private static final int TAB_PANEL_Y = 17;
+	
+	private static final int TAB_PANEL_WIDTH = 661;
+	private static final int TAB_PANEL_HEIGHT = 30;
+	
+	private static final int TECH_PANEL_X = 20;
+	private static final int TECH_PANEL_Y = 65;
+	
+	private static final int TECH_PANEL_WIDTH = 789;
+	private static final int TECH_PANEL_HEIGHT = 393;
+	
+	private static final int EDITOR_PANEL_HEIGHT = 30;
 	
 	private Display display;
 	private BigFrameworkGuy bfg;
@@ -188,8 +201,6 @@ public class TechPanel extends Panel
 	
 	private void initialize()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
 		techLayout = new GridBagLayout();
 		c = new GridBagConstraints();
 		techPanel = new JPanel(techLayout);
@@ -270,6 +281,19 @@ public class TechPanel extends Panel
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
 		else
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), (int)(scaleFactor * -DEFAULT_HEIGHT));
+		
+		//resize inner panels
+		tabPanel.setSize((int)(TAB_PANEL_WIDTH * scaleFactor), (int)(TAB_PANEL_HEIGHT * scaleFactor));
+		tabPanel.setLocation((int)(TAB_PANEL_X * scaleFactor), (int)(TAB_PANEL_Y * scaleFactor));
+
+		techPanel.setSize((int)(TECH_PANEL_WIDTH * scaleFactor), (int)(TECH_PANEL_HEIGHT * scaleFactor));
+		techPanel.setLocation((int)(TECH_PANEL_X * scaleFactor), (int)(TECH_PANEL_Y * scaleFactor));
+		
+		if(bfg != null)
+		{
+			editorComponents.setSize(getWidth(), EDITOR_PANEL_HEIGHT);
+			editorComponents.setLocation(0, getHeight() - EDITOR_PANEL_HEIGHT);
+		}
 	}
 	
 	@Override

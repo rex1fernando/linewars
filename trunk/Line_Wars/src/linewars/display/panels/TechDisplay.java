@@ -320,6 +320,9 @@ public class TechDisplay extends JViewport
 				
 				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
 			}
+			
+			drawDependencyLines(g, child);
+			child = node.getNextChild();
 		}
 	}
 	
@@ -437,8 +440,8 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paint(Graphics g)
 		{
-			if(editorNOTgame)
-			{
+//			if(editorNOTgame)
+//			{
 				if(tech == null)
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, 0.2f));
 				else if(tech == activeTech)
@@ -450,41 +453,41 @@ public class TechDisplay extends JViewport
 				
 				g.setColor(Color.black);
 				g.drawRect(0, 0, getWidth(), getHeight());
-			}
+//			}
 			
-			DefaultButtonModel model = (DefaultButtonModel)getModel();
-			
-			Icon disabledIcon = getDisabledIcon();
-			Icon pressedIcon = getPressedIcon();
-			Icon selectedIcon = getSelectedIcon();
-			Icon rolloverIcon = getRolloverIcon();
-			Icon icon = getIcon();
-			
-			if(tech != null && !tech.isUnlocked())
-			{
-				if(disabledIcon != null)
-					disabledIcon.paintIcon(this, g, 0, 0);
-			}
-			else if(model.isPressed())
-			{
-				if(pressedIcon != null)
-					pressedIcon.paintIcon(this, g, 0, 0);
-			}
-			else if(model.isSelected())
-			{
-				if(selectedIcon != null)
-					selectedIcon.paintIcon(this, g, 0, 0);
-			}
-			else if(model.isRollover())
-			{
-				if(rolloverIcon != null)
-					rolloverIcon.paintIcon(this, g, 0, 0);
-			}
-			else
-			{
-				if(icon != null)
-					icon.paintIcon(this, g, 0, 0);
-			}
+//			DefaultButtonModel model = (DefaultButtonModel)getModel();
+//			
+//			Icon disabledIcon = getDisabledIcon();
+//			Icon pressedIcon = getPressedIcon();
+//			Icon selectedIcon = getSelectedIcon();
+//			Icon rolloverIcon = getRolloverIcon();
+//			Icon icon = getIcon();
+//			
+//			if(tech != null && !tech.isUnlocked())
+//			{
+//				if(disabledIcon != null)
+//					disabledIcon.paintIcon(this, g, 0, 0);
+//			}
+//			else if(model.isPressed())
+//			{
+//				if(pressedIcon != null)
+//					pressedIcon.paintIcon(this, g, 0, 0);
+//			}
+//			else if(model.isSelected())
+//			{
+//				if(selectedIcon != null)
+//					selectedIcon.paintIcon(this, g, 0, 0);
+//			}
+//			else if(model.isRollover())
+//			{
+//				if(rolloverIcon != null)
+//					rolloverIcon.paintIcon(this, g, 0, 0);
+//			}
+//			else
+//			{
+//				if(icon != null)
+//					icon.paintIcon(this, g, 0, 0);
+//			}
 		}
 	}
 	
