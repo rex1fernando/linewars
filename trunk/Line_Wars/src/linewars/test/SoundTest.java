@@ -18,7 +18,7 @@ import linewars.display.sound.SoundPlayer.Channel;
 
 public class SoundTest {
 	private static final String SOUND = "Guitar_test_riff.wav";
-	private static final String SOUND_2 = "TankTread.wav";
+	private static final String SOUND_2 = "Guitar_test_riff.wav";
 	
 	public static void main(String[] args){
 //		testPlay("resources\\sounds\\" + SOUND);
@@ -137,11 +137,10 @@ public class SoundTest {
 		SoundPlayer sp = SoundPlayer.getInstance();
 		Thread soundplayer = new Thread(sp);
 //		soundplayer.setDaemon(true);
-		soundplayer.start();
 
 		try
 		{
-//			sp.addSound(SOUND);
+			sp.addSound(SOUND);
 			sp.addSound(SOUND_2);
 		}
 		catch (UnsupportedAudioFileException e)
@@ -155,30 +154,17 @@ public class SoundTest {
 			e.printStackTrace();
 		}
 		
-//		sp.playSound(new SoundInfo() {
-//			
-//			@Override
-//			public double getVolume(Channel c) {
-//				// TODO Auto-generated method stub
-//				return 1.0;
-//			}
-//			
-//			@Override
-//			public String getURI() {
-//				// TODO Auto-generated method stub
-//				return SOUND;
-//			}
-//		});
+
 		
-		try
-		{
-			Thread.sleep(1000);
-		}
-		catch(InterruptedException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try
+//		{
+//			Thread.sleep(1000);
+//		}
+//		catch(InterruptedException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		sp.playSound(new SoundInfo() {
 			
@@ -195,6 +181,7 @@ public class SoundTest {
 			}
 		});
 		
+		soundplayer.start();
 
 		try
 		{
