@@ -58,7 +58,7 @@ public strictfp class Unit extends MapItemAggregate {
 	public void setHP(double h)
 	{
 		double change = h - hp;
-		hp = hp - this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
+		hp = hp + this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
 		if(hp <= 0)
 		{
 			hp = 0;
