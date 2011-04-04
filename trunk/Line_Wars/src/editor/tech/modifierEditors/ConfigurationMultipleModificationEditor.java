@@ -227,7 +227,13 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 				//we have to prompt the user to choose a way to modify this property
 				selectedModificationType = ModifierConfiguration.promptUserToSelectModificationType(panel, validModifications);
 			}
+			
 			newSubEditorType = ModifierEditor.getEditorForModifier(selectedModificationType);
+			ModifierEditor subEditor = instantiateSubEditor(newSubEditorType);
+			
+			if(data.getSubModification(highlightedString) == null){
+				data.setSubModification(highlightedString, (ModifierConfiguration) subEditor.instantiateNewConfiguration());
+			}
 			
 			setSubEditor(instantiateSubEditor(newSubEditorType));
 		}
