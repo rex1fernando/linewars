@@ -5,6 +5,7 @@ import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
@@ -64,7 +65,7 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
 			for(Unit enemy : availableEnemies)
 			{
-				if(enemy.getCollisionStrategy().canCollideWith(turret) &&
+				if(CollisionStrategyConfiguration.isAllowedToCollide(enemy, turret) &&
 						enemy.getBody().isCollidingWith(collisionBody))
 					enemy.setHP(enemy.getHP() - damageToDeal);
 			}

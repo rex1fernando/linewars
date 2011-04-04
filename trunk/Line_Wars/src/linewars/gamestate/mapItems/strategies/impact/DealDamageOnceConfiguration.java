@@ -54,7 +54,6 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 			{
 				hit = true;
 				projectile.setState(MapItemState.Dead);
-				projectile.setPosition(m.getPosition());
 				if(m instanceof Unit)
 				{
 					Unit u = (Unit)m;

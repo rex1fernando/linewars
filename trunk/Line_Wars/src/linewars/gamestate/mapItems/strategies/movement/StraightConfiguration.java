@@ -11,6 +11,7 @@ import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import utility.AugmentedMath;
 import utility.Observable;
 import utility.Observer;
 import configuration.Usage;
@@ -90,7 +91,10 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 			if(target != null)
 				unit.setTransformation(target);
 			if(unit.getState() != MapItemState.Moving)
-				unit.setState(MapItemState.Moving);		
+				unit.setState(MapItemState.Moving);
+			if(target == null || (target.getPosition().distanceSquared(unit.getPosition()) <= 0.01 &&
+					AugmentedMath.getAngleInPiToNegPi(target.getRotation() - unit.getRotation()) <= 0.01))
+					unit.setStateIfInState(MapItemState.Moving, MapItemState.Idle);
 			target = null;
 			
 			if(collisions == false){

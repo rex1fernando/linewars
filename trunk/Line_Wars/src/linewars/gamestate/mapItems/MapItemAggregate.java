@@ -9,6 +9,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
 
@@ -118,7 +119,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public boolean isCollidingWith(MapItem m)
 	{
-		if(!this.getCollisionStrategy().canCollideWith(m))
+		if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
 			return false;
 		for(MapItem c : containedItems)
 //			if(c.getBody().isCollidingWith(m.getBody()))
