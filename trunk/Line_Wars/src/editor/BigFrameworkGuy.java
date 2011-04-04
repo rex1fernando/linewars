@@ -256,7 +256,9 @@ public class BigFrameworkGuy
 				ce = new PlayerAbilityEditor(this);
 			//TODO add an if statement for new editors here
 			
-			tabPanel.addTab(e + " Editor", ce.getPanel());
+			JScrollPane scroller = new JScrollPane(ce.getPanel());
+			scroller.setPreferredSize(ce.getPanel().getPreferredSize());
+			tabPanel.addTab(e + " Editor", scroller);
 			this.editors.add(ce);
 			
 			//make sure a config is loaded for this editor

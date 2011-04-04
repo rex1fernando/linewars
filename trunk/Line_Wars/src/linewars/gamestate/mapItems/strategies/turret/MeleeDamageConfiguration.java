@@ -1,55 +1,73 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.Turret;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.shapes.Shape;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
-import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
 
 public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3076791526314962293L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Melee Damage Around Turret",
 				MeleeDamageConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	private double damage;
-	//private double //TODO how to figure out how large the hit box should be?
-	
 	public class MeleeDamage implements TurretStrategy
 	{
+		
+		private Turret turret;
+		private double range = -1;
+		private double lastScalingFactor = Double.NEGATIVE_INFINITY;
 
-		private MeleeDamage()
+		private MeleeDamage(Turret t)
 		{
-			
+			turret = t;
 		}
 		
 		@Override
 		public String name() {
-			// TODO Auto-generated method stub
-			return null;
+			return "Inflicts melee damage around this turret";
 		}
 
 		@Override
 		public TurretStrategyConfiguration getConfig() {
-			// TODO Auto-generated method stub
-			return null;
+			return MeleeDamageConfiguration.this;
 		}
 
 		@Override
 		public double getRange() {
-			// TODO Auto-generated method stub
-			return 0;
+			//if the scaling factor changed, the range needs to be recomputed
+			if(lastScalingFactor != getScalingFactor())
+			{
+				lastScalingFactor = getScalingFactor();
+				range = turret.getBody().scale(lastScalingFactor).boundingCircle().getRadius();
+			}
+			return range;
 		}
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			// TODO Auto-generated method stub
+			Shape collisionBody = turret.getBody().scale(lastScalingFactor);
 			
+			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
+									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
+			for(Unit enemy : availableEnemies)
+			{
+				if(enemy.getCollisionStrategy().canCollideWith(turret) &&
+						enemy.getBody().isCollidingWith(collisionBody))
+					enemy.setHP(enemy.getHP() - damageToDeal);
+			}
 		}
 		
 	}
@@ -59,19 +77,36 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 		this.setPropertyForName("damage", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, null, EditorUsage.PositiveReal,
 				"The damage dealt per second"));
+		this.setPropertyForName("scalingFactor", new EditorProperty(
+				Usage.NUMERIC_FLOATING_POINT, null, EditorUsage.PositiveReal,
+				"The amount to scale this turret's body by to get the damage box"));
+	}
+	
+	private double getDamage()
+	{
+		return (Double)super.getPropertyForName("damage").getValue();
+	}
+	
+	private double getScalingFactor()
+	{
+		return (Double)super.getPropertyForName("scalingFactor").getValue();
 	}
 
 	@Override
 	public TurretStrategy createStrategy(MapItem m) {
-		// TODO Auto-generated method stub
-		compile error
-		return null;
+		return new MeleeDamage((Turret) m);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return false;
+		if(obj instanceof MeleeDamageConfiguration)
+		{
+			MeleeDamageConfiguration mdc = (MeleeDamageConfiguration) obj;
+			return mdc.getDamage() == getDamage() &&
+					mdc.getScalingFactor() == getScalingFactor();
+		}
+		else
+			return false;
 	}
 
 }

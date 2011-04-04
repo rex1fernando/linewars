@@ -1,18 +1,21 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
-import utility.Observable;
-import utility.Observer;
 
+import linewars.display.Animation;
+import linewars.display.DisplayConfiguration;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.MapItemModifier.*;
+import linewars.gamestate.mapItems.MapItemModifier.Constant;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.shapes.Shape;
+import utility.Observable;
+import utility.Observer;
 /**
  * 
  * @author , Connor Schenck
@@ -355,6 +358,21 @@ public strictfp abstract class MapItem implements Observer {
 		for(Ability a : activeAbilities)
 			if(!a.killable())
 				return false;
+		
+		//TODO this is a hack
+		DisplayConfiguration dc = (DisplayConfiguration) this.getDefinition().getDisplayConfiguration();
+		Animation a = dc.getAnimation(MapItemState.Dead);
+		if(a != null)
+		{
+			double time = 0;
+			for(int i = 0; i < a.getNumImages(); i++)
+				time += a.getImageTime(i);
+			if(time > this.getGameState().getTime()*1000 - this.getStateStartTime())
+				return false;
+		}
+		
+		//if I'm at the point where I'm going to be removed, then I need to stop observing my definition
+		this.getDefinition().removeObserver(this);
 		return true;
 	}
 }

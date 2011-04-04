@@ -3,6 +3,8 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 import java.util.List;
 
+import utility.Observable;
+
 import configuration.ListConfiguration;
 import configuration.Property;
 import configuration.Usage;
@@ -62,6 +64,23 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 		if(super.getPropertyForName("relativeTrans") != null)
 			relativeTrans = ((ListConfiguration<Transformation>)super.getPropertyForName("relativeTrans").getValue()).getEnabledSubList();
 		this.forceAggregateSubReloadConfigData();
+	}
+	
+	@Override
+	public void update(Observable o, Object obj)
+	{
+		if(o == this && obj.equals("containedItems"))
+			((Observable)this.getPropertyForName("containedItems").getValue()).addObserver(this);
+		if(o == this && obj.equals("relativeTrans"))
+			((Observable)this.getPropertyForName("relativeTrans").getValue()).addObserver(this);
+		if(o == this.getPropertyForName("relativeTrans").getValue() || 
+				o == this.getPropertyForName("containedItems").getValue())
+		{
+			this.setChanged();
+			this.notifyObservers("containedItems");
+		}
+		else
+			super.update(o, obj);
 	}
 	
 	protected abstract void forceAggregateSubReloadConfigData();

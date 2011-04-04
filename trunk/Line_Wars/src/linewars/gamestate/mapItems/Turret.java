@@ -1,15 +1,18 @@
 package linewars.gamestate.mapItems;
 
 import linewars.gamestate.GameState;
+import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.Wave;
 import linewars.gamestate.mapItems.strategies.turret.TurretStrategy;
 
 public class Turret extends MapItem {
 	
 	private TurretDefinition def;
 	private TurretStrategy turretStrat;
+	
+	private Wave wave;
 
 	public Turret(Transformation trans, TurretDefinition def, Player owner, GameState gameState) {
 		super(trans, def, owner, gameState);
@@ -25,6 +28,16 @@ public class Turret extends MapItem {
 	public TurretStrategy getTurretStrategy()
 	{
 		return turretStrat;
+	}
+	
+	public void setWave(Wave l)
+	{
+		wave = l;
+	}
+	
+	public Wave getWave()
+	{
+		return wave;
 	}
 
 	@Override

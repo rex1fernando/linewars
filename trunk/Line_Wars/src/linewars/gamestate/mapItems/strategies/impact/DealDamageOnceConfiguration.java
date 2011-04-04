@@ -25,6 +25,11 @@ import editor.abilitiesstrategies.EditorUsage;
  */
 public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3483021405505639487L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Deal Damage Once",
 				DealDamageOnceConfiguration.class, AbilityStrategyEditor.class);
