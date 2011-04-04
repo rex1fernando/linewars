@@ -123,6 +123,16 @@ public strictfp class Unit extends MapItemAggregate {
 	public void setWave(Wave w)
 	{
 		currentWave = w;
+		for(Turret t : this.getTurrets())
+			t.setWave(this.getWave());
+	}
+	
+	@Override
+	protected void updateInternalVariables()
+	{
+		super.updateInternalVariables();
+		for(Turret t : this.getTurrets())
+			t.setWave(this.getWave());
 	}
 	
 	/**

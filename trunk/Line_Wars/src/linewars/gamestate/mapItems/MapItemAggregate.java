@@ -184,7 +184,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 	}
 	
-	private void updateInternalVariables()
+	protected void updateInternalVariables()
 	{
 		ArrayList<Shape> shapes = new ArrayList<Shape>();
 		ArrayList<Transformation> pos = new ArrayList<Transformation>();
