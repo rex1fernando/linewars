@@ -1,5 +1,6 @@
 package editor.race;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -211,7 +212,7 @@ public class RaceEditor implements ConfigurationEditor
 				{
 					frame = new JFrame("Tech Panel Editor");
 					frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-					frame.setContentPane(tech);
+					frame.getContentPane().add(tech, BorderLayout.CENTER);
 					frame.pack();
 					frame.addWindowListener(new WindowListener() {
 						public void windowOpened(WindowEvent e) {}
@@ -224,6 +225,8 @@ public class RaceEditor implements ConfigurationEditor
 						public void windowClosed(WindowEvent e) {}
 						public void windowActivated(WindowEvent e) {}
 					});
+
+					tech.setVisible(true);
 				}
 			});
 			
