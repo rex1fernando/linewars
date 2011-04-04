@@ -32,7 +32,6 @@ public class TechPanelTest extends JFrame
 			e.printStackTrace();
 		}
 		TechPanel panel = new TechPanel(null);
-		panel.setParent(this);
 		add(panel);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(new Dimension(720, 480));
