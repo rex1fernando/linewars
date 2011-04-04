@@ -7,6 +7,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
+import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
@@ -89,7 +90,10 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 			{
 				long currentTime = (long) (turret.getGameState().getTime()*1000);
 				if(currentTime - lastShootTime < shootCoolDown/turret.getModifier().getModifier(MapItemModifiers.fireRate))
+				{
+					switchToIdleStateIfNeeded();
 					return;
+				}
 				//now calculate the angle the unit needs to face to shoot the target
 				Position p = closest.getPosition().subtract(turret.getPosition());
 				double angle = Math.atan2(p.getY(), p.getX());
@@ -99,13 +103,29 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 						Math.abs(Math.sin(angle) - Math.sin(turret.getRotation())) < 0.01)
 				{
 					turret.addActiveAbility(shootDefinition.createAbility(turret));
+					turret.setState(MapItemState.Firing);
 					lastShootTime = currentTime;
 				}
 				else //face that way
 				{
 					turret.setRotation(angle);
+					switchToIdleStateIfNeeded();
 				}
 			}
+			else
+				switchToIdleStateIfNeeded();
+		}
+		
+		private void switchToIdleStateIfNeeded()
+		{
+			//TODO this is a hack
+			DisplayConfiguration dc = (DisplayConfiguration) turret.getDefinition().getDisplayConfiguration();
+			double time = 0;
+			for(int i = 0; i < dc.getAnimation(MapItemState.Firing).getNumImages(); i++)
+				time += dc.getAnimation(MapItemState.Firing).getImageTime(i);
+			
+			if(turret.getGameState().getTime() - turret.getStateStartTime() > time)
+				turret.setState(MapItemState.Idle);
 		}
 
 		@Override

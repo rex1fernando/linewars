@@ -75,6 +75,8 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 	
 		@Override
 		public void move() {
+			if(target == null)
+				target = unit.getTransformation();
 			boolean collisions = false;
 			if(collisionsFromLastTick.size() != 0){
 				collisions = true;
@@ -88,13 +90,15 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 				relativeTarget = relativeTarget.scale(resolveCollisionAttemptMoveFactor);
 				target = new Transformation(unit.getPosition().add(relativeTarget), target.getRotation());
 			}
-			if(target != null)
-				unit.setTransformation(target);
-			if(unit.getState() != MapItemState.Moving)
-				unit.setState(MapItemState.Moving);
-			if(target == null || (target.getPosition().distanceSquared(unit.getPosition()) <= 0.01 &&
-					AugmentedMath.getAngleInPiToNegPi(target.getRotation() - unit.getRotation()) <= 0.01))
+			
+			//if we didn't really move this time, set us to no longer moving
+			if(target.getPosition().distanceSquared(unit.getPosition()) <= 0.01 &&
+					Math.abs(AugmentedMath.getAngleInPiToNegPi(target.getRotation() - unit.getRotation())) <= 0.01)
 					unit.setStateIfInState(MapItemState.Moving, MapItemState.Idle);
+			else if(unit.getState() != MapItemState.Moving)
+				unit.setState(MapItemState.Moving);
+			
+			unit.setTransformation(target);
 			target = null;
 			
 			if(collisions == false){
