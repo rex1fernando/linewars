@@ -124,11 +124,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 			for(int i = 0; i < dc.getAnimation(MapItemState.Firing).getNumImages(); i++)
 				time += dc.getAnimation(MapItemState.Firing).getImageTime(i);
 			
-<<<<<<< HEAD
 			if(turret.getGameState().getTime()*1000 - lastShootTime > time)
-=======
-			if(turret.getGameState().getTime() - turret.getStateStartTime() > time)
->>>>>>> 61e7c84b9ee8d1f50f16f6fb0399d888be31975e
 				turret.setState(MapItemState.Idle);
 		}
 
