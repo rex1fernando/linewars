@@ -93,7 +93,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     public void setPlayerSlot(final int playerId, final int slot) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
-    		players.get(playerId).slot.setSelectedItem("" + slot);
+    		players.get(playerId).slot.setSelectedItem(new Integer(slot));
     	}});
     }
     
