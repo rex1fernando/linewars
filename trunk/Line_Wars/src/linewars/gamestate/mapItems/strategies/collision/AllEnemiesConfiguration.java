@@ -14,6 +14,11 @@ import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Grou
  */
 public strictfp class AllEnemiesConfiguration extends CollisionStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6974832296463333018L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("All Enemies",
 				AllEnemiesConfiguration.class, AbilityStrategyEditor.class);
@@ -30,10 +35,7 @@ public strictfp class AllEnemiesConfiguration extends CollisionStrategyConfigura
 
 		@Override
 		public boolean canCollideWith(MapItem m) {
-			if((m.getCollisionStrategy() instanceof AllEnemies) || (m.getCollisionStrategy() instanceof Ground))
-				return !m.getOwner().equals(mapItem.getOwner());
-			else
-				return m.getCollisionStrategy().canCollideWith(mapItem);
+			return !m.getOwner().equals(mapItem.getOwner());
 		}
 
 		@Override

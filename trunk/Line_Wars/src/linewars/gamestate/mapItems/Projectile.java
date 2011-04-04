@@ -6,6 +6,7 @@ import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.gamestate.mapItems.strategies.targeting.TargetingStrategy;
 import linewars.gamestate.shapes.Shape;
@@ -95,6 +96,8 @@ public strictfp class Projectile extends MapItemAggregate {
 		
 		//this is the raw list of items colliding with this projetile's path
 		MapItem[] rawCollisions = lane.getCollisions(this);
+		if(rawCollisions.length > 0)
+			System.out.println();
 		tempBody = null;
 		//this list will be the list of how far along that path each map item is
 		double[] scores = new double[rawCollisions.length];
@@ -153,7 +156,7 @@ public strictfp class Projectile extends MapItemAggregate {
 			return super.isCollidingWith(m);
 		else
 		{
-			if(!m.getCollisionStrategy().canCollideWith(this))
+			if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
 				return false;
 			else
 				return tempBody.isCollidingWith(m.getBody());

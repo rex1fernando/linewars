@@ -37,11 +37,7 @@ public class EnemyProjectilesConfiguration extends
 
 		@Override
 		public boolean canCollideWith(MapItem m) {
-			if((m.getCollisionStrategy() instanceof NoCollision) || 
-					(m.getCollisionStrategy() instanceof CollidesWithAll))
-				return m.getCollisionStrategy().canCollideWith(mapItem);
-			else
-				return (m instanceof Projectile) && (!m.getOwner().equals(mapItem.getOwner()));
+			return m.getCollisionStrategy().canCollideWith(mapItem);
 		}
 		
 	}

@@ -14,6 +14,11 @@ import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
  */
 public strictfp class GroundConfiguration extends CollisionStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7609432744841062284L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Ground",
 				GroundConfiguration.class, AbilityStrategyEditor.class);
@@ -34,10 +39,7 @@ public strictfp class GroundConfiguration extends CollisionStrategyConfiguration
 			if(mapItem == null)
 				throw new IllegalStateException("This collision strategy isn't associated with a map item.");
 			
-			if(m.getCollisionStrategy() instanceof Ground)
-				return true;
-			else
-				return m.getCollisionStrategy().canCollideWith(mapItem);
+			return (m.getCollisionStrategy() instanceof Ground);
 		}
 	
 		@Override

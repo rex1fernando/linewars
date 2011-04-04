@@ -13,6 +13,7 @@ import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
 import utility.Observable;
 import utility.Observer;
@@ -295,7 +296,7 @@ public strictfp abstract class MapItem implements Observer {
 	 */
 	public boolean isCollidingWith(MapItem m)
 	{
-		if(!this.getCollisionStrategy().canCollideWith(m))
+		if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
 			return false;
 		
 		return this.getBody().isCollidingWith(m.getBody());
