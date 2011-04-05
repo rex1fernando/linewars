@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import utility.ForceLoadPackage;
-
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -25,7 +25,16 @@ public abstract class ModifierConfiguration extends Configuration {
 	}
 	
 	public static Class<? extends ModifierConfiguration> promptUserToSelectModificationType(JPanel location, List<ModifierMetaData> validModifications){
-		return null;
+		Object[] possibilities = validModifications.toArray();
+		ModifierMetaData selected = (ModifierMetaData) JOptionPane.showInputDialog(
+		                    null,
+		                    "Select a way to modify the Property:",
+		                    "Select a Modification",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null,
+		                    possibilities,
+		                    null);
+		return selected.getModifier();
 	}
 	
 	public static void addModifierForUsage(Usage key, Class<? extends ModifierConfiguration> modifierType, String description){
@@ -60,6 +69,10 @@ public abstract class ModifierConfiguration extends Configuration {
 		
 		public String getDescription() {
 			return description;
+		}
+		
+		public String toString(){
+			return getDescription();
 		}
 	}
 }
