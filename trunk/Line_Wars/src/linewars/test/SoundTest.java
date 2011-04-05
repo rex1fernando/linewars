@@ -18,7 +18,7 @@ import linewars.display.sound.SoundPlayer.Channel;
 
 public class SoundTest {
 	private static final String SOUND = "Guitar_test_riff.wav";
-	private static final String SOUND_2 = "Guitar_test_riff.wav";
+	private static final String SOUND_2 = "Intro.wav";
 	
 	public static void main(String[] args){
 //		testPlay("resources\\sounds\\" + SOUND);
@@ -137,6 +137,7 @@ public class SoundTest {
 		SoundPlayer sp = SoundPlayer.getInstance();
 		Thread soundplayer = new Thread(sp);
 //		soundplayer.setDaemon(true);
+		soundplayer.start();
 
 		try
 		{
@@ -154,24 +155,37 @@ public class SoundTest {
 			e.printStackTrace();
 		}
 		
-
-		
-//		try
-//		{
-//			Thread.sleep(1000);
-//		}
-//		catch(InterruptedException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		sp.playSound(new SoundInfo() {
+			
+			@Override
+			public double getVolume(Channel c) {
+				// TODO Auto-generated method stub
+				return 0.1;
+			}
+			
+			@Override
+			public String getURI() {
+				// TODO Auto-generated method stub
+				return SOUND;
+			}
+		});
+	
+		try
+		{
+			Thread.sleep(1000);
+		}
+		catch(InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		sp.playSound(new SoundInfo() {
 			
 			@Override
 			public double getVolume(Channel c) {
 				// TODO Auto-generated method stub
-				return 0.5;
+				return 1.0;
 			}
 			
 			@Override
@@ -181,8 +195,6 @@ public class SoundTest {
 			}
 		});
 		
-		soundplayer.start();
-
 		try
 		{
 			Thread.sleep(10000);
