@@ -1,8 +1,11 @@
 package linewars.gamestate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import configuration.Configuration;
 
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.gameLogic.TimingManager;
@@ -80,7 +83,17 @@ public strictfp class GameState
 		this.races = new ArrayList<Race>();
 		for(int i = 0; i < players.size(); i++)
 		{
-			Race r = players.get(i).getRace();
+			Race r = null;
+			try {
+				r = (Race) Configuration.copyConfiguration(players.get(i).getRace());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			if(r == null)
+				throw new RuntimeException("Error copying race");
+			
 			this.races.add(r);
 			Node[] startNodes = { map.getStartNode(players.get(i).getStartingSlot() - 1) };
 			Player p = new Player(this, startNodes, r, players.get(i).getName(), i);

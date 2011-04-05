@@ -37,9 +37,8 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 
 	public LogicBlockingManager(MapConfiguration map, List<PlayerData> players){
 		orders = new HashMap<Integer, Message[]>();
-		List<PlayerData> copyOfPlayers = copyPlayerData(players);
 		viewableState = new GameState(map, players);
-		freeState = new GameState(map, copyOfPlayers);
+		freeState = new GameState(map, players);
 		
 		fullyUpdated = true;
 		locked = false;
@@ -48,6 +47,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		lastLastUpdateTime = System.currentTimeMillis();
 	}
 
+	//NOTE: this method is no longer necessery, but I'll leave it here just in case
 	private List<PlayerData> copyPlayerData(List<PlayerData> players) {
 		List<PlayerData> copyOfPlayers = new ArrayList<PlayerData>();
 		for(PlayerData player : players)

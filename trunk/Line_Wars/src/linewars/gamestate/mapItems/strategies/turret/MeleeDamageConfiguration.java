@@ -81,14 +81,12 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 			if(dealtDamage)
 				return Double.POSITIVE_INFINITY;
 			else
-				return range;
+				return 0.00001;
 		}
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			Shape collisionBody = turret.getBody().stretch(new Transformation(
-					Position.getUnitVector(turret.getRotation()).scale(
-							turret.getBody().boundingCircle().getRadius()*getScalingFactor()), turret.getRotation()));
+			Shape collisionBody = turret.getBody().scale(getScalingFactor());
 			
 			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
 									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
