@@ -13,6 +13,11 @@ import editor.abilitiesstrategies.EditorUsage;
 
 public class ArmorPlatingConfiguration extends AbilityDefinition {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5983194962130974200L;
+
 	static {
 		AbilityDefinition.setAbilityConfigMapping("Armor Plating",
 				ArmorPlatingConfiguration.class, AbilityStrategyEditor.class);
