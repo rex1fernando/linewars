@@ -59,7 +59,7 @@ public strictfp class AllEnemyUnitsConfiguration extends CollisionStrategyConfig
 
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof AllEnemiesConfiguration);
+		return (obj instanceof AllEnemyUnitsConfiguration);
 	}
 	
 	

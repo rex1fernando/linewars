@@ -727,6 +727,15 @@ public class BigFrameworkGuy
 			return config;
 		}
 		
+		@Override
+		public boolean equals(Object other){
+			if(other == null) return false;
+			if(!(other instanceof ConfigurationWrapper)) return false;
+			ConfigurationWrapper o = (ConfigurationWrapper) other;
+			
+			return o.getConfiguration().equals(getConfiguration());
+		}
+		
 		public String toString() {
 			String typeName = type.toString();
 			while(typeName.length() < typeMaxWidth)
