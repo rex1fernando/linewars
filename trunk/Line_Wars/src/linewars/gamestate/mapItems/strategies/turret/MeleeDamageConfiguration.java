@@ -1,5 +1,7 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
+import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.MapItemState;
@@ -84,7 +86,9 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			Shape collisionBody = turret.getBody().scale(lastScalingFactor);
+			Shape collisionBody = turret.getBody().stretch(new Transformation(
+					Position.getUnitVector(turret.getRotation()).scale(
+							turret.getBody().boundingCircle().getRadius()*getScalingFactor()), turret.getRotation()));
 			
 			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
 									turret.getModifier().getModifier(MapItemModifiers.damageDealt);

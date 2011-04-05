@@ -62,7 +62,8 @@ public strictfp class Unit extends MapItemAggregate {
 		if(hp <= 0)
 		{
 			hp = 0;
-			this.setState(MapItemState.Dead);
+			if(!this.getState().equals(MapItemState.Dead))
+				this.setState(MapItemState.Dead);
 		}
 		else if(hp > this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp))
 			hp = this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
