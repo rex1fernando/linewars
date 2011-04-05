@@ -14,6 +14,7 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.abilities.ShootDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
@@ -61,6 +62,32 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 			}
 			if(shootDefinition == null)
 				throw new IllegalArgumentException(t.getName() + " does not have the ability to shoot");
+			
+			//TODO this is a hack
+			DisplayConfiguration dc = (DisplayConfiguration) turret.getDefinition().getDisplayConfiguration();
+			double time = 0;
+			for(int i = 0; i < dc.getAnimation(MapItemState.Firing).getNumImages(); i++)
+				time += dc.getAnimation(MapItemState.Firing).getImageTime(i);
+			final double firingTime = time;
+			
+			t.addActiveAbility(new Ability() {
+				
+				@Override
+				public void update() {
+					if(turret.getGameState().getTime()*1000 - lastShootTime > firingTime)
+						turret.setState(MapItemState.Idle);
+				}
+				
+				@Override
+				public boolean killable() {
+					return true;
+				}
+				
+				@Override
+				public boolean finished() {
+					return false;
+				}
+			});
 		}
 	
 		@Override
@@ -91,7 +118,6 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 				long currentTime = (long) (turret.getGameState().getTime()*1000);
 				if(currentTime - lastShootTime < shootCoolDown/turret.getModifier().getModifier(MapItemModifiers.fireRate))
 				{
-					switchToIdleStateIfNeeded();
 					return;
 				}
 				//now calculate the angle the unit needs to face to shoot the target
@@ -109,23 +135,8 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 				else //face that way
 				{
 					turret.setRotation(angle);
-					switchToIdleStateIfNeeded();
 				}
 			}
-			else
-				switchToIdleStateIfNeeded();
-		}
-		
-		private void switchToIdleStateIfNeeded()
-		{
-			//TODO this is a hack
-			DisplayConfiguration dc = (DisplayConfiguration) turret.getDefinition().getDisplayConfiguration();
-			double time = 0;
-			for(int i = 0; i < dc.getAnimation(MapItemState.Firing).getNumImages(); i++)
-				time += dc.getAnimation(MapItemState.Firing).getImageTime(i);
-			
-			if(turret.getGameState().getTime()*1000 - lastShootTime > time)
-				turret.setState(MapItemState.Idle);
 		}
 
 		@Override

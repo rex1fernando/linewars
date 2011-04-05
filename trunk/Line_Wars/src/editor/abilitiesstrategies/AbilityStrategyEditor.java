@@ -51,6 +51,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case ProjectileConfig:
 				case TechConfig:
 				case UnitConfig:
+				case PartConfig:
 					f = new ConfigurationField(field, prop.getDescription(), 
 							prop.getEditorUsage(), bfg, (Configuration) prop.getValue());
 					break;

@@ -71,6 +71,8 @@ public strictfp abstract class MapItem implements Observer {
 		modifier = new MapItemModifier();
 		for(MapItemModifiers m : MapItemModifiers.values())
 			modifier.setMapping(m, new Constant(1.0));
+		
+		def.addObserver(this);
 	}
 	
 	protected abstract void setDefinition(MapItemDefinition<? extends MapItem> def);

@@ -23,5 +23,12 @@ public class PartAggregate extends MapItemAggregate {
 	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
 		this.def = (PartAggregateDefinition) def;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof PartAggregate) &&
+				super.equals(obj);
+	}
 
 }

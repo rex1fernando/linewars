@@ -245,7 +245,7 @@ public class TechPanel extends Panel
 		enabledBox.addItemListener(new EnabledBoxListener());
 		editorComponents.add(enabledBox);
 		
-		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
+		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback(), new GenericSelector.ShowBFGName<Configuration>());
 		techSelector.addSelectionChangeListener(new TechSelectionListener());
 		editorComponents.add(techSelector);
 		

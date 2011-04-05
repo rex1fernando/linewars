@@ -1,5 +1,6 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
+import java.util.List;
 import java.util.Queue;
 
 import editor.abilitiesstrategies.AbilityStrategyEditor;
@@ -17,6 +18,11 @@ import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5584965111050118402L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Move To Closest Target",
 				MoveToClosestTargetConfiguration.class, AbilityStrategyEditor.class);
@@ -148,17 +154,14 @@ public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguratio
 		
 		private void calcRanges()
 		{
-			if(minRange < 0 || maxRange < 0 || MapItemAggregate.checkForContainedItemsChange(unit))
+			minRange = Double.MAX_VALUE;
+			maxRange = -1;
+			for(Turret t : unit.getTurrets())
 			{
-				minRange = Double.MAX_VALUE;
-				maxRange = -1;
-				for(Turret t : unit.getTurrets())
-				{
-					if(t.getTurretStrategy().getRange() > maxRange)
-						maxRange = t.getTurretStrategy().getRange();
-					if(t.getTurretStrategy().getRange() < minRange)
-						minRange = t.getTurretStrategy().getRange();
-				}
+				if(t.getTurretStrategy().getRange() > maxRange)
+					maxRange = t.getTurretStrategy().getRange();
+				if(t.getTurretStrategy().getRange() < minRange)
+					minRange = t.getTurretStrategy().getRange();
 			}
 		}
 

@@ -92,7 +92,8 @@ public strictfp class Projectile extends MapItemAggregate {
 		Transformation target = tStrat.getTarget();
 		Position change = target.getPosition().subtract(this.getPosition());
 		
-		tempBody = this.getBody().stretch(new Transformation(change, target.getRotation()));
+		if(change.distanceSquared(Position.ORIGIN) >= Math.pow(this.getBody().boundingCircle().getRadius(), 2))
+			tempBody = this.getBody().stretch(new Transformation(change, target.getRotation()));
 		
 		//this is the raw list of items colliding with this projetile's path
 		MapItem[] rawCollisions = lane.getCollisions(this);

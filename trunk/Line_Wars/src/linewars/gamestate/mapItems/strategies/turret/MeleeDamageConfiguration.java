@@ -2,8 +2,10 @@ package linewars.gamestate.mapItems.strategies.turret;
 
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
@@ -30,10 +32,30 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 		private Turret turret;
 		private double range = -1;
 		private double lastScalingFactor = Double.NEGATIVE_INFINITY;
+		private int lastTick;
+		private boolean dealtDamage;
 
 		private MeleeDamage(Turret t)
 		{
 			turret = t;
+			turret.addActiveAbility(new Ability() {
+				@Override
+				public void update() {
+					//if we go out of combat, change the turret back to idle
+					if(lastTick < turret.getGameState().getTimerTick())
+						turret.setState(MapItemState.Idle);
+				}
+				
+				@Override
+				public boolean killable() {
+					return true;
+				}
+				
+				@Override
+				public boolean finished() {
+					return false;
+				}
+			});
 		}
 		
 		@Override
@@ -54,7 +76,10 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 				lastScalingFactor = getScalingFactor();
 				range = turret.getBody().scale(lastScalingFactor).boundingCircle().getRadius();
 			}
-			return range;
+			if(dealtDamage)
+				return Double.POSITIVE_INFINITY;
+			else
+				return range;
 		}
 
 		@Override
@@ -63,12 +88,22 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 			
 			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
 									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
+			dealtDamage = false;
 			for(Unit enemy : availableEnemies)
 			{
 				if(CollisionStrategyConfiguration.isAllowedToCollide(enemy, turret) &&
 						enemy.getBody().isCollidingWith(collisionBody))
+				{
 					enemy.setHP(enemy.getHP() - damageToDeal);
+					dealtDamage = true;
+				}
 			}
+			if(dealtDamage && !turret.getState().equals(MapItemState.Firing))
+				turret.setState(MapItemState.Firing);
+			else if(!dealtDamage && turret.getState().equals(MapItemState.Firing))
+				turret.setState(MapItemState.Idle);
+			
+			lastTick = turret.getGameState().getTimerTick();
 		}
 		
 	}

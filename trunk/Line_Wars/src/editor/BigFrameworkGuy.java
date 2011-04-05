@@ -471,7 +471,7 @@ public class BigFrameworkGuy
 			list = showMultiSelectionBox(types, "Export", "Export", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JFileChooser fc = new JFileChooser();
+					JFileChooser fc = new JFileChooser("");
 					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					if(fc.showOpenDialog(frame) == JFileChooser.CANCEL_OPTION)
 						return;

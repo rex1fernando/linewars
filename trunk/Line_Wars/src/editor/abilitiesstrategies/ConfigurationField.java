@@ -40,6 +40,11 @@ public class ConfigurationField extends Field  {
 			case TechConfig:
 				type = ConfigType.tech;
 				break;
+			case PartConfig:
+				type = ConfigType.part;
+				break;
+			default:
+				throw new IllegalArgumentException(usage.toString() + " is not supported by ConfigurationField");
 		}
 		selector = new GenericSelector<Configuration>("Select " + type.toString() 
 				+ " configuration", new SelectConfigurations<Configuration>(bfg, type),

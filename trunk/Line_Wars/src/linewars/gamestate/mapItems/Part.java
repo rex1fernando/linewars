@@ -23,5 +23,12 @@ public class Part extends MapItem {
 	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
 		this.def = (PartDefinition) def;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof Part) &&
+				super.equals(obj);
+	}
 
 }

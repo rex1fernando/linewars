@@ -302,6 +302,8 @@ public class CommandCardPanel extends Panel
 		{
 			int pID = node.getOwner().getPlayerID();
 			int buildingID = buildings.indexOf(building);
+			if(buildingID < 0)
+				buildings.indexOf(building);
 			
 			Message message = new BuildMessage(pID, node.getID(), buildingID);
 

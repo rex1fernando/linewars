@@ -69,6 +69,10 @@ public class TechConfiguration extends Configuration implements Observer {
 	
 	public void research(Player owner){
 		Race toModify = owner.getRace();
+		if(owner.getStuff() < getCost())
+			return;
+		
+		owner.spendStuff(getCost());
 		//TODO assert toModify.equals(race) ???
 		modification.applyTo(new Property(Usage.CONFIGURATION, toModify));
 	}

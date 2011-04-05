@@ -1,11 +1,115 @@
 package linewars.gamestate.mapItems.strategies.impact;
 
+import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Part;
+import linewars.gamestate.mapItems.PartDefinition;
+import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.abilities.Ability;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import configuration.Usage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
-import linewars.gamestate.mapItems.MapItem;
 
 public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8183470932347599355L;
+	
+	static {
+		StrategyConfiguration.setStrategyConfigMapping("Catch Target on Fire",
+				CatchTargetOnFireConfiguration.class, AbilityStrategyEditor.class);
+	}
+
+	public class CatchTargetOnFire implements ImpactStrategy
+	{
+		private Projectile proj;
+		private double startTime;
+		
+		private CatchTargetOnFire(Projectile p)
+		{
+			proj = p;
+			startTime = proj.getGameState().getTime();
+			proj.addActiveAbility(new Ability() {
+				private boolean finished = false;
+				@Override
+				public void update() {
+					if(proj.getGameState().getTime() - startTime > getDuration())
+					{
+						finished = true;
+						proj.setState(MapItemState.Dead);
+					}
+				}
+				
+				@Override
+				public boolean killable() {
+					return true;
+				}
+				
+				@Override
+				public boolean finished() {
+					return finished;
+				}
+			});
+		}
+
+		@Override
+		public String name() {
+			return "Catch target on fire";
+		}
+
+		@Override
+		public ImpactStrategyConfiguration getConfig() {
+			return CatchTargetOnFireConfiguration.this;
+		}
+
+		@Override
+		public void handleImpact(MapItem m) {
+			if(m instanceof Unit)
+			{
+				final Unit u = (Unit) m;
+				final Part burning = getBurningPart().createMapItem(u.getTransformation(), u.getOwner(), u.getGameState());
+				u.addMapItemToFront(burning, Transformation.ORIGIN);
+				u.addActiveAbility(new Ability() {
+					private double start = u.getGameState().getTime();
+					private boolean finished = false;
+					private Unit unit = u;
+					private Part burn = burning;
+					@Override
+					public void update() {
+						unit.setHP(unit.getHP() - getDamagePerSecond()*unit.getGameState().getLastLoopTime()*
+								proj.getModifier().getModifier(MapItemModifiers.damageDealt));
+						if(unit.getGameState().getTime() - start > getDuration() && !finished)
+						{
+							finished = true;
+							u.removeMapItem(burn);
+						}
+					}
+					
+					@Override
+					public boolean killable() {
+						return true;
+					}
+					
+					@Override
+					public boolean finished() {
+						return finished;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void handleImpact(Position p) {}
+		
+	}
 	
 	public CatchTargetOnFireConfiguration()
 	{
@@ -14,7 +118,7 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 		super.setPropertyForName("duration", new EditorProperty(Usage.NUMERIC_FLOATING_POINT,
 				null, EditorUsage.Real, "The duration of the burning effect"));
 		super.setPropertyForName("buringPart", new EditorProperty(Usage.CONFIGURATION,
-				null, EditorUsage.Real, "The part to add to the unit that is burning (the burning animation)"));
+				null, EditorUsage.PartConfig, "The part to add to the unit that is burning (the burning animation)"));
 	}
 	
 	private double getDamagePerSecond()
@@ -27,21 +131,22 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 		return (Double)super.getPropertyForName("duration").getValue();
 	}
 	
-	private double getBurningPart()
+	private PartDefinition getBurningPart()
 	{
-		return (Double)super.getPropertyForName("buringPart").getValue();
+		return (PartDefinition)super.getPropertyForName("buringPart").getValue();
 	}
 
 	@Override
 	public ImpactStrategy createStrategy(MapItem m) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CatchTargetOnFire((Projectile) m);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return false;
+		return (obj instanceof CatchTargetOnFireConfiguration) &&
+				((CatchTargetOnFireConfiguration) obj).getDamagePerSecond() == getDamagePerSecond() &&
+				((CatchTargetOnFireConfiguration) obj).getDuration() == getDuration() &&
+				((CatchTargetOnFireConfiguration) obj).getBurningPart().equals(getBurningPart());
 	}
 
 }

@@ -136,6 +136,7 @@ public class ListConfiguration<T> extends Configuration implements Observer{
 			secondPart = "_data";
 		}else{
 			secondPart = "_enabled";
+			enabledSubList = null;
 		}
 		String firstPart = changedObject.substring(0, changedObject.length() - secondPart.length());
 		

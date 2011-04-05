@@ -45,6 +45,7 @@ public class Observable implements Serializable {
 	
 	public void notifyObservers(Object arg)
 	{
+		List<Observer> obs = new ArrayList<Observer>(this.obs);
 		for(Observer o : obs)
 			o.update(this, arg);
 	}
