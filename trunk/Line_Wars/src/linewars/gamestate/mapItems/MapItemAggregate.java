@@ -27,6 +27,30 @@ public abstract class MapItemAggregate extends MapItem {
 		transform = trans;
 	}
 	
+	public void pushModifierToAllItems(MapItemModifier mod)
+	{
+		super.pushModifier(mod);
+		for(MapItem m : containedItems)
+		{
+			if(m instanceof MapItemAggregate)
+				((MapItemAggregate) m).pushModifierToAllItems(mod);
+			else
+				m.pushModifier(mod);
+		}
+	}
+	
+	public void removeModifierFromAllItems(MapItemModifier mod)
+	{
+		super.removeModifier(mod);
+		for(MapItem m : containedItems)
+		{
+			if(m instanceof MapItemAggregate)
+				((MapItemAggregate) m).removeModifierFromAllItems(mod);
+			else
+				m.removeModifier(mod);
+		}
+	}
+	
 	public void addMapItemToFront(MapItem m, Transformation t)
 	{
 		m.setTransformation(new Transformation(this.getPosition().add(

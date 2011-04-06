@@ -1,12 +1,10 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Part;
+import linewars.gamestate.mapItems.PartDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
@@ -31,17 +29,15 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 	
 	private double hps;
 	
-	public class HealFirstAlly implements CombatStrategy, DroneCombatStrategy
+	public class HealFirstAlly extends GeneralDroneCombatStrategy
 	{
-		
-		private Unit unit;
-		private Unit beingHealed = null;
-		private Unit carrier;
-		private int lastFightTick = 0;
+		private Unit lastHealTarget;
+		private Part healPart;
 		
 		private HealFirstAlly(Unit u)
 		{
-			unit = u;
+			super(u);
+			healPart = getHealPart().createMapItem(u.getTransformation(), u.getOwner(), u.getGameState());
 		}
 
 		@Override
@@ -55,62 +51,17 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 		}
 
 		@Override
-		public double getRange() {
-			return carrier.getCombatStrategy().getRange();
-		}
-
-		@Override
-		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			lastFightTick = unit.getGameState().getTimerTick();
-			if(beingHealed == null)
-			{
-				unit.setState(MapItemState.Idle);
-				return;
-			}
-			
-			//move the drone
-			unit.getMovementStrategy().setTarget(beingHealed.getTransformation());
-			//heal the target
-			beingHealed.setHP(beingHealed.getHP() + hps*unit.getGameState().getLastLoopTime());
-			
-			unit.setState(MapItemState.Firing);
-		}
-		
-		private boolean contains(Unit[] list, Unit u)
-		{
-			for(Unit unit : list)
-				if(unit == u)
-					return true;
-			
-			return false;
-		}
-		
-		private boolean contains(List<Unit> list, Unit u)
-		{
-			for(Unit unit : list)
-				if(unit == u)
-					return true;
-			
-			return false;
-		}
-
-		@Override
-		public void setTarget(Unit target) {
-			beingHealed = target;
-		}
-
-		@Override
 		public boolean isFinishedOnTarget() {
-			return (beingHealed == null
-					|| beingHealed.getState().equals(MapItemState.Dead)
-					|| beingHealed.getHP()/((UnitDefinition)beingHealed.getDefinition()).getMaxHP() >= 0.99);
+			return (this.getTarget() == null
+					|| this.getTarget().getState().equals(MapItemState.Dead)
+					|| this.getTarget().getHP()/((UnitDefinition)this.getTarget().getDefinition()).getMaxHP() >= 0.99);
 		}
 
 		@Override
 		public Unit pickBestTarget(Unit[] targets) {
 			Unit picked = null;
 			for(Unit u : targets)
-				if(picked != null && picked.getOwner().equals(unit.getOwner()) &&
+				if(picked != null && picked.getOwner().equals(this.getDrone().getOwner()) &&
 						picked.getHP()/picked.getMaxHP() > u.getHP()/u.getMaxHP())
 					picked = u;
 			
@@ -118,20 +69,17 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 		}
 
 		@Override
-		public void setDroneCarrier(Unit carrier) {
-			this.carrier = carrier;
+		protected void applyEffect(Unit target) {
+			target.setHP(target.getHP() + hps*this.getDrone().getGameState().getLastLoopTime());
+			if(target != lastHealTarget)
+			{
+				if(lastHealTarget != null)
+					lastHealTarget.removeMapItem(healPart);
+				target.addMapItemToFront(healPart, Transformation.ORIGIN);
+				lastHealTarget = target;
+			}
 		}
 
-		@Override
-		public Unit getDroneCarrier() {
-			return carrier;
-		}
-
-		@Override
-		public int getLastFightTick() {
-			return lastFightTick;
-		}
-		
 	}
 	
 	public HealFirstAllyConfiguration()
@@ -139,7 +87,14 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 		super.setPropertyForName("hps", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, 0, EditorUsage.PositiveReal,
 				"The amount of healing done per second"));
+		super.setPropertyForName("healPart", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.PartConfig, "The part to add to a unit being healed"));
 		this.addObserver(this);
+	}
+	
+	public PartDefinition getHealPart()
+	{
+		return (PartDefinition)super.getPropertyForName("healPart").getValue();
 	}
 
 	@Override
