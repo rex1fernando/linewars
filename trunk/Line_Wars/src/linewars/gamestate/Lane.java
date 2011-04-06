@@ -569,8 +569,9 @@ public strictfp class Lane
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
 				
-		//List<Unit> potentiallyCollidingUnits = sweepAndPrune();
-		List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
+		//List<Unit> snppotentiallyCollidingUnits = sweepAndPrune();
+		//List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
+		List<Unit> potentiallyCollidingUnits = sweepAndPrune();
 		
 		
 		for(Unit first : potentiallyCollidingUnits){//for each unit in the lane
@@ -583,78 +584,14 @@ public strictfp class Lane
 						
 						second.getMovementStrategy().notifyOfCollision(offsetVector);
 						first.getMovementStrategy().notifyOfCollision(offsetVector.scale(-1));
-						/*
-						//Calculate how far they should be shifted
-						double distanceApart = offsetVector.length();
-						double radSum = first.getRadius() + second.getRadius();
-						double overlap = radSum - distanceApart;
-						double scalingFactor = overlap / distanceApart;
-						offsetVector = offsetVector.scale(scalingFactor);
 						
-						//figure out the direction that each one is moving
-						Node firstOrigin = ((Unit)first).getWave().getOrigin();
-						Position firstOriginPos = firstOrigin.getTransformation().getPosition();
-						Node secondOrigin = ((Unit)first).getWave().getOrigin();
-						Position secondOriginPos = secondOrigin.getTransformation().getPosition();
-						Position zeroPos = this.getCurve().getP0();
-						Position onePos = this.getCurve().getP1();
-						
-						//these will be true if first and second respectively originated from the 'one' end of the lane
-						boolean firstOne = firstOriginPos.distanceSquared(onePos) < firstOriginPos.distanceSquared(zeroPos);
-						boolean secondOne = secondOriginPos.distanceSquared(onePos) < secondOriginPos.distanceSquared(zeroPos);
-						
-						if(firstOne != secondOne){//if they are moving in diff directions, push each away by half of their overlap
-							//move first by -offsetvector/2
-							Position newPosition = collisionVectors.get(first).add(offsetVector.scale(-0.5));
-							collisionVectors.put(first, newPosition);
-						}else{//now they have to be going in the same direction
-							boolean firstFirst = false;
-							
-							//if first is a unit then there's a more efficient way to get its position
-							double firstDistance = -1;
-							if(first instanceof Unit)
-								firstDistance = ((Unit)first).getPositionAlongCurve();
-							else
-								firstDistance = this.getCurve().getClosestPointRatio(first.getPosition());
-							
-							//if second is a unit then there's a more efficient way to get its position
-							double secondDistance = -1;
-							if(first instanceof Unit)
-								secondDistance = ((Unit)first).getPositionAlongCurve();
-							else
-								secondDistance = this.getCurve().getClosestPointRatio(first.getPosition());
-							
-							if(firstOne){//if 1 -> 0
-								if(firstDistance < secondDistance){
-									firstFirst = true;
-								}
-							}else{//0 -> 1
-								if(firstDistance > secondDistance){
-									firstFirst = true;
-								}
-							}
-							
-							if(!firstFirst){//if first is coming up from behind and thus should be moved
-								//move first by -offsetvector (100% of the distance)
-								Position newPosition = collisionVectors.get(first).add(offsetVector.scale(1));
-								collisionVectors.put(first, newPosition);								
-							}
+						/*if(!snppotentiallyCollidingUnits.contains(first) || ! snppotentiallyCollidingUnits.contains(second)){
+							System.out.println("WTF");
 						}*/
+						
 					}
 				}
 			}		
-/*
-		Random rand = new Random(gameState.getTimerTick());
-		//Then resolve them by shifting stuff around
-		for(MapItem toMove : potentiallyCollidingUnits){
-			Position offset = collisionVectors.get(toMove);
-			if(offset.length() > 0){ 
-				double xNoise = rand.nextDouble() - 0.5;
-				double yNoise = rand.nextDouble() - 0.5;
-				offset = offset.add(new Position(xNoise, yNoise));
-				toMove.setPosition(toMove.getPosition().add(offset));				
-			}
-		}*/
 	}
 	
 	private LinkedList<Unit> sweepAndPrune()
@@ -688,24 +625,24 @@ public strictfp class Lane
 		
 		}*/
 		
-/*		//addedLastUnit = false;
+		addedLastUnit = false;
 		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
 		{
 			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
 					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
 			{
-				//if (!addedLastUnit)
+				if (!addedLastUnit)
 					potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
-				//potentiallyCollidingUnits.add(verticallySortedUnits.get(i+1));
+				potentiallyCollidingUnits.add(verticallySortedUnits.get(i+1));
 			}	
-		}*/
+		}
 		
 		/*if (horizontallyCollidingUnits.size() > 0) 
 		{
 			System.out.println(horizontallyCollidingUnits.size());
 		}*/
 		
-		return horizontallyCollidingUnits;
+		return potentiallyCollidingUnits;
 	}
 	
 	private void initializeSortedUnits(List<Unit> allUnits)
@@ -923,12 +860,12 @@ public strictfp class Lane
 	
 	private void updateSweepAndPruneStructures() 
 	{
-		if (this.sweepAndPruneStructuresNeedUpdate) 
-		{
+/*		if (this.sweepAndPruneStructuresNeedUpdate) 
+		{*/
 			List<Unit> allUnits = getCollidableMapItems();
 			initializeSortedUnits(allUnits);
 			this.sweepAndPruneStructuresNeedUpdate = false;
-		}
+		/*}*/
 		sortUnits();
 	}
 
