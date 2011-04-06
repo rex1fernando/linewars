@@ -42,7 +42,7 @@ public strictfp class Lane
 	private ArrayList<Node> nodes;
 	private double gatePos;
 	private GameState gameState;
-		
+	
 	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
@@ -58,6 +58,7 @@ public strictfp class Lane
 		
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
+		
 		this.horizontallySortedUnits = new ArrayList<Unit>();
 		this.verticallySortedUnits = new ArrayList<Unit>();
 		
@@ -567,8 +568,8 @@ public strictfp class Lane
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
 				
-		List<Unit> potentiallyCollidingUnits = sweepAndPrune();
-		//List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
+		//List<Unit> potentiallyCollidingUnits = sweepAndPrune();
+		List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
 		
 		
 		for(MapItem first : potentiallyCollidingUnits){//for each unit in the lane
@@ -666,8 +667,10 @@ public strictfp class Lane
 		{
 			if (horizontallySortedUnits.get(i).getBody().getAABB().getXMax() > horizontallySortedUnits.get(i+1).getBody().getAABB().getXMin())
 			{	
-				if (!addedLastUnit)
+				if (!addedLastUnit) {
 					horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+					addedLastUnit = true;
+				}
 				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i+1));
 			}
 		}
@@ -681,24 +684,24 @@ public strictfp class Lane
 		
 		}*/
 		
-		addedLastUnit = false;
+/*		//addedLastUnit = false;
 		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
 		{
 			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
 					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
 			{
-				if (!addedLastUnit)
+				//if (!addedLastUnit)
 					potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
-				potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
+				//potentiallyCollidingUnits.add(verticallySortedUnits.get(i+1));
 			}	
-		}
-		
-		/*if (allUnits.size() > 0) 
-		{
-			System.out.println(potentiallyCollidingUnits.size());
 		}*/
 		
-		return potentiallyCollidingUnits;
+		/*if (horizontallyCollidingUnits.size() > 0) 
+		{
+			System.out.println(horizontallyCollidingUnits.size());
+		}*/
+		
+		return horizontallyCollidingUnits;
 	}
 	
 	private void initializeSortedUnits(List<Unit> allUnits)
@@ -911,7 +914,7 @@ public strictfp class Lane
 	}
 	
 	public void notifySweepAndPruneStructuresNeedUpdate() {
-		this.sweepAndPruneStructuresNeedUpdate = false;
+		this.sweepAndPruneStructuresNeedUpdate = true;
 	}
 	
 	private void updateSweepAndPruneStructures() 
