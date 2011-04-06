@@ -51,12 +51,16 @@ public class TimingManager implements Runnable{
 	@Override
 	public void run() {
 		nextUpdateTime = System.currentTimeMillis();
-		while(true){
+		
+		boolean someoneWon = false;
+		
+		while(!someoneWon){
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
 			
 			//give orders to manager
-			manager.addOrdersForTick(nextTickID, messagesForTick);
+			if (manager.addOrdersForTick(nextTickID, messagesForTick))
+				someoneWon = true;
 			//update tick id
 			++nextTickID;
 			nextUpdateTime += TIME_PER_TICK_MILLIS;

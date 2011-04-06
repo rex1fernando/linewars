@@ -74,7 +74,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 	
 	@Override
-	public void addOrdersForTick(int tickID, Message[] newOrders) {
+	public boolean addOrdersForTick(int tickID, Message[] newOrders) {
 		lastLastUpdateTime = lastUpdateTime;
 		lastUpdateTime = System.currentTimeMillis();
 		if(orders.containsKey(tickID)){
@@ -95,6 +95,12 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		}
 		updateFreeState(tickID);
 		swapStatesIfPossible();
+		
+		if (freeState.getWinningPlayer() != null ||
+			viewableState.getWinningPlayer() != null)
+			return true;
+		
+		return false;
 	}
 	
 	private void updateFreeState(int maxTickID){
