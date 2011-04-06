@@ -24,7 +24,7 @@ public class AABBTest {
 	@Test
 	public void testAABBForRectangle()
 	{
-		Rectangle r = new Rectangle(new Transformation(new Position(0, 0), 90), 200, 150);
+		Rectangle r = new Rectangle(new Transformation(new Position(0, 0), Math.PI/2), 200, 150);
 		assertEquals(-75, r.getAABB().getXMin(), 0.001);
 		assertEquals(-100, r.getAABB().getYMin(), 0.001);
 		assertEquals(75, r.getAABB().getXMax(), 0.001);
