@@ -9,6 +9,7 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
 
@@ -26,12 +27,31 @@ public abstract class MapItemAggregate extends MapItem {
 		transform = trans;
 	}
 	
+	public void addMapItemToFront(MapItem m, Transformation t)
+	{
+		m.setTransformation(new Transformation(this.getPosition().add(
+				t.getPosition().rotateAboutPosition(new Position(0, 0), this.getRotation())), 
+				t.getRotation() + this.getRotation()));
+		containedItems.add(0, m);
+		if(m.getDefinition().isValidState(this.getState()))
+			m.setState(this.getState());
+		body = null;
+	}
+	
 	public void addMapItem(MapItem m, Transformation t)
 	{
 		m.setTransformation(new Transformation(this.getPosition().add(
 				t.getPosition().rotateAboutPosition(new Position(0, 0), this.getRotation())), 
 				t.getRotation() + this.getRotation()));
 		containedItems.add(m);
+		if(m.getDefinition().isValidState(this.getState()))
+			m.setState(this.getState());
+		body = null;
+	}
+	
+	public void removeMapItem(MapItem m)
+	{
+		containedItems.remove(m);
 		body = null;
 	}
 	
@@ -118,7 +138,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public boolean isCollidingWith(MapItem m)
 	{
-		if(!this.getCollisionStrategy().canCollideWith(m))
+		if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
 			return false;
 		for(MapItem c : containedItems)
 //			if(c.getBody().isCollidingWith(m.getBody()))
@@ -150,6 +170,8 @@ public abstract class MapItemAggregate extends MapItem {
 					else
 						m.setState(toSet);
 				}
+				else if(m instanceof MapItemAggregate)
+					((MapItemAggregate)m).setStateIfInState(condition, toSet);
 		}
 	}
 	
@@ -166,6 +188,14 @@ public abstract class MapItemAggregate extends MapItem {
 	}
 	
 	@Override
+	public void updateMapItem()
+	{
+		super.updateMapItem();
+		for(MapItem contained : containedItems)
+			contained.updateMapItem();
+	}
+	
+	@Override
 	public void update(Observable obs, Object o)
 	{
 		super.update(obs, o);
@@ -176,7 +206,7 @@ public abstract class MapItemAggregate extends MapItem {
 				this.removeAllMapItems();
 				List<MapItemDefinition<?>> newItems = ((MapItemAggregateDefinition<?>)this.getDefinition()).getContainedItems();
 				List<Transformation> newTrans = ((MapItemAggregateDefinition<?>)this.getDefinition()).getRelativeTransformations();
-				for(int i = 0; i < newItems.size(); i++)
+				for(int i = 0; i < newItems.size() && i < newTrans.size(); i++)
 					this.addMapItem(newItems.get(i).createMapItem(Transformation.ORIGIN, 
 							this.getOwner(), this.getGameState()), newTrans.get(i));
 				body = null;
@@ -184,7 +214,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 	}
 	
-	private void updateInternalVariables()
+	protected void updateInternalVariables()
 	{
 		ArrayList<Shape> shapes = new ArrayList<Shape>();
 		ArrayList<Transformation> pos = new ArrayList<Transformation>();

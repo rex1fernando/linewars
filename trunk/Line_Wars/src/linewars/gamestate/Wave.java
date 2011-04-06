@@ -188,6 +188,10 @@ public strictfp class Wave {
 				maxRad = rad;
 		}
 		
+		//this is to prevent units from doing a run by on accident
+		if(maxRad < owner.getWidth())
+			maxRad = owner.getWidth();
+		
 		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
 		List<Unit> alliesInRange = new ArrayList<Unit>();
 		//remove friendly units

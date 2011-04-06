@@ -1,5 +1,11 @@
 package configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
@@ -62,5 +68,17 @@ public abstract class Configuration extends Observable implements Serializable {
 			return props.equals(((Configuration)o).props);
 		else
 			return false;
+	}
+	
+	public static Configuration copyConfiguration(Configuration toCopy) throws IOException, ClassNotFoundException
+	{
+		File f = File.createTempFile("temp", ".tmp");
+		String path = f.getAbsolutePath();
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+		oos.writeObject(toCopy);
+		oos.flush();
+		oos.close();
+		
+		return (Configuration) new ObjectInputStream(new FileInputStream(path)).readObject();
 	}
 }

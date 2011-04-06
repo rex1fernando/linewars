@@ -221,7 +221,7 @@ public strictfp abstract class MapItemDefinition<T extends MapItem> extends Conf
 		{
 			MapItemDefinition<?> mid = (MapItemDefinition<?>) obj;
 			try {
-				return validStates.equals(mid.validStates) &&
+				return  validStates.equals(mid.validStates) &&
 						name.equals(mid.name) &&
 						abilities.equals(mid.abilities) &&
 						cStrat.equals(mid.cStrat) &&

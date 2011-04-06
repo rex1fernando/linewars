@@ -14,6 +14,11 @@ import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
  */
 public strictfp class NoCollisionConfiguration extends CollisionStrategyConfiguration {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8971341401782308094L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("No Collision",
 				NoCollisionConfiguration.class, AbilityStrategyEditor.class);

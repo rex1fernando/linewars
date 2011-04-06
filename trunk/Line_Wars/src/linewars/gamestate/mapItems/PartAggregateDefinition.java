@@ -6,6 +6,11 @@ import linewars.gamestate.Transformation;
 
 public class PartAggregateDefinition extends MapItemAggregateDefinition<PartAggregate> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1251782006734065935L;
+
 	public PartAggregateDefinition() {
 		super();
 	}
@@ -18,6 +23,13 @@ public class PartAggregateDefinition extends MapItemAggregateDefinition<PartAggr
 	@Override
 	protected void forceAggregateSubReloadConfigData() {
 		
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof PartAggregateDefinition) &&
+				super.equals(obj);
 	}
 
 }

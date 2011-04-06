@@ -1,6 +1,11 @@
 package editor.race;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,8 +16,11 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import linewars.display.Animation;
@@ -177,7 +185,52 @@ public class RaceEditor implements ConfigurationEditor
 			
 			tech = new TechPanel(bfg);
 			tech.setPreferredSize(new Dimension(720, 480));
-			add(tech);
+			
+			final JButton techButton = new JButton("Show Tech Panel Editor");
+			techButton.addActionListener(new ActionListener() {
+				private JFrame frame = null;
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(frame == null)
+						initFrame();
+					
+					if(frame.isVisible())
+					{
+						frame.setVisible(false);
+						techButton.setText("Show Tech Panel Editor");
+					}
+					else
+					{
+						frame.setVisible(true);
+						techButton.setText("Hide Tech Panel Editor");
+						tech.validate();
+						tech.updateUI();
+					}
+				}
+				
+				private void initFrame()
+				{
+					frame = new JFrame("Tech Panel Editor");
+					frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+					frame.getContentPane().add(tech, BorderLayout.CENTER);
+					frame.pack();
+					frame.addWindowListener(new WindowListener() {
+						public void windowOpened(WindowEvent e) {}
+						public void windowIconified(WindowEvent e) {}
+						public void windowDeiconified(WindowEvent e) {}
+						public void windowDeactivated(WindowEvent e) {}
+						public void windowClosing(WindowEvent e) {
+							techButton.setText("Show Tech Panel Editor");
+						}
+						public void windowClosed(WindowEvent e) {}
+						public void windowActivated(WindowEvent e) {}
+					});
+
+					tech.setVisible(true);
+				}
+			});
+			
+			add(techButton);
 		}
 		
 		private void initConfigSelectors()

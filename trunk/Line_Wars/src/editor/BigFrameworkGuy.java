@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
 
 import configuration.Configuration;
 import configuration.Property;
@@ -209,7 +210,6 @@ public class BigFrameworkGuy
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	@SuppressWarnings("unchecked")
 	public BigFrameworkGuy()
 	{
 		try {
@@ -256,7 +256,9 @@ public class BigFrameworkGuy
 				ce = new PlayerAbilityEditor(this);
 			//TODO add an if statement for new editors here
 			
-			tabPanel.addTab(e + " Editor", ce.getPanel());
+			JScrollPane scroller = new JScrollPane(ce.getPanel());
+			scroller.setPreferredSize(ce.getPanel().getPreferredSize());
+			tabPanel.addTab(e + " Editor", scroller);
 			this.editors.add(ce);
 			
 			//make sure a config is loaded for this editor
@@ -469,7 +471,7 @@ public class BigFrameworkGuy
 			list = showMultiSelectionBox(types, "Export", "Export", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JFileChooser fc = new JFileChooser();
+					JFileChooser fc = new JFileChooser("");
 					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					if(fc.showOpenDialog(frame) == JFileChooser.CANCEL_OPTION)
 						return;
@@ -509,12 +511,8 @@ public class BigFrameworkGuy
 	
 	private class DeleteButtonListener implements ActionListener
 	{
-		
-		private JFrame deleteFrame = null;
 		private JList list;
 		private ConfigurationWrapper[] listItems;
-		
-		private int typeMaxWidth = 0;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -649,17 +647,21 @@ public class BigFrameworkGuy
 	
 	private int typeMaxWidth = 0;
 	
-	private JList showMultiSelectionBox(List<ConfigType> configs, String frameTitle, String mainButton, final ActionListener callback)
+	public JList showMultiSelectionBox(List<ConfigType> configs, String frameTitle, String mainButton, final ActionListener callback)
+	{
+		return showMultiSelectionBox(configs, frameTitle, mainButton, callback, true);	
+	}
+	
+	public JList showMultiSelectionBox(List<ConfigType> configs, String frameTitle, 
+			String mainButton, final ActionListener callback, boolean allowMultipleSelection)
 	{
 		final JFrame frame = new JFrame(frameTitle);
 		
 		typeMaxWidth = 0;
-		JList list = new JList();
-		list.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+		JList list = createMulitSelectionList(configs, allowMultipleSelection);
 		JScrollPane scroller = new JScrollPane(list);
 		scroller.setPreferredSize(new Dimension(350, 450));
-		ConfigurationWrapper[] listItems = createConfigList(configs);
-		list.setListData(listItems);
+		
 		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -697,7 +699,18 @@ public class BigFrameworkGuy
 		return list;
 	}
 	
-	private class ConfigurationWrapper
+	public JList createMulitSelectionList(List<ConfigType> configs, boolean allowMultipleSelection)
+	{
+		JList list = new JList();
+		list.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+		ConfigurationWrapper[] listItems = createConfigList(configs);
+		list.setListData(listItems);
+		if(!allowMultipleSelection)
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		return list;
+	}
+	
+	public class ConfigurationWrapper
 	{			
 		private Configuration config;
 		private ConfigType type;
@@ -708,6 +721,19 @@ public class BigFrameworkGuy
 			this.type = t;
 			if(t.toString().length() > typeMaxWidth)
 				typeMaxWidth = t.toString().length();
+		}
+		
+		public Configuration getConfiguration(){
+			return config;
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other == null) return false;
+			if(!(other instanceof ConfigurationWrapper)) return false;
+			ConfigurationWrapper o = (ConfigurationWrapper) other;
+			
+			return o.getConfiguration().equals(getConfiguration());
 		}
 		
 		public String toString() {

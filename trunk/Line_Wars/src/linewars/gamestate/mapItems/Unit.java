@@ -57,11 +57,13 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public void setHP(double h)
 	{
-		hp = h;
+		double change = h - hp;
+		hp = hp + this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
 		if(hp <= 0)
 		{
 			hp = 0;
-			this.setState(MapItemState.Dead);
+			if(!this.getState().equals(MapItemState.Dead))
+				this.setState(MapItemState.Dead);
 		}
 		else if(hp > this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp))
 			hp = this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
@@ -123,6 +125,16 @@ public strictfp class Unit extends MapItemAggregate {
 	public void setWave(Wave w)
 	{
 		currentWave = w;
+		for(Turret t : this.getTurrets())
+			t.setWave(this.getWave());
+	}
+	
+	@Override
+	protected void updateInternalVariables()
+	{
+		super.updateInternalVariables();
+		for(Turret t : this.getTurrets())
+			t.setWave(this.getWave());
 	}
 	
 	/**

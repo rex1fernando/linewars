@@ -1,6 +1,7 @@
 package linewars.display.panels;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -18,14 +19,14 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import linewars.display.Animation;
 import linewars.display.Display;
-import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
-import linewars.gamestate.Position;
+import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -47,6 +48,20 @@ public class TechPanel extends Panel
 
 	private static final int DEFAULT_WIDTH = 831;
 	static final int DEFAULT_HEIGHT = 491;
+	
+	private static final int TAB_PANEL_X = 84;
+	private static final int TAB_PANEL_Y = 17;
+	
+	private static final int TAB_PANEL_WIDTH = 661;
+	private static final int TAB_PANEL_HEIGHT = 30;
+	
+	private static final int TECH_PANEL_X = 20;
+	private static final int TECH_PANEL_Y = 65;
+	
+	private static final int TECH_PANEL_WIDTH = 789;
+	private static final int TECH_PANEL_HEIGHT = 393;
+	
+	private static final int EDITOR_PANEL_HEIGHT = 30;
 	
 	private Display display;
 	private BigFrameworkGuy bfg;
@@ -111,7 +126,7 @@ public class TechPanel extends Panel
 		{
 			TechGraph graph = graphs.get(i);
 			tabs.add(new JButton(graph.getName()));
-			techs.add(new TechDisplay(stateManager, pID, receiver, graph, i, anims[1]));
+			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1]));
 		}
 		
 		initialize();
@@ -126,7 +141,7 @@ public class TechPanel extends Panel
 		
 		for(TechGraph graph : graphs)
 		{
-			TechDisplay tech = new TechDisplay(graph);
+			TechDisplay tech = new TechDisplay(this, graph);
 			tech.setTechSelector(techSelector);
 			tech.setUnlockStrategySelector(unlockStrategySelector);
 			
@@ -188,8 +203,6 @@ public class TechPanel extends Panel
 	
 	private void initialize()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
 		techLayout = new GridBagLayout();
 		c = new GridBagConstraints();
 		techPanel = new JPanel(techLayout);
@@ -218,6 +231,8 @@ public class TechPanel extends Panel
 	
 	private void addEditorElements()
 	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
 		editorComponents = new JPanel();
 		editorComponents.setLayout(new BoxLayout(editorComponents, BoxLayout.X_AXIS));
 		add(editorComponents);
@@ -230,7 +245,7 @@ public class TechPanel extends Panel
 		enabledBox.addItemListener(new EnabledBoxListener());
 		editorComponents.add(enabledBox);
 		
-		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback());
+		techSelector = new GenericSelector<Configuration>("Tech", new TechListCallback(), new GenericSelector.ShowBFGName<Configuration>());
 		techSelector.addSelectionChangeListener(new TechSelectionListener());
 		editorComponents.add(techSelector);
 		
@@ -270,6 +285,19 @@ public class TechPanel extends Panel
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), 0);
 		else
 			setLocation((getParent().getWidth() / 2) - (getWidth() / 2), (int)(scaleFactor * -DEFAULT_HEIGHT));
+		
+		//resize inner panels
+		tabPanel.setSize((int)(TAB_PANEL_WIDTH * scaleFactor), (int)(TAB_PANEL_HEIGHT * scaleFactor));
+		tabPanel.setLocation((int)(TAB_PANEL_X * scaleFactor), (int)(TAB_PANEL_Y * scaleFactor));
+
+		techPanel.setSize((int)(TECH_PANEL_WIDTH * scaleFactor), (int)(TECH_PANEL_HEIGHT * scaleFactor));
+		techPanel.setLocation((int)(TECH_PANEL_X * scaleFactor), (int)(TECH_PANEL_Y * scaleFactor));
+		
+		if(bfg != null)
+		{
+			editorComponents.setSize(getWidth(), EDITOR_PANEL_HEIGHT);
+			editorComponents.setLocation(0, getHeight() - EDITOR_PANEL_HEIGHT);
+		}
 	}
 	
 	@Override
@@ -277,8 +305,8 @@ public class TechPanel extends Panel
 	{
 		if(bfg != null)
 		{
-			g.setColor(Color.pink);
 			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.green);
 //			if(techPanelAnim != null)
 //			{
 //				scaleFactor = (getWidth() * ASPECT_RATIO) / DEFAULT_WIDTH;
@@ -291,22 +319,29 @@ public class TechPanel extends Panel
 		super.paint(g);
 	}
 	
+	public Dimension getMaxTechDisplaySize()
+	{
+		int width = getWidth();
+		int height = getHeight();
+		
+		height -= tabPanel.getHeight();
+		
+		if(editorComponents != null)
+			height -= editorComponents.getHeight();
+		
+		return new Dimension(width, height);
+	}
+	
 	private class ResizeListener extends ComponentAdapter
 	{
 		@Override
 		public void componentResized(ComponentEvent e)
 		{
-			int width = getWidth();
-			int height = getHeight();
-			
-			height -= tabPanel.getHeight();
-			
-			if(editorComponents != null)
-				height -= editorComponents.getHeight();
+			Dimension MaxTechDisplaySize = getMaxTechDisplaySize();
 			
 			for(TechDisplay td : techs)
 			{
-				td.setPreferredSize(new Dimension(width, height));
+				td.setMaximumSize(MaxTechDisplaySize);
 			}
 			
 			validate();
@@ -363,7 +398,7 @@ public class TechPanel extends Panel
 			if(s.equals(""))
 				return;
 			
-			TechDisplay tech = new TechDisplay(new TechGraph(s));
+			TechDisplay tech = new TechDisplay(TechPanel.this, new TechGraph(s));
 			tech.setTechSelector(techSelector);
 			tech.setUnlockStrategySelector(unlockStrategySelector);
 			

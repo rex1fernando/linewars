@@ -15,6 +15,8 @@ public class BuildMessage extends Message
 		
 		this.nodeID = nodeID;
 		this.buildingID = buildingID;
+		if(buildingID < 0)
+			System.out.println();
 	}
 
 	/**

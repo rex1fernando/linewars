@@ -2,17 +2,16 @@ package linewars.gamestate.shapes.configurations;
 
 import java.util.ArrayList;
 import java.util.List;
-import utility.Observable;
-import utility.Observer;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
 import configuration.ListConfiguration;
+import configuration.Property;
 import configuration.Usage;
 
-public class ShapeAggregateConfiguration extends ShapeConfiguration implements Observer{
+public class ShapeAggregateConfiguration extends ShapeConfiguration{
 
 	/**
 	 * 
@@ -21,58 +20,51 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 
 	private ListConfiguration<ShapeConfiguration> shapesList;
 	
-	private ArrayList<ShapeConfiguration> allShapes;
-	private ArrayList<ShapeConfiguration> initialShapes;
-	
 	private String shapesListKey = "shapes";
 	private Usage shapesListUsage = Usage.CONFIGURATION;
 	
 	public ShapeAggregateConfiguration(ArrayList<ShapeConfiguration> allShapes, ArrayList<ShapeConfiguration> enabledSubList, ArrayList<String> names){
-		this.addObserver(this);
+		this();
+		setAllShapes(allShapes, enabledSubList, names);
+	}
+	
+	public ShapeAggregateConfiguration()
+	{
+		shapesList = new ListConfiguration<ShapeConfiguration>(new ArrayList<ShapeConfiguration>(), new ArrayList<String>(), new ArrayList<Usage>());
 		
-		
+		this.setPropertyForName(shapesListKey, new Property(shapesListUsage, shapesList));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<ShapeConfiguration> getAllShapes(){
+		return (ArrayList<ShapeConfiguration>) shapesList.getFullList().clone();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<ShapeConfiguration> getInitialShapes(){
+		return (ArrayList<ShapeConfiguration>) shapesList.getEnabledSubList().clone();
+	}
+	
+	public void setAllShapes(ArrayList<ShapeConfiguration> newFullList, ArrayList<ShapeConfiguration> enabledSubList, ArrayList<String> names){
 		ArrayList<Usage> usages = new ArrayList<Usage>();
-		for(int i = 0; i < allShapes.size(); i++){
+		for(int i = 0; i < newFullList.size(); i++){
 			usages.add(Usage.CONFIGURATION);
 		}
 		
-		shapesList = new ListConfiguration<ShapeConfiguration>(allShapes, names, usages);
-		shapesList.addObserver(this);
+		shapesList = new ListConfiguration<ShapeConfiguration>(newFullList, names, usages);
+		
+		this.setPropertyForName(shapesListKey, new Property(shapesListUsage, shapesList));
 		
 		//Set the list of ShapeConfigurations that start enabled
 		//This updates our internal state as a side effect
 		shapesList.setEnabledSubList(enabledSubList);
 	}
 	
-	public ShapeAggregateConfiguration()
-	{
-		//TODO
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ArrayList<ShapeConfiguration> getAllShapes(){
-		return (ArrayList<ShapeConfiguration>) allShapes.clone();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ArrayList<ShapeConfiguration> getInitialShapes(){
-		return (ArrayList<ShapeConfiguration>) initialShapes.clone();
-	}
-	
-	public void setAllShapes(ArrayList<ShapeConfiguration> newFullList){
-		@SuppressWarnings("unchecked")
-		ArrayList<ShapeConfiguration> newInitialList = (ArrayList<ShapeConfiguration>) initialShapes.clone();
-		newInitialList.retainAll(newFullList);
-		//TODO set up the configuration and set it
-		//TODO don't forget to observe it!
-	}
-	
 	public boolean setInitialShapes(ArrayList<ShapeConfiguration> newInitialList){
-		if(!allShapes.containsAll(newInitialList)){//TODO add this functionality to ListConfiguration?
+		if(!shapesList.getFullList().containsAll(newInitialList)){
 			return false;
 		}
-		//TODO set up the new configuration and set ti
-		//TODO observe it too?
+		shapesList.setEnabledSubList(newInitialList);
 		return true;
 	}
 	
@@ -85,7 +77,22 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	 */
 	public void setShapeConfigurationForName(String name, ShapeConfiguration shapeConfig, boolean enabled)
 	{
-		//TODO
+		ArrayList<ShapeConfiguration> currentShapes = shapesList.getFullList();
+		ArrayList<ShapeConfiguration> currentlyEnabledShapes = shapesList.getEnabledSubList();
+		ArrayList<String> currentNames = shapesList.getNames();
+		
+		int index = currentShapes.indexOf(shapeConfig);
+		currentNames.set(index, name);
+		
+		if(enabled){
+			if(!currentlyEnabledShapes.contains(shapeConfig)){
+				currentlyEnabledShapes.add(shapeConfig);
+			}
+		}else if(currentlyEnabledShapes.contains(shapeConfig)){
+			currentlyEnabledShapes.remove(shapeConfig);
+		}
+		
+		setAllShapes(currentShapes, currentlyEnabledShapes, currentNames);
 	}
 	
 	/**
@@ -97,8 +104,9 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	 */
 	public ShapeConfiguration getShapeConfigurationForName(String name)
 	{
-		//TODO
-		return null;
+		ArrayList<String> names = shapesList.getNames();
+		int index = names.indexOf(name);
+		return shapesList.getFullList().get(index);
 	}
 	
 	/**
@@ -110,8 +118,10 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	 */
 	public boolean isInitiallyEnabled(String shapeName)
 	{
-		//TODO
-		return false;
+		ArrayList<String> names = shapesList.getNames();
+		int index = names.indexOf(shapeName);
+		ShapeConfiguration shapeInQuestion = shapesList.getFullList().get(index);
+		return shapesList.getEnabledSubList().contains(shapeInQuestion);
 	}
 	
 	/**
@@ -119,10 +129,10 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<String> getDefinedShapeNames()
 	{
-		//TODO
-		return null;
+		return (List<String>) shapesList.getNames().clone();
 	}
 
 	@Override
@@ -130,19 +140,10 @@ public class ShapeAggregateConfiguration extends ShapeConfiguration implements O
 		Transformation zeroMovement = new Transformation(new Position(0, 0), 0);
 		ArrayList<Shape> shapes = new ArrayList<Shape>();
 		ArrayList<Transformation> relativePositions = new ArrayList<Transformation>();
-		for(int i = 0; i < initialShapes.size(); i++){
-			shapes.add(initialShapes.get(i).construct(zeroMovement));
+		for(int i = 0; i < shapesList.getEnabledSubList().size(); i++){
+			shapes.add(shapesList.getEnabledSubList().get(i).construct(zeroMovement));
 			relativePositions.add(zeroMovement);
 		}
 		return new ShapeAggregate(zeroMovement, shapes, relativePositions);
-	}
-
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		//we can ignore these arguments and just update our state...
-		@SuppressWarnings("unchecked")
-		ListConfiguration<ShapeConfiguration> subConfig = (ListConfiguration<ShapeConfiguration>) this.getPropertyForName(shapesListKey).getValue();
-		allShapes = subConfig.getFullList();
-		initialShapes = subConfig.getEnabledSubList();
 	}
 }

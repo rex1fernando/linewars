@@ -6,6 +6,10 @@ import java.util.List;
 
 public class Observable implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4212261185745528536L;
 	private List<Observer> obs = new ArrayList<Observer>();
 	private boolean changed = false;
 	
@@ -41,6 +45,7 @@ public class Observable implements Serializable {
 	
 	public void notifyObservers(Object arg)
 	{
+		List<Observer> obs = new ArrayList<Observer>(this.obs);
 		for(Observer o : obs)
 			o.update(this, arg);
 	}
@@ -48,6 +53,11 @@ public class Observable implements Serializable {
 	protected void setChanged()
 	{
 		changed = true;
+	}
+	
+	public void removeObserver(Observer obs)
+	{
+		this.obs.remove(obs);
 	}
 
 }

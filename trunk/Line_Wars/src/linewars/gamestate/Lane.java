@@ -17,6 +17,7 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Rectangle;
@@ -147,7 +148,7 @@ public strictfp class Lane
 		ArrayList<MapItem> obstacles = new ArrayList<MapItem>();
 		for(MapItem m : os)
 			if (!(m instanceof Projectile || m instanceof Building)
-					&& unit.getCollisionStrategy().canCollideWith(m)
+					&& CollisionStrategyConfiguration.isAllowedToCollide(m, unit)
 					&& m.getState() != MapItemState.Moving)
 				obstacles.add(m);
 		//TODO this path finder is kinda crappy
@@ -572,14 +573,17 @@ public strictfp class Lane
 		List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
 		
 		
-		for(MapItem first : potentiallyCollidingUnits){//for each unit in the lane
+		for(Unit first : potentiallyCollidingUnits){//for each unit in the lane
 			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
 			
-			for(MapItem second : potentiallyCollidingUnits){//for each unit it could be colliding with
+			for(Unit second : potentiallyCollidingUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
 					if(first.isCollidingWith(second)){//if the two units are actually colliding
 						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
 						
+						second.getMovementStrategy().notifyOfCollision(offsetVector);
+						first.getMovementStrategy().notifyOfCollision(offsetVector.scale(-1));
+						/*
 						//Calculate how far they should be shifted
 						double distanceApart = offsetVector.length();
 						double radSum = first.getRadius() + second.getRadius();
@@ -635,11 +639,11 @@ public strictfp class Lane
 								Position newPosition = collisionVectors.get(first).add(offsetVector.scale(1));
 								collisionVectors.put(first, newPosition);								
 							}
-						}
+						}*/
 					}
 				}
 			}		
-
+/*
 		Random rand = new Random(gameState.getTimerTick());
 		//Then resolve them by shifting stuff around
 		for(MapItem toMove : potentiallyCollidingUnits){
@@ -650,7 +654,7 @@ public strictfp class Lane
 				offset = offset.add(new Position(xNoise, yNoise));
 				toMove.setPosition(toMove.getPosition().add(offset));				
 			}
-		}
+		}*/
 	}
 	
 	private LinkedList<Unit> sweepAndPrune()

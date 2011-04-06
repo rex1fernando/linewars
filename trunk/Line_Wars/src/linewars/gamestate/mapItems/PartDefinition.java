@@ -7,6 +7,11 @@ import linewars.gamestate.Transformation;
 
 public class PartDefinition extends MapItemDefinition<Part> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6955722405607312188L;
+
 	public PartDefinition() {
 		super();
 	}
@@ -19,6 +24,13 @@ public class PartDefinition extends MapItemDefinition<Part> {
 	@Override
 	protected void forceSubclassReloadConfiguration() {
 				
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof PartDefinition) &&
+				super.equals(obj);
 	}
 
 }

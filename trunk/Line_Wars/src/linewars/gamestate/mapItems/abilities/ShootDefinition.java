@@ -24,6 +24,11 @@ import editor.abilitiesstrategies.EditorUsage;
  */
 public strictfp class ShootDefinition extends AbilityDefinition implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6555026615288652899L;
+
 	static {
 		AbilityDefinition.setAbilityConfigMapping("Shoot", ShootDefinition.class, AbilityStrategyEditor.class);
 	}

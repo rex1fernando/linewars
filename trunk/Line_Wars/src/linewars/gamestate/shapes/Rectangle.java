@@ -28,8 +28,31 @@ public strictfp class Rectangle extends Shape {
 
 	@Override
 	public Shape stretch(Transformation change) {
-		// TODO Auto-generated method stub
-		return null;
+		Position deltaP = change.getPosition();
+		Position orthoDeltaP = deltaP.orthogonal();
+		Position[] points = getVertexPositions();
+		double minX = Double.MAX_VALUE;
+		double minY = minX;
+		double maxX = -1 * minX;
+		double maxY = maxX;
+		for(Position toConsider : points){
+			double projX = toConsider.scalarProjection(deltaP);
+			if(projX < minX) minX = projX;
+			if(projX > maxX) maxX = projX;
+			
+			double projY = toConsider.scalarProjection(orthoDeltaP);
+			if(projY < minY) minY = projY;
+			if(projY > maxY) maxY = projY;
+		}
+		
+		maxX += deltaP.length();
+		
+		double width = (maxX - minX) / 2;
+		double height = (maxY - minY) / 2;
+		Position newCenter = position.getPosition().add(deltaP.scale(0.5));
+		double angle = deltaP.getAngle();
+		
+		return new Rectangle(new Transformation(newCenter, angle), width, height);
 	}
 
 	@Override
@@ -104,7 +127,6 @@ public strictfp class Rectangle extends Shape {
 
 	@Override
 	public boolean positionIsInShape(Position toTest) {
-		//TODO test
 		//ray-casting algorithm, look it up.  Implementation might be wrong :(
 		int numCrossings = 0;
 		Position[] vertices = getVertexPositions();

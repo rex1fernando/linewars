@@ -60,6 +60,7 @@ public class TechDisplay extends JViewport
 	
 	private GridBagLayout treeLayout;
 
+	private TechPanel techPanel;
 	private MessageReceiver receiver;
 	private GameStateProvider stateManager;
 	
@@ -76,10 +77,11 @@ public class TechDisplay extends JViewport
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
 	 * @param techGraph The TechGraph this TechDisplay will show and edit.
 	 */
-	public TechDisplay(TechGraph techGraph)
+	public TechDisplay(TechPanel techPanel, TechGraph techGraph)
 	{
 		this.editorNOTgame = true;
 		this.techGraph = techGraph;
+		this.techPanel = techPanel;
 		
 		initializeDisplay();
 		
@@ -93,12 +95,13 @@ public class TechDisplay extends JViewport
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 * @param techGraph The TechGraph this TechDisplay will show.
 	 */
-	public TechDisplay(GameStateProvider stateManager, int pID, MessageReceiver receiver, TechGraph techGraph, int graphID, Animation arrow)
+	public TechDisplay(GameStateProvider stateManager, int pID, MessageReceiver receiver, TechPanel techPanel, TechGraph techGraph, int graphID, Animation arrow)
 	{
 		this.editorNOTgame = false;
 		this.pID = pID;
 		this.receiver = receiver;
 		this.techGraph = techGraph;
+		this.techPanel = techPanel;
 		this.graphID = graphID;
 		this.arrow = arrow;
 		this.arrowImages = new HashMap<String, Image>();
@@ -159,7 +162,12 @@ public class TechDisplay extends JViewport
 			ySize = techGraph.getMaxY();
 		}
 		
-		treeDisplay.setPreferredSize(new Dimension(xSize * TECH_BUTTON_SIZE, ySize * TECH_BUTTON_SIZE));
+		int prefWidth = (xSize + 1) * TECH_BUTTON_SIZE;
+		int prefHeight = (ySize + 1) * TECH_BUTTON_SIZE;
+		Dimension maxSize = techPanel.getMaxTechDisplaySize();
+		
+		treeDisplay.setPreferredSize(new Dimension(prefWidth, prefHeight));
+		setPreferredSize(new Dimension((int)Math.min(maxSize.getWidth(), prefWidth), (int)Math.min(maxSize.getHeight(), prefHeight)));
 		
 		List<TechNode> orderedTechList = techGraph.getOrderedList();
 		Iterator<TechNode> orderedListIterator = orderedTechList.iterator();
@@ -306,9 +314,6 @@ public class TechDisplay extends JViewport
 	
 				vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
 				g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
-				
-				drawDependencyLines(g, child);
-				child = node.getNextChild();
 			}
 			else
 			{
@@ -320,6 +325,9 @@ public class TechDisplay extends JViewport
 				
 				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
 			}
+			
+			drawDependencyLines(g, child);
+			child = node.getNextChild();
 		}
 	}
 	

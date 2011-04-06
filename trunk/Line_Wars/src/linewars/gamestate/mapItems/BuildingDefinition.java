@@ -21,6 +21,10 @@ import linewars.gamestate.mapItems.abilities.AbilityDefinition;
  */
 public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Building> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8970630381058998453L;
 	private double cost;
 	private double buildTime;
 	private IconConfiguration iconConfig;

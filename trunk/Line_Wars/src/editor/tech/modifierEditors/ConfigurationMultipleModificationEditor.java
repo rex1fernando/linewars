@@ -13,6 +13,7 @@ import linewars.gamestate.tech.ModifierConfiguration.ModifierMetaData;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
+import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.GenericSelector.GenericListCallback;
 import editor.ListGenericSelector;
@@ -30,12 +31,14 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 	
 	private String highlightedString;
 	private ModifierEditor subEditor;
+	private BigFrameworkGuy bfgReference;
 	
 	static{
 		ModifierEditor.setEditorForModifier(MultipleSubModificationModification.class, ConfigurationMultipleModificationEditor.class);
 	}
 
-	public ConfigurationMultipleModificationEditor(Property property) {
+	public ConfigurationMultipleModificationEditor(Property property, BigFrameworkGuy bfgReference) {
+		this.bfgReference = bfgReference;
 		if(property.getUsage() != validUsage){
 			//FIXME do something here?
 		}
@@ -227,7 +230,13 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 				//we have to prompt the user to choose a way to modify this property
 				selectedModificationType = ModifierConfiguration.promptUserToSelectModificationType(panel, validModifications);
 			}
+			
 			newSubEditorType = ModifierEditor.getEditorForModifier(selectedModificationType);
+			ModifierEditor subEditor = instantiateSubEditor(newSubEditorType);
+			
+			if(data.getSubModification(highlightedString) == null){
+				data.setSubModification(highlightedString, (ModifierConfiguration) subEditor.instantiateNewConfiguration());
+			}
 			
 			setSubEditor(instantiateSubEditor(newSubEditorType));
 		}
@@ -238,17 +247,21 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 			
 			try {
 				newSubEditorConstructor = newSubEditorType.getConstructor(Property.class);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) {}
+			
+			try{
+				newSubEditorConstructor = newSubEditorType.getConstructor(Property.class, BigFrameworkGuy.class);
+			}catch(Exception e){}
 			
 			Property arg1 = template.getPropertyForName(highlightedString);
 			ModifierEditor ret = null;
 			try {
 				ret = newSubEditorConstructor.newInstance(arg1);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) {}
+			
+			try {
+				ret = newSubEditorConstructor.newInstance(arg1, bfgReference);
+			}catch(Exception e){}
 			
 			return ret;
 		}

@@ -1,11 +1,16 @@
 package linewars.gameLogic;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import configuration.Configuration;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Map;
 import linewars.gamestate.MapConfiguration;
+import linewars.gamestate.Race;
 import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
@@ -40,6 +45,32 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		
 		lastUpdateTime = System.currentTimeMillis();
 		lastLastUpdateTime = System.currentTimeMillis();
+	}
+
+	//NOTE: this method is no longer necessery, but I'll leave it here just in case
+	private List<PlayerData> copyPlayerData(List<PlayerData> players) {
+		List<PlayerData> copyOfPlayers = new ArrayList<PlayerData>();
+		for(PlayerData player : players)
+		{
+			PlayerData newPlayer = new PlayerData();
+			newPlayer.setColor(player.getColor());
+			newPlayer.setName(player.getName());
+			newPlayer.setStartingSlot(player.getStartingSlot());
+			Race r = null;
+			try {
+				r = (Race) Configuration.copyConfiguration(player.getRace());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			if(r == player.getRace() || r == null)
+				throw new RuntimeException("Player race did not copy correctly");
+			
+			newPlayer.setRace(r);
+			copyOfPlayers.add(newPlayer);			
+		}
+		return copyOfPlayers;
 	}
 	
 	@Override

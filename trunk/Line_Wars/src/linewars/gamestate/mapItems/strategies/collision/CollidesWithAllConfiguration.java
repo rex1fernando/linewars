@@ -15,6 +15,11 @@ import linewars.gamestate.mapItems.strategies.collision.NoCollisionConfiguration
  */
 public strictfp class CollidesWithAllConfiguration extends CollisionStrategyConfiguration {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4045511208789704059L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Collides with All",
 				CollidesWithAllConfiguration.class, AbilityStrategyEditor.class);
@@ -32,10 +37,7 @@ public strictfp class CollidesWithAllConfiguration extends CollisionStrategyConf
 		
 		@Override
 		public boolean canCollideWith(MapItem m) {
-			if(m.getCollisionStrategy() instanceof NoCollision)
-				return m.getCollisionStrategy().canCollideWith(mapItem);
-			else
-				return true;
+			return m.getCollisionStrategy().canCollideWith(mapItem);
 		}
 	
 		@Override

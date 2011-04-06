@@ -65,7 +65,7 @@ public class RaceChooser implements ConfigurationEditor {
 		}
 		Class<? extends ModifierEditor> editorType = ModifierEditor.getEditorForModifier(modification.getClass());
 		try {
-			subEditor = editorType.getConstructor(Property.class).newInstance(new Property(Usage.CONFIGURATION, selectedRace));
+			subEditor = editorType.getConstructor(Property.class, BigFrameworkGuy.class).newInstance(new Property(Usage.CONFIGURATION, selectedRace), bfg);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Something went wrong invoking the one-argument constructor of " + editorType + " that should exist but might not.");
