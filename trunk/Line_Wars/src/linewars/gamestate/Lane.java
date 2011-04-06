@@ -860,12 +860,12 @@ public strictfp class Lane
 	
 	private void updateSweepAndPruneStructures() 
 	{
-/*		if (this.sweepAndPruneStructuresNeedUpdate) 
-		{*/
+		if (this.sweepAndPruneStructuresNeedUpdate) 
+		{
 			List<Unit> allUnits = getCollidableMapItems();
 			initializeSortedUnits(allUnits);
 			this.sweepAndPruneStructuresNeedUpdate = false;
-		/*}*/
+		}
 		sortUnits();
 	}
 
