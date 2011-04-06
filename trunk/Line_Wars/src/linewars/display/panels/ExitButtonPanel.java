@@ -65,7 +65,21 @@ public class ExitButtonPanel extends Panel
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				ExitButtonPanel.this.display.exitGame();
+				Object[] options = {"Yes",
+				"No"};
+				int n = JOptionPane.showOptionDialog(getParent(),
+						"Are you sure you want to exit?",
+						"Exit",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[0]);
+
+				if(n == JOptionPane.YES_OPTION)
+				{
+					ExitButtonPanel.this.display.exitGame();
+				}
 			}
 		});
 		add(exitButton);

@@ -119,21 +119,7 @@ public class Display extends JFrame implements Runnable
 	public void exitGame()
 	{
 		//TODO go back to the lobby system
-		Object[] options = {"Yes",
-		"No"};
-		int n = JOptionPane.showOptionDialog(this,
-				"Are you sure you want to exit?",
-				"Exit",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,
-				options,
-				options[0]);
-
-		if(n == JOptionPane.YES_OPTION)
-		{
-			dispose();
-		}
+		dispose();
 	}
 	
 	/**
