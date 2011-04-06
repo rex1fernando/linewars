@@ -73,8 +73,10 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 			((Observable)this.getPropertyForName("containedItems").getValue()).addObserver(this);
 		if(o == this && obj.equals("relativeTrans"))
 			((Observable)this.getPropertyForName("relativeTrans").getValue()).addObserver(this);
-		if(o == this.getPropertyForName("relativeTrans").getValue() || 
-				o == this.getPropertyForName("containedItems").getValue())
+		if((this.getPropertyForName("relativeTrans")!= null 
+				&& o == this.getPropertyForName("relativeTrans").getValue()) || 
+				(this.getPropertyForName("containedItems") != null
+						&& o == this.getPropertyForName("containedItems").getValue()))
 		{
 			this.setChanged();
 			this.notifyObservers("containedItems");
