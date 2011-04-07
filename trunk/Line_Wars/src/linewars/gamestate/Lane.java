@@ -437,8 +437,21 @@ public strictfp class Lane
 	 */
 	public List<Unit> getUnitsIn(AABB box)
 	{
-		//TODO implement this
-		return null;
+		//TODO implement this using sweep and prune data structures
+		List<Unit> ret = new LinkedList<Unit>();
+		for(Wave w : waves)
+		{
+			for(Unit u : w.getUnits())
+			{
+				AABB body = u.getBody().getAABB();
+				if(body.getXMax() > box.getXMin() &&
+				   body.getXMin() < box.getXMax() &&
+				   body.getYMax() > box.getYMin() &&
+				   body.getYMin() < box.getYMax())
+					ret.add(u);
+			}
+		}
+		return ret;
 	}
 	
 	/**
