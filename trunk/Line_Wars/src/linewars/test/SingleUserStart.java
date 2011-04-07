@@ -21,7 +21,7 @@ public class SingleUserStart
 	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException
 	{
 		//get the map
-		MapConfiguration testMap = (MapConfiguration)(new ObjectInputStream(new FileInputStream(new File("resources/maps/testMap.cfg"))).readObject());
+		MapConfiguration testMap = (MapConfiguration)(new ObjectInputStream(new FileInputStream(new File("resources/maps/dipskiTestMap.cfg"))).readObject());
 //		for(NodeConfiguration n : testMap.nodes())
 //			n.setStartNode(true);
 		
