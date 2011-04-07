@@ -93,11 +93,6 @@ public class WindowManager extends JFrame
 		// TODO implement
 	}
 	
-	public void gotoCredits()
-	{
-		// TODO implement
-	}
-	
 	public void exitGame()
 	{
 		dispose();
@@ -146,7 +141,8 @@ public class WindowManager extends JFrame
 		
 		private void setBackgroundImage(JPanel p)
 		{
-			if (p == titleMenu) image = MenuImage.titleBackground;
+			if (p == titleMenu) image = MenuImage.background_title;
+			else if (p == createMenu) image = MenuImage.background_lobby;
 		}
 		
 		@Override

@@ -4,6 +4,7 @@ package menu.panels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -18,12 +19,15 @@ import javax.swing.event.ListDataListener;
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import menu.ContentProvider;
+import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
 import menu.components.ComboBoxRenderer;
+import menu.components.CustomLabel;
 import menu.components.MenuButton;
 import menu.components.MenuComboBox;
 import menu.components.MenuScrollPane;
 import menu.components.MenuTextArea;
+import menu.components.MenuTextField;
 import menu.networking.Client;
 import menu.networking.MessageType;
 import menu.networking.PlayerBean;
@@ -48,10 +52,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
     @Override
     public void paintComponent(Graphics g)
     {
-    	// TODO FIX THE OPACITY
-    	Color filter = new Color(255, 255, 255, 50);
-    	g.setColor(filter);
-    	g.fillRect(0, 0, getWidth(), getHeight());
+    	Image img = ContentProvider.getImageResource(MenuImage.lobby_back);
+    	g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
     }
     
     public void startServer() throws IOException {
@@ -107,6 +109,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     public void setPlayerColor(final int playerId, final Color color) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
     		players.get(playerId).color.setSelectedItem(color);
+    		System.out.println(players.get(playerId).race.getSize());
     	}});
     }
     
@@ -147,6 +150,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	isServer = false;
     	client = null;
         initComponents();
+        replayToggleButton.setEnabled(false);
+        selectionComboBox.setPreferredSize(new Dimension(100, 28));
     }
     
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -423,11 +428,11 @@ public class CreateGamePanel extends javax.swing.JPanel {
         previewPanel = new javax.swing.JPanel();
         chatWindow = new javax.swing.JPanel();
         chatArea = new MenuTextArea();
-        chatField = new javax.swing.JTextField();
-        sendButton = new MenuButton();
+        chatField = new MenuTextField();
+        sendButton = new MenuButton(MenuImage.lobby_button_default, MenuImage.lobby_button_rollover, 12);
         buttonPanel = new javax.swing.JPanel();
-        startButton = new MenuButton();
-        cancelButton = new MenuButton();
+        startButton = new MenuButton(MenuImage.lobby_button_default, MenuImage.lobby_button_rollover, 12);
+        cancelButton = new MenuButton(MenuImage.lobby_button_default, MenuImage.lobby_button_rollover, 12);
         lobbyScrollPane = new MenuScrollPane();
         lobbyPanel = new javax.swing.JPanel();
         chatScrollPane1 = new MenuScrollPane();
@@ -435,11 +440,11 @@ public class CreateGamePanel extends javax.swing.JPanel {
         setMaximumSize(new java.awt.Dimension(1024, 640));
         setMinimumSize(new java.awt.Dimension(1024, 640));
 
-        replayLabel.setFont(new java.awt.Font("Ubuntu", 1, 18));
+        replayLabel.setFont(ContentProvider.FONT.deriveFont(18.0f));
         replayLabel.setText("Replay");
         replayLabel.setFocusable(false);
 
-        selectionLabel.setFont(new java.awt.Font("Ubuntu", 1, 18));
+        selectionLabel.setFont(ContentProvider.FONT.deriveFont(18.0f));
         selectionLabel.setText("Map Selection");
         selectionLabel.setFocusable(false);
 
@@ -553,8 +558,10 @@ public class CreateGamePanel extends javax.swing.JPanel {
         lobbyScrollPane.setOpaque(false);
         lobbyScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        lobbyScrollPane.setBorder(null);
 
         lobbyPanel.setOpaque(false);
+        lobbyPanel.setBorder(null);
         lobbyPanel.setLayout(new javax.swing.BoxLayout(lobbyPanel, javax.swing.BoxLayout.Y_AXIS));
 
         lobbyScrollPane.setViewportView(lobbyPanel);

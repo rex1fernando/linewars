@@ -1,8 +1,6 @@
 package menu.panels;
 
-import java.awt.Color;
-import java.awt.Graphics;
-
+import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
 import menu.components.MenuButton;
 
@@ -17,13 +15,13 @@ public class TitlePanel extends javax.swing.JPanel {
     }
                       
     private void initComponents() {
-
-        createGameButton = new MenuButton();
-        joinGameButton = new MenuButton();
-        launchEditorButton = new MenuButton();
-        optionsButton = new MenuButton();
-        creditsButton = new MenuButton();
-        exitButton = new MenuButton();
+    	
+    	float size = 20;
+        createGameButton = new MenuButton(MenuImage.menu_button_default, MenuImage.menu_button_rollover, size);
+        joinGameButton = new MenuButton(MenuImage.menu_button_default, MenuImage.menu_button_rollover, size);
+        launchEditorButton = new MenuButton(MenuImage.menu_button_default, MenuImage.menu_button_rollover, size);
+        optionsButton = new MenuButton(MenuImage.menu_button_default, MenuImage.menu_button_rollover, size);
+        exitButton = new MenuButton(MenuImage.menu_button_default, MenuImage.menu_button_rollover, size);
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(100, 200, 100, 200));
         setMaximumSize(new java.awt.Dimension(1024, 640));
@@ -65,14 +63,6 @@ public class TitlePanel extends javax.swing.JPanel {
         });
         add(optionsButton);
 
-        creditsButton.setText("Credits");
-        creditsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                creditsButtonActionPerformed(evt);
-            }
-        });
-        add(creditsButton);
-
         exitButton.setText("Exit");
         exitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -98,18 +88,13 @@ public class TitlePanel extends javax.swing.JPanel {
 
     private void optionsButtonActionPerformed(java.awt.event.ActionEvent evt) {                                              
     	windowManager.gotoOptions();
-    }                                             
-
-    private void creditsButtonActionPerformed(java.awt.event.ActionEvent evt) {                                              
-        windowManager.gotoCredits();
-    }                                             
+    }                                                                                      
 
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {                                     
     	windowManager.exitGame();
     }
           
     private javax.swing.JButton createGameButton;
-    private javax.swing.JButton creditsButton;
     private javax.swing.JButton exitButton;
     private javax.swing.JButton joinGameButton;
     private javax.swing.JButton launchEditorButton;
