@@ -21,8 +21,11 @@ import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
 import linewars.network.messages.Message;
@@ -46,6 +49,16 @@ public class CommandCardPanel extends Panel
 	 */
 	private static final int DEFAULT_WIDTH = 486;
 	private static final int DEFAULT_HEIGHT = 374;
+	
+	private static final int NUM_ACTIVE_ABILITIES = 3;
+	
+	private static final int ABILITY_HEIGHT = 75;
+	
+	private static final int ABILITY_PANEL_X = 90;
+	private static final int ABILITY_PANEL_Y = 0;
+	
+	private static final int ABILITY_PANEL_WIDTH = 386;
+	private static final int ABILITY_PANEL_HEIGHT = 70;
 
 	/**
 	 * The number of buttons on the command card
@@ -68,9 +81,17 @@ public class CommandCardPanel extends Panel
 	/**
 	 * The gaps between the command buttons
 	 */
-	private static final int BTN_PANEL_H_GAP = 10;
-	private static final int BTN_PANEL_V_GAP = 10;
+	private static final int BTN_H_GAP = 10;
+	private static final int BTN_V_GAP = 10;
 
+	private JPanel abilityPanel;
+	private CommandButton[] activeAbilities;
+	private ButtonIcon[] abilityIcons;
+	private ButtonIcon[] abilityPressedIcons;
+	private ButtonIcon[] abilityRolloverIcons;
+	private ButtonIcon[] abilitySelectedIcons;
+	private ActiveAbilityHandler[] abilityEvents;
+	
 	private JPanel buttonPanel;
 	private CommandButton[] buttons;
 	private ButtonIcon[] buttonIcons;
@@ -81,6 +102,8 @@ public class CommandCardPanel extends Panel
 
 	private Display display;
 	private MessageReceiver receiver;
+	private int playerID;
+	private boolean displayed;
 
 	/**
 	 * Creates a new CommandCardPanel object.
@@ -101,9 +124,44 @@ public class CommandCardPanel extends Panel
 
 		this.display = display;
 		this.receiver = receiver;
+		this.playerID = pID;
+		this.displayed = false;
+		
+		abilityPanel = new JPanel(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
+		abilityPanel.setOpaque(false);
+		
+		activeAbilities = new CommandButton[NUM_ACTIVE_ABILITIES];
+		abilityIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
+		abilityPressedIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
+		abilityRolloverIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
+		abilitySelectedIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
+		abilityEvents = new ActiveAbilityHandler[NUM_ACTIVE_ABILITIES];
+		List<PlayerAbility> abilities = stateManager.getCurrentGameState().getPlayer(pID).getAllPlayerAbilities();
+		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
+		{
+			activeAbilities[i] = new CommandButton();
+			activeAbilities[i].setOpaque(false);
+			activeAbilities[i].setVisible(false);
+			abilityPanel.add(activeAbilities[i]);
+			
+			abilityIcons[i] = new ButtonIcon(activeAbilities[i]);
+			activeAbilities[i].setIcon(abilityIcons[i]);
+			
+			abilityPressedIcons[i] = new ButtonIcon(activeAbilities[i]);
+			activeAbilities[i].setPressedIcon(abilityPressedIcons[i]);
+			
+			abilityRolloverIcons[i] = new ButtonIcon(activeAbilities[i]);
+			activeAbilities[i].setRolloverIcon(abilityRolloverIcons[i]);
+			
+			abilitySelectedIcons[i] = new ButtonIcon(activeAbilities[i]);
+			activeAbilities[i].setSelectedIcon(abilitySelectedIcons[i]);
 
-		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor),
-				(int)(BTN_PANEL_V_GAP * scaleFactor)));
+			abilityEvents[i] = new ActiveAbilityHandler(abilities);
+			activeAbilities[i].addActionListener(abilityEvents[i]);
+		}
+
+		buttonPanel = new JPanel(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_H_GAP * scaleFactor),
+				(int)(BTN_V_GAP * scaleFactor)));
 		buttonPanel.setOpaque(false);
 
 		buttons = new CommandButton[NUM_V_BUTTONS * NUM_H_BUTTONS];
@@ -138,6 +196,7 @@ public class CommandCardPanel extends Panel
 			buttons[i].addActionListener(clickEvents[i]);
 		}
 
+		add(abilityPanel);
 		add(buttonPanel);
 		validate();
 	}
@@ -149,14 +208,47 @@ public class CommandCardPanel extends Panel
 
 		super.updateLocation();
 
-		setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
+		if(isDisplayed())
+			setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - getHeight());
+		else
+			setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - (int)(scaleFactor * ABILITY_HEIGHT));
 
-		// resizes the inner panel
-		buttonPanel.setLayout(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_PANEL_H_GAP * scaleFactor), (int)(BTN_PANEL_V_GAP * scaleFactor)));
+		// resizes the inner panels
+		abilityPanel.setLayout(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
+		abilityPanel.setLocation((int)(ABILITY_PANEL_X * scaleFactor), (int)(ABILITY_PANEL_Y * scaleFactor));
+		abilityPanel.setSize((int)(ABILITY_PANEL_WIDTH * scaleFactor), (int)(ABILITY_PANEL_HEIGHT * scaleFactor));
+		
+		buttonPanel.setLayout(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		buttonPanel.setLocation((int)(BTN_PANEL_X * scaleFactor), (int)(BTN_PANEL_Y * scaleFactor));
 		buttonPanel.setSize((int)(BTN_PANEL_WIDTH * scaleFactor), (int)(BTN_PANEL_HEIGHT * scaleFactor));
 	}
-
+	
+	private boolean isDisplayed()
+	{
+		return displayed;
+	}
+	
+	private void setDisplayed(boolean disp)
+	{
+		if(displayed == disp)
+			return;
+		
+		displayed = disp;
+		updateLocation();
+	}
+	
+	private void addIconImage(String uri, int width, int height)
+	{
+		try
+		{
+			ImageDrawer.getInstance().addImage(uri, width, height);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Updates the icons, the action, and the tooltip of every button in the
 	 * panel. Also handles disabling buttons if they are not usable.
@@ -168,29 +260,70 @@ public class CommandCardPanel extends Panel
 	 */
 	public void updateButtons(GameState state, Node node)
 	{
-		int pID = node.getOwner().getPlayerID();
-		List<BuildingDefinition> buildings = state.getPlayer(pID).getRace().getUnlockedBuildings();
-		for(int i = 0; i < buildings.size(); ++i)
+		Player player = state.getPlayer(playerID);
+		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
+		List<PlayerAbility> unlockedAbilities = player.getUnlockedPlayerAbilities();
+		for(int i = 0; i < unlockedAbilities.size(); ++i)
 		{
-			BuildingDefinition def = buildings.get(i);
+			PlayerAbility ability = unlockedAbilities.get(i);
+			IconConfiguration icons = (IconConfiguration)ability.getIconConfiguration();
+
+			String iconURI = icons.getIconURI(IconType.regular);
+			String pressedURI = icons.getIconURI(IconType.pressed);
+			String rolloverURI = icons.getIconURI(IconType.rollover);
+			String selectedURI = icons.getIconURI(IconType.highlighted);
+
+			int width = activeAbilities[i].getWidth();
+			int height = activeAbilities[i].getHeight();
+			if(width > 0 && height > 0)
+			{
+				
+				addIconImage(iconURI, width, height);
+				addIconImage(pressedURI, width, height);
+				addIconImage(rolloverURI, width, height);
+				addIconImage(selectedURI, width, height);
+			}
+
+			activeAbilities[i].setVisible(true);
+			abilityIcons[i].setURI(iconURI);
+			abilityPressedIcons[i].setURI(pressedURI);
+			abilityRolloverIcons[i].setURI(rolloverURI);
+			abilitySelectedIcons[i].setURI(selectedURI);
+			activeAbilities[i].setToolTipText(ability.getTooltip());
+			abilityEvents[i].setAbility(allAbilities.indexOf(ability));
+			activeAbilities[i].setEnabled(true);
+		}
+		
+		if(node == null)
+		{
+			setDisplayed(false);
+			return;
+		}
+		else
+		{
+			setDisplayed(true);
+		}
+		
+		List<BuildingDefinition> allBuildings = player.getRace().getAllBuildings();
+		List<BuildingDefinition> unlockedBuildings = player.getRace().getUnlockedBuildings();
+		for(int i = 0; i < unlockedBuildings.size(); ++i)
+		{
+			BuildingDefinition def = unlockedBuildings.get(i);
 			IconConfiguration icons = def.getIconConfig();
 
 			String iconURI = icons.getIconURI(IconType.regular);
 			String pressedURI = icons.getIconURI(IconType.pressed);
 			String rolloverURI = icons.getIconURI(IconType.rollover);
 			String selectedURI = icons.getIconURI(IconType.highlighted);
-			try
+			int width = buttons[i].getWidth();
+			int height = buttons[i].getHeight();
+			if(width > 0 && height > 0)
 			{
-				int width = buttons[i].getWidth();
-				int height = buttons[i].getHeight();
-				ImageDrawer.getInstance().addImage(iconURI, width, height);
-				ImageDrawer.getInstance().addImage(pressedURI, width, height);
-				ImageDrawer.getInstance().addImage(rolloverURI, width, height);
-				ImageDrawer.getInstance().addImage(selectedURI, width, height);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
+				
+				addIconImage(iconURI, width, height);
+				addIconImage(pressedURI, width, height);
+				addIconImage(rolloverURI, width, height);
+				addIconImage(selectedURI, width, height);
 			}
 
 			buttons[i].setVisible(true);
@@ -199,7 +332,7 @@ public class CommandCardPanel extends Panel
 			rolloverIcons[i].setURI(rolloverURI);
 			selectedIcons[i].setURI(selectedURI);
 			buttons[i].setToolTipText(def.getToolTip());
-			clickEvents[i].setAbility(node, def);
+			clickEvents[i].setAbility(node.getID(), allBuildings.indexOf(def));
 			buttons[i].setEnabled(true);
 		}
 	}
@@ -215,15 +348,32 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void paint(Graphics g)
 		{
+			Icon pressedIcon = getPressedIcon();
+			Icon selectedIcon = getSelectedIcon();
+			Icon rolloverIcon = getRolloverIcon();
+			Icon icon = getIcon();
+
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
 			if(model.isPressed())
-				getPressedIcon().paintIcon(this, g, 0, 0);
+			{
+				if(pressedIcon != null)
+					pressedIcon.paintIcon(this, g, 0, 0);
+			}
 			else if(model.isSelected())
-				getSelectedIcon().paintIcon(this, g, 0, 0);
+			{
+				if(selectedIcon != null)
+					selectedIcon.paintIcon(this, g, 0, 0);
+			}
 			else if(model.isRollover())
-				getRolloverIcon().paintIcon(this, g, 0, 0);
+			{
+				if(rolloverIcon != null)
+					rolloverIcon.paintIcon(this, g, 0, 0);
+			}
 			else
-				getIcon().paintIcon(this, g, 0, 0);
+			{
+				if(icon != null)
+					icon.paintIcon(this, g, 0, 0);
+			}
 		}
 	}
 
@@ -260,6 +410,11 @@ public class CommandCardPanel extends Panel
 		{
 			uri = newUri;
 		}
+		
+		public String getURI()
+		{
+			return uri;
+		}
 
 		@Override
 		public int getIconHeight()
@@ -288,8 +443,8 @@ public class CommandCardPanel extends Panel
 	 */
 	private class ClickHandler implements ActionListener
 	{
-		private Node node;
-		private BuildingDefinition building;
+		private int nodeID;
+		private int buildingID;
 		private List<BuildingDefinition> buildings;
 		
 		public ClickHandler(List<BuildingDefinition> buildings)
@@ -300,12 +455,7 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			int pID = node.getOwner().getPlayerID();
-			int buildingID = buildings.indexOf(building);
-			if(buildingID < 0)
-				buildings.indexOf(building);
-			
-			Message message = new BuildMessage(pID, node.getID(), buildingID);
+			Message message = new BuildMessage(playerID, nodeID, buildingID);
 
 			CommandCardPanel.this.receiver.addMessage(message);
 		}
@@ -318,10 +468,32 @@ public class CommandCardPanel extends Panel
 		 * @param building
 		 *            The definition of the ability that this will apply.
 		 */
-		public void setAbility(Node node, BuildingDefinition building)
+		public void setAbility(int nodeID, int buildingID)
 		{
-			this.node = node;
-			this.building = building;
+			this.nodeID = nodeID;
+			this.buildingID = buildingID;
+		}
+	}
+	
+	private class ActiveAbilityHandler implements ActionListener
+	{
+		private int abilityID;
+		private List<PlayerAbility> abilities;
+		
+		public ActiveAbilityHandler(List<PlayerAbility> abilities)
+		{
+			this.abilities = abilities;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			display.setActiveAbilityIndex(abilityID);
+		}
+		
+		private void setAbility(int abilityID)
+		{
+			this.abilityID = abilityID;
 		}
 	}
 }
