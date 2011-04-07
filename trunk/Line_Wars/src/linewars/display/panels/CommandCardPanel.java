@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultButtonModel;
@@ -23,11 +24,13 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
+import linewars.network.messages.DestroyMessage;
 import linewars.network.messages.Message;
 
 /**
@@ -49,6 +52,12 @@ public class CommandCardPanel extends Panel
 	 */
 	private static final int DEFAULT_WIDTH = 486;
 	private static final int DEFAULT_HEIGHT = 374;
+	
+	private static final int TOGGLE_PANEL_X = 0;
+	private static final int TOGGLE_PANEL_Y = 80;
+	
+	private static final int TOGGLE_PANEL_WIDTH = 80;
+	private static final int TOGGLE_PANEL_HEIGHT = 200;
 	
 	private static final int NUM_ACTIVE_ABILITIES = 3;
 	
@@ -83,6 +92,11 @@ public class CommandCardPanel extends Panel
 	 */
 	private static final int BTN_H_GAP = 10;
 	private static final int BTN_V_GAP = 10;
+	
+	private JPanel togglePanel;
+	private JButton buildButton;
+	private JButton destroyButton;
+	private boolean buildNotDestroy;
 
 	private JPanel abilityPanel;
 	private CommandButton[] activeAbilities;
@@ -127,6 +141,19 @@ public class CommandCardPanel extends Panel
 		this.playerID = pID;
 		this.displayed = false;
 		
+		togglePanel = new JPanel(new GridLayout(2, 1));
+		buildNotDestroy = true;
+		
+		buildButton = new JButton("B");
+		destroyButton = new JButton("D");
+		
+		ToggleListener toggle = new ToggleListener();
+		buildButton.addActionListener(toggle);
+		destroyButton.addActionListener(toggle);
+		
+		togglePanel.add(buildButton);
+		togglePanel.add(destroyButton);
+		
 		abilityPanel = new JPanel(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		abilityPanel.setOpaque(false);
 		
@@ -136,7 +163,6 @@ public class CommandCardPanel extends Panel
 		abilityRolloverIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
 		abilitySelectedIcons = new ButtonIcon[NUM_ACTIVE_ABILITIES];
 		abilityEvents = new ActiveAbilityHandler[NUM_ACTIVE_ABILITIES];
-		List<PlayerAbility> abilities = stateManager.getCurrentGameState().getPlayer(pID).getAllPlayerAbilities();
 		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
 		{
 			activeAbilities[i] = new CommandButton();
@@ -156,7 +182,7 @@ public class CommandCardPanel extends Panel
 			abilitySelectedIcons[i] = new ButtonIcon(activeAbilities[i]);
 			activeAbilities[i].setSelectedIcon(abilitySelectedIcons[i]);
 
-			abilityEvents[i] = new ActiveAbilityHandler(abilities);
+			abilityEvents[i] = new ActiveAbilityHandler();
 			activeAbilities[i].addActionListener(abilityEvents[i]);
 		}
 
@@ -189,13 +215,11 @@ public class CommandCardPanel extends Panel
 			selectedIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setSelectedIcon(selectedIcons[i]);
 
-			clickEvents[i] = new ClickHandler(stateManager.getCurrentGameState()
-					.getPlayer(pID)
-					.getRace()
-					.getAllBuildings());
+			clickEvents[i] = new ClickHandler();
 			buttons[i].addActionListener(clickEvents[i]);
 		}
 
+		add(togglePanel);
 		add(abilityPanel);
 		add(buttonPanel);
 		validate();
@@ -214,6 +238,9 @@ public class CommandCardPanel extends Panel
 			setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - (int)(scaleFactor * ABILITY_HEIGHT));
 
 		// resizes the inner panels
+		togglePanel.setLocation((int)(TOGGLE_PANEL_X * scaleFactor), (int)(TOGGLE_PANEL_Y * scaleFactor));
+		togglePanel.setSize((int)(TOGGLE_PANEL_WIDTH * scaleFactor), (int)(TOGGLE_PANEL_HEIGHT * scaleFactor));
+
 		abilityPanel.setLayout(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		abilityPanel.setLocation((int)(ABILITY_PANEL_X * scaleFactor), (int)(ABILITY_PANEL_Y * scaleFactor));
 		abilityPanel.setSize((int)(ABILITY_PANEL_WIDTH * scaleFactor), (int)(ABILITY_PANEL_HEIGHT * scaleFactor));
@@ -235,6 +262,13 @@ public class CommandCardPanel extends Panel
 		
 		displayed = disp;
 		updateLocation();
+	}
+	
+	public void setBuildNotDestroy(boolean buildNotDestroy)
+	{
+		buildButton.setSelected(buildNotDestroy);
+		destroyButton.setSelected(!buildNotDestroy);
+		this.buildNotDestroy = buildNotDestroy;
 	}
 	
 	private void addIconImage(String uri, int width, int height)
@@ -263,8 +297,15 @@ public class CommandCardPanel extends Panel
 		Player player = state.getPlayer(playerID);
 		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
 		List<PlayerAbility> unlockedAbilities = player.getUnlockedPlayerAbilities();
-		for(int i = 0; i < unlockedAbilities.size(); ++i)
+		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
 		{
+			if(i >= unlockedAbilities.size())
+			{
+				activeAbilities[i].setVisible(false);
+				activeAbilities[i].setEnabled(false);
+				continue;
+			}
+			
 			PlayerAbility ability = unlockedAbilities.get(i);
 			IconConfiguration icons = (IconConfiguration)ability.getIconConfiguration();
 
@@ -304,13 +345,34 @@ public class CommandCardPanel extends Panel
 			setDisplayed(true);
 		}
 		
-		List<BuildingDefinition> allBuildings = player.getRace().getAllBuildings();
-		List<BuildingDefinition> unlockedBuildings = player.getRace().getUnlockedBuildings();
-		for(int i = 0; i < unlockedBuildings.size(); ++i)
+		List<BuildingDefinition> displayedBuildings;
+		if(buildNotDestroy)
 		{
-			BuildingDefinition def = unlockedBuildings.get(i);
-			IconConfiguration icons = def.getIconConfig();
+			displayedBuildings = player.getRace().getUnlockedBuildings();
+		}
+		else
+		{
+			Building[] containedBuildings = node.getContainedBuildings();
+			displayedBuildings = new ArrayList<BuildingDefinition>(containedBuildings.length);
+			for(int i = 0; i < containedBuildings.length; ++i)
+			{
+				displayedBuildings.add((BuildingDefinition)containedBuildings[i].getDefinition());
+			}
+		}
+		
+		List<BuildingDefinition> allBuildings = player.getRace().getAllBuildings();
+		for(int i = 0; i < NUM_V_BUTTONS * NUM_H_BUTTONS; ++i)
+		{
+			if(i >= displayedBuildings.size())
+			{
+				buttons[i].setVisible(false);
+				buttons[i].setEnabled(false);
+				continue;
+			}
 
+			BuildingDefinition def = displayedBuildings.get(i);
+			IconConfiguration icons = def.getIconConfig();
+			
 			String iconURI = icons.getIconURI(IconType.regular);
 			String pressedURI = icons.getIconURI(IconType.pressed);
 			String rolloverURI = icons.getIconURI(IconType.rollover);
@@ -325,7 +387,7 @@ public class CommandCardPanel extends Panel
 				addIconImage(rolloverURI, width, height);
 				addIconImage(selectedURI, width, height);
 			}
-
+			
 			buttons[i].setVisible(true);
 			buttonIcons[i].setURI(iconURI);
 			pressedIcons[i].setURI(pressedURI);
@@ -445,17 +507,16 @@ public class CommandCardPanel extends Panel
 	{
 		private int nodeID;
 		private int buildingID;
-		private List<BuildingDefinition> buildings;
 		
-		public ClickHandler(List<BuildingDefinition> buildings)
-		{
-			this.buildings = buildings;
-		}
-
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Message message = new BuildMessage(playerID, nodeID, buildingID);
+			Message message;
+			
+			if(buildNotDestroy)
+				message = new BuildMessage(playerID, nodeID, buildingID);
+			else
+				message = new DestroyMessage(playerID, nodeID, buildingID);
 
 			CommandCardPanel.this.receiver.addMessage(message);
 		}
@@ -478,12 +539,6 @@ public class CommandCardPanel extends Panel
 	private class ActiveAbilityHandler implements ActionListener
 	{
 		private int abilityID;
-		private List<PlayerAbility> abilities;
-		
-		public ActiveAbilityHandler(List<PlayerAbility> abilities)
-		{
-			this.abilities = abilities;
-		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -494,6 +549,24 @@ public class CommandCardPanel extends Panel
 		private void setAbility(int abilityID)
 		{
 			this.abilityID = abilityID;
+		}
+	}
+	
+	private class ToggleListener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			Object source = e.getSource();
+			if(source == buildButton)
+			{
+				setBuildNotDestroy(true);
+			}
+			else if(source == destroyButton)
+			{
+				setBuildNotDestroy(false);
+			}
 		}
 	}
 }
