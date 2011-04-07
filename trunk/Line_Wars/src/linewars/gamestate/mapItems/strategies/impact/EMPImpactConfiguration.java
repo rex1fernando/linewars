@@ -15,6 +15,7 @@ import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
@@ -59,10 +60,15 @@ public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 
 		@Override
 		public void handleImpact(Position p) {
-			List<Unit> possibles = proj.getLane().getUnitsIn(new Circle(new Transformation(p, 0), getRadius()));
+			double radius = getRadius();
+			AABB box = new AABB(p.getX() - radius, p.getY() - radius, 
+					p.getX() + radius, p.getY() + radius);
+			Circle damageCircle = new Circle(new Transformation(p, 0), radius);
+			List<Unit> possibles = proj.getLane().getUnitsIn(box);
 			for(Unit u : possibles)
 			{
-				if(CollisionStrategyConfiguration.isAllowedToCollide(u, proj))
+				if(CollisionStrategyConfiguration.isAllowedToCollide(u, proj) &&
+						damageCircle.isCollidingWith(u.getBody()))
 					u.addActiveAbility(new EMPEffect(u));
 			}
 			proj.setState(MapItemState.Dead);

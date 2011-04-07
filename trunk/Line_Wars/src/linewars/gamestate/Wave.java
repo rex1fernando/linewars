@@ -7,6 +7,7 @@ import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 
 /**
@@ -192,7 +193,9 @@ public strictfp class Wave {
 		if(maxRad < owner.getWidth())
 			maxRad = owner.getWidth();
 		
-		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
+		AABB box = new AABB(center.getX() - maxRad, center.getY() - maxRad, 
+				center.getX() + maxRad, center.getY() + maxRad);
+		List<Unit> unitsInRange = owner.getUnitsIn(box);
 		List<Unit> alliesInRange = new ArrayList<Unit>();
 		//remove friendly units
 		for(int i = 0; i < unitsInRange.size();)
