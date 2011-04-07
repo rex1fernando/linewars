@@ -22,27 +22,35 @@ public class MenuComboBox extends JComboBox
 {
 	private Font font;
 	private Color disabledColor;
+	private boolean hideTopLevel;
 	
-	public MenuComboBox()
+	public MenuComboBox(boolean visible)
 	{
+		hideTopLevel = visible;
 		font = ContentProvider.FONT.deriveFont(12.0f);
 		disabledColor = new Color(255, 255, 255, 125);
 		
 		setUI(new CustomComboBoxUI());
 		setRenderer(new ComboBoxRenderer());
+		setMaximumRowCount(500);
 	}
 	
 	@Override
 	public void paintComponent(Graphics g)
 	{
-		Image img = ContentProvider.getImageResource(MenuImage.combobox_main);
-		g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+		super.paintComponent(g);
 		
-		String text = getSelectedItem().toString();
-		g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		Point pos = ContentProvider.centerText(fm, text, getWidth(), getHeight());
-		g.drawString(text, pos.x, pos.y);
+		if (hideTopLevel == false)
+		{
+			Image img = ContentProvider.getImageResource(MenuImage.combobox_main);
+			g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+			
+			String text = getSelectedItem().toString();
+			g.setFont(font);
+			FontMetrics fm = g.getFontMetrics();
+			Point pos = ContentProvider.centerText(fm, text, getWidth() - 28, getHeight());
+			g.drawString(text, pos.x, pos.y);
+		}
 		
 		if (isEnabled() == false)
 		{
@@ -116,15 +124,6 @@ public class MenuComboBox extends JComboBox
 			
 			Point pos = ContentProvider.centerText(fm, text, getWidth(), getHeight());
 			g.drawString(text, pos.x, pos.y);
-	    	
-//	       super.paint(g);
-//	        g.setColor(color);
-//	        g.fillRect(0, 0, getWidth(), getHeight());
-//	        if (selected) {
-//	            g.setColor(Color.black);
-//	            ((Graphics2D) g).setStroke(new BasicStroke(2));
-//	            g.drawRect(1, 1, getWidth()-2, getHeight()-2);
-//	        }
 	    }
 	}
 }

@@ -49,12 +49,23 @@ public class ContentProvider
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
+		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
 		
 		// combo box art
 		filenames.put(MenuImage.combobox_button, "resources/ui/components/combobox_button.png");
 		filenames.put(MenuImage.combobox_main, "resources/ui/components/combobox_main.png");
 		filenames.put(MenuImage.combobox_background, "resources/ui/components/combobox_background.png");
 		filenames.put(MenuImage.combobox_highlighted, "resources/ui/components/combobox_highlight.png");
+		
+		// scrollbar
+		filenames.put(MenuImage.scrollbar_track, "resources/ui/components/scrollbar_track.png");
+		filenames.put(MenuImage.scrollbar_highlight, "resources/ui/components/scrollbar_highlight.png");
+		filenames.put(MenuImage.scrollbar_thumb, "resources/ui/components/scrollbar_thumb.png");
+		filenames.put(MenuImage.scrollbar_incr, "resources/ui/components/scrollbar_incr.png");
+		filenames.put(MenuImage.scrollbar_decr, "resources/ui/components/scrollbar_decr.png");
+		
+		// loading screen
+		filenames.put(MenuImage.loading_spinner, "resources/ui/components/loading_spinner.png");
 		
 	}
 	
@@ -99,8 +110,17 @@ public class ContentProvider
 		combobox_background,
 		combobox_highlighted,
 		
+		scrollbar_highlight,
+		scrollbar_track,
+		scrollbar_thumb,
+		scrollbar_incr,
+		scrollbar_decr,
+		
 		background_title,
-		background_lobby
+		background_lobby,
+		background_loading,
+		
+		loading_spinner
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)

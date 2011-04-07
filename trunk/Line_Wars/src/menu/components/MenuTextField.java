@@ -13,6 +13,7 @@ public class MenuTextField extends JTextField
 		setOpaque(false);
 		setForeground(MenuTextArea.FOREGROUND);
 		setFont(ContentProvider.FONT.deriveFont(12.0f));
+		setBorder(null);
 	}
 	
 	@Override

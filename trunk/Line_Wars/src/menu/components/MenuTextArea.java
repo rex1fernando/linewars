@@ -18,6 +18,7 @@ public class MenuTextArea extends JTextArea
 		setOpaque(false);
 		setForeground(FOREGROUND);
 		setFont(ContentProvider.FONT.deriveFont(12.0f));
+		setBorder(null);
 	}
 	
 	@Override
