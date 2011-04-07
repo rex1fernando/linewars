@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import linewars.display.layers.FlowIndicator;
@@ -115,6 +116,12 @@ public class Display extends JFrame implements Runnable
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
+	public void exitGame()
+	{
+		//TODO go back to the lobby system
+		dispose();
+	}
+	
 	/**
 	 * Gets the width of the GamePanel.
 	 * 
@@ -411,6 +418,19 @@ public class Display extends JFrame implements Runnable
 
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
+			
+			if (gamestate.getWinningPlayer() != null)
+			{
+				if (gamestate.getPlayer(playerIndex) == gamestate.getWinningPlayer())
+				{
+					JOptionPane.showMessageDialog(this, "You won", "You won", JOptionPane.PLAIN_MESSAGE);
+					exitGame();
+				} else
+				{
+					JOptionPane.showMessageDialog(this, "You lost", "You lost", JOptionPane.PLAIN_MESSAGE);
+					exitGame();
+				}
+			}
 
 			detectFlowIndicatorChange(gamestate);
 

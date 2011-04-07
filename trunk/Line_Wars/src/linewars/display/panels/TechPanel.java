@@ -324,7 +324,8 @@ public class TechPanel extends Panel
 		int width = getWidth();
 		int height = getHeight();
 		
-		height -= tabPanel.getHeight();
+		if(tabPanel != null)
+			height -= tabPanel.getHeight();
 		
 		if(editorComponents != null)
 			height -= editorComponents.getHeight();

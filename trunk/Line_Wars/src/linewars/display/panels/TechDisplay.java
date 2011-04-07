@@ -534,7 +534,7 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			ImageDrawer.getInstance().draw(g, uri, getIconWidth(), getIconHeight(), new Position(x, y), 1);
+			ImageDrawer.getInstance().draw(g, uri, TECH_BUTTON_SIZE, TECH_BUTTON_SIZE, new Position(x, y), 1);
 		}
 	}
 
