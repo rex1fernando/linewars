@@ -16,6 +16,9 @@ public class AABB
 		this.xMax = xMax;
 		this.yMin = yMin;
 		this.yMax = yMax;
+		
+		if (xMin > xMax) throw new IllegalArgumentException("xMin > xMax");
+		if (yMin > yMax) throw new IllegalArgumentException("yMin > yMax");
 	}
 	
 	public double getXMin()

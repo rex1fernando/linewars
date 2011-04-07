@@ -1,20 +1,25 @@
 package menu;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.SocketException;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import menu.ContentProvider.MenuImage;
 import menu.panels.CreateGamePanel;
+import menu.panels.LoadingScreenPanel;
 import menu.panels.TitlePanel;
 
 public class WindowManager extends JFrame
@@ -24,15 +29,21 @@ public class WindowManager extends JFrame
 	private InnerPanel innerPanel;
 	
 	private TitlePanel titleMenu;
-	private CreateGamePanel createMenu;
+	private CreateGamePanel lobbySystem;
+	private LoadingScreenPanel loadingScreen;
+	
+	private Image backgroundImage;
 	
 	public WindowManager()
 	{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setUndecorated(true);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		backgroundImage = new BufferedImage(screenSize.width, screenSize.height, BufferedImage.TYPE_INT_RGB);
 		
 		titleMenu = new TitlePanel(this);
-		createMenu = new CreateGamePanel(this);
+		lobbySystem = new CreateGamePanel(this);
+		loadingScreen = new LoadingScreenPanel(this);
 		
 		innerPanel = new InnerPanel(titleMenu);
 		setContentPane(innerPanel);
@@ -53,8 +64,8 @@ public class WindowManager extends JFrame
 	
 	public void gotoTitleMenu()
 	{
-		if (innerPanel.panel == createMenu)
-			createMenu = new CreateGamePanel(this);
+		if (innerPanel.panel == lobbySystem)
+			lobbySystem = new CreateGamePanel(this);
 		
 		changeContentPane(titleMenu);
 	}
@@ -62,8 +73,8 @@ public class WindowManager extends JFrame
 	public void gotoCreateGame()
 	{
 		try {
-			createMenu.startServer();
-			changeContentPane(createMenu);
+			lobbySystem.startServer();
+			changeContentPane(lobbySystem);
 		} catch (IOException e) {
 			
 		}
@@ -75,8 +86,8 @@ public class WindowManager extends JFrame
 		
 		if (serverIp != null) {
 			try {
-				createMenu.startClient(serverIp);
-				changeContentPane(createMenu);
+				lobbySystem.startClient(serverIp);
+				changeContentPane(lobbySystem);
 			} catch (SocketException e) {
 				JOptionPane.showMessageDialog(this, "Could not connect to the server hosted by " + serverIp);
 			}
@@ -85,15 +96,10 @@ public class WindowManager extends JFrame
 	
 	public void gotoEditor()
 	{
-		// TODO implement
+		changeContentPane(loadingScreen);
 	}
 	
 	public void gotoOptions()
-	{
-		// TODO implement
-	}
-	
-	public void gotoCredits()
 	{
 		// TODO implement
 	}
@@ -129,8 +135,14 @@ public class WindowManager extends JFrame
 		
 		public InnerPanel(JPanel p)
 		{
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			
+			int height = (screenSize.height - 640) / 3;
+			
 			setBackgroundImage(p);
 			panel = p;
+			add(Box.createVerticalStrut(height));
 			add(panel);
 		}
 		
@@ -146,16 +158,16 @@ public class WindowManager extends JFrame
 		
 		private void setBackgroundImage(JPanel p)
 		{
-			if (p == titleMenu) image = MenuImage.titleBackground;
-		}
-		
-		@Override
-		public void paintComponent(Graphics g)
-		{
+			if (p == titleMenu) image = MenuImage.background_title;
+			else if (p == lobbySystem) image = MenuImage.background_lobby;
+			else if (p == loadingScreen) image = MenuImage.background_loading;
+			
+			Graphics g = backgroundImage.getGraphics();
+			
 			Image img = ContentProvider.getImageResource(image);
 			
 			int sx1 = 0, sy1 = 0, sx2 = img.getWidth(null), sy2 = img.getHeight(null);
-			double this_ratio = getWidth() / (double) getHeight();
+			double this_ratio = backgroundImage.getWidth(null) / (double) backgroundImage.getHeight(null);
 			double img_ratio = sx2 / (double) sy2;
 			if (this_ratio < img_ratio) {
 				sx1 = (int) ((img.getWidth(null) - img.getHeight(null) * this_ratio) / 2);
@@ -165,7 +177,13 @@ public class WindowManager extends JFrame
 				sy2 = img.getHeight(null) - sy1;
 			}
 			
-			g.drawImage(img, 0, 0, getWidth(), getHeight(), sx1, sy1, sx2, sy2, null);
+			g.drawImage(img, 0, 0, backgroundImage.getWidth(null), backgroundImage.getHeight(null), sx1, sy1, sx2, sy2, null);
+		}
+		
+		@Override
+		public void paintComponent(Graphics g)
+		{
+			g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
 		}
 	}
 }

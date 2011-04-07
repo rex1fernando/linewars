@@ -18,15 +18,13 @@ public class MenuButton extends JButton
 	private String text;
 	private Font font;
 	
-	public MenuButton()
+	public MenuButton(MenuImage buttonDefault, MenuImage buttonRollover, float size)
 	{
-		font = new CustomFont(12);
+		font = ContentProvider.FONT.deriveFont(size);
 		text = "";
 		setOpaque(false);
-		//setPressedIcon(new ButtonIcon(MenuImage.buttonPressed));
-		setIcon(new ButtonIcon(MenuImage.buttonDefault));
-		//setDisabledIcon(new ButtonIcon(MenuImage.buttonDisabled));
-		setRolloverIcon(new ButtonIcon(MenuImage.buttonRollover));
+		setIcon(new ButtonIcon(buttonDefault));
+		setRolloverIcon(new ButtonIcon(buttonRollover));
 		setBorder(null);
 	}
 	

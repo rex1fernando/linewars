@@ -18,6 +18,7 @@ public abstract class CollisionStrategyConfiguration extends StrategyConfigurati
 		StrategyConfiguration.setStrategyType("Collision", CollisionStrategyConfiguration.class);
 		
 		orderedList.add(GroundConfiguration.class);
+		orderedList.add(FlyingConfiguration.class);
 		orderedList.add(AllEnemiesConfiguration.class);
 		orderedList.add(AllEnemyUnitsConfiguration.class);
 		orderedList.add(EnemyProjectilesConfiguration.class);

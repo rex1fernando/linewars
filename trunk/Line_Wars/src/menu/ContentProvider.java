@@ -1,6 +1,7 @@
 package menu;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -26,6 +27,7 @@ public class ContentProvider
 	private static Map<MenuImage, String> filenames;
 	
 	private static final Race[] races;
+	public static final Font FONT;
 	
 	static
 	{
@@ -36,9 +38,35 @@ public class ContentProvider
 		imageResources.put(MenuImage.blank, blankImage);
 		
 		filenames = new HashMap<MenuImage, String>();
-		filenames.put(MenuImage.buttonDefault, "resources/ui/UIButtonRough2.png");
-		filenames.put(MenuImage.buttonRollover, "resources/ui/UIButtonMouseoverRough2.png");
-		filenames.put(MenuImage.titleBackground, "resources/ui/John Brix Space Concept.png");
+		
+		// button icons
+		filenames.put(MenuImage.menu_button_default, "resources/ui/components/button.png");
+		filenames.put(MenuImage.menu_button_rollover, "resources/ui/components/button_highlight.png");
+		filenames.put(MenuImage.lobby_button_default, "resources/ui/components/button.png");
+		filenames.put(MenuImage.lobby_button_rollover, "resources/ui/components/button_highlight.png");
+		
+		// concept art
+		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
+		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
+		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
+		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
+		
+		// combo box art
+		filenames.put(MenuImage.combobox_button, "resources/ui/components/combobox_button.png");
+		filenames.put(MenuImage.combobox_main, "resources/ui/components/combobox_main.png");
+		filenames.put(MenuImage.combobox_background, "resources/ui/components/combobox_background.png");
+		filenames.put(MenuImage.combobox_highlighted, "resources/ui/components/combobox_highlight.png");
+		
+		// scrollbar
+		filenames.put(MenuImage.scrollbar_track, "resources/ui/components/scrollbar_track.png");
+		filenames.put(MenuImage.scrollbar_highlight, "resources/ui/components/scrollbar_highlight.png");
+		filenames.put(MenuImage.scrollbar_thumb, "resources/ui/components/scrollbar_thumb.png");
+		filenames.put(MenuImage.scrollbar_incr, "resources/ui/components/scrollbar_incr.png");
+		filenames.put(MenuImage.scrollbar_decr, "resources/ui/components/scrollbar_decr.png");
+		
+		// loading screen
+		filenames.put(MenuImage.loading_spinner, "resources/ui/components/loading_spinner.png");
+		
 	}
 	
 	static
@@ -57,16 +85,42 @@ public class ContentProvider
 		races = maps.toArray(new Race[0]);
 	}
 	
+	static
+	{
+		Font temp = null;
+	    try {
+			temp = Font.createFont(Font.TRUETYPE_FONT, new File("resources/ui/font.ttf"));
+		} catch (Exception e) { e.printStackTrace();}
+		FONT = temp.deriveFont(Font.BOLD);
+	}
+	
 	public enum MenuImage
 	{
 		blank,
 		
-		buttonDefault,
-		buttonRollover,
-		buttonPressed,
-		buttonDisabled,
+		lobby_back,
+		lobby_button_default,
+		lobby_button_rollover,
 		
-		titleBackground,
+		menu_button_default,
+		menu_button_rollover,
+		
+		combobox_button,
+		combobox_main,
+		combobox_background,
+		combobox_highlighted,
+		
+		scrollbar_highlight,
+		scrollbar_track,
+		scrollbar_thumb,
+		scrollbar_incr,
+		scrollbar_decr,
+		
+		background_title,
+		background_lobby,
+		background_loading,
+		
+		loading_spinner
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)

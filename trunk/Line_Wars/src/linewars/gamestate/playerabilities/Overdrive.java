@@ -82,18 +82,28 @@ public class Overdrive extends PlayerAbility {
 
 	@Override
 	public void apply(Position p, Player player) {
+		//first check to make sure the player has enough energy and charge the player if they do
+		if(player.getPlayerEnergy() < this.getEnergyCost())
+			return;
+		player.setPlayerEnergy(player.getPlayerEnergy() - this.getEnergyCost());
+		
 		//first find the lane that is closest
 		Lane lane = null;
 		double dis = Double.POSITIVE_INFINITY;
 		for(Lane l : player.getGameState().getMap().getLanes())
 		{
-			double d = p.distanceSquared(l.getPosition(l.getClosestPointRatio(p)).getPosition());
+			double d = p.distanceSquared(l.getPosition(l.getClosestPointRatio(p)).getPosition())/Math.pow(l.getWidth()/2, 2);
+			if(d < 1.0 && dis < 1.0)
+				return;
 			if(d < dis)
 			{
 				dis = d;
 				lane = l;
 			}
 		}
+		
+		if(dis > 1.0)
+			return;
 		
 		//now go through every unit and projectile in the lane and berserk them
 		for(Wave w : lane.getWaves())
@@ -133,7 +143,7 @@ public class Overdrive extends PlayerAbility {
 			mod.setMapping(MapItemModifiers.damageReceived, new MapItemModifier.Add(getDamageReceivedIncrease()));
 			mod.setMapping(MapItemModifiers.fireRate, new MapItemModifier.Add(getFiringRateIncrease()));
 			mod.setMapping(MapItemModifiers.moveSpeed, new MapItemModifier.Add(getMoveSpeedIncrease()));
-			b.pushModifier(mod);
+			b.pushModifierToAllItems(mod);
 			startTime = b.getGameState().getTime();
 			boostPart = getOverdrivePart().createMapItem(Transformation.ORIGIN, b.getOwner(), b.getGameState());
 			b.addMapItemToFront(boostPart, Transformation.ORIGIN);
@@ -143,7 +153,7 @@ public class Overdrive extends PlayerAbility {
 		public void update() {
 			if(!finished && b.getGameState().getTime() - startTime > getDuration())
 			{
-				b.removeModifier(mod);
+				b.removeModifierFromAllItems(mod);
 				b.removeMapItem(boostPart);
 				finished = true;
 			}

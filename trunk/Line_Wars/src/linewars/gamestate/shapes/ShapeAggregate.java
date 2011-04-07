@@ -184,7 +184,29 @@ public strictfp class ShapeAggregate extends Shape {
 	
 	public AABB calculateAABB()
 	{
-		return boundingRectangle().calculateAABB();
+		AABB aabb = members.get(0).getAABB();
+		double xMin = aabb.getXMin();
+		double xMax = aabb.getXMax();
+		double yMin = aabb.getYMin();
+		double yMax = aabb.getYMax();
+		
+		
+		for (Shape currentShape : members)
+		{
+			aabb = currentShape.getAABB();
+			
+			double newXMin = aabb.getXMin();
+			double newXMax = aabb.getXMax();
+			double newYMin = aabb.getYMin();
+			double newYMax = aabb.getYMax();
+			
+			if (xMin > newXMin) xMin = newXMin;
+			if (xMax < newXMax) xMax = newXMax;
+			if (yMin > newYMin) yMin = newYMin;
+			if (yMax < newYMax) yMax = newYMax;
+		}
+		
+		return new AABB(xMin, yMin, xMax, yMax);
 	}
 
 	@Override
