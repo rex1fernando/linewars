@@ -13,6 +13,7 @@ import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import configuration.Property;
 import configuration.Usage;
@@ -77,8 +78,9 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 			if(gunship.getGameState().getTime() - lastPulseTime > getDoubleValue("cooldown"))
 			{
 				double range = getDoubleValue("range");
-				List<Unit> potentialHits = gunship.getWave().getLane().getUnitsIn(
-						new Circle(gunship.getTransformation(), range));
+				AABB box = new AABB(gunship.getPosition().getX() - range, gunship.getPosition().getY() - range, 
+						gunship.getPosition().getX() + range, gunship.getPosition().getY() + range);
+				List<Unit> potentialHits = gunship.getWave().getLane().getUnitsIn(box);
 				for(Unit u : potentialHits)
 				{
 					if(u.getPosition().distanceSquared(gunship.getPosition()) <= range*range)
