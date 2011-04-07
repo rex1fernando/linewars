@@ -92,6 +92,7 @@ public strictfp class Wave {
 			return false;
 		}
 		u.setWave(this);
+		owner.notifySweepAndPruneUnitAdded(u);
 		return units.add(u);
 	}
 	
@@ -162,8 +163,7 @@ public strictfp class Wave {
 		//first check for dead units
 		for(int i = 0; i < units.size();)
 			if(units.get(i).getState() == MapItemState.Dead && units.get(i).finished()) {
-				units.remove(i);
-				owner.notifySweepAndPruneStructuresNeedUpdate();
+				owner.notifySweepAndPruneUnitRemoved(units.remove(i));
 			} else if(units.get(i).getState().equals(MapItemState.Dead)) {
 				deadButNotFinished.add(units.remove(i));
 			} else {
@@ -244,8 +244,7 @@ public strictfp class Wave {
 						target.setInvader(u.getOwner());
 					u.setTransformation(target.getTransformation());
 					target.addUnit(u);
-					units.remove(i);
-					owner.notifySweepAndPruneStructuresNeedUpdate();
+					owner.notifySweepAndPruneUnitRemoved(units.remove(i));
 					continue;
 				}
 				//if we're close enough but the gate isn't down
@@ -363,6 +362,7 @@ public strictfp class Wave {
 	public void remove(Unit u)
 	{
 		units.remove(u);
+		owner.notifySweepAndPruneUnitRemoved(u);
 	}
 	
 	/**

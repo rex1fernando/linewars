@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 
 import linewars.gamestate.mapItems.Building;
@@ -20,7 +21,6 @@ import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
-import linewars.gamestate.shapes.Rectangle;
 
 /**
  * 
@@ -32,19 +32,15 @@ import linewars.gamestate.shapes.Rectangle;
 public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;
-	private static final double LANE_BORDER_RESOLUTION = 0.05;
 	private static final int NUM_COLLISION_FIXES = 1;
-	
-	private boolean sweepAndPruneStructuresNeedUpdate;
 	
 	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
 	private HashMap<Node, Gate> gates;
 	private ArrayList<Node> nodes;
-	private double gatePos;
 	private GameState gameState;
 	
-	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
+	private LinkedList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
 	 * The width of the lane.
@@ -60,8 +56,8 @@ public strictfp class Lane
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
 		
-		this.horizontallySortedUnits = new ArrayList<Unit>();
-		this.verticallySortedUnits = new ArrayList<Unit>();
+		this.horizontallySortedUnits = new LinkedList<Unit>();
+		this.verticallySortedUnits = new LinkedList<Unit>();
 		
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
@@ -72,8 +68,6 @@ public strictfp class Lane
 		pathFinder = new PathFinding(gameState);
 		
 		this.config = config;
-		
-		this.sweepAndPruneStructuresNeedUpdate = true;
 	}
 	
 	public boolean isInLane(MapItem m)
@@ -353,6 +347,9 @@ public strictfp class Lane
 						nextMinForward = this.getClosestPointRatio(backPos.getPosition()
 								.add(Position.getUnitVector(backPos.getRotation()).scale(2.05*biggestRadius)));
 					}
+					
+					//notify sweep and prune that a unit has been added
+					this.notifySweepAndPruneUnitAdded(u);
 				}
 				else //if there's not enough room, check the next biggest unit
 					i++;
@@ -549,7 +546,6 @@ public strictfp class Lane
 			//get rid of dead projectiles
 			if(p.getState() == MapItemState.Dead && p.finished()) {
 				projectiles.remove(i);
-				notifySweepAndPruneStructuresNeedUpdate();
 			} else {
 				i++;
 			}
@@ -565,6 +561,7 @@ public strictfp class Lane
 	 * Finds and resolves all the collisions in the Lane
 	 */
 	private void findAndResolveCollisions(){
+		long currentTime = System.currentTimeMillis();
 		pushUnitsOntoLane();
 		//First find all the collisions
 		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
@@ -579,76 +576,75 @@ public strictfp class Lane
 			
 			for(Unit second : potentiallyCollidingUnits){//for each unit it could be colliding with
 				if(first == second) continue;//units can't collide with themselves
-					if(first.isCollidingWith(second)){//if the two units are actually colliding
-						Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
-						
-						second.getMovementStrategy().notifyOfCollision(offsetVector);
-						first.getMovementStrategy().notifyOfCollision(offsetVector.scale(-1));
-						
-						/*if(!snppotentiallyCollidingUnits.contains(first) || ! snppotentiallyCollidingUnits.contains(second)){
-							System.out.println("WTF");
-						}*/
-						
-					}
+				if(first.isCollidingWith(second)){//if the two units are actually colliding
+					Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
+					
+					second.getMovementStrategy().notifyOfCollision(offsetVector);
+					first.getMovementStrategy().notifyOfCollision(offsetVector.scale(-1));
+					
+					/*if(!snppotentiallyCollidingUnits.contains(first) || ! snppotentiallyCollidingUnits.contains(second)){
+						System.out.println("WTF");
+					}*/
+					
 				}
-			}		
+			}
+		}
+		
+		System.out.println(System.currentTimeMillis() - currentTime);
 	}
 	
 	private LinkedList<Unit> sweepAndPrune()
 	{
+		if(horizontallySortedUnits.size() == 0){
+			return new LinkedList<Unit>();
+		}
 		
 		LinkedList<Unit> potentiallyCollidingUnits = new LinkedList<Unit>();
 		
-		LinkedList<Unit> horizontallyCollidingUnits = new LinkedList<Unit>();
+		HashSet<Unit> horizontallyCollidingUnits = new HashSet<Unit>();
 		
 		updateSweepAndPruneStructures();
 	
 		boolean addedLastUnit = false;
-		for (int i = 0; i < horizontallySortedUnits.size()-1; i++)
+		Iterator<Unit> iter = horizontallySortedUnits.iterator();
+		Unit lastUnit = iter.next();
+		for (; iter.hasNext();)
 		{
-			if (horizontallySortedUnits.get(i).getBody().getAABB().getXMax() > horizontallySortedUnits.get(i+1).getBody().getAABB().getXMin())
+			Unit currentUnit = iter.next();
+			if (lastUnit.getBody().getAABB().getXMax() > currentUnit.getBody().getAABB().getXMin())
 			{	
 				if (!addedLastUnit) {
-					horizontallyCollidingUnits.add(horizontallySortedUnits.get(i));
+					horizontallyCollidingUnits.add(lastUnit);
 					addedLastUnit = true;
 				}
-				horizontallyCollidingUnits.add(horizontallySortedUnits.get(i+1));
+				horizontallyCollidingUnits.add(currentUnit);
 			}
+			lastUnit = currentUnit;
 		}
-		
-		/*if (allUnits.size() > 0)
-		{
-			System.out.println("s");
-		
-			System.out.println(allUnits.size());
-			System.out.println(verticallySortedUnits.size());
-		
-		}*/
 		
 		addedLastUnit = false;
-		for (int i = 0; i < verticallySortedUnits.size()-1; i++)
+		iter = verticallySortedUnits.iterator();
+		lastUnit = iter.next();
+		for (; iter.hasNext();)
 		{
-			if (verticallySortedUnits.get(i).getBody().getAABB().getYMax() > verticallySortedUnits.get(i+1).getBody().getAABB().getYMin()
-					&& horizontallyCollidingUnits.contains(verticallySortedUnits.get(i)))
+			Unit currentUnit = iter.next();
+			if (lastUnit.getBody().getAABB().getYMax() > currentUnit.getBody().getAABB().getYMin()
+					&& horizontallyCollidingUnits.contains(lastUnit))
 			{
 				if (!addedLastUnit)
-					potentiallyCollidingUnits.add(verticallySortedUnits.get(i));
-				potentiallyCollidingUnits.add(verticallySortedUnits.get(i+1));
-			}	
+					potentiallyCollidingUnits.add(lastUnit);
+				potentiallyCollidingUnits.add(currentUnit);
+			}
+			lastUnit = currentUnit;
 		}
-		
-		/*if (horizontallyCollidingUnits.size() > 0) 
-		{
-			System.out.println(horizontallyCollidingUnits.size());
-		}*/
 		
 		return potentiallyCollidingUnits;
 	}
 	
 	private void initializeSortedUnits(List<Unit> allUnits)
 	{
-		horizontallySortedUnits = new ArrayList<Unit>(allUnits);
-		verticallySortedUnits = new ArrayList<Unit>(allUnits);
+		horizontallySortedUnits = new LinkedList<Unit>(allUnits);
+		verticallySortedUnits = new LinkedList<Unit>(allUnits);
 	}
 	
 	
@@ -854,18 +850,18 @@ public strictfp class Lane
 			return false;
 	}
 	
-	public void notifySweepAndPruneStructuresNeedUpdate() {
-		this.sweepAndPruneStructuresNeedUpdate = true;
+	public void notifySweepAndPruneUnitAdded(Unit addedUnit){
+		horizontallySortedUnits.add(addedUnit);
+		verticallySortedUnits.add(addedUnit);
+	}
+	
+	public void notifySweepAndPruneUnitRemoved(Unit removedUnit){
+		horizontallySortedUnits.remove(removedUnit);
+		verticallySortedUnits.remove(removedUnit);
 	}
 	
 	private void updateSweepAndPruneStructures() 
 	{
-		if (this.sweepAndPruneStructuresNeedUpdate) 
-		{
-			List<Unit> allUnits = getCollidableMapItems();
-			initializeSortedUnits(allUnits);
-			this.sweepAndPruneStructuresNeedUpdate = false;
-		}
 		sortUnits();
 	}
 
