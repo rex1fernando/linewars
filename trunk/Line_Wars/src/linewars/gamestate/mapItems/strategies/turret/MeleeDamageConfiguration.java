@@ -89,7 +89,8 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 			Shape collisionBody = turret.getBody().scale(getScalingFactor());
 			
 			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
-									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
+									turret.getModifier().getModifier(MapItemModifiers.damageDealt)
+									*turret.getModifier().getModifier(MapItemModifiers.fireRate);
 			dealtDamage = false;
 			for(Unit enemy : availableEnemies)
 			{

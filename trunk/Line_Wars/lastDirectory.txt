@@ -1,1 +1,1 @@
-D:\Development\Broken Lightbulb Entertainment\linewars\trunk\Line_Wars\resources\images
+D:\programming\linewars\trunk\Line_Wars\resources\Animation Configs
