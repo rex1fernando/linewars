@@ -19,7 +19,6 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
-import linewars.gamestate.shapes.Circle;
 import utility.Pair;
 
 /**
@@ -437,19 +436,12 @@ public strictfp class Lane
 	 */
 	public List<Unit> getUnitsIn(AABB box)
 	{
-		//TODO implement this using sweep and prune data structures
 		List<Unit> ret = new LinkedList<Unit>();
-		for(Wave w : waves)
+		for(Unit u : horizontallySortedUnits)
 		{
-			for(Unit u : w.getUnits())
-			{
-				AABB body = u.getBody().getAABB();
-				if(body.getXMax() > box.getXMin() &&
-				   body.getXMin() < box.getXMax() &&
-				   body.getYMax() > box.getYMin() &&
-				   body.getYMin() < box.getYMax())
-					ret.add(u);
-			}
+			AABB body = u.getBody().getAABB();
+			if(body.intersectsWith(box))
+				ret.add(u);
 		}
 		return ret;
 	}
@@ -780,11 +772,6 @@ public strictfp class Lane
 	public void notifySweepAndPruneUnitRemoved(Unit removedUnit){
 		horizontallySortedUnits.remove(removedUnit);
 		verticallySortedUnits.remove(removedUnit);
-	}
-	
-	private void updateSweepAndPruneStructures() 
-	{
-		sortUnits();
 	}
 
 	private class minXComparator implements Comparator<MapItem>
