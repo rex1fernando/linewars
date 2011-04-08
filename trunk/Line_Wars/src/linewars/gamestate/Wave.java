@@ -1,6 +1,7 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
@@ -19,8 +20,11 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
-	private ArrayList<Unit> units;
-	private Wave opponent;
+	private List<Unit> units;
+	
+	//for consistency reasons
+	private List<Unit> unitsToAdd = new LinkedList<Unit>();
+	private List<Unit> unitsToMove = new LinkedList<Unit>();
 	
 	/**
 	 * Gets the lane that owns this wave
@@ -53,8 +57,7 @@ public strictfp class Wave {
 	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
-		opponent = null;
-		units = new ArrayList<Unit>();
+		units = new LinkedList<Unit>();
 		this.addUnit(u);
 		this.origin = origin;
 	}
@@ -67,8 +70,7 @@ public strictfp class Wave {
 	public Wave(Lane owner)
 	{
 		this.owner = owner;
-		units = new ArrayList<Unit>();
-		opponent = null;
+		units = new LinkedList<Unit>();
 	}
 	
 	/**
@@ -93,8 +95,7 @@ public strictfp class Wave {
 			return false;
 		}
 		u.setWave(this);
-		owner.notifySweepAndPruneUnitAdded(u);
-		return units.add(u);
+		return unitsToAdd.add(u);
 	}
 	
 	/**
@@ -295,7 +296,7 @@ public strictfp class Wave {
 		
 		for(Unit u : units)
 		{
-			u.getMovementStrategy().move();
+			unitsToMove.add(u);
 			u.updateMapItem();
 		}
 		
@@ -306,6 +307,24 @@ public strictfp class Wave {
 			u.updateMapItem();
 			units.add(u);
 		}
+	}
+	
+	public void addRecentlyAddedUnitsToWave()
+	{
+		for(Unit u : unitsToAdd)
+		{
+			units.add(u);
+			owner.notifySweepAndPruneUnitAdded(u);
+		}
+		unitsToAdd.clear();
+	}
+	
+	public void moveUnits()
+	{
+		for(Unit u : unitsToMove)
+			u.getMovementStrategy().move();
+		
+		unitsToMove.clear();
 	}
 	
 
