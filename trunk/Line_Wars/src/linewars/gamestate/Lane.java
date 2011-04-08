@@ -454,8 +454,7 @@ public strictfp class Lane
 		if(nodes.size() != 2)
 			throw new IllegalStateException("This lane doesn't know about both its end point nodes");
 		
-		for(Node n : nodes)
-			this.addPendingWaves(n);
+		
 		
 		for(int i = 0; i < waves.size();)
 		{
@@ -479,6 +478,15 @@ public strictfp class Lane
 			} else {
 				i++;
 			}
+		}
+		
+		for(Node n : nodes)
+			this.addPendingWaves(n);
+		
+		for(Wave w : waves)
+		{
+			w.addRecentlyAddedUnitsToWave();
+			w.moveUnits();
 		}
 
 		findCollisions();
