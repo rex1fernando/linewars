@@ -75,11 +75,11 @@ public strictfp class Lane
 		AABB box = m.getBody().getAABB();
 		List<Unit> units = this.getUnitsIn(box);
 		for(Unit u : units)
-			if(u.equals(m))
+			if(u.equals(m) || u.containsRecursively(m))
 				return true;
 		
 		for(Projectile p : projectiles)
-			if(m.equals(p))
+			if(p.equals(m) || p.containsRecursively(m))
 				return true;
 		
 		return false;
