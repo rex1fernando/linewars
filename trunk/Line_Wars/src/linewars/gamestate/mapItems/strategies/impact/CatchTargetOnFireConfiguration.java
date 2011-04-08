@@ -69,40 +69,60 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 		public ImpactStrategyConfiguration getConfig() {
 			return CatchTargetOnFireConfiguration.this;
 		}
+		
+		private boolean isOnFire(MapItem m)
+		{
+			for(Ability a : m.getActiveAbilities())
+				if(a instanceof OnFire)
+					return true;
+			
+			return false;
+		}
 
 		@Override
 		public void handleImpact(MapItem m) {
-			if(m instanceof Unit)
+			if(m instanceof Unit && !isOnFire(m))
 			{
 				final Unit u = (Unit) m;
 				final Part burning = getBurningPart().createMapItem(u.getTransformation(), u.getOwner(), u.getGameState());
 				u.addMapItemToFront(burning, Transformation.ORIGIN);
-				u.addActiveAbility(new Ability() {
-					private double start = u.getGameState().getTime();
-					private boolean finished = false;
-					private Unit unit = u;
-					private Part burn = burning;
-					@Override
-					public void update() {
-						unit.setHP(unit.getHP() - getDamagePerSecond()*unit.getGameState().getLastLoopTime()*
-								proj.getModifier().getModifier(MapItemModifiers.damageDealt));
-						if(unit.getGameState().getTime() - start > getDuration() && !finished)
-						{
-							finished = true;
-							u.removeMapItem(burn);
-						}
-					}
-					
-					@Override
-					public boolean killable() {
-						return true;
-					}
-					
-					@Override
-					public boolean finished() {
-						return finished;
-					}
-				});
+				u.addActiveAbility(new OnFire(u, burning));
+			}
+		}
+		
+		private class OnFire implements Ability
+		{
+			private double start;
+			private boolean finished = false;
+			private Unit unit;
+			private Part burn;
+			
+			private OnFire(Unit u, Part burning)
+			{
+				this.unit = u;
+				start = u.getGameState().getTime();
+				burn = burning;
+			}
+			
+			@Override
+			public void update() {
+				unit.setHP(unit.getHP() - getDamagePerSecond()*unit.getGameState().getLastLoopTime()*
+						proj.getModifier().getModifier(MapItemModifiers.damageDealt));
+				if(unit.getGameState().getTime() - start > getDuration() && !finished)
+				{
+					finished = true;
+					unit.removeMapItem(burn);
+				}
+			}
+			
+			@Override
+			public boolean killable() {
+				return true;
+			}
+			
+			@Override
+			public boolean finished() {
+				return finished;
 			}
 		}
 
