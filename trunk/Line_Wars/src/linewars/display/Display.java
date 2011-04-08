@@ -50,6 +50,8 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.shapes.Rectangle;
+import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.PlayerAbilityMessage;
@@ -197,10 +199,11 @@ public class Display extends JFrame implements Runnable
 			Race race = p.getRace();
 
 			ArrayList<Configuration> configs = new ArrayList<Configuration>();
-			configs.add(race.getCommandCenter());
-			configs.add(race.getGate());
-			configs.addAll(race.getAllBuildings());
-			configs.addAll(race.getAllUnits());
+//			configs.add(race.getCommandCenter());
+//			configs.add(race.getGate());
+//			configs.addAll(race.getAllBuildings());
+//			configs.addAll(race.getAllUnits());
+			configs.add(race); //Ryan I swear to GOD I'm going to punch you for this, lol jk :)
 			
 			for(Configuration c : configs)
 			{
@@ -237,6 +240,12 @@ public class Display extends JFrame implements Runnable
 				//TODO Ryan figure out how to load
 				//animations here, the dimension is unknown
 				//at this time
+			}
+			else if(p.getValue() instanceof TechGraph)
+			{
+				TechGraph tg = (TechGraph) p.getValue();
+				for(TechNode tn : tg.getOrderedList())
+					loadDisplayResourcesRecursive(tn.getTechConfig(), loadedConfigs);
 			}
 		}
 	}

@@ -21,6 +21,8 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 	 * 
 	 */
 	private static final long serialVersionUID = 4069623136959125588L;
+	
+	private static final double FLYING_PUSH_APART_MODIFIER = 0.1;
 
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Drone Movement",
@@ -31,11 +33,12 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 	{
 		private Unit bomber;
 		private Transformation target;
-		private List<Position> collisions = new ArrayList<Position>();
+		private CollisionResolutionNormal collisionResolutionStrategy = new CollisionResolutionNormal();
 		
 		private BomberMovement(Unit u)
 		{
 			bomber = u;
+			collisionResolutionStrategy = new CollisionResolutionNormal();
 		}
 
 		@Override
@@ -53,6 +56,7 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 			double dis = t.getPosition().distanceSquared(bomber.getPosition());
 			double maxDis = getMaxVelocity()*bomber.getGameState().getLastLoopTime()*
 							bomber.getModifier().getModifier(MapItemModifiers.moveSpeed);
+			target = t;
 			return Math.min(dis/maxDis, 1.0);
 		}
 
@@ -63,16 +67,22 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 							bomber.getModifier().getModifier(MapItemModifiers.moveSpeed);
 			double minDis = getMinVelocity()*bomber.getGameState().getLastLoopTime()*
 							bomber.getModifier().getModifier(MapItemModifiers.moveSpeed);
-			double dis = Math.sqrt(bomber.getPosition().distanceSquared(target.getPosition()));
+			double dis = minDis;
+			if(target != null)
+				dis = Math.sqrt(bomber.getPosition().distanceSquared(target.getPosition()));
 			if(dis < minDis)
 				dis = minDis;
 			else if(dis > maxDis)
 				dis = maxDis;
 			
-			double angle = target.getPosition().subtract(bomber.getPosition()).getAngle();
+			double angle = bomber.getRotation();
+			if(target != null)
+				target.getPosition().subtract(bomber.getPosition()).getAngle();
+			
 			Transformation toSet = new Transformation(bomber.getPosition().add(Position.getUnitVector(angle).scale(dis)), angle);
 			if(bomber.getPosition().distanceSquared(toSet.getPosition()) <= 0.01 &&
-					Math.abs(bomber.getRotation() - toSet.getRotation()) <= 0.01)
+					Math.abs(bomber.getRotation() - toSet.getRotation()) <= 0.01 &&
+					target != null)
 			{
 				if(!bomber.getState().equals(MapItemState.Idle))
 					bomber.setState(MapItemState.Idle);
@@ -80,14 +90,19 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 			}
 			else if(!bomber.getState().equals(MapItemState.Moving))
 				bomber.setState(MapItemState.Moving);
+			toSet = new Transformation(
+					collisionResolutionStrategy.adjustTarget(
+							toSet.getPosition(), bomber, getMinVelocity()*FLYING_PUSH_APART_MODIFIER),
+					toSet.getRotation());
+			
 			bomber.setTransformation(toSet);
 			
+			target = null;
 		}
 
 		@Override
 		public void notifyOfCollision(Position direction) {
-			collisions.add(direction);
-			
+			collisionResolutionStrategy.notifyOfCollision(direction);
 		}
 		
 	}
