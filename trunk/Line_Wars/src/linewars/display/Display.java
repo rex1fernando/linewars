@@ -232,6 +232,12 @@ public class Display extends JFrame implements Runnable
 					loadDisplayResourcesRecursive(c, loadedConfigs);
 				}
 			}
+			else if(p.getUsage() == Usage.ANIMATION)
+			{
+				//TODO Ryan figure out how to load
+				//animations here, the dimension is unknown
+				//at this time
+			}
 		}
 	}
 	

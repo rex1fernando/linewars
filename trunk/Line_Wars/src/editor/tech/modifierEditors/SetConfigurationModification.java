@@ -18,12 +18,13 @@ public class SetConfigurationModification extends ModifierConfiguration {
 	}
 	
 	private static final Usage validUsage = Usage.CONFIGURATION;
+	private static final Usage validUsage2 = Usage.ANIMATION;
 	
 	private static final String replacementName = "replacement";
 	
 	@Override
 	public Property applyTo(Property toModify) {
-		if(toModify.getUsage() != validUsage){
+		if(toModify.getUsage() != validUsage && toModify.getUsage() != validUsage2){
 			throw new IllegalArgumentException();
 		}
 		
