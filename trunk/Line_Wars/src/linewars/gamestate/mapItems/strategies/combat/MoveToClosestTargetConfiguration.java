@@ -78,7 +78,7 @@ public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguratio
 			for(Unit u : availableEnemies)
 			{
 				double nd = unit.getPosition().distanceSquared(u.getPosition());
-				if(nd < dis && u.getState() != MapItemState.Dead)
+				if(nd < dis && !u.getState().equals(MapItemState.Dead))
 				{
 					dis = nd;
 					closest = u;

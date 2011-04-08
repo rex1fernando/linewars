@@ -74,6 +74,27 @@ public abstract class MapItemAggregate extends MapItem {
 		body = null;
 	}
 	
+	/**
+	 * Checks to see if m is contained in this map item aggregate. If it is, returns
+	 * true, if not recursively checks to see if any contained map item aggregates
+	 * contain m. If any of them do, returns true, otherwise returns false.
+	 * 
+	 * @param m
+	 * @return
+	 */
+	public boolean containsRecursively(MapItem m)
+	{
+		for(MapItem contained : containedItems)
+		{
+			if(contained.equals(m))
+				return true;
+			else if((contained instanceof MapItemAggregate) &&
+					((MapItemAggregate)contained).containsRecursively(m))
+				return true;
+		}
+		return false;
+	}
+	
 	public void removeMapItem(MapItem m)
 	{
 		containedItems.remove(m);

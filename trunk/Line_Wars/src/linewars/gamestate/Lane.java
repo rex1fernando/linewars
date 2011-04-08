@@ -74,11 +74,11 @@ public strictfp class Lane
 		AABB box = m.getBody().getAABB();
 		List<Unit> units = this.getUnitsIn(box);
 		for(Unit u : units)
-			if(u.equals(m))
+			if(u.equals(m) || u.containsRecursively(m))
 				return true;
 		
 		for(Projectile p : projectiles)
-			if(m.equals(p))
+			if(p.equals(m) || p.containsRecursively(m))
 				return true;
 		
 		return false;
@@ -437,8 +437,21 @@ public strictfp class Lane
 	 */
 	public List<Unit> getUnitsIn(AABB box)
 	{
-		//TODO implement this
-		return null;
+		//TODO implement this using sweep and prune data structures
+		List<Unit> ret = new LinkedList<Unit>();
+		for(Wave w : waves)
+		{
+			for(Unit u : w.getUnits())
+			{
+				AABB body = u.getBody().getAABB();
+				if(body.getXMax() > box.getXMin() &&
+				   body.getXMin() < box.getXMax() &&
+				   body.getYMax() > box.getYMin() &&
+				   body.getYMin() < box.getYMax())
+					ret.add(u);
+			}
+		}
+		return ret;
 	}
 	
 	/**

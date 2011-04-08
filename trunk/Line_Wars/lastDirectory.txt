@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-D:\programming\linewars\trunk\Line_Wars\resources\Animation Configs
-=======
-D:\documents\linewars\trunk\Line_Wars\resources\images
->>>>>>> 16e5b14cfe0cf0a9b7da21b880bf4ebb11bc2e84
+D:\Development\Broken Lightbulb Entertainment\linewars\trunk\Line_Wars\resources\images
