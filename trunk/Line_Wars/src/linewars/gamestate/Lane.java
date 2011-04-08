@@ -483,11 +483,11 @@ public strictfp class Lane
 		for(Node n : nodes)
 			this.addPendingWaves(n);
 		
-		for(Wave w : waves)
-		{
-			w.addRecentlyAddedUnitsToWave();
-			w.moveUnits();
-		}
+//		for(Wave w : waves)
+//		{
+//			w.addRecentlyAddedUnitsToWave();
+//			w.moveUnits();
+//		}
 
 		findCollisions();
 	}
