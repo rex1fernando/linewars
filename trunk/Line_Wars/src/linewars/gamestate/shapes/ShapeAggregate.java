@@ -91,6 +91,7 @@ public strictfp class ShapeAggregate extends Shape {
 			Shape ithShape = members.get(i);
 			//compute how this sub-shape needs to be translated
 			Position targetLocation = ithShape.position().getPosition().rotateAboutPosition(position().getPosition(), change.getRotation());
+			targetLocation = targetLocation.add(change.getPosition());
 			Shape finalShape = members.get(i).transform(new Transformation(targetLocation.subtract(members.get(i).position().getPosition()), change.getRotation()));
 			
 			ret.members.add(finalShape);
@@ -218,5 +219,20 @@ public strictfp class ShapeAggregate extends Shape {
 			relativePositions.add(new Transformation(relativePosition, toScale.position().getRotation()));
 		}
 		return new ShapeAggregate(new Transformation(center, rotation), members, relativePositions);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		//TODO this is not implemented correctly, it is here for debugging only
+		if(obj instanceof ShapeAggregate)
+		{
+			ShapeAggregate sa = (ShapeAggregate) obj;
+			return sa.center.equals(center) &&
+					sa.members.equals(members) &&
+					sa.rotation == rotation;
+		}
+		else
+			return false;
 	}
 }

@@ -96,6 +96,8 @@ public class ColoredEdge
 
 			// if this wave belongs to a different player than the previous one
 			// set the current color to white
+			if(wave.getUnits().length <= 0)
+				continue;
 			curIndex = wave.getUnits()[0].getOwner().getPlayerID();
 			if(curIndex != prevIndex)
 			{

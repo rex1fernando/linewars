@@ -151,10 +151,15 @@ public abstract class MapItemAggregate extends MapItem {
 			m.setPosition(newPos.add(diff));
 		}
 		
-		if(body != null)
-			body = body.transform(new Transformation(newPos.subtract(oldPos), 0));
-		
 		transform = new Transformation(newPos, getRotation());
+		if(body != null)
+		{
+			body = body.transform(new Transformation(newPos.subtract(oldPos), 0));
+//			updateInternalVariables();
+//			if(!tempBody.equals(body))
+//				System.out.println("MapItemAggregate:setPosition: Body not translated correctly");
+		}
+		
 	}
 	
 	@Override
@@ -167,10 +172,18 @@ public abstract class MapItemAggregate extends MapItem {
 			m.setRotation(rot + m.getRotation());
 		}
 		
-		if(body != null)
-			body = body.transform(new Transformation(Position.ORIGIN, newRot - transform.getRotation()));
-		
+		double oldRot = transform.getRotation();
 		transform = new Transformation(transform.getPosition(), newRot);
+		
+		if(body != null)
+		{
+			body = body.transform(new Transformation(Position.ORIGIN, newRot - oldRot));
+//			updateInternalVariables();
+//			if(!tempBody.equals(body))
+//				System.out.println("MapItemAggregate:setPosition: Body not rotated correctly");
+		}
+		
+		
 		
 	}
 	
@@ -196,7 +209,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public Shape getBody()
 	{
-//		if(checkForContainedItemsChange(this))
+		if(checkForContainedItemsChange(this))
 			updateInternalVariables();
 		return body;
 	}
