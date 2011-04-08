@@ -1,5 +1,6 @@
 package linewars.gamestate.playerabilities;
 
+import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
@@ -58,6 +59,11 @@ public class Chronoboost extends PlayerAbility {
 
 	@Override
 	public void apply(Position p, Player player) {
+		//first check to make sure the player has enough energy and charge the player if they do
+		if(player.getPlayerEnergy() < this.getEnergyCost())
+			return;
+		player.setPlayerEnergy(player.getPlayerEnergy() - this.getEnergyCost());
+		
 		double dis = Double.POSITIVE_INFINITY;
 		Building closest = null;
 		for(Node n : player.getGameState().getMap().getNodes())
@@ -72,6 +78,12 @@ public class Chronoboost extends PlayerAbility {
 				}
 			}
 		}
+		
+		//if they didn't actually click in a building
+		//TODO this is a hack
+		DisplayConfiguration dc = (DisplayConfiguration) closest.getDefinition().getDisplayConfiguration();
+		if(dis > Math.pow(dc.getDimensions().getX(), 2) + Math.pow(dc.getDimensions().getY(), 2))
+			return;
 		
 		closest.addActiveAbility(new Boost(closest));
 	}

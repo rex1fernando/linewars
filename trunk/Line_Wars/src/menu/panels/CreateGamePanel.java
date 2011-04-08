@@ -13,16 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataListener;
 
 import linewars.gamestate.MapConfiguration;
+import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Race;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
 import menu.components.ComboBoxRenderer;
-import menu.components.CustomLabel;
+import menu.components.CustomScrollBar;
 import menu.components.MenuButton;
 import menu.components.MenuComboBox;
 import menu.components.MenuScrollPane;
@@ -128,7 +130,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     
     public void addPlayer(final boolean enabled) {
     	SwingUtilities.invokeLater(new Runnable() { public void run() {
-    		PlayerPanel pp = new PlayerPanel();
+    		PlayerPanel pp = new PlayerPanel(enabled);
     		pp.setEnabled(enabled);
     		players.add(pp);
     		lobbyPanel.add(pp);
@@ -189,6 +191,10 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }
 
     private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {
+    	if (replayToggleButton.isSelected() == false)
+    	{
+    		previewPanel.setMap((MapConfiguration) selectionComboBox.getSelectedItem());
+    	}
     	client.sendMessage(MessageType.selection, selectionComboBox.getSelectedItem());
     }                                            
 
@@ -219,11 +225,32 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	return ContentProvider.getAvailableColors();
     }
     
-    private Integer[] getAvailableSlots() {
-    	// FIXME
-    	Integer[] s = new Integer[10];
-    	for (int i = 1; i <= 10; ++i) s[i-1] = i;
-    	return s;
+    private Integer[] getAvailableSlots(boolean filter) {
+    	MapConfiguration map = (MapConfiguration) selectionComboBox.getSelectedItem();
+    	
+    	// get count of nodes
+    	int count = 0;
+    	List<Integer> slots = new ArrayList<Integer>();
+    	for(NodeConfiguration node : map.getNodes())
+    	{
+    		if(node.isStartNode())
+    		{
+    			count++;
+    			slots.add(count);
+    		}
+    	}
+    	
+    	// remove used slots
+    	if (filter == true)
+    	{
+	    	for (int i = 0; i < players.size(); ++i)
+	    	{
+	    		if (client.getPlayerIndex() != i)
+	    			slots.remove(players.get(i).slot.getSelectedItem());
+	    	}
+    	}
+    	
+    	return slots.toArray(new Integer[0]);
     }
     
     private boolean allIsWell(PlayerPanel p) {
@@ -232,8 +259,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
 
     private class PlayerPanel extends javax.swing.JPanel {
 		private static final long serialVersionUID = 1L;
-		public PlayerPanel() {
-            initComponents();
+		public PlayerPanel(boolean filter) {
+            initComponents(filter);
         }        
 
         private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {         
@@ -274,33 +301,34 @@ public class CreateGamePanel extends javax.swing.JPanel {
         	slot.setEnabled(enabled);
         }
      
-        private void initComponents() {
+        private void initComponents(boolean filter) {
         	
         	removeAll();
 
         	setOpaque(false);
         	
-            slot = new MenuComboBox();
-            race = new MenuComboBox();
+            slot = new MenuComboBox(false);
+            race = new MenuComboBox(false);
             name = new javax.swing.JButton();
-            color = new MenuComboBox();
+            color = new MenuComboBox(true);
 
             setMaximumSize(new java.awt.Dimension(712, 28));
             setMinimumSize(new java.awt.Dimension(712, 28));
             setPreferredSize(new java.awt.Dimension(712, 28));
 
-            slot.setModel(new javax.swing.DefaultComboBoxModel(getAvailableSlots()));
             slot.setBorder(null);
+            slot.setModel(new DefaultComboBoxModel(getAvailableSlots(false)));
             slot.setEditor(null);
             slot.setFocusable(false);
             slot.setKeySelectionManager(null);
-            slot.setMaximumSize(new java.awt.Dimension(82, 28));
+            slot.setPreferredSize(new java.awt.Dimension(120, 28));
             slot.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     slotChangeActionPerformed(evt);
                 }
             });
 
+            // FIXME make it so it filters again
             race.setModel(new javax.swing.DefaultComboBoxModel(getAvailableRaces()));
             race.setBorder(null);
             race.setFocusable(false);
@@ -327,7 +355,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
             color.setEditor(null);
             color.setFocusable(false);
             color.setKeySelectionManager(null);
-            color.setMaximumSize(new java.awt.Dimension(82, 28));
+            color.setPreferredSize(new java.awt.Dimension(120, 28));
             color.setRenderer(new ComboBoxRenderer());
             color.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -416,6 +444,48 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }
     }
     
+    private class SlotComboBoxModel implements ComboBoxModel {
+        private Object selection;
+        private boolean filter;
+        
+        public SlotComboBoxModel(boolean filter)
+        {
+        	this.filter = filter;
+        	selection = getItems()[0];
+        }
+
+        public void setSelectedItem(Object anItem) {
+//            for (Object o : getItems())
+//            {
+//            	if (anItem == o)
+//            	{
+//            		selection = anItem;
+//            		return;
+//            	}
+//            }
+            selection = anItem;
+        }
+
+        public Object getSelectedItem() {
+            return selection;
+        }
+
+        public int getSize() {
+            return getItems().length;
+        }
+
+        public Object getElementAt(int index) {
+            return getItems()[index];
+        }
+
+        public void addListDataListener(ListDataListener l) {}
+        public void removeListDataListener(ListDataListener l) {}
+
+        private Object[] getItems() {
+            return getAvailableSlots(filter);
+        }
+    }
+    
     private void initComponents() {
 
     	removeAll();
@@ -424,8 +494,8 @@ public class CreateGamePanel extends javax.swing.JPanel {
         replayLabel = new javax.swing.JLabel();
         selectionLabel = new javax.swing.JLabel();
         replayToggleButton = new javax.swing.JToggleButton();
-        selectionComboBox = new MenuComboBox();
-        previewPanel = new javax.swing.JPanel();
+        selectionComboBox = new MenuComboBox(false);
+        previewPanel = new MapPanel();
         chatWindow = new javax.swing.JPanel();
         chatArea = new MenuTextArea();
         chatField = new MenuTextField();
@@ -484,7 +554,9 @@ public class CreateGamePanel extends javax.swing.JPanel {
         chatWindow.setOpaque(false);
 
         chatScrollPane1.setOpaque(false);
-        chatScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        chatScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        chatScrollPane1.setVerticalScrollBar(new CustomScrollBar());
+        chatScrollPane1.setBorder(null);
 
         chatField.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent e) {}
@@ -557,8 +629,9 @@ public class CreateGamePanel extends javax.swing.JPanel {
 
         lobbyScrollPane.setOpaque(false);
         lobbyScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         lobbyScrollPane.setBorder(null);
+        lobbyScrollPane.setVerticalScrollBar(new CustomScrollBar());
 
         lobbyPanel.setOpaque(false);
         lobbyPanel.setBorder(null);
@@ -622,7 +695,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane chatScrollPane1;
     private javax.swing.JPanel lobbyPanel;
     private javax.swing.JScrollPane lobbyScrollPane;
-    private javax.swing.JPanel previewPanel;
+    private MapPanel previewPanel;
     private javax.swing.JLabel replayLabel;
     private javax.swing.JToggleButton replayToggleButton;
     private javax.swing.JComboBox selectionComboBox;

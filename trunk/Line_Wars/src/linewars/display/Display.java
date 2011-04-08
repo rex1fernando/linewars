@@ -48,8 +48,11 @@ import linewars.gamestate.Position;
 import linewars.gamestate.Race;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.network.MessageReceiver;
+import linewars.network.messages.Message;
+import linewars.network.messages.PlayerAbilityMessage;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -81,6 +84,8 @@ public class Display extends JFrame implements Runnable
 	private boolean clicked;
 
 	private int playerIndex;
+	private int activeAbilityIndex;
+	private Position activeAbilityPosition;
 
 	/**
 	 * Creates and initializes the Display.
@@ -97,6 +102,8 @@ public class Display extends JFrame implements Runnable
 		super("Line Wars");
 
 		playerIndex = curPlayer;
+		activeAbilityIndex = -1;
+		activeAbilityPosition = null;
 		clicked = false;
 
 		messageReceiver = receiver;
@@ -140,6 +147,16 @@ public class Display extends JFrame implements Runnable
 	public int getScreenHeight()
 	{
 		return gamePanel.getHeight();
+	}
+	
+	public void setActiveAbilityIndex(int index)
+	{
+		activeAbilityIndex = index;
+	}
+	
+	public void setActiveAbilityPos(Position p)
+	{
+		activeAbilityPosition = p;
 	}
 
 	/**
@@ -433,6 +450,7 @@ public class Display extends JFrame implements Runnable
 			}
 
 			detectFlowIndicatorChange(gamestate);
+			playerAbilityCheck(gamestate);
 
 			List<ILayer> currentView = (zoomLevel > ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
@@ -463,6 +481,41 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 
 			this.repaint();
+		}
+		
+		private void playerAbilityCheck(GameState state)
+		{
+			if(activeAbilityIndex == -1)
+			{
+				activeAbilityPosition = null;
+				return;
+			}
+			
+			List<PlayerAbility> abilities = state.getPlayer(playerIndex).getAllPlayerAbilities();
+			if(activeAbilityIndex >= abilities.size())
+			{
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+				return;
+			}
+			
+			PlayerAbility ability = abilities.get(activeAbilityIndex);
+			if(!ability.requiresPosition())
+			{
+				Message m = new PlayerAbilityMessage(playerIndex, activeAbilityIndex);
+				messageReceiver.addMessage(m);
+				
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+			}
+			else if(activeAbilityPosition != null)
+			{
+				Message m = new PlayerAbilityMessage(playerIndex, activeAbilityIndex, activeAbilityPosition);
+				messageReceiver.addMessage(m);
+				
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+			}
 		}
 
 		/**
@@ -615,7 +668,7 @@ public class Display extends JFrame implements Runnable
 			if(node == null)
 			{
 				nodeStatusPanel.setVisible(false);
-				commandCardPanel.setVisible(false);
+				commandCardPanel.updateButtons(gamestate, null);
 			}
 			else
 			{
@@ -626,11 +679,10 @@ public class Display extends JFrame implements Runnable
 
 				if(cc == null || (cc.getOwner().getPlayerID() != playerIndex && !DEBUG_MODE))
 				{
-					commandCardPanel.setVisible(false);
+					commandCardPanel.updateButtons(gamestate, null);
 				}
 				else
 				{
-					commandCardPanel.setVisible(true);
 					commandCardPanel.updateButtons(gamestate, node);
 				}
 
@@ -788,6 +840,7 @@ public class Display extends JFrame implements Runnable
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				lastClickPosition = toGameCoord(p);
 				flowLayer.deselectLane();
+				setActiveAbilityPos(lastClickPosition);
 			}
 
 			@Override

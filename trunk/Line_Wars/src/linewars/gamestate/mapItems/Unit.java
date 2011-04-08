@@ -58,7 +58,10 @@ public strictfp class Unit extends MapItemAggregate {
 	public void setHP(double h)
 	{
 		double change = h - hp;
-		hp = hp + this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
+		if(change < 0)
+			hp = hp + this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
+		else
+			hp = hp + change;
 		if(hp <= 0)
 		{
 			hp = 0;
@@ -103,6 +106,16 @@ public strictfp class Unit extends MapItemAggregate {
 	public MovementStrategy getMovementStrategy()
 	{
 		return mStrat;
+	}
+	
+	public void setMovementStrategy(MovementStrategy ms)
+	{
+		mStrat = ms;
+	}
+	
+	public void setCombatStrategy(CombatStrategy cs)
+	{
+		cStrat = cs;
 	}
 	
 	@Override

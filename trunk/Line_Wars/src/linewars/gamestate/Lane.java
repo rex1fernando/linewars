@@ -71,17 +71,11 @@ public strictfp class Lane
 	
 	public boolean isInLane(MapItem m)
 	{
-		for(Wave w : waves)
-		{
-			for(Unit u : w.getUnits())
-			{
-				if(u.equals(m))
-					return true;
-				for(MapItem mi : u.getContainedItems())
-					if(mi.equals(m))
-						return true;
-			}
-		}
+		AABB box = m.getBody().getAABB();
+		List<Unit> units = this.getUnitsIn(box);
+		for(Unit u : units)
+			if(u.equals(m))
+				return true;
 		
 		for(Projectile p : projectiles)
 			if(m.equals(p))
@@ -137,7 +131,8 @@ public strictfp class Lane
 		double bottom = Math.max(unit.getPosition().getY(), target.getY()) + c*this.getWidth();
 		double left = Math.min(unit.getPosition().getX(), target.getX()) - c*this.getWidth();
 		double right = Math.max(unit.getPosition().getX(), target.getX()) + c*this.getWidth();
-		MapItem[] os = this.getMapItemsIn(new Position(left, top), right - left, bottom - top);
+		AABB box = new AABB(left, top, right, bottom);
+		List<Unit> os = this.getUnitsIn(box);
 		ArrayList<MapItem> obstacles = new ArrayList<MapItem>();
 		for(MapItem m : os)
 			if (!(m instanceof Projectile || m instanceof Building)
@@ -146,28 +141,6 @@ public strictfp class Lane
 				obstacles.add(m);
 		//TODO this path finder is kinda crappy
 		return pathFinder.findPath(unit, target, range, obstacles.toArray(new MapItem[0]), new Position(left, top), right - left, bottom - top);
-	}
-	
-	/**
-	 * Gets all map items colliding with the given map item. Uses the isCollidingWith method
-	 * in map item to determine collisions.
-	 * 
-	 * @param m		the item to get collisions with
-	 * @return		the list of items colliding with m
-	 */
-	public MapItem[] getCollisions(MapItem m)
-	{
-		//TODO use prune-and-sweep's data structures for performance optimization
-		ArrayList<MapItem> collisions = new ArrayList<MapItem>();
-		MapItem[] ms = this.getMapItemsIn(
-				m.getPosition().subtract(m.getWidth() / 2, m.getHeight() / 2),
-				m.getWidth(), m.getHeight());
-		
-		for(MapItem mapItem : ms)
-			if(!(mapItem == m))
-				if(m.isCollidingWith(mapItem))
-					collisions.add(mapItem);
-		return collisions.toArray(new MapItem[collisions.size()]);
 	}
 	
 	/**
@@ -454,44 +427,6 @@ public strictfp class Lane
 			}
 		}
 		return pos;
-	}	
-	
-	/**
-	 * Gets the map items intersecting with the rectangle
-	 * TODO use prune-and-sweep's data structures to optimize this?
-	 * 
-	 * @param upperLeft	the upper left of the rectangle
-	 * @param width		the width of the rectangle	
-	 * @param height	the height of the rectangle
-	 * @return			the list of map items in the rectangle
-	 */
-	public MapItem[] getMapItemsIn(Position upperLeft, double width, double height)
-	{
-		updateSweepAndPruneStructures();
-		
-		AABB box = new AABB(upperLeft.getX(), upperLeft.getY(), upperLeft.getX() + width, upperLeft.getY() + height);
-		ArrayList<MapItem> items = new ArrayList<MapItem>();
-		for(Wave w : waves)
-		{
-			Unit[] us = w.getUnits();
-			for(Unit u : us)
-			{
-				AABB ua = u.getBody().getAABB();
-				if((ua.getXMax() > box.getXMin() && ua.getYMax() > box.getYMin()) && 
-						(box.getXMax() > ua.getXMin() && box.getYMax() > ua.getYMin()))
-					items.add(u);
-			}
-		}
-		
-		for(Projectile prj : this.getProjectiles())
-		{
-			AABB ua = prj.getBody().getAABB();
-			if((ua.getXMax() > box.getXMin() && ua.getYMax() > box.getYMin()) && 
-					(box.getXMax() > ua.getXMin() && box.getYMax() > ua.getYMin()))
-				items.add(prj);
-		}
-		
-		return items.toArray(new MapItem[items.size()]);
 	}
 	
 	/**
@@ -500,20 +435,10 @@ public strictfp class Lane
 	 * @param c	the circle to get units in
 	 * @return	the units in c
 	 */
-	public List<Unit> getUnitsIn(Circle c)
+	public List<Unit> getUnitsIn(AABB box)
 	{
-		ArrayList<Unit> units = new ArrayList<Unit>();
-		for(Wave w : waves)
-		{
-			Unit[] us = w.getUnits();
-			for(Unit u : us)
-			{
-				if(u.getPosition().distanceSquared(c.position().getPosition()) <= Math.pow(c.getRadius() + u.getRadius(), 2))
-					units.add(u);
-			}
-		}
-		
-		return units;
+		//TODO implement this
+		return null;
 	}
 	
 	/**

@@ -27,7 +27,6 @@ public class ComboBoxRenderer extends BasicComboBoxRenderer {
         setBackground((Color) value);
         color = (Color) value;
         selected = isSelected;
-        setPreferredSize(new Dimension(40, 28));
         return this;
     }
 

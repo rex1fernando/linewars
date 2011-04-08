@@ -1,17 +1,20 @@
 package linewars.gamestate.mapItems.strategies.targeting;
 
+import linewars.gamestate.Position;
+import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Projectile;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.shapes.Shape;
+import utility.AugmentedMath;
+import utility.Observable;
+import utility.Observer;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
-import linewars.gamestate.Position;
-import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.Projectile;
-import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import utility.AugmentedMath;
-import utility.Observable;
-import utility.Observer;
 
 public class AntiProjectileConfiguration extends TargetingStrategyConfiguration implements Observer {
 	
@@ -77,8 +80,27 @@ public class AntiProjectileConfiguration extends TargetingStrategyConfiguration 
 					actualTurn + projectile.getRotation()).scale(
 					speed * projectile.getGameState().getLastLoopTime());
 			
-			return new Transformation(actualChange, actualTurn);
+			Transformation target = new Transformation(actualChange, actualTurn);
 			
+			//need to handle projectile collisions here
+			checkForCollisionsWithProjectiles(target);
+			
+			return target;
+			
+		}
+		
+		private void checkForCollisionsWithProjectiles(Transformation target)
+		{
+			Position change = target.getPosition().subtract(projectile.getPosition());
+			Shape body = projectile.getBody().stretch(new Transformation(change, target.getRotation()));
+			for(Projectile p : projectile.getLane().getProjectiles())
+			{
+				if(projectile.getState().equals(MapItemState.Dead))
+					break;
+				if(CollisionStrategyConfiguration.isAllowedToCollide(p, projectile) &&
+						body.isCollidingWith(p.getBody()))
+					projectile.getImpactStrategy().handleImpact(p);
+			}
 		}
 		
 	}
