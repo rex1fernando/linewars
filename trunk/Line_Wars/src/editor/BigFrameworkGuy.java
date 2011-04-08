@@ -314,6 +314,20 @@ public class BigFrameworkGuy
 		
 	}
 	
+	public void setPreferredSizeForCurrentlyShowingPane(Dimension d)
+	{
+		ConfigurationEditor ce = editors.get(tabPanel.getSelectedIndex());
+		ce.getPanel().setPreferredSize(d);
+		ce.getPanel().validate();
+		ce.getPanel().updateUI();
+		ce.getPanel().revalidate();
+	}
+	
+	public JPanel getCurrentlyShowingPanel()
+	{
+		return editors.get(tabPanel.getSelectedIndex()).getPanel();
+	}
+	
 	public List<Configuration> getConfigurationsByType(List<ConfigType> types)
 	{
 		List<Configuration> ret = new ArrayList<Configuration>();
@@ -471,7 +485,7 @@ public class BigFrameworkGuy
 			list = showMultiSelectionBox(types, "Export", "Export", new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JFileChooser fc = new JFileChooser("");
+					JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
 					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					if(fc.showOpenDialog(frame) == JFileChooser.CANCEL_OPTION)
 						return;

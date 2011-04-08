@@ -482,6 +482,7 @@ public strictfp class Lane
 		
 		for(Node n : nodes)
 			this.addPendingWaves(n);
+	
 		
 //		for(Wave w : waves)
 //		{

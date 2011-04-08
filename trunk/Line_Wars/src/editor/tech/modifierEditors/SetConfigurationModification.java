@@ -14,6 +14,7 @@ public class SetConfigurationModification extends ModifierConfiguration {
 
 	static{
 		ModifierConfiguration.addModifierForUsage(Usage.CONFIGURATION, SetConfigurationModification.class, "Set this sub-Configuration to a completely different Configuration.");
+		ModifierConfiguration.addModifierForUsage(Usage.ANIMATION, SetConfigurationModification.class, "Set this sub-Configuration to a completely different Configuration.");
 	}
 	
 	private static final Usage validUsage = Usage.CONFIGURATION;
