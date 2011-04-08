@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,6 +20,7 @@ import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
+import utility.Pair;
 
 /**
  * 
@@ -32,7 +32,6 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Lane
 {
 	private static final double LANE_GATE_DISTANCE = 0.1;
-	private static final int NUM_COLLISION_FIXES = 1;
 	
 	private HashMap<Node, HashMap<Player, Wave>> pendingWaves;
 	private ArrayList<Wave> waves;
@@ -40,7 +39,7 @@ public strictfp class Lane
 	private ArrayList<Node> nodes;
 	private GameState gameState;
 	
-	private LinkedList<Unit> horizontallySortedUnits, verticallySortedUnits;
+	private ArrayList<Unit> horizontallySortedUnits, verticallySortedUnits;
 	
 	/**
 	 * The width of the lane.
@@ -56,8 +55,8 @@ public strictfp class Lane
 	public Lane(GameState gameState, LaneConfiguration config)
 	{
 		
-		this.horizontallySortedUnits = new LinkedList<Unit>();
-		this.verticallySortedUnits = new LinkedList<Unit>();
+		this.horizontallySortedUnits = new ArrayList<Unit>();
+		this.verticallySortedUnits = new ArrayList<Unit>();
 		
 		this.nodes = new ArrayList<Node>();
 		this.waves = new ArrayList<Wave>();
@@ -322,7 +321,7 @@ public strictfp class Lane
 					}
 					
 					//notify sweep and prune that a unit has been added
-					this.notifySweepAndPruneUnitAdded(u);
+					//this.notifySweepAndPruneUnitAdded(u);
 				}
 				else //if there's not enough room, check the next biggest unit
 					i++;
@@ -355,6 +354,7 @@ public strictfp class Lane
 		}
 		
 		pendingWaves.get(n).clear();
+		
 	}
 
 	private ArrayList<Unit> extractAndSortUnits(ArrayList<Wave> waves) {
@@ -488,127 +488,131 @@ public strictfp class Lane
 				i++;
 			}
 		}
-		
-		for(int i = 0; i < NUM_COLLISION_FIXES; i++){
-			findAndResolveCollisions();			
+
+		findCollisions();
+	}
+	
+	private void findCollisions(){
+		pushUnitsOntoLane();
+		LinkedList<Pair<Unit>> possibleCollisions = sweepAndPrune2();
+		for(Pair<Unit> currentCollision : possibleCollisions){
+			Unit first = currentCollision.getFirst();
+			Unit second = currentCollision.getSecond();
+			if(first.isCollidingWith(second)){
+				Position firstToSecond = second.getPosition().subtract(first.getPosition());
+				first.getMovementStrategy().notifyOfCollision(firstToSecond);
+				second.getMovementStrategy().notifyOfCollision(firstToSecond.scale(-1));
+			}
 		}
-//		checkWaveConsistency();
 	}
 	
 	/**
-	 * Finds and resolves all the collisions in the Lane
+	 * n log n time to find all of the intersecting AABBs
+	 * @return a list of pairs of Units that might be colliding
 	 */
-	private void findAndResolveCollisions(){
-		long currentTime = System.currentTimeMillis();
-		pushUnitsOntoLane();
-		//First find all the collisions
-		HashMap<MapItem, Position> collisionVectors = new HashMap<MapItem, Position>();
-				
-		//List<Unit> snppotentiallyCollidingUnits = sweepAndPrune();
-		//List<Unit> potentiallyCollidingUnits = getCollidableMapItems();
-		List<Unit> potentiallyCollidingUnits = sweepAndPrune();
+	private LinkedList<Pair<Unit>> sweepAndPrune2(){
+		if(horizontallySortedUnits.size() != getCollidableMapItems().size()){
+			System.out.println("FFFUUU");
+		}
+		sortUnits();
 		
+		//get a set of pairs of units for the x axis
+		HashSet<Pair<Unit>> xCoordinateIntersections = getPotentialCollisions(horizontallySortedUnits, false);
 		
-		for(Unit first : potentiallyCollidingUnits){//for each unit in the lane
-			collisionVectors.put(first, new Position(0, 0));//doesn't have to move yet
-			
-			for(Unit second : potentiallyCollidingUnits){//for each unit it could be colliding with
-				if(first == second) continue;//units can't collide with themselves
-				if(first.isCollidingWith(second)){//if the two units are actually colliding
-					Position offsetVector = first.getPosition().subtract(second.getPosition());//The vector from first to second
-					
-					second.getMovementStrategy().notifyOfCollision(offsetVector);
-					first.getMovementStrategy().notifyOfCollision(offsetVector.scale(-1));
-					
-					/*if(!snppotentiallyCollidingUnits.contains(first) || ! snppotentiallyCollidingUnits.contains(second)){
-						System.out.println("WTF");
-					}*/
-					
-				}
+		//get an analogous set for the y axis
+		HashSet<Pair<Unit>> yCoordinateIntersections = getPotentialCollisions(verticallySortedUnits, true);
+		
+		//compute the intersection and put it in a linked list for return
+		HashSet<Pair<Unit>> smallestSet = null;
+		HashSet<Pair<Unit>> largestSet = null;
+		if(xCoordinateIntersections.size() < yCoordinateIntersections.size()){
+			smallestSet = xCoordinateIntersections;
+			largestSet = yCoordinateIntersections;
+		}else{
+			smallestSet = yCoordinateIntersections;
+			largestSet = xCoordinateIntersections;
+		}
+		
+		LinkedList<Pair<Unit>> ret = new LinkedList<Pair<Unit>>();
+		for(Pair<Unit> toIntersect : smallestSet){
+			if(largestSet.contains(toIntersect)){
+				ret.add(toIntersect);
 			}
 		}
 		
-		System.out.println(System.currentTimeMillis() - currentTime);
+		return ret;
 	}
 	
-	private LinkedList<Unit> sweepAndPrune()
-	{
-		if(horizontallySortedUnits.size() == 0){
-			return new LinkedList<Unit>();
-		}
-		
-		LinkedList<Unit> potentiallyCollidingUnits = new LinkedList<Unit>();
-		
-		HashSet<Unit> horizontallyCollidingUnits = new HashSet<Unit>();
-		
-		updateSweepAndPruneStructures();
-	
-		boolean addedLastUnit = false;
-		Iterator<Unit> iter = horizontallySortedUnits.iterator();
-		Unit lastUnit = iter.next();
-		for (; iter.hasNext();)
-		{
-			Unit currentUnit = iter.next();
-			if (lastUnit.getBody().getAABB().getXMax() > currentUnit.getBody().getAABB().getXMin())
-			{	
-				if (!addedLastUnit) {
-					horizontallyCollidingUnits.add(lastUnit);
-					addedLastUnit = true;
-				}
-				horizontallyCollidingUnits.add(currentUnit);
+	/**
+	 * n log n time to find all of the potential collisions along one axis
+	 * 
+	 * @param sortedList
+	 * a list of all of the Units in the lane, sorted by their minimum x- or y-positions
+	 * @param yAxis
+	 * true if the y axis should be considered, false if the x axis should be considered
+	 * @return
+	 * A set of pairs of Units that have intersecting AABBs
+	 */
+	private HashSet<Pair<Unit>> getPotentialCollisions(ArrayList<Unit> sortedList, boolean yAxis){
+		HashSet<Pair<Unit>> ret = new HashSet<Pair<Unit>>();
+		for(int i = 0; i < sortedList.size(); i++){
+			Unit toCheck = sortedList.get(i);
+			double query = toCheck.getBody().getAABB().getXMax();
+			if(yAxis){
+				query = toCheck.getBody().getAABB().getYMax();
 			}
-			lastUnit = currentUnit;
-		}
-		
-		addedLastUnit = false;
-		iter = verticallySortedUnits.iterator();
-		lastUnit = iter.next();
-		for (; iter.hasNext();)
-		{
-			Unit currentUnit = iter.next();
-			if (lastUnit.getBody().getAABB().getYMax() > currentUnit.getBody().getAABB().getYMin()
-					&& horizontallyCollidingUnits.contains(lastUnit))
-			{
-				if (!addedLastUnit)
-					potentiallyCollidingUnits.add(lastUnit);
-				potentiallyCollidingUnits.add(currentUnit);
+			int firstGreaterIndex = getFirstIndexWithMinCoordGreaterThan(sortedList, i + 1, sortedList.size(), query, yAxis);
+			for(int j = i + 1; j < firstGreaterIndex; j++){
+				ret.add(new Pair<Unit>(toCheck, sortedList.get(j)));
 			}
-			lastUnit = currentUnit;
 		}
 		
-		return potentiallyCollidingUnits;
+		return ret;
 	}
 	
-	private void initializeSortedUnits(List<Unit> allUnits)
-	{
-		horizontallySortedUnits = new LinkedList<Unit>(allUnits);
-		verticallySortedUnits = new LinkedList<Unit>(allUnits);
+	/**
+	 * @param sortedList
+	 * a list of units sorted by their minimum position in the appropriate dimension
+	 * @param sublistStart
+	 * the first index in the sublist to examine
+	 * @param sublistEnd
+	 * the first index after the sublist to examine
+	 * @param queryValue
+	 * the value to search for
+	 * @param yAxis
+	 * true if we should compare on the y axis, false if the x axis
+	 * @return
+	 * the index of the first unit with minimum position greater than queryvalue, or sublistend if no such index exists
+	 */
+	private int getFirstIndexWithMinCoordGreaterThan(ArrayList<Unit> sortedList, int sublistStart, int sublistEnd, double queryValue, boolean yAxis) {
+		//base case
+		if(sublistStart >= sublistEnd){
+			return sublistStart;
+		}
+		
+		//figure out the split point
+		int middleIndex = (int) ((sublistEnd + sublistStart) / 2.0);
+		Unit middleUnit = sortedList.get(middleIndex);
+		double middleUnitMinValue;
+		if(yAxis){
+			middleUnitMinValue = middleUnit.getBody().getAABB().getYMin();
+		}else{
+			middleUnitMinValue = middleUnit.getBody().getAABB().getXMin();
+		}
+		
+		//now recurse
+		if(middleUnitMinValue < queryValue){
+			return getFirstIndexWithMinCoordGreaterThan(sortedList, middleIndex + 1, sublistEnd, queryValue, yAxis);
+		}else{
+			return getFirstIndexWithMinCoordGreaterThan(sortedList, sublistStart, middleIndex, queryValue, yAxis);
+		}
 	}
-	
-	
+
 	private void sortUnits()
 	{
-		Collections.sort(horizontallySortedUnits, new Comparator<MapItem>()
-				{
-					public int compare(MapItem m1, MapItem m2)
-					{
-						if (m1.getBody().getAABB().getXMin() < m2.getBody().getAABB().getXMin())
-							return -1;
-						else
-							return 1;
-					}
-				});
+		Collections.sort(horizontallySortedUnits, new minXComparator());
 				
-		Collections.sort(verticallySortedUnits, new Comparator<MapItem>()
-				{
-					public int compare(MapItem m1, MapItem m2)
-					{
-						if (m1.getBody().getAABB().getYMin() < m2.getBody().getAABB().getYMin())
-							return -1;
-						else
-							return 1;
-					}
-				});
+		Collections.sort(verticallySortedUnits, new minYComparator());
 	}
 
 	private void pushUnitsOntoLane() {
@@ -628,26 +632,6 @@ public strictfp class Lane
 			offset = offset.scale(ratio);
 			//put it there
 			toMove.setTransformation(new Transformation(pointOnCurve.getPosition().add(offset), pointOnCurve.getRotation()));
-		}
-	}
-
-	private void checkWaveConsistency()
-	{
-		for(Wave w: waves)
-		{
-			for(Wave x : waves)
-				if(x != w)
-				{
-					for(Unit u : w.getUnits())
-					{
-						for(Unit y : x.getUnits())
-							if(u == y)
-								throw new IllegalStateException("There are multiple waves with the same unit reference ID!");
-					
-						if(x.contains(u))
-							System.err.println("There are multiple waves with units in identical positions!");
-					}
-			}
 		}
 	}
 	
@@ -803,4 +787,25 @@ public strictfp class Lane
 		sortUnits();
 	}
 
+	private class minXComparator implements Comparator<MapItem>
+	{
+		public int compare(MapItem m1, MapItem m2)
+		{
+			if (m1.getBody().getAABB().getXMin() < m2.getBody().getAABB().getXMin())
+				return -1;
+			else
+				return 1;
+		}
+	}
+	
+	private class minYComparator implements Comparator<MapItem>
+	{
+		public int compare(MapItem m1, MapItem m2)
+		{
+			if (m1.getBody().getAABB().getYMin() < m2.getBody().getAABB().getYMin())
+				return -1;
+			else
+				return 1;
+		}
+	}
 }

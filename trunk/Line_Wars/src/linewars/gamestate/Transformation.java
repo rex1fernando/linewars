@@ -13,6 +13,11 @@ import java.io.Serializable;
  */
 public strictfp class Transformation implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -765249148489776889L;
+
 	public static final Transformation ORIGIN = new Transformation(Position.ORIGIN, 0);
 	
 	private Position pos;
@@ -85,4 +90,8 @@ public strictfp class Transformation implements Serializable {
 		return new Transformation(newPosition, newAngle);
 	}
 
+	@Override
+	public int hashCode(){
+		return (int) (pos.hashCode() + rotation);
+	}
 }

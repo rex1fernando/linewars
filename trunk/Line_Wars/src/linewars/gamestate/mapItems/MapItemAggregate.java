@@ -16,6 +16,7 @@ import linewars.gamestate.shapes.ShapeAggregate;
 public abstract class MapItemAggregate extends MapItem {
 
 	private List<MapItem> containedItems = new ArrayList<MapItem>();
+	private List<Transformation> relativeTrans = new ArrayList<Transformation>();
 	private List<Turret> turrets = new ArrayList<Turret>();
 	private Transformation transform;
 	
@@ -189,7 +190,7 @@ public abstract class MapItemAggregate extends MapItem {
 //			if(c.getBody().isCollidingWith(m.getBody()))
 			if(c.isCollidingWith(m))
 				return true;
-		
+		System.out.println();
 		return false;
 	}
 	
@@ -271,6 +272,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 		
 		body = new ShapeAggregate(transform, shapes, pos);
+		relativeTrans = pos;
 		
 		turrets.clear();
 		for(MapItem m : containedItems)
@@ -284,12 +286,19 @@ public abstract class MapItemAggregate extends MapItem {
 	
 	public static boolean checkForContainedItemsChange(MapItemAggregate mia)
 	{
-		if(mia.body == null)
+		if(mia.body == null || mia.containedItems.size() != mia.relativeTrans.size())
 			return true;
 		
-		for(MapItem m : mia.getContainedItems())
+		for(int i = 0; i < mia.containedItems.size(); i++)
+		{
+			MapItem m = mia.containedItems.get(i);
+			Transformation relativeTrans = new Transformation(m.getPosition().subtract(
+					mia.getPosition()), m.getRotation() - mia.getRotation());
+			if(!relativeTrans.equals(mia.relativeTrans.get(i)))
+				return true;
 			if(m instanceof MapItemAggregate && checkForContainedItemsChange((MapItemAggregate)m))
 				return true;
+		}
 		
 		return false;
 	}
