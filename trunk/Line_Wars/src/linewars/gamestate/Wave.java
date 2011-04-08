@@ -21,6 +21,7 @@ public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
 	private List<Unit> units;
+	private boolean inCombat = false;
 	
 	/**
 	 * Gets the lane that owns this wave
@@ -171,7 +172,10 @@ public strictfp class Wave {
 		
 		//don't do anything if there are no units
 		if(units.size() <= 0 && deadButNotFinished.size() <= 0)
+		{
+			inCombat = false;
 			return;
+		}
 		
 
 		//if(!(units.get(0) instanceof Gate))
@@ -210,6 +214,7 @@ public strictfp class Wave {
 			Unit[] alliesInRangeArray = alliesInRange.toArray(new Unit[alliesInRange.size()]);
 			for(Unit u : units)
 				u.getCombatStrategy().fight(unitsInRangeArray, alliesInRangeArray);
+			inCombat = true;
 		}
 		else
 		{
@@ -289,6 +294,7 @@ public strictfp class Wave {
 				Transformation t = new Transformation(units.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle)), angle);
 				units.get(i).getMovementStrategy().setTarget(t);
 			}
+			inCombat = false;
 		}
 		
 		for(Unit u : units)
@@ -304,6 +310,11 @@ public strictfp class Wave {
 			u.updateMapItem();
 			units.add(u);
 		}
+	}
+	
+	public boolean isInCombat()
+	{
+		return inCombat;
 	}
 	
 
