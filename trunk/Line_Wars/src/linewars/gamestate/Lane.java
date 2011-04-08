@@ -511,9 +511,6 @@ public strictfp class Lane
 	 * @return a list of pairs of Units that might be colliding
 	 */
 	private LinkedList<Pair<Unit>> sweepAndPrune2(){
-		if(horizontallySortedUnits.size() != getCollidableMapItems().size()){
-			System.out.println("FFFUUU");
-		}
 		sortUnits();
 		
 		//get a set of pairs of units for the x axis

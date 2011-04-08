@@ -107,8 +107,6 @@ public strictfp class Projectile extends MapItemAggregate {
 			else
 				i++;
 		}
-		if(rawCollisions.size() > 0)
-			System.out.println();
 		tempBody = null;
 		//this list will be the list of how far along that path each map item is
 		double[] scores = new double[rawCollisions.size()];

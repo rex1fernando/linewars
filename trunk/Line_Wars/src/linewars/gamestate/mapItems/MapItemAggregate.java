@@ -190,14 +190,13 @@ public abstract class MapItemAggregate extends MapItem {
 //			if(c.getBody().isCollidingWith(m.getBody()))
 			if(c.isCollidingWith(m))
 				return true;
-		System.out.println();
 		return false;
 	}
 	
 	@Override
 	public Shape getBody()
 	{
-		if(checkForContainedItemsChange(this))
+//		if(checkForContainedItemsChange(this))
 			updateInternalVariables();
 		return body;
 	}
