@@ -1,6 +1,7 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
@@ -19,8 +20,7 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
-	private ArrayList<Unit> units;
-	private Wave opponent;
+	private List<Unit> units;
 	
 	/**
 	 * Gets the lane that owns this wave
@@ -53,8 +53,7 @@ public strictfp class Wave {
 	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
-		opponent = null;
-		units = new ArrayList<Unit>();
+		units = new LinkedList<Unit>();
 		this.addUnit(u);
 		this.origin = origin;
 	}
@@ -67,8 +66,7 @@ public strictfp class Wave {
 	public Wave(Lane owner)
 	{
 		this.owner = owner;
-		units = new ArrayList<Unit>();
-		opponent = null;
+		units = new LinkedList<Unit>();
 	}
 	
 	/**
@@ -172,7 +170,7 @@ public strictfp class Wave {
 			}
 		
 		//don't do anything if there are no units
-		if(units.size() <= 0)
+		if(units.size() <= 0 && deadButNotFinished.size() <= 0)
 			return;
 		
 
