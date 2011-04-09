@@ -142,6 +142,9 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 				strat.setTarget(closestTarget);
 				strat.fight(availableEnemies, availableAllies);
 			}
+			
+			//We should also change how we are facing so that shit looks better
+			unit.getMovementStrategy().setTarget(new Transformation(myPos, closestTarget.subtract(myPos).getAngle()));
 		}
 
 		private double getMinimumRange() {
