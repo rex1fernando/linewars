@@ -37,7 +37,6 @@ public strictfp class GameState
 	private int timerTick;
 	private Map map;
 	private HashMap<Integer, Player> players;
-	private int numPlayers;
 	private List<Race> races;
 	
 	private Player winningPlayer = null;
@@ -49,7 +48,7 @@ public strictfp class GameState
 	
 	public int getNumPlayers()
 	{
-		return numPlayers;
+		return this.players.size();
 	}
 	
 	public Player getPlayer(int playerID)
@@ -77,7 +76,6 @@ public strictfp class GameState
 	public GameState(MapConfiguration mapConfig, List<PlayerData> players) {
 		map = mapConfig.createMap(this);
 		this.players = new HashMap<Integer, Player>();
-		this.numPlayers = players.size();
 		timerTick = 0;
 		
 		this.races = new ArrayList<Race>();
@@ -99,6 +97,28 @@ public strictfp class GameState
 			Player p = new Player(this, startNodes, r, players.get(i).getName(), i);
 			this.players.put(i, p);
 		}
+		
+		//TODO this dummy player is for debugging purposes
+		Race r = null;
+		int i = this.players.size();
+		try {
+			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if(r == null)
+			throw new RuntimeException("Error copying race");
+		this.races.add(r);
+		Node[] nodes = this.getMap().getNodes();
+		List<Node> dummyStartNodes = new ArrayList<Node>();
+		for(Node n : nodes)
+			if(n.getOwner() == null)
+				dummyStartNodes.add(n);
+		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
+		this.players.put(i, dummyPlayer);
+		
 	}
 
 	/**
@@ -126,7 +146,7 @@ public strictfp class GameState
 	public List<Player> getPlayers()
 	{
 		List<Player> players = new ArrayList<Player>();
-		for(int i = 0; i < numPlayers; i++)
+		for(int i = 0; i < this.players.size(); i++)
 			players.add(this.players.get(i));
 		
 		return players;
@@ -340,7 +360,6 @@ public strictfp class GameState
 		if(!(o instanceof GameState)) return false;
 		GameState other = (GameState) o;
 		if(other.timerTick != timerTick) return false;
-		if(other.numPlayers != numPlayers) return false;
 		if(!other.map.equals(map)) return false;
 		return true;
 	}

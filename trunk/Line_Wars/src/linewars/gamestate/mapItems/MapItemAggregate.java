@@ -209,7 +209,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public Shape getBody()
 	{
-		if(checkForContainedItemsChange(this))
+//		if(checkForContainedItemsChange(this))
 			updateInternalVariables();
 		return body;
 	}
