@@ -1,6 +1,7 @@
 package editor.tech.modifierEditors;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,6 +165,9 @@ public class ConfigurationMultipleModificationEditor extends ModifierEditor {
 			panel.updateUI();
 			panel.validate();
 		}
+		Dimension d = bfgReference.getCurrentlyShowingPanel().getPreferredSize();
+		d = new Dimension((int)d.getWidth(), 5000);
+		bfgReference.setPreferredSizeForCurrentlyShowingPane(d);
 	}
 	
 	private class ItemsToModifyChangeListener implements ListChangeListener<String>{

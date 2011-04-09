@@ -1,5 +1,7 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
+import java.util.List;
+
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
@@ -10,6 +12,7 @@ import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
@@ -45,7 +48,10 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 				public void update() {
 					//if we go out of combat, change the turret back to idle
 					if(lastTick < turret.getGameState().getTimerTick())
+					{
 						turret.setState(MapItemState.Idle);
+						dealtDamage = false;
+					}
 				}
 				
 				@Override
@@ -76,7 +82,7 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 			if(lastScalingFactor != getScalingFactor())
 			{
 				lastScalingFactor = getScalingFactor();
-				range = turret.getBody().scale(lastScalingFactor).boundingCircle().getRadius();
+				range = turret.getWidth()*getScalingFactor();
 			}
 			if(dealtDamage)
 				return Double.POSITIVE_INFINITY;
@@ -86,17 +92,25 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
-			Shape collisionBody = turret.getBody().scale(getScalingFactor());
+			double height = turret.getHeight()*getScalingFactor();
+			Transformation tBody = new Transformation(turret.getPosition().add(
+					Position.getUnitVector(turret.getRotation()).scale(turret.getHeight()/2 + height/2)), 
+					turret.getRotation());
+			Shape collisionBody = new Rectangle(tBody, turret.getWidth(), height);
 			
 			double damageToDeal = getDamage()*turret.getGameState().getLastLoopTime()*
-									turret.getModifier().getModifier(MapItemModifiers.damageDealt);
+									turret.getModifier().getModifier(MapItemModifiers.damageDealt)
+									*turret.getModifier().getModifier(MapItemModifiers.fireRate);
 			dealtDamage = false;
-			for(Unit enemy : availableEnemies)
+			List<Unit> units = turret.getWave().getLane().getUnitsIn(collisionBody.getAABB());
+			for(Unit u : units)
 			{
-				if(CollisionStrategyConfiguration.isAllowedToCollide(enemy, turret) &&
-						enemy.getBody().isCollidingWith(collisionBody))
+				if(!u.getState().equals(MapItemState.Dead) &&
+						!u.getOwner().equals(turret.getOwner()) &&
+						CollisionStrategyConfiguration.isAllowedToCollide(u, turret) &&
+						u.getBody().isCollidingWith(collisionBody))
 				{
-					enemy.setHP(enemy.getHP() - damageToDeal);
+					u.setHP(u.getHP() - damageToDeal);
 					dealtDamage = true;
 				}
 			}

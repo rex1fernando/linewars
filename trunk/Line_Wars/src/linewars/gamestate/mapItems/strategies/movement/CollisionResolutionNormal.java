@@ -18,7 +18,6 @@ public class CollisionResolutionNormal {
 	
 	public Position adjustTargetFromNonmoving(Unit unit, double speed){
 		boolean collisions = collisionsFromLastTick.size() != 0;
-		
 		if(!collisions){
 			hadToGoBackwardsLastTick = true;
 			return unit.getPosition();
@@ -26,16 +25,16 @@ public class CollisionResolutionNormal {
 		
 		Position averageCollisionDirection = new Position(0, 0);
 		for(Position toInclude : collisionsFromLastTick){
-			averageCollisionDirection.add(toInclude);
+			averageCollisionDirection = averageCollisionDirection.add(toInclude);
 		}
 		
 		if(averageCollisionDirection.length() < 0.01){
+			collisionsFromLastTick.clear();
 			return unit.getPosition();
 		}
 		
 		Position relativeTarget = averageCollisionDirection.scale(1.0 / averageCollisionDirection.length());
-		relativeTarget = relativeTarget.scale(speed * resolveCollisionAttemptMoveFactor);
-		
+		relativeTarget = relativeTarget.scale(-1 * speed);
 		collisionsFromLastTick.clear();
 		return unit.getPosition().add(relativeTarget);
 	}

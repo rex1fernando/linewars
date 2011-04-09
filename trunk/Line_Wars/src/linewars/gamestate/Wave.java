@@ -1,12 +1,14 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 
 /**
@@ -18,8 +20,8 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
-	private ArrayList<Unit> units;
-	private Wave opponent;
+	private List<Unit> units;
+	private boolean inCombat = false;
 	
 	/**
 	 * Gets the lane that owns this wave
@@ -52,8 +54,7 @@ public strictfp class Wave {
 	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
-		opponent = null;
-		units = new ArrayList<Unit>();
+		units = new LinkedList<Unit>();
 		this.addUnit(u);
 		this.origin = origin;
 	}
@@ -66,8 +67,7 @@ public strictfp class Wave {
 	public Wave(Lane owner)
 	{
 		this.owner = owner;
-		units = new ArrayList<Unit>();
-		opponent = null;
+		units = new LinkedList<Unit>();
 	}
 	
 	/**
@@ -171,8 +171,11 @@ public strictfp class Wave {
 			}
 		
 		//don't do anything if there are no units
-		if(units.size() <= 0)
+		if(units.size() <= 0 && deadButNotFinished.size() <= 0)
+		{
+			inCombat = false;
 			return;
+		}
 		
 
 		//if(!(units.get(0) instanceof Gate))
@@ -192,7 +195,9 @@ public strictfp class Wave {
 		if(maxRad < owner.getWidth())
 			maxRad = owner.getWidth();
 		
-		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
+		AABB box = new AABB(center.getX() - maxRad, center.getY() - maxRad, 
+				center.getX() + maxRad, center.getY() + maxRad);
+		List<Unit> unitsInRange = owner.getUnitsIn(box);
 		List<Unit> alliesInRange = new ArrayList<Unit>();
 		//remove friendly units
 		for(int i = 0; i < unitsInRange.size();)
@@ -209,6 +214,7 @@ public strictfp class Wave {
 			Unit[] alliesInRangeArray = alliesInRange.toArray(new Unit[alliesInRange.size()]);
 			for(Unit u : units)
 				u.getCombatStrategy().fight(unitsInRangeArray, alliesInRangeArray);
+			inCombat = true;
 		}
 		else
 		{
@@ -288,6 +294,7 @@ public strictfp class Wave {
 				Transformation t = new Transformation(units.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle)), angle);
 				units.get(i).getMovementStrategy().setTarget(t);
 			}
+			inCombat = false;
 		}
 		
 		for(Unit u : units)
@@ -303,6 +310,11 @@ public strictfp class Wave {
 			u.updateMapItem();
 			units.add(u);
 		}
+	}
+	
+	public boolean isInCombat()
+	{
+		return inCombat;
 	}
 	
 

@@ -1,6 +1,8 @@
 package linewars.gamestate.mapItems;
 
 
+import java.util.List;
+
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
@@ -25,8 +27,6 @@ public strictfp class Projectile extends MapItemAggregate {
 	private TargetingStrategy tStrat;
 	private Lane lane;
 	private double durability;
-	
-	private Shape tempBody = null;
 	
 	/**
 	 * Creates a projectile at transformation t with definition def,
@@ -92,16 +92,24 @@ public strictfp class Projectile extends MapItemAggregate {
 		Transformation target = tStrat.getTarget();
 		Position change = target.getPosition().subtract(this.getPosition());
 		
+		Shape tempBody = this.getBody();
+		//if the projectile has moved
 		if(change.distanceSquared(Position.ORIGIN) >= Math.pow(this.getBody().boundingCircle().getRadius(), 2))
 			tempBody = this.getBody().stretch(new Transformation(change, target.getRotation()));
 		
 		//this is the raw list of items colliding with this projetile's path
-		MapItem[] rawCollisions = lane.getCollisions(this);
-		if(rawCollisions.length > 0)
-			System.out.println();
+		List<Unit> rawCollisions = this.getLane().getUnitsIn(tempBody.getAABB());
+		for(int i = 0; i < rawCollisions.size();)
+		{
+			if(!CollisionStrategyConfiguration.isAllowedToCollide(this, rawCollisions.get(i)) ||
+					!tempBody.isCollidingWith(rawCollisions.get(i).getBody()))
+				rawCollisions.remove(i);
+			else
+				i++;
+		}
 		tempBody = null;
 		//this list will be the list of how far along that path each map item is
-		double[] scores = new double[rawCollisions.length];
+		double[] scores = new double[rawCollisions.size()];
 		//the negative sine of the angle that the path was rotated by from 0 rads
 		double sine = -change.getY();
 		//the negative cosine of the angle that the path was rotated by from 0 rads
@@ -111,7 +119,7 @@ public strictfp class Projectile extends MapItemAggregate {
 		//the projectile hit each map item
 		for(int i = 0; i < scores.length; i++)
 		{
-			Position p = rawCollisions[i].getPosition().subtract(this.getPosition());
+			Position p = rawCollisions.get(i).getPosition().subtract(this.getPosition());
 			scores[i] = cosine*p.getX() - sine*p.getY();
 		}
 			
@@ -125,7 +133,7 @@ public strictfp class Projectile extends MapItemAggregate {
 				if(scores[j] < scores[smallest])
 					smallest = j;
 			
-			collisions[i] = rawCollisions[smallest];
+			collisions[i] = rawCollisions.get(smallest);
 			scores[smallest] = Double.MAX_VALUE;
 		}
 		
@@ -148,20 +156,6 @@ public strictfp class Projectile extends MapItemAggregate {
 	public ImpactStrategy getImpactStrategy()
 	{
 		return iStrat;
-	}
-	
-	@Override
-	public boolean isCollidingWith(MapItem m)
-	{
-		if(tempBody == null)
-			return super.isCollidingWith(m);
-		else
-		{
-			if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
-				return false;
-			else
-				return tempBody.isCollidingWith(m.getBody());
-		}
 	}
 
 	@Override

@@ -1,14 +1,14 @@
 package linewars.gamestate.mapItems.abilities;
 
-import utility.Observable;
-import utility.Observer;
-
 import linewars.gamestate.Lane;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
+import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
+import utility.Observable;
+import utility.Observer;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -44,9 +44,12 @@ public strictfp class ShootDefinition extends AbilityDefinition implements Obser
 			//TODO figure out how to move the position of the bullet spawning
 			//position out in front of the unit that's shooting it
 			Projectile p = ammo.createMapItem(t, m.getOwner(), m.getGameState());
-			for(Lane l : m.getGameState().getMap().getLanes())
-				if(l.isInLane(m))
-					l.addProjectile(p);
+			if(m instanceof Unit)
+				((Unit)m).getWave().getLane().addProjectile(p);
+			else if(m instanceof Turret)
+				((Turret)m).getWave().getLane().addProjectile(p);
+			else
+				throw new IllegalArgumentException("Only units and turrets may shoot");
 		}
 
 		@Override

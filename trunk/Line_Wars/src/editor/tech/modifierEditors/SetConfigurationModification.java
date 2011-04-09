@@ -14,15 +14,17 @@ public class SetConfigurationModification extends ModifierConfiguration {
 
 	static{
 		ModifierConfiguration.addModifierForUsage(Usage.CONFIGURATION, SetConfigurationModification.class, "Set this sub-Configuration to a completely different Configuration.");
+		ModifierConfiguration.addModifierForUsage(Usage.ANIMATION, SetConfigurationModification.class, "Set this sub-Configuration to a completely different Configuration.");
 	}
 	
 	private static final Usage validUsage = Usage.CONFIGURATION;
+	private static final Usage validUsage2 = Usage.ANIMATION;
 	
 	private static final String replacementName = "replacement";
 	
 	@Override
 	public Property applyTo(Property toModify) {
-		if(toModify.getUsage() != validUsage){
+		if(toModify.getUsage() != validUsage && toModify.getUsage() != validUsage2){
 			throw new IllegalArgumentException();
 		}
 		

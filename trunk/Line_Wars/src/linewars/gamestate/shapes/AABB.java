@@ -40,4 +40,11 @@ public class AABB
 	{
 		return yMax;
 	}
+	
+	public boolean intersectsWith(AABB other){
+		return other.xMax > xMin &&
+		   other.xMin < xMax &&
+		   other.yMax > yMin &&
+		   other.yMin < yMax;
+	}
 }

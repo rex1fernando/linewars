@@ -16,6 +16,7 @@ import linewars.gamestate.shapes.ShapeAggregate;
 public abstract class MapItemAggregate extends MapItem {
 
 	private List<MapItem> containedItems = new ArrayList<MapItem>();
+	private List<Transformation> relativeTrans = new ArrayList<Transformation>();
 	private List<Turret> turrets = new ArrayList<Turret>();
 	private Transformation transform;
 	
@@ -71,6 +72,27 @@ public abstract class MapItemAggregate extends MapItem {
 		if(m.getDefinition().isValidState(this.getState()))
 			m.setState(this.getState());
 		body = null;
+	}
+	
+	/**
+	 * Checks to see if m is contained in this map item aggregate. If it is, returns
+	 * true, if not recursively checks to see if any contained map item aggregates
+	 * contain m. If any of them do, returns true, otherwise returns false.
+	 * 
+	 * @param m
+	 * @return
+	 */
+	public boolean containsRecursively(MapItem m)
+	{
+		for(MapItem contained : containedItems)
+		{
+			if(contained.equals(m))
+				return true;
+			else if((contained instanceof MapItemAggregate) &&
+					((MapItemAggregate)contained).containsRecursively(m))
+				return true;
+		}
+		return false;
 	}
 	
 	public void removeMapItem(MapItem m)
@@ -129,10 +151,15 @@ public abstract class MapItemAggregate extends MapItem {
 			m.setPosition(newPos.add(diff));
 		}
 		
-		if(body != null)
-			body = body.transform(new Transformation(newPos.subtract(oldPos), 0));
-		
 		transform = new Transformation(newPos, getRotation());
+		if(body != null)
+		{
+			body = body.transform(new Transformation(newPos.subtract(oldPos), 0));
+//			updateInternalVariables();
+//			if(!tempBody.equals(body))
+//				System.out.println("MapItemAggregate:setPosition: Body not translated correctly");
+		}
+		
 	}
 	
 	@Override
@@ -145,10 +172,18 @@ public abstract class MapItemAggregate extends MapItem {
 			m.setRotation(rot + m.getRotation());
 		}
 		
-		if(body != null)
-			body = body.transform(new Transformation(Position.ORIGIN, newRot - transform.getRotation()));
-		
+		double oldRot = transform.getRotation();
 		transform = new Transformation(transform.getPosition(), newRot);
+		
+		if(body != null)
+		{
+			body = body.transform(new Transformation(Position.ORIGIN, newRot - oldRot));
+//			updateInternalVariables();
+//			if(!tempBody.equals(body))
+//				System.out.println("MapItemAggregate:setPosition: Body not rotated correctly");
+		}
+		
+		
 		
 	}
 	
@@ -168,7 +203,6 @@ public abstract class MapItemAggregate extends MapItem {
 //			if(c.getBody().isCollidingWith(m.getBody()))
 			if(c.isCollidingWith(m))
 				return true;
-		
 		return false;
 	}
 	
@@ -250,6 +284,7 @@ public abstract class MapItemAggregate extends MapItem {
 		}
 		
 		body = new ShapeAggregate(transform, shapes, pos);
+		relativeTrans = pos;
 		
 		turrets.clear();
 		for(MapItem m : containedItems)
@@ -263,12 +298,19 @@ public abstract class MapItemAggregate extends MapItem {
 	
 	public static boolean checkForContainedItemsChange(MapItemAggregate mia)
 	{
-		if(mia.body == null)
+		if(mia.body == null || mia.containedItems.size() != mia.relativeTrans.size())
 			return true;
 		
-		for(MapItem m : mia.getContainedItems())
+		for(int i = 0; i < mia.containedItems.size(); i++)
+		{
+			MapItem m = mia.containedItems.get(i);
+			Transformation relativeTrans = new Transformation(m.getPosition().subtract(
+					mia.getPosition()), m.getRotation() - mia.getRotation());
+			if(!relativeTrans.equals(mia.relativeTrans.get(i)))
+				return true;
 			if(m instanceof MapItemAggregate && checkForContainedItemsChange((MapItemAggregate)m))
 				return true;
+		}
 		
 		return false;
 	}

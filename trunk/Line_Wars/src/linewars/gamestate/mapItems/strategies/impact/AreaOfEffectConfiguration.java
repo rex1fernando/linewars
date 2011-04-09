@@ -7,6 +7,7 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import configuration.Configuration;
 import configuration.Usage;
@@ -55,11 +56,14 @@ public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 		public void handleImpact(Position p) {
 			proj.setState(MapItemState.Dead);
 			
+			double range = getMaxRange();
 			Circle damageCircle = new Circle(proj.getTransformation(), getMaxRange());
-			for(Unit u : proj.getLane().getUnitsIn(damageCircle))
+			AABB box = new AABB(proj.getPosition().getX() - range, proj.getPosition().getY() - range, 
+								proj.getPosition().getX() + range, proj.getPosition().getY() + range);
+			for(Unit u : proj.getLane().getUnitsIn(box))
 			{
 				//if they're not allowed to collide, skip
-				if(!CollisionStrategyConfiguration.isAllowedToCollide(u, proj))
+				if(!CollisionStrategyConfiguration.isAllowedToCollide(u, proj) || !damageCircle.isCollidingWith(u.getBody()))
 					continue;
 				double distance = Math.sqrt(proj.getPosition().distanceSquared(u.getPosition()));
 				u.setHP(u.getHP() - damage(distance));
