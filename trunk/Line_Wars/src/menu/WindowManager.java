@@ -1,6 +1,5 @@
 package menu;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -47,6 +46,8 @@ public class WindowManager extends JFrame
 		
 		innerPanel = new InnerPanel(titleMenu);
 		setContentPane(innerPanel);
+		
+		
 	}
 	
 	public void showWindow()
