@@ -121,7 +121,7 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 				laserPiece.createMapItem(creationLocation, owner.getOwner(), owner.getGameState());
 			}
 			
-			//TODO Place an endcap at the end of the laser
+			//Place an endcap at the end of the laser
 			Position endcapPosition = currentLocation.add(increment.scale(numLasers));
 			Projectile endcap = laserPiece.createMapItem(new Transformation(endcapPosition, direction), owner.getOwner(), owner.getGameState());
 			endcap.setState(MapItemState.Firing);
