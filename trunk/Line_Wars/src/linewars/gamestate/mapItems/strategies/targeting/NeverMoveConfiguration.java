@@ -1,11 +1,10 @@
 package linewars.gamestate.mapItems.strategies.targeting;
 
-import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.impact.CatchTargetOnFireConfiguration;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 
 public class NeverMoveConfiguration extends TargetingStrategyConfiguration {
 	

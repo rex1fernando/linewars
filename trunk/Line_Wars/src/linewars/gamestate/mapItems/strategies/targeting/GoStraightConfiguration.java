@@ -15,6 +15,11 @@ import editor.abilitiesstrategies.EditorUsage;
 
 public class GoStraightConfiguration extends TargetingStrategyConfiguration implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3414871283041555093L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Go Straight",
 				GoStraightConfiguration.class, AbilityStrategyEditor.class);
