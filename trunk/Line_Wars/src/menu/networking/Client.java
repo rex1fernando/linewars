@@ -26,7 +26,7 @@ public class Client implements Runnable
 	private CreateGamePanel gamePanel;
 	private boolean running;
 	
-	public Client(int port, String serverIp, CreateGamePanel gamePanel) throws SocketException
+	public Client(int port, String serverIp, CreateGamePanel gamePanel, String playerName) throws SocketException
 	{
 		this.gamePanel = gamePanel;
 		try {
@@ -37,12 +37,13 @@ public class Client implements Runnable
 			throw new SocketException();
 		}
 		
-		playerIndex = (Integer) NetworkUtil.readObject(in);
-		PlayerBean[] pbs = (PlayerBean[]) NetworkUtil.readObject(in);
+		NetworkUtil.writeObject(out, playerName);
 		
+		playerIndex = (Integer) NetworkUtil.readObject(in);
 		boolean isReplay = (Boolean) NetworkUtil.readObject(in);
 		gamePanel.setReplay(isReplay);
 		gamePanel.setSelection(NetworkUtil.readObject(in));
+		PlayerBean[] pbs = (PlayerBean[]) NetworkUtil.readObject(in);
 		
 		for (int i = 0; i < pbs.length; ++i)
 		{
@@ -135,8 +136,6 @@ public class Client implements Runnable
 			gamePanel.goBackToTitleMenu();
 			break;
 		case startGame:
-			System.out.println("The game is starting!");
-			
 			boolean isReplay = (Boolean) NetworkUtil.readObject(in);
 			Object selection = NetworkUtil.readObject(in);
 			PlayerBean[] players = (PlayerBean[]) NetworkUtil.readObject(in);
