@@ -7,6 +7,7 @@ import java.util.HashMap;
 import linewars.display.DisplayConfiguration;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -158,6 +159,12 @@ public class LocalSoundEffectManager
 		public double getVolume(Channel c)
 		{
 			return volume[c.ordinal()] * LocalSoundEffectManager.this.volume;
+		}
+
+		@Override
+		public SoundType getType()
+		{
+			return SoundType.SOUND_EFFECT;
 		}
 
 		@Override

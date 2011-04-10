@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.GameState;
 
 public class MusicManager
@@ -81,6 +82,12 @@ public class MusicManager
 			return volume;
 		}
 		
+		@Override
+		public SoundType getType()
+		{
+			return SoundType.MUSIC;
+		}
+
 		@Override
 		public String getURI()
 		{
