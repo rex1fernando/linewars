@@ -1,7 +1,5 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
-import java.util.Queue;
-
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
@@ -24,7 +22,6 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 				FocusOnTargetConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	private static final long MINIMUM_PATH_WAIT_TIME = 100;
 	private static final double MIN_TARGET_SWITCH_TIME = 5;
 	
 	public class FocusOnTarget implements CombatStrategy 
@@ -69,11 +66,11 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 			}
 		}
 		
-		private void acquireTarget(Unit[] availableEnemies)
+		private Unit acquireTarget(Unit[] availableEnemies)
 		{
+			Unit ret = null;
 			double dis = Double.POSITIVE_INFINITY;
 			int marks = Integer.MAX_VALUE;
-			target = null;
 			for(Unit u : availableEnemies)
 			{
 				int count = 0;
@@ -84,9 +81,9 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 				}
 				if(count < marks)
 				{
-					target = u;
+					ret = u;
 					marks = count;
-					dis = unit.getPosition().distanceSquared(target.getPosition());
+					dis = unit.getPosition().distanceSquared(ret.getPosition());
 				}
 				else if(count == marks)
 				{
@@ -94,12 +91,13 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 					if(d < dis)
 					{
 						dis = d;
-						target = u;
+						ret = u;
 					}
 				}
 			}
 			timeOnTargetSinceLastInRange = unit.getGameState().getTime();
-			target.addActiveAbility(new MarkTarget(target));
+			ret.addActiveAbility(new MarkTarget(ret));
+			return ret;
 		}
 
 		@Override
@@ -152,11 +150,11 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 			
 			//if i have no target, and i can pick one, do so
 			if(target == null && timeSinceInRange >= MIN_TARGET_SWITCH_TIME)
-				acquireTarget(availableEnemies);
+				target = acquireTarget(availableEnemies);
 			
 			//if i have a dead target, ill need a new one
 			if(target.getState().equals(MapItemState.Dead))
-				acquireTarget(availableEnemies);
+				target = acquireTarget(availableEnemies);
 			
 			double disSquared = unit.getPosition().distanceSquared(target.getPosition());
 			//if i have a target, but i am not in range, move towards it
@@ -172,7 +170,7 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 			
 			//if i have a target and i havent been in range of it in a while, get a new target (don't force it)
 			if(timeSinceInRange >= MIN_TARGET_SWITCH_TIME)
-				acquireTarget(availableEnemies);
+				target = acquireTarget(availableEnemies);
 		}
 	}
 

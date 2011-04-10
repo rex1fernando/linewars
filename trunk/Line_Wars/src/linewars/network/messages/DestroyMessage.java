@@ -23,6 +23,6 @@ public class DestroyMessage extends Message
 	@Override
 	public void apply(GameState gameState)
 	{
-		// TODO Auto-generated method stub
+		gameState.getMap().getNodes()[nodeID].removeBuilding(buildingID);
 	}
 }

@@ -155,6 +155,11 @@ public strictfp abstract class MapItem implements Observer {
 		activeAbilities.add(a);
 	}
 	
+	public void removeActiveAbility(Ability a)
+	{
+		activeAbilities.remove(a);
+	}
+	
 	/**
 	 * 
 	 * @return	the abilities currently active on this map item

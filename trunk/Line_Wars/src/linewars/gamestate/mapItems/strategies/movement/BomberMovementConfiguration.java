@@ -21,24 +21,20 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 	 * 
 	 */
 	private static final long serialVersionUID = 4069623136959125588L;
-	
-	private static final double FLYING_PUSH_APART_MODIFIER = 0.1;
 
 	static {
-		StrategyConfiguration.setStrategyConfigMapping("Drone Movement",
-				DroneMovementConfiguration.class, AbilityStrategyEditor.class);
+		StrategyConfiguration.setStrategyConfigMapping("Bomber Movement",
+				BomberMovementConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
 	public class BomberMovement implements MovementStrategy
 	{
 		private Unit bomber;
 		private Transformation target;
-		private CollisionResolutionNormal collisionResolutionStrategy = new CollisionResolutionNormal();
 		
 		private BomberMovement(Unit u)
 		{
 			bomber = u;
-			collisionResolutionStrategy = new CollisionResolutionNormal();
 		}
 
 		@Override
@@ -62,7 +58,6 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 
 		@Override
 		public void move() {
-			// TODO add in collision resolution
 			double maxDis = getMaxVelocity()*bomber.getGameState().getLastLoopTime()*
 							bomber.getModifier().getModifier(MapItemModifiers.moveSpeed);
 			double minDis = getMinVelocity()*bomber.getGameState().getLastLoopTime()*
@@ -77,7 +72,7 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 			
 			double angle = bomber.getRotation();
 			if(target != null)
-				target.getPosition().subtract(bomber.getPosition()).getAngle();
+				angle = target.getPosition().subtract(bomber.getPosition()).getAngle();
 			
 			Transformation toSet = new Transformation(bomber.getPosition().add(Position.getUnitVector(angle).scale(dis)), angle);
 			if(bomber.getPosition().distanceSquared(toSet.getPosition()) <= 0.01 &&
@@ -88,12 +83,6 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 					bomber.setState(MapItemState.Idle);
 				angle = target.getRotation();
 			}
-			else if(!bomber.getState().equals(MapItemState.Moving))
-				bomber.setState(MapItemState.Moving);
-			toSet = new Transformation(
-					collisionResolutionStrategy.adjustTarget(
-							toSet.getPosition(), bomber, getMinVelocity()*FLYING_PUSH_APART_MODIFIER),
-					toSet.getRotation());
 			
 			bomber.setTransformation(toSet);
 			
@@ -102,7 +91,7 @@ public class BomberMovementConfiguration extends MovementStrategyConfiguration {
 
 		@Override
 		public void notifyOfCollision(Position direction) {
-			collisionResolutionStrategy.notifyOfCollision(direction);
+			
 		}
 		
 	}

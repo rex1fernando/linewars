@@ -1,10 +1,10 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
-import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.impact.CatchTargetOnFireConfiguration;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
 
 public class NoTurretCombatConfiguration extends TurretStrategyConfiguration {
 
@@ -19,7 +19,7 @@ public class NoTurretCombatConfiguration extends TurretStrategyConfiguration {
 	}
 
 	@Override
-	public TurretStrategy createStrategy(MapItem m) {
+	public TurretStrategy createStrategy(final MapItem m) {
 		return new TurretStrategy() {
 			
 			@Override
@@ -34,7 +34,7 @@ public class NoTurretCombatConfiguration extends TurretStrategyConfiguration {
 			
 			@Override
 			public double getRange() {
-				return 0;
+				return ((Turret)m).getWave().getLane().getWidth();
 			}
 			
 			@Override

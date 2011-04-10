@@ -107,7 +107,6 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 			{
 				if(!u.getState().equals(MapItemState.Dead) &&
 						!u.getOwner().equals(turret.getOwner()) &&
-						CollisionStrategyConfiguration.isAllowedToCollide(u, turret) &&
 						u.getBody().isCollidingWith(collisionBody))
 				{
 					u.setHP(u.getHP() - damageToDeal);

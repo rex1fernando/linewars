@@ -2,6 +2,8 @@ package linewars.gamestate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,6 +16,8 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemAggregate;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.collision.FlyingConfiguration.Flying;
+import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Ground;
 import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
@@ -238,6 +242,19 @@ public strictfp class GameState
 				}
 			}
 		}
+		
+		Collections.sort(units, new Comparator<Unit>() {
+
+			@Override
+			public int compare(Unit o1, Unit o2) {
+				if(o1.getCollisionStrategy() instanceof Ground && o2.getCollisionStrategy() instanceof Flying)
+					return -1;
+				else if(o2.getCollisionStrategy() instanceof Ground && o1.getCollisionStrategy() instanceof Flying)
+					return 1;
+				else
+					return 0;
+			}
+		});
 		
 		return units;
 	}

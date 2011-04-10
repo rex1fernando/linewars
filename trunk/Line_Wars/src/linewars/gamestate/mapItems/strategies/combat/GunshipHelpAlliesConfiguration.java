@@ -38,10 +38,13 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 		private Unit gunship;
 		private Unit target;
 		private double lastPulseTime;
+		private CombatStrategy nullCombat;
 		
 		private GunshipHelpAllies(Unit u)
 		{
 			gunship = u;
+			lastPulseTime = gunship.getGameState().getTime();
+			nullCombat = new FocusOnTargetConfiguration().createStrategy(gunship);
 		}
 
 		@Override
@@ -62,16 +65,21 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
 			//first check to see if we need a new target
-			if(target == null || target.getState().equals(MapItemState.Dead))
+			if(target == null || target == gunship || target.getState().equals(MapItemState.Dead))
 			{
 				target = acquireTarget(availableAllies);
+				if(target == null)
+				{
+					nullCombat.fight(availableEnemies, availableAllies);
+					return;
+				}
 				//this ability is just to tell other gunships that this one is targeting
 				//target and they should look for someone else
 				target.addActiveAbility(new GunshipTarget(target));
 			}
 			
 			//next check to see if we're hovering over the target
-			if(target.getPosition().distanceSquared(gunship.getPosition()) > Math.pow(getRange(), 2))
+			if(!gunship.getBody().isCollidingWith(target.getBody()))
 				gunship.getMovementStrategy().setTarget(target.getTransformation());
 			
 			//next check to see if we can pulse
@@ -83,8 +91,21 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 				List<Unit> potentialHits = gunship.getWave().getLane().getUnitsIn(box);
 				for(Unit u : potentialHits)
 				{
-					if(u.getPosition().distanceSquared(gunship.getPosition()) <= range*range)
-						u.addActiveAbility(new ShieldBuff(u));
+					if(u.getPosition().distanceSquared(gunship.getPosition()) <= range*range 
+							&& u != gunship && !(u.getCombatStrategy() instanceof GunshipHelpAllies))
+					{
+						boolean found = false;
+						for(Ability a : u.getActiveAbilities())
+						{
+							if(a instanceof ShieldBuff)
+							{
+								found = true;
+								break;
+							}
+						}
+						if(!found)
+							u.addActiveAbility(new ShieldBuff(u));
+					}
 				}
 				lastPulseTime = gunship.getGameState().getTime();
 			}
@@ -100,6 +121,8 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 			double dis = Double.POSITIVE_INFINITY;
 			for(Unit u : availableAllies)
 			{
+				if(u == gunship || u.getCombatStrategy() instanceof GunshipHelpAllies)
+					continue;
 				boolean found = false;
 				for(Ability a : u.getActiveAbilities())
 				{
