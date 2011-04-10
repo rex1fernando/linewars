@@ -1,9 +1,7 @@
 package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import utility.Observable;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
@@ -12,6 +10,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
+import utility.Observable;
 
 public abstract class MapItemAggregate extends MapItem {
 
@@ -209,7 +208,7 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public Shape getBody()
 	{
-		if(checkForContainedItemsChange(this))
+//		if(checkForContainedItemsChange(this))
 			updateInternalVariables();
 		return body;
 	}

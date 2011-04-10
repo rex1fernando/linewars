@@ -46,7 +46,7 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 	private static final String projectileDescription = "The Configuration of the Projectile that this TurretStrategy should shoot.";
 	private static final EditorProperty projectileProperty = new EditorProperty(projectileUsage, null, projectileEditorUsage, projectileDescription);
 	
-
+	//the proportion of the width of the Mech that this turret spawns projectiles in god this is so confusing...
 	public MechTurretStrategyConfiguration(){
 		this.setPropertyForName(rangeName, rangeProperty);
 		this.setPropertyForName(minRangeName, minRangeProperty);
@@ -97,7 +97,12 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 			Position relativeTarget = target.subtract(thisLocation);
 			double direction = relativeTarget.getAngle();
 			
-			projectile.createMapItem(new Transformation(thisLocation, direction), owner.getOwner(), owner.getGameState());
+			//we need to compute an offset so that the projectile is spawned in front of the turret, not in the turret
+			double turretLength = owner.getBody().boundingRectangle().getWidth() / 2;
+			Position turretOffset = Position.getUnitVector(direction).scale(turretLength);
+			Position spawnAt = thisLocation.add(turretOffset);
+			
+			projectile.createMapItem(new Transformation(spawnAt, direction), owner.getOwner(), owner.getGameState());
 		}
 
 		@Override

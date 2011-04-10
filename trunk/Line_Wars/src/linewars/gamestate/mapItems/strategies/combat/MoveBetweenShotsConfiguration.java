@@ -121,7 +121,7 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 			}
 			
 			//if we aren't ready to fire yet, let's just move towards our target
-			if(!readyToFire){
+			if(!readyToFire || closestTargetDistance > getRange()){
 				//as long as it is farther than our minimum range!!
 				double minimumRange = getMinimumRange();
 				if(closestTargetDistance > minimumRange){
@@ -130,14 +130,12 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 				return;
 			}
 			
-			//So now we know that we are ready to shoot, we should do so
-			//As long as the chosen target is within our max range!!
-			if(closestTargetDistance > getRange()){
-				return;
-			}
-			
 			//Now we know what to shoot; let's do so!
 			for(Turret t : unit.getTurrets()){
+				//TODO we need to figure out how far offset this turret is
+				//but that's impossible because all of their centers are at the same spot...
+				//do their turret strategies have to know??? that would suck ass
+				
 				MinimumRangeTurretStrategy strat = (MinimumRangeTurretStrategy) t.getTurretStrategy();
 				strat.setTarget(closestTarget);
 				strat.fight(availableEnemies, availableAllies);
@@ -145,6 +143,8 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 			
 			//We should also change how we are facing so that shit looks better
 			unit.getMovementStrategy().setTarget(new Transformation(myPos, closestTarget.subtract(myPos).getAngle()));
+			
+			lastShotStartedTime = currentTime;
 		}
 
 		private double getMinimumRange() {

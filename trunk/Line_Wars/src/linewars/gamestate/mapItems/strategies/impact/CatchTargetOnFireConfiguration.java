@@ -81,8 +81,9 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 
 		@Override
 		public void handleImpact(MapItem m) {
-			if(m instanceof Unit)
+			if(m instanceof Unit && !isOnFire(m))
 			{
+<<<<<<< HEAD
 				if(!isOnFire(m))
 				{
 					final Unit u = (Unit) m;
@@ -98,6 +99,12 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 							((OnFire)a).start = m.getGameState().getTime();
 					}
 				}
+=======
+				final Unit u = (Unit) m;
+				final Part burning = getBurningPart().createMapItem(u.getTransformation(), u.getOwner(), u.getGameState());
+				u.addMapItemToFront(burning, Transformation.ORIGIN);
+				u.addActiveAbility(new OnFire(u, burning));
+>>>>>>> c0533825a1a6a2f9f27ac1e3c341221c133df25b
 			}
 		}
 		
