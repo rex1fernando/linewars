@@ -3,19 +3,16 @@ package linewars.gamestate.mapItems;
 import java.util.ArrayList;
 import java.util.List;
 
-import utility.Observable;
-
-import configuration.ListConfiguration;
-import configuration.Property;
-import configuration.Usage;
-
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.configurations.CircleConfiguration;
-import linewars.gamestate.shapes.configurations.ShapeAggregateConfiguration;
 import linewars.gamestate.shapes.configurations.ShapeConfiguration;
+import utility.Observable;
+import configuration.ListConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> extends MapItemDefinition<MapItemAggregate> {
 	
@@ -53,6 +50,17 @@ public abstract class MapItemAggregateDefinition<T extends MapItemAggregate> ext
 		//TODO this may need to be changed
 		//return new ShapeAggregateConfiguration();
 		return new CircleConfiguration(10, new Transformation(new Position(0, 0), 0));
+		
+		/*ArrayList<ShapeConfiguration> subShapes = new ArrayList<ShapeConfiguration>();
+		ArrayList<String> names = new ArrayList<String>();
+		for(int i = 0; i < containedItems.size(); i++){
+			subShapes.add(containedItems.get(i).getBodyConfig());
+			names.add("" + i);
+		}
+		ShapeAggregateConfiguration ret = new ShapeAggregateConfiguration();
+		ret.setAllShapes(subShapes, subShapes, names);
+		
+		return ret;*/
 	}
 	
 	@SuppressWarnings("unchecked")

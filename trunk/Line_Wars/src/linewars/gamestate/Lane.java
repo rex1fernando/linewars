@@ -47,7 +47,8 @@ public strictfp class Lane
 	
 	private PathFinding pathFinder;
 	
-	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+	private List<Projectile> projectiles = new LinkedList<Projectile>();
+	private List<Projectile> projectilesInNeedOfRemoval = new LinkedList<Projectile>();
 	
 	private LaneConfiguration config;
 		
@@ -399,43 +400,6 @@ public strictfp class Lane
 		});
 		return units;
 	}
-
-	/**
-	 * Finds the farthest point at which units can be spawned, defined as the position
-	 * farthest away from the gate that units are allowed to spawn
-	 */
-	private double findForwardBound(Node n)
-	{
-		Gate closestGate = this.getGate(n);
-		boolean forward = true;
-		if (closestGate.getPosition().distanceSquared(
-				this.getPosition(1).getPosition()) < closestGate.getPosition()
-				.distanceSquared(this.getPosition(0).getPosition()))
-			forward = false;
-		
-		double pos;
-		if(forward)
-		{
-			pos = 1;
-			for(Wave w : this.getWaves())
-			{
-				double d = w.getPositionToP0(false);
-				if(d < pos)
-					pos = d;
-			}
-		}
-		else 	
-		{
-			pos = 0;
-			for(Wave w : this.getWaves())
-			{
-				double d = 1 - w.getPositionToP3();
-				if(d > pos)
-					pos = d;
-			}
-		}
-		return pos;
-	}
 	
 	/**
 	 * Returns a list of all units within the circle c and in this lane
@@ -500,6 +464,10 @@ public strictfp class Lane
 //		}
 
 		findCollisions();
+		
+		for(Projectile p : projectilesInNeedOfRemoval)
+			projectiles.remove(p);
+		projectilesInNeedOfRemoval.clear();
 	}
 	
 	private void findCollisions(){
@@ -809,5 +777,9 @@ public strictfp class Lane
 			else
 				return 1;
 		}
+	}
+
+	public void removeProjectile(Projectile owningProjectile) {
+		projectilesInNeedOfRemoval.add(owningProjectile);
 	}
 }

@@ -1,1 +1,1 @@
-D:\programming\linewars\trunk\Line_Wars\resources\images
+C:\Users\Knexer\game\trunk\Line_Wars\resources\images

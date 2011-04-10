@@ -76,6 +76,9 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case IconConfig:
 					f = new IconConfigurationField(field, prop.getDescription(), (Configuration) prop.getValue());
 					break;
+				case Boolean:
+					f = new BooleanField(field, prop.getDescription(), (Boolean) prop.getValue());
+					break;
 				default:
 					throw new IllegalArgumentException(prop.getEditorUsage().toString() + " is not supported by this editor");
 			}

@@ -5,11 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
-import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.shapes.AABB;
-import linewars.gamestate.shapes.Circle;
 
 /**
  * 
@@ -21,6 +19,7 @@ public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
 	private List<Unit> units;
+	private List<Unit> unitsInNeedOfRemoval = new LinkedList<Unit>();
 	private boolean inCombat = false;
 	
 	/**
@@ -310,6 +309,13 @@ public strictfp class Wave {
 			u.updateMapItem();
 			units.add(u);
 		}
+		
+		for(Unit u : unitsInNeedOfRemoval)
+		{
+			units.remove(u);
+			owner.notifySweepAndPruneUnitRemoved(u);
+		}
+		unitsInNeedOfRemoval.clear();
 	}
 	
 	public boolean isInCombat()
@@ -318,41 +324,6 @@ public strictfp class Wave {
 	}
 	
 
-	/**
-	 * Helper method for the update() method. Sets the targets for all the units in this wave based on the scale and returns the lowest move.
-	 * @param destGate The gate the units are using as their target.
-	 * @param gatePos The position of the target gate.
-	 * @param scale The modifier to the movement of the units.
-	 * @return The lowest move speed found.
-	 */
-	private double setTransformations(Gate destGate, Position gatePos, double scale) {
-		double ret = 1;
-		for(int i = 0; i < units.size(); i++)
-		{
-			Unit u = units.get(i);
-			
-			double destX = 0;
-			Position currentPos = u.getPosition();
-			double plus = currentPos.getX() - (gatePos.getX()+(destGate.getWidth()/2));
-			double minus = currentPos.getX() - (gatePos.getX()-(destGate.getWidth()/2));
-			if(Math.abs(plus) < Math.abs(minus))
-			{
-				destX = plus;
-			}else{
-				destX = minus;
-			}
-			
-			Position destPos = new Position((scale * destX), currentPos.getY());
-			Transformation target = new Transformation(destPos, u.getTransformation().getRotation());
-			double currentSpeed = u.getMovementStrategy().setTarget(target);
-			if(currentSpeed < ret)
-			{
-				ret = currentSpeed;
-			}
-		}
-		return ret;
-	}
-	
 	/**
 	 * Checks whether or not this Wave contains a given Unit.
 	 * @param u
@@ -373,8 +344,7 @@ public strictfp class Wave {
 	 */
 	public void remove(Unit u)
 	{
-		units.remove(u);
-		owner.notifySweepAndPruneUnitRemoved(u);
+		unitsInNeedOfRemoval.add(u);
 	}
 	
 	/**

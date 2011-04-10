@@ -3,13 +3,10 @@ package linewars.gamestate.mapItems.strategies.turret;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.shapes.AABB;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -49,7 +46,7 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 	private static final String projectileDescription = "The Configuration of the Projectile that this TurretStrategy should shoot.";
 	private static final EditorProperty projectileProperty = new EditorProperty(projectileUsage, null, projectileEditorUsage, projectileDescription);
 	
-
+	//the proportion of the width of the Mech that this turret spawns projectiles in god this is so confusing...
 	public MechTurretStrategyConfiguration(){
 		this.setPropertyForName(rangeName, rangeProperty);
 		this.setPropertyForName(minRangeName, minRangeProperty);
@@ -100,33 +97,12 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 			Position relativeTarget = target.subtract(thisLocation);
 			double direction = relativeTarget.getAngle();
 			
-			System.out.println(projectile.getName());
-			fireLaser(projectile, target, thisLocation, direction);
-			//projectile.createMapItem(new Transformation(thisLocation, direction), owner.getOwner(), owner.getGameState());
+			//we need to compute an offset so that the projectile is spawned in front of the turret, not in the turret
+			double turretLength = owner.getBody().boundingRectangle().getWidth() / 2;
+			Position turretOffset = Position.getUnitVector(direction).scale(turretLength);
+			Position spawnAt = thisLocation.add(turretOffset);
 			
-		}
-		
-		private void fireLaser(ProjectileDefinition laserPiece, Position target, Position currentLocation, double direction){
-			AABB bounds = laserPiece.getBodyConfig().construct(new Transformation(target, 0)).calculateAABB();
-			double pieceLength = bounds.getXMax() - bounds.getXMin();
-			
-			Position increment = new Position(pieceLength, 0).rotateAboutPosition(Position.ORIGIN, direction);
-			Position relativeTarget = target.subtract(currentLocation);
-			double laserLength = relativeTarget.length();
-			int numLasers = (int) ((laserLength + 0.5) / pieceLength);
-			
-			for(int i = 0; i < numLasers; i++){
-				Position creationPosition = currentLocation.add(increment.scale(i + 0.5));
-				Transformation creationLocation = new Transformation(creationPosition, direction);
-				laserPiece.createMapItem(creationLocation, owner.getOwner(), owner.getGameState());
-			}
-			
-			//Place an endcap at the end of the laser
-			Position endcapPosition = currentLocation.add(increment.scale(numLasers));
-			Projectile endcap = laserPiece.createMapItem(new Transformation(endcapPosition, direction), owner.getOwner(), owner.getGameState());
-			endcap.setState(MapItemState.Firing);
-			
-			
+			projectile.createMapItem(new Transformation(spawnAt, direction), owner.getOwner(), owner.getGameState());
 		}
 
 		@Override
