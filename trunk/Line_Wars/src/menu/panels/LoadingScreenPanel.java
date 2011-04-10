@@ -20,15 +20,21 @@ public class LoadingScreenPanel extends JPanel
 	private static final long REVOLUTION_TIME = 2000;
 	
 	private WindowManager wm;
+	private boolean running;
 	
 	private long creationTime;
 	
 	public LoadingScreenPanel(final WindowManager wm)
 	{
+		this.wm = wm;
+		running = false;
 		setPreferredSize(new Dimension(1024, 640));
 		setMaximumSize(new Dimension(1024, 640));
 		setMinimumSize(new Dimension(1024, 640));
-		this.wm = wm;
+	}
+	
+	public void start()
+	{
 		creationTime = System.currentTimeMillis();
 		
 		Timer timer = new Timer(true);

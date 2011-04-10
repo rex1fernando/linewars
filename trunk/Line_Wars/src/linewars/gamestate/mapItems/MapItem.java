@@ -53,6 +53,7 @@ public strictfp abstract class MapItem implements Observer {
 	
 	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
+		System.out.println("Loading " + def.getName());
 		setDefinition(def);
 		body = def.getBodyConfig().construct(trans);
 		state = MapItemState.Idle;

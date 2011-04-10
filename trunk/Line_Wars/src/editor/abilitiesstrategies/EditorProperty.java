@@ -5,6 +5,10 @@ import configuration.Usage;
 
 public class EditorProperty extends Property {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6299548119519711116L;
 	private EditorUsage eUsage;
 	private String description;
 

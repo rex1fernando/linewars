@@ -47,6 +47,7 @@ public class ContentProvider
 		
 		// concept art
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
+		getImageResource(MenuImage.background_title);
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
 		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
@@ -185,7 +186,7 @@ public class ContentProvider
 		return maps.toArray(new MapConfiguration[0]);
 	}
 	
-	public static Image getImageResource(MenuImage img)
+	public static synchronized Image getImageResource(MenuImage img)
 	{
 		if (imageResources.containsKey(img) == false)
 		{
