@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,6 +38,8 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
@@ -130,6 +133,13 @@ public class Display extends JFrame implements Runnable
 		//TODO go back to the lobby system
 		dispose();
 	}
+
+	//TODO Titus, I changed my mind and decided to put this method in the sound player
+	//it is a singleton so just get the instance and call the setVolume method
+//	public void setVolume(SoundType type, double vol)
+//	{
+//		//TODO set the volume
+//	}
 	
 	/**
 	 * Gets the width of the GamePanel.
@@ -264,18 +274,18 @@ public class Display extends JFrame implements Runnable
 			
 			if(sound != null)
 			{
-//				try
-//				{
-//					SoundPlayer.getInstance().addSound(sound);
-//				}
-//				catch (UnsupportedAudioFileException e)
-//				{
-//					e.printStackTrace();
-//				}
-//				catch (IOException e)
-//				{
-//					e.printStackTrace();
-//				}
+				try
+				{
+					SoundPlayer.getInstance().addSound(sound);
+				}
+				catch (UnsupportedAudioFileException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	}

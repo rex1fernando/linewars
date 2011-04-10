@@ -21,12 +21,14 @@ import linewars.gamestate.Position;
  */
 public class ImageDrawer
 {
+	private HashMap<Integer, Color> playerColors;
 	private HashMap<String, GameImage> images;
 	private static ImageDrawer instance;
 	private static final Object lock = new Object();
 
 	private ImageDrawer()
 	{
+		playerColors = new HashMap<Integer, Color>();
 		images = new HashMap<String, GameImage>();
 	}
 
@@ -113,6 +115,11 @@ public class ImageDrawer
 		
 		image.draw(g, position, scale);
 	}
+	
+	public void setPlayerColor(int playerIndex, Color c)
+	{
+		playerColors.put(playerIndex, c);
+	}
 
 	/**
 	 * Retrieves the color for the specified player assuming there are
@@ -124,36 +131,40 @@ public class ImageDrawer
 	 *            The number of players in the game.
 	 * @return The color for the specified player.
 	 */
-	public static Color getPlayerColor(int playerIndex, int numPlayers)
+	public Color getPlayerColor(int playerIndex, int numPlayers)
 	{
-		switch(playerIndex)
-		{
-		case 0:
-			return new Color(140, 23, 23); // scarlet
-		case 1:
-			return Color.blue;
-		case 2:
-			return Color.green;
-		case 3:
-			return Color.orange;
-		case 4:
-			return Color.yellow;
-		case 5:
-			return Color.pink;
-		case 6:
-			return Color.cyan;
-		case 7:
-			return Color.magenta;
-		case 8:
-			return new Color(0, 128, 128); // teal
-		case 9:
-			return new Color(0, 0, 128); // navy
-		case 10:
-			return new Color(0, 245, 255); // turquoise
-		case 11:
-			return new Color(47, 79, 47); // dark green
-		}
+		Color c = playerColors.get(playerIndex);
+//		switch(playerIndex)
+//		{
+//		case 0:
+//			return new Color(140, 23, 23); // scarlet
+//		case 1:
+//			return Color.blue;
+//		case 2:
+//			return Color.green;
+//		case 3:
+//			return Color.orange;
+//		case 4:
+//			return Color.yellow;
+//		case 5:
+//			return Color.pink;
+//		case 6:
+//			return Color.cyan;
+//		case 7:
+//			return Color.magenta;
+//		case 8:
+//			return new Color(0, 128, 128); // teal
+//		case 9:
+//			return new Color(0, 0, 128); // navy
+//		case 10:
+//			return new Color(0, 245, 255); // turquoise
+//		case 11:
+//			return new Color(47, 79, 47); // dark green
+//		}
 
-		return Color.white;
+		if(c != null)
+			return c;
+		else
+			return Color.white;
 	}
 }

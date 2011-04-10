@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -39,6 +40,11 @@ public class SoundPlayer implements Runnable
 	{
 		LEFT, RIGHT
 	}
+	
+	public enum SoundType
+	{
+		MUSIC, SOUND_EFFECT
+	}
 
 	private static final Object instanceLock = new Object();
 	private static final Object runningLock = new Object();
@@ -46,8 +52,9 @@ public class SoundPlayer implements Runnable
 
 	private boolean running;
 
+	private HashMap<SoundType, Double> volumes;
 	private HashMap<String, Sound> sounds;
-	private LinkedList<SoundPair> playing;
+	private ArrayList<SoundPair> playing;
 	private AudioFormat format;
 	private SourceDataLine line;
 	private long lastTime;
@@ -56,8 +63,12 @@ public class SoundPlayer implements Runnable
 	private SoundPlayer()
 	{
 		running = false;
+		volumes = new HashMap<SoundPlayer.SoundType, Double>();
+		for(SoundType t : SoundType.values())
+			volumes.put(t, 1.0);
+		
 		sounds = new HashMap<String, Sound>();
-		playing = new LinkedList<SoundPair>();
+		playing = new ArrayList<SoundPair>();
 		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
 		loopTime = MIN_LOOP_TIME_MS;
 	}
@@ -76,6 +87,16 @@ public class SoundPlayer implements Runnable
 		}
 
 		return instance;
+	}
+	
+	public void setVolume(SoundType type, double vol)
+	{
+		if(vol < 0.0)
+			vol = 0.0;
+		if(vol > 1.0)
+			vol = 1.0;
+		
+		volumes.put(type, vol);
 	}
 
 	public void addSound(String uri) throws UnsupportedAudioFileException, IOException
@@ -173,6 +194,7 @@ public class SoundPlayer implements Runnable
 	
 	private void play()
 	{
+		//calculate the number of bytes to write
 		int samples = (int)(SAMPLE_RATE * (loopTime / 1000.0f)) * Channel.values().length;
 		int bytes = samples * SAMPLE_SIZE_IN_BYTES;
 		
@@ -188,15 +210,16 @@ public class SoundPlayer implements Runnable
 		if(bytes <= 0)
 			return;
 		
-		byte[] channelData = new byte[bytes];
-
-		int index = 0;
-		while(index < playing.size())
+		//loop over all playing sounds and mix sounds of the same type together
+		byte[][] typeData = new byte[SoundType.values().length][bytes];
+		for(int index = 0; index < playing.size(); ++index)
 		{
+			//get the sound pair
 			SoundPair p = playing.get(index);
 			if(p == null)
 				continue;
 			
+			//get the sound
 			Sound current = sounds.get(p.sound.getURI());
 			if(current == null || p.sound.isDone() || current.isFinished(p.progress))
 			{
@@ -205,44 +228,96 @@ public class SoundPlayer implements Runnable
 				continue;
 			}
 
+			//get the data from the sound
 			byte[] dataFromSource = new byte[bytes];
 			p.progress = current.getNextFrame(dataFromSource, p.progress, bytes);
 
+			//get the sound type
+			int type = p.sound.getType().ordinal();
+			
+			//get the sound volume
+			double vol[] = new double[Channel.values().length];
+			for(Channel channel : Channel.values())
+			{
+				int c = channel.ordinal();
+				vol[c] = p.sound.getVolume(channel);
+			}
+			
+			//mix the sound
 			for(int i = 0; i < bytes / Channel.values().length / SAMPLE_SIZE_IN_BYTES; ++i)
 			{
+				//mix the channel for this sample
 				for(Channel channel : Channel.values())
 				{
 					int c = channel.ordinal();
 					int sampleNum = (i * Channel.values().length) + c;
-					long channelSample = 0;
-					long dataSample = 0;
-					
-					channelSample = channelData[((sampleNum + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
-					dataSample = dataFromSource[((sampleNum + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
+
+					//get the wave amplitude value from multiple bytes
+					long channelSample = typeData[type][((sampleNum + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
+					long dataSample = dataFromSource[((sampleNum + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
 					for(int j = SAMPLE_SIZE_IN_BYTES - 2; j >= 0; --j)
 					{
 						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
 						
-						channelSample = (channelSample << 8) | (channelData[byteNum] & 255L);
+						//shift the current value over and add the new byte
+						channelSample = (channelSample << 8) | (typeData[type][byteNum] & 255L);
 						dataSample = (dataSample << 8) | (dataFromSource[byteNum] & 255L);
 					}
 					
+					//mix the sample
 					channelSample = (long)((channelSample * ((double)index / (index + 1))) +
-							((dataSample * p.sound.getVolume(channel)) * (1.0 / (index + 1))));
+							((dataSample * vol[c]) * (1.0 / (index + 1))));
 					
+					//write the wave amplitude in multiple bytes
 					for(int j = 0; j < SAMPLE_SIZE_IN_BYTES; ++j)
 					{
 						int byteNum = (sampleNum * SAMPLE_SIZE_IN_BYTES) + j;
 						byte toSave = (byte)(channelSample & 255L);
-						channelData[byteNum] = toSave;
+						typeData[type][byteNum] = toSave;
 						channelSample = channelSample >> 8;
 					}
 				}
 			}
-
-			++index;
+		}
+		
+		//loop over all sound types and mix them together into one wave
+		byte[] channelData = new byte[bytes];
+		int numTypes = SoundType.values().length;
+		for(SoundType t : SoundType.values())
+		{
+			int type = t.ordinal();
+			double vol = volumes.get(t);
+			
+			//mix the sound type
+			for(int i = 0; i < bytes / SAMPLE_SIZE_IN_BYTES; ++i)
+			{
+				//get the wave amplitude value from multiple bytes
+				long channelSample = channelData[((i + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
+				long dataSample = typeData[type][((i + 1) * SAMPLE_SIZE_IN_BYTES) - 1];
+				for(int j = SAMPLE_SIZE_IN_BYTES - 2; j >= 0; --j)
+				{
+					//shift the current value over and add the new byte
+					int byteNum = (i * SAMPLE_SIZE_IN_BYTES) + j;
+					
+					channelSample = (channelSample << 8) | (channelData[byteNum] & 255L);
+					dataSample = (dataSample << 8) | (typeData[type][byteNum] & 255L);
+				}
+				
+				//mix the sample
+				channelSample = (long)(channelSample + ((dataSample * vol) * (1.0 / numTypes)));
+				
+				//write the wave amplitude in multiple bytes
+				for(int j = 0; j < SAMPLE_SIZE_IN_BYTES; ++j)
+				{
+					int byteNum = (i * SAMPLE_SIZE_IN_BYTES) + j;
+					byte toSave = (byte)(channelSample & 255L);
+					channelData[byteNum] = toSave;
+					channelSample = channelSample >> 8;
+				}
+			}
 		}
 
+		//write the wave to the speaker line
 		line.write(channelData, 0, channelData.length);
 	}
 
