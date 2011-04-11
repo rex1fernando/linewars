@@ -31,6 +31,7 @@ public strictfp class Node {
 	private long occupationStartTime;
 	
 	private ArrayList<Building> containedBuildings;
+	private HashMap<BuildingSpot, Boolean> occupiedBuildingSpots = new HashMap<BuildingSpot, Boolean>();
 	private Building cCenter;
 	private ArrayList<Unit> containedUnits;
 	private long lastSpawnTime;
@@ -264,7 +265,10 @@ public strictfp class Node {
 		{
 			return null;
 		}
-		return config.buildingSpots().get(containedBuildings.size()).getTrans();
+		for(BuildingSpot bs : config.buildingSpots())
+			if(occupiedBuildingSpots.get(bs) == null || !occupiedBuildingSpots.get(bs))
+				return bs.getTrans();
+		return null;
 	}
 	
 	/**
@@ -285,8 +289,40 @@ public strictfp class Node {
 				return false;
 			}
 		}
+		double dis = Double.POSITIVE_INFINITY;
+		BuildingSpot place = null;
+		for(BuildingSpot bs : config.buildingSpots())
+		{
+			double d = bs.getTrans().getPosition().distanceSquared(b.getPosition());
+			if(d < dis)
+			{
+				dis = d;
+				place = bs;
+			}
+		}
+		occupiedBuildingSpots.put(place, true);
 		b.setNode(this);
 		return containedBuildings.add(b);
+	}
+	
+	public void removeBuilding(int index)
+	{
+		if(index >= containedBuildings.size() || index < 0)
+			return;
+		Building toRemove = containedBuildings.get(index);
+		double dis = Double.POSITIVE_INFINITY;
+		BuildingSpot place = null;
+		for(BuildingSpot bs : config.buildingSpots())
+		{
+			double d = bs.getTrans().getPosition().distanceSquared(toRemove.getPosition());
+			if(d < dis)
+			{
+				dis = d;
+				place = bs;
+			}
+		}
+		occupiedBuildingSpots.put(place, false);
+		containedBuildings.remove(index);
 	}
 	
 	

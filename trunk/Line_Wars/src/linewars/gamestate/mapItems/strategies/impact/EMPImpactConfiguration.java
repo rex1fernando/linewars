@@ -69,9 +69,24 @@ public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 			{
 				if(CollisionStrategyConfiguration.isAllowedToCollide(u, proj) &&
 						damageCircle.isCollidingWith(u.getBody()))
-					u.addActiveAbility(new EMPEffect(u));
+				{
+					EMPEffect ee = getEMPAbility(u);
+					if(ee == null)
+						u.addActiveAbility(new EMPEffect(u));
+					else
+						ee.startTime = u.getGameState().getTime();
+				}
 			}
 			proj.setState(MapItemState.Dead);
+		}
+		
+		private EMPEffect getEMPAbility(Unit u)
+		{
+			for(Ability a : u.getActiveAbilities())
+				if(a instanceof EMPEffect)
+					return (EMPEffect) a;
+			
+			return null;
 		}
 		
 		private class EMPEffect implements Ability
@@ -168,7 +183,7 @@ public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 	public boolean equals(Object obj) {
 		return (obj instanceof EMPImpactConfiguration) &&
 				((EMPImpactConfiguration) obj).getDuration() == getDuration() &&
-				((MapItem) obj).getRadius() == getRadius();
+				((EMPImpactConfiguration) obj).getRadius() == getRadius();
 	}
 
 }

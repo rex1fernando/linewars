@@ -2,6 +2,8 @@ package linewars.gamestate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,6 +16,8 @@ import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemAggregate;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.collision.FlyingConfiguration.Flying;
+import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Ground;
 import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
@@ -37,7 +41,6 @@ public strictfp class GameState
 	private int timerTick;
 	private Map map;
 	private HashMap<Integer, Player> players;
-	private int numPlayers;
 	private List<Race> races;
 	
 	private Player winningPlayer = null;
@@ -49,7 +52,7 @@ public strictfp class GameState
 	
 	public int getNumPlayers()
 	{
-		return numPlayers;
+		return this.players.size();
 	}
 	
 	public Player getPlayer(int playerID)
@@ -77,7 +80,6 @@ public strictfp class GameState
 	public GameState(MapConfiguration mapConfig, List<PlayerData> players) {
 		map = mapConfig.createMap(this);
 		this.players = new HashMap<Integer, Player>();
-		this.numPlayers = players.size();
 		timerTick = 0;
 		
 		this.races = new ArrayList<Race>();
@@ -99,6 +101,28 @@ public strictfp class GameState
 			Player p = new Player(this, startNodes, r, players.get(i).getName(), i);
 			this.players.put(i, p);
 		}
+		
+		//TODO this dummy player is for debugging purposes
+		Race r = null;
+		int i = this.players.size();
+		try {
+			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if(r == null)
+			throw new RuntimeException("Error copying race");
+		this.races.add(r);
+		Node[] nodes = this.getMap().getNodes();
+		List<Node> dummyStartNodes = new ArrayList<Node>();
+		for(Node n : nodes)
+			if(n.getOwner() == null)
+				dummyStartNodes.add(n);
+		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
+		this.players.put(i, dummyPlayer);
+		
 	}
 
 	/**
@@ -126,7 +150,7 @@ public strictfp class GameState
 	public List<Player> getPlayers()
 	{
 		List<Player> players = new ArrayList<Player>();
-		for(int i = 0; i < numPlayers; i++)
+		for(int i = 0; i < this.players.size(); i++)
 			players.add(this.players.get(i));
 		
 		return players;
@@ -218,6 +242,19 @@ public strictfp class GameState
 				}
 			}
 		}
+		
+		Collections.sort(units, new Comparator<Unit>() {
+
+			@Override
+			public int compare(Unit o1, Unit o2) {
+				if(o1.getCollisionStrategy() instanceof Ground && o2.getCollisionStrategy() instanceof Flying)
+					return -1;
+				else if(o2.getCollisionStrategy() instanceof Ground && o1.getCollisionStrategy() instanceof Flying)
+					return 1;
+				else
+					return 0;
+			}
+		});
 		
 		return units;
 	}
@@ -340,7 +377,6 @@ public strictfp class GameState
 		if(!(o instanceof GameState)) return false;
 		GameState other = (GameState) o;
 		if(other.timerTick != timerTick) return false;
-		if(other.numPlayers != numPlayers) return false;
 		if(!other.map.equals(map)) return false;
 		return true;
 	}

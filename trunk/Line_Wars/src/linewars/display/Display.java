@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,6 +38,8 @@ import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
 import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
@@ -50,6 +53,8 @@ import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.shapes.Rectangle;
+import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.PlayerAbilityMessage;
@@ -128,6 +133,13 @@ public class Display extends JFrame implements Runnable
 		//TODO go back to the lobby system
 		dispose();
 	}
+
+	//TODO Titus, I changed my mind and decided to put this method in the sound player
+	//it is a singleton so just get the instance and call the setVolume method
+//	public void setVolume(SoundType type, double vol)
+//	{
+//		//TODO set the volume
+//	}
 	
 	/**
 	 * Gets the width of the GamePanel.
@@ -197,10 +209,11 @@ public class Display extends JFrame implements Runnable
 			Race race = p.getRace();
 
 			ArrayList<Configuration> configs = new ArrayList<Configuration>();
-			configs.add(race.getCommandCenter());
-			configs.add(race.getGate());
-			configs.addAll(race.getAllBuildings());
-			configs.addAll(race.getAllUnits());
+//			configs.add(race.getCommandCenter());
+//			configs.add(race.getGate());
+//			configs.addAll(race.getAllBuildings());
+//			configs.addAll(race.getAllUnits());
+			configs.add(race); //Ryan I swear to GOD I'm going to punch you for this, lol jk :)
 			
 			for(Configuration c : configs)
 			{
@@ -238,6 +251,12 @@ public class Display extends JFrame implements Runnable
 				//animations here, the dimension is unknown
 				//at this time
 			}
+			else if(p.getValue() instanceof TechGraph)
+			{
+				TechGraph tg = (TechGraph) p.getValue();
+				for(TechNode tn : tg.getOrderedList())
+					loadDisplayResourcesRecursive(tn.getTechConfig(), loadedConfigs);
+			}
 		}
 	}
 	
@@ -255,18 +274,18 @@ public class Display extends JFrame implements Runnable
 			
 			if(sound != null)
 			{
-//				try
-//				{
-//					SoundPlayer.getInstance().addSound(sound);
-//				}
-//				catch (UnsupportedAudioFileException e)
-//				{
-//					e.printStackTrace();
-//				}
-//				catch (IOException e)
-//				{
-//					e.printStackTrace();
-//				}
+				try
+				{
+					SoundPlayer.getInstance().addSound(sound);
+				}
+				catch (UnsupportedAudioFileException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	}

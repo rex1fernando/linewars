@@ -7,6 +7,7 @@ import java.util.HashMap;
 import linewars.display.DisplayConfiguration;
 import linewars.display.layers.MapItemLayer.MapItemType;
 import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
@@ -17,15 +18,13 @@ import linewars.gamestate.shapes.Rectangle;
 public class LocalSoundEffectManager
 {
 	private HashMap<Integer, StateSoundPair> currentEffects;
-	private double volume;
 	
 	public LocalSoundEffectManager()
 	{
 		currentEffects = new HashMap<Integer, StateSoundPair>();
-		volume = 1.0;
 	}
 	
-	public void play(GameState gamestate, Rectangle2D visibleScreen, double volume)
+	public void play(GameState gamestate, Rectangle2D visibleScreen)
 	{
 		Position screenCenter = new Position(visibleScreen.getCenterX(), visibleScreen.getCenterY());
 		Rectangle screenRect = new Rectangle(new Transformation(screenCenter, 0), visibleScreen.getWidth(), visibleScreen.getHeight());
@@ -157,7 +156,19 @@ public class LocalSoundEffectManager
 		@Override
 		public double getVolume(Channel c)
 		{
-			return volume[c.ordinal()] * LocalSoundEffectManager.this.volume;
+			return volume[c.ordinal()];
+		}
+
+		@Override
+		public SoundType getType()
+		{
+			return SoundType.SOUND_EFFECT;
+		}
+
+		@Override
+		public SoundType getType()
+		{
+			return SoundType.SOUND_EFFECT;
 		}
 
 		@Override

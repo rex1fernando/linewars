@@ -53,7 +53,6 @@ public strictfp abstract class MapItem implements Observer {
 	
 	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
-		System.out.println("Loading " + def.getName());
 		setDefinition(def);
 		body = def.getBodyConfig().construct(trans);
 		state = MapItemState.Idle;
@@ -153,6 +152,11 @@ public strictfp abstract class MapItem implements Observer {
 	public void addActiveAbility(Ability a)
 	{
 		activeAbilities.add(a);
+	}
+	
+	public void removeActiveAbility(Ability a)
+	{
+		activeAbilities.remove(a);
 	}
 	
 	/**

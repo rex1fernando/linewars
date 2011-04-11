@@ -6,20 +6,19 @@ import java.util.ArrayList;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.GameState;
 
 public class MusicManager
 {
 	private ArrayList<String> songList;
 	private MusicInfo playing;
-	private double volume;
 	private int songIndex;
 	
 	public MusicManager(String[] songs)
 	{
 		songList = new ArrayList<String>();
 		playing = null;
-		volume = 1.0;
 		songIndex = 0;
 		
 		for(int i = 0; i < songs.length; ++i)
@@ -43,10 +42,8 @@ public class MusicManager
 		}
 	}
 	
-	public void play(GameState gamestate, double volume)
+	public void play(GameState gamestate)
 	{
-		this.volume = volume;
-		
 		//TODO implement a more intelligent song selector
 		
 		if(playing == null)
@@ -78,9 +75,15 @@ public class MusicManager
 		@Override
 		public double getVolume(Channel c)
 		{
-			return volume;
+			return 1.0;
 		}
 		
+		@Override
+		public SoundType getType()
+		{
+			return SoundType.MUSIC;
+		}
+
 		@Override
 		public String getURI()
 		{

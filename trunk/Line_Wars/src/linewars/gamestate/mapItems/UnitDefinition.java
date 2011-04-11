@@ -23,6 +23,11 @@ import linewars.gamestate.mapItems.strategies.movement.StraightConfiguration.Str
  */
 public strictfp class UnitDefinition extends MapItemAggregateDefinition<Unit> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 961663370368565928L;
+
 	private double maxHp;
 	
 	private CombatStrategyConfiguration combatStrat;

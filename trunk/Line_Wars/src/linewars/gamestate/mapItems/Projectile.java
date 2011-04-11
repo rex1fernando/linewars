@@ -157,6 +157,11 @@ public strictfp class Projectile extends MapItemAggregate {
 	{
 		return iStrat;
 	}
+	
+	public void setImpactStrategy(ImpactStrategy is)
+	{
+		iStrat = is;
+	}
 
 	@Override
 	public boolean equals(Object o){
