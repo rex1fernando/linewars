@@ -166,6 +166,12 @@ public class LocalSoundEffectManager
 		}
 
 		@Override
+		public SoundType getType()
+		{
+			return SoundType.SOUND_EFFECT;
+		}
+
+		@Override
 		public String getURI()
 		{
 			return uri;

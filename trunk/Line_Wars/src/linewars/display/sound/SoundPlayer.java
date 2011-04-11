@@ -311,7 +311,7 @@ public class SoundPlayer implements Runnable
 				{
 					int byteNum = (i * SAMPLE_SIZE_IN_BYTES) + j;
 					byte toSave = (byte)(channelSample & 255L);
-					channelData[byteNum] = toSave;
+					typeData[type][byteNum] = toSave;
 					channelSample = channelSample >> 8;
 				}
 			}
