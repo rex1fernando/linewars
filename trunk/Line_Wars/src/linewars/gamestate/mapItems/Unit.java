@@ -148,7 +148,14 @@ public strictfp class Unit extends MapItemAggregate {
 	{
 		super.updateInternalVariables();
 		for(Turret t : this.getTurrets())
+		{
+			if(t == null)
+			{
+				System.out.println("Unit:updateInternalVariables: debug: t is null");
+				continue;
+			}
 			t.setWave(this.getWave());
+		}
 	}
 	
 	@Override

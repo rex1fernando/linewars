@@ -209,6 +209,9 @@ public class ListGenericSelector<T> extends GenericSelector<T> {
 				setSelectedObjects(selected);
 				for(ListChangeListener<T> lcl : observers)
 					lcl.objectAdded(o);
+				list.revalidate();
+				list.validate();
+				list.updateUI();
 			}
 		}
 	}

@@ -217,6 +217,7 @@ public strictfp class Wave {
 		}
 		else
 		{
+			inCombat = false;
 			//figure out which direction we're going
 			boolean forward = true;
 			if (origin.getTransformation().getPosition().distanceSquared(
