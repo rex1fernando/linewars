@@ -122,6 +122,7 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 					{
 						lastBombTime = bomber.getGameState().getTime();
 						Projectile proj = getBomb().createMapItem(bomber.getTransformation(), bomber.getOwner(), bomber.getGameState());
+						proj.getModifier().pushUnderStack(bomber.getModifier());
 						bomber.getWave().getLane().addProjectile(proj);
 						bomber.setStateIfInState(MapItemState.Idle, MapItemState.Firing);
 						bomber.addActiveAbility(new Ability() {
