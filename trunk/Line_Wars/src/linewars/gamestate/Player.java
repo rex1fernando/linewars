@@ -32,7 +32,7 @@ public strictfp class Player {
 	private ArrayList<Projectile> ownedProjectiles;
 	private String name;
 	private Race race;
-	private double energy = 0;
+	private double energy = GameState.MAX_PLAYER_ENERGY;
 	
 	public Player(GameState gameState, Node[] startingNodes, Race r, String name, int ID) {
 		stuffAmount = gameState.getStartingStuffAmount();

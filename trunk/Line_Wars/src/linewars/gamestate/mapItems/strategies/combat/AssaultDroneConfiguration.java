@@ -76,6 +76,7 @@ public class AssaultDroneConfiguration extends CombatStrategyConfiguration {
 				double angle = target.getPosition().subtract(this.getDrone().getPosition()).getAngle();
 				Projectile p = getProjectileToShoot().createMapItem(new Transformation(this.getDrone().getPosition(), angle),
 								this.getDrone().getOwner(), target.getGameState());
+				p.getModifier().pushUnderStack(this.getDrone().getModifier());
 				target.getWave().getLane().addProjectile(p);
 			}
 		}

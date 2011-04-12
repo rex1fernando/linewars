@@ -44,6 +44,7 @@ public strictfp class ShootDefinition extends AbilityDefinition implements Obser
 			//TODO figure out how to move the position of the bullet spawning
 			//position out in front of the unit that's shooting it
 			Projectile p = ammo.createMapItem(t, m.getOwner(), m.getGameState());
+			p.getModifier().pushUnderStack(m.getModifier());
 			if(m instanceof Unit)
 				((Unit)m).getWave().getLane().addProjectile(p);
 			else if(m instanceof Turret)

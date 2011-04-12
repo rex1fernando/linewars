@@ -82,6 +82,7 @@ public class InterceptionDroneConfiguration extends CombatStrategyConfiguration 
 					Projectile spawn = getAnitProjectile().createMapItem(
 							new Transformation(this.getDrone().getPosition(), angle), this.getDrone().getOwner(), 
 							this.getDrone().getGameState());
+					spawn.getModifier().pushUnderStack(this.getDrone().getModifier());
 					this.getDrone().getWave().getLane().addProjectile(spawn);
 				}
 				

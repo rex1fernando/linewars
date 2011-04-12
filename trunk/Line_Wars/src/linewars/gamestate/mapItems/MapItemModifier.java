@@ -106,5 +106,20 @@ public class MapItemModifier {
 			return this;
 		}
 	}
+	
+	/**
+	 * Takes the input modifier and puts it and its entire set of
+	 * wrapped modifiers at the bottom of this modifier's stack
+	 * of wrapped modifiers.
+	 * 
+	 * @param mim
+	 */
+	public void pushUnderStack(MapItemModifier mim)
+	{
+		if(wrapped == null)
+			this.setWrapped(mim);
+		else
+			wrapped.pushUnderStack(mim);
+	}
 
 }
