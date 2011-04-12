@@ -59,6 +59,10 @@ public class AntiProjectileConfiguration extends TargetingStrategyConfiguration 
 				double dis = Double.POSITIVE_INFINITY;
 				for(Projectile p : projectile.getLane().getProjectiles())
 				{
+					if(p.getOwner() == projectile.getOwner()){
+						continue;
+					}
+					
 					double temp = p.getPosition().distanceSquared(projectile.getPosition()); 
 					if(temp < dis)
 					{
@@ -66,6 +70,10 @@ public class AntiProjectileConfiguration extends TargetingStrategyConfiguration 
 						target = p;
 					}
 				}
+			}
+			
+			if(target == null){
+				return projectile.getTransformation();
 			}
 			
 			double desiredAngle = target.getPosition().subtract(projectile.getPosition()).getAngle();
@@ -85,14 +93,14 @@ public class AntiProjectileConfiguration extends TargetingStrategyConfiguration 
 			//need to handle projectile collisions here
 			checkForCollisionsWithProjectiles(target);
 			
-			return target;
+			return projectile.getTransformation().add(target);
 			
 		}
 		
 		private void checkForCollisionsWithProjectiles(Transformation target)
 		{
 			Position change = target.getPosition().subtract(projectile.getPosition());
-			Shape body = projectile.getBody().stretch(new Transformation(change, target.getRotation()));
+			Shape body = projectile.getBody().stretch(new Transformation(change, target.getRotation() - projectile.getRotation()));
 			for(Projectile p : projectile.getLane().getProjectiles())
 			{
 				if(projectile.getState().equals(MapItemState.Dead))
