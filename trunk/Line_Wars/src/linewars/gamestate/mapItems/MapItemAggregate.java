@@ -215,7 +215,7 @@ public abstract class MapItemAggregate extends MapItem {
 	
 	public void setStateIfInState(MapItemState condition, MapItemState toSet)
 	{
-		if(this.getState().equals(condition))
+		if(this.getState().equals(condition) && this.getDefinition().getValidStates().contains(toSet))
 			super.setState(toSet);
 		if(containedItems != null)
 		{

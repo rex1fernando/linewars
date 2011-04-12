@@ -4,6 +4,7 @@ import java.net.SocketException;
 import java.util.List;
 
 import linewars.display.Display;
+import linewars.display.ImageDrawer;
 import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.TimingManager;
 import linewars.gamestate.MapConfiguration;
@@ -25,6 +26,7 @@ public strictfp class Game {
 	private MessageHandler networking;
 	private TimingManager logic;
 	private Server server;
+	private List<PlayerData> players;
 	
 	public void run(){
 		if(server != null){
@@ -45,6 +47,8 @@ public strictfp class Game {
 		log.start();
 		
 		Thread disp = new Thread(display);
+		for(int i = 0; i < players.size(); i++)
+			ImageDrawer.getInstance().setPlayerColor(i, players.get(i).getColor());
 		disp.setName("Display");
 		disp.start();
 		
@@ -56,6 +60,7 @@ public strictfp class Game {
 	
 	public Game(MapConfiguration map, List<PlayerData> players){
 		logic = new TimingManager(map, players);
+		this.players = players; 
 	}
 	
 	/**

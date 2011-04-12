@@ -1,6 +1,7 @@
 package linewars.gamestate.mapItems;
 
 
+import utility.Observable;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
@@ -147,7 +148,27 @@ public strictfp class Unit extends MapItemAggregate {
 	{
 		super.updateInternalVariables();
 		for(Turret t : this.getTurrets())
+		{
+			if(t == null)
+			{
+				System.out.println("Unit:updateInternalVariables: debug: t is null");
+				continue;
+			}
 			t.setWave(this.getWave());
+		}
+	}
+	
+	@Override
+	public void update(Observable obs, Object obj)
+	{
+		if(obs == this.getDefinition())
+		{
+			if(obj.equals("combatStrat"))
+				this.setCombatStrategy(this.definition.getCombatStratConfig().createStrategy(this));
+			else if(obj.equals("mStrat"))
+				this.setMovementStrategy(this.definition.getMovementStratConfig().createStrategy(this));
+		}
+		super.update(obs, obj);
 	}
 	
 	/**

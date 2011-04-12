@@ -1,14 +1,21 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
+import java.util.Random;
+
 import utility.AugmentedMath;
+import linewars.display.Animation;
+import linewars.display.DisplayConfiguration;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemAggregate;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.combat.FocusOnTargetConfiguration.FocusOnTarget;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
@@ -31,10 +38,40 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 		private Unit bomber;
 		private Unit target;
 		private double lastBombTime;
+		private double bombAnimationTime;
+		private Ability mark;
 		
 		private BomberCombat(Unit u)
 		{
 			bomber = u;
+			bombAnimationTime = 0;
+			//TODO this is a hack
+			bombAnimationTime = getBombTime(bomber);
+		}
+		
+		private double getBombTime(MapItem m)
+		{
+			Animation bombing = ((DisplayConfiguration)m.getDefinition().getDisplayConfiguration()).getAnimation(MapItemState.Firing);
+			if(bombing == null)
+			{
+				if(m instanceof MapItemAggregate)
+				{
+					for(MapItem contained : ((MapItemAggregate)m).getContainedItems())
+					{
+						double d = getBombTime(contained);
+						if(d > 0)
+							return d;
+					}
+				}
+				return -1;
+			}
+			else
+			{
+				double d = 0;
+				for(int i = 0; i < bombing.getNumImages(); i++)
+					d += bombing.getImageTime(i);
+				return d;
+			}
 		}
 
 		@Override
@@ -51,6 +88,16 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 		public double getRange() {
 			return getDropRadius();
 		}
+		
+		private int getTargetMarks()
+		{
+			int marks = 0;
+			for(Ability a : target.getActiveAbilities())
+				if(a instanceof MarkTarget)
+					marks++;
+			
+			return marks;
+		}
 
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
@@ -58,18 +105,14 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 			if(bomber.getGameState().getTime() - lastBombTime > getCooldown())
 			{
 				//do i need a target?
-				if(target == null || target.getState().equals(MapItemState.Dead))
+				if(target == null || target.getState().equals(MapItemState.Dead) ||
+						getTargetMarks() > 1)
 				{
-					double dis = Double.POSITIVE_INFINITY;
-					for(Unit t : availableEnemies)
-					{
-						double d = bomber.getPosition().distanceSquared(t.getPosition());
-						if(d < dis && !t.getState().equals(MapItemState.Dead))
-						{
-							dis = d;
-							target = t;
-						}
-					}
+					if(mark != null && target != null)
+						target.removeActiveAbility(mark);
+					target = acquireTarget(availableEnemies);
+					mark = new MarkTarget(target);
+					target.addActiveAbility(mark);
 				}
 				
 				if(target != null)
@@ -80,6 +123,29 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 						lastBombTime = bomber.getGameState().getTime();
 						Projectile proj = getBomb().createMapItem(bomber.getTransformation(), bomber.getOwner(), bomber.getGameState());
 						bomber.getWave().getLane().addProjectile(proj);
+						bomber.setStateIfInState(MapItemState.Idle, MapItemState.Firing);
+						bomber.addActiveAbility(new Ability() {
+							private double startTime = bomber.getGameState().getTime();
+							private boolean finished = false;
+							@Override
+							public void update() {
+								if(bomber.getGameState().getTime() - startTime > bombAnimationTime)
+								{
+									bomber.setStateIfInState(MapItemState.Firing, MapItemState.Idle);
+									finished = true;
+								}
+							}
+							
+							@Override
+							public boolean killable() {
+								return true;
+							}
+							
+							@Override
+							public boolean finished() {
+								return finished;
+							}
+						});
 						target = null;
 					}
 					else //move towards the target
@@ -110,7 +176,65 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 			}
 		}
 		
+		private Unit acquireTarget(Unit[] availableEnemies)
+		{
+			Unit ret = null;
+			double dis = Double.POSITIVE_INFINITY;
+			int marks = Integer.MAX_VALUE;
+			for(Unit u : availableEnemies)
+			{
+				int count = 0;
+				for(Ability a : u.getActiveAbilities())
+				{
+					if(a instanceof MarkTarget)
+						++count;
+				}
+				if(count < marks)
+				{
+					ret = u;
+					marks = count;
+					dis = bomber.getPosition().distanceSquared(ret.getPosition());
+				}
+				else if(count == marks)
+				{
+					double d = bomber.getPosition().distanceSquared(u.getPosition());
+					if(d < dis)
+					{
+						dis = d;
+						ret = u;
+					}
+				}
+			}
+			return ret;
+		}
+		
+		private class MarkTarget implements Ability
+		{
+			private Unit unit;
+			
+			private MarkTarget(Unit u)
+			{
+				unit = u;
+			}
+
+			@Override
+			public void update() {}
+
+			@Override
+			public boolean killable() {
+				return true;
+			}
+
+			@Override
+			public boolean finished() {
+				return unit != target;
+			}
+			
+		}
+		
 	}
+	
+	
 	
 	public BomberCombatConfiguration()
 	{

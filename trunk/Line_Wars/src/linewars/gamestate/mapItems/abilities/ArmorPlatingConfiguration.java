@@ -31,38 +31,42 @@ public class ArmorPlatingConfiguration extends AbilityDefinition {
 		
 		private ArmorPlating(MapItem m)
 		{
-			//what unit is m a part of?
-			for(Lane l : m.getGameState().getMap().getLanes())
-			{
-				for(Wave w : l.getWaves())
-				{
-					for(Unit u : w.getUnits())
-					{
-						if(u.getContainedItems().contains(m))
-						{
-							unit = u;
-							break;
-						}
-					}
-					if(unit != null)
-						break;
-				}
-				if(unit != null)
-					break;
-			}
-			
-			if(unit != null)
-			{
-				mod = new MapItemModifier();
-				mod.setMapping(MapItemModifiers.damageReceived, new Add(getDamageReduction()));
-				unit.pushModifier(mod);
-			}
+			armor = m;
 		}
 
 		@Override
 		public void update() {
+			if(unit == null)
+			{
+				//what unit is m a part of?
+				for(Lane l : armor.getGameState().getMap().getLanes())
+				{
+					for(Wave w : l.getWaves())
+					{
+						for(Unit u : w.getUnits())
+						{
+							if(u.getContainedItems().contains(armor))
+							{
+								unit = u;
+								break;
+							}
+						}
+						if(unit != null)
+							break;
+					}
+					if(unit != null)
+						break;
+				}
+				
+				if(unit != null)
+				{
+					mod = new MapItemModifier();
+					mod.setMapping(MapItemModifiers.damageReceived, new Add(-getDamageReduction()));
+					unit.pushModifier(mod);
+				}
+			}
 			//if the armor got removed from the unit
-			if(unit != null && !unit.getContainedItems().contains(armor))
+			else if(unit != null && !unit.getContainedItems().contains(armor))
 			{
 				//well FINE! you don't get MY modifier anymore!
 				unit.removeModifier(mod);

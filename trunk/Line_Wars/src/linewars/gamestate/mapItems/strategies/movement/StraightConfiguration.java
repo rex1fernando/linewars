@@ -42,7 +42,7 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 	
 		private Unit unit = null;
 		private Transformation target = null;
-		CollisionResolutionNormal collisionResolutionStrategy = new CollisionResolutionNormal();
+		private CollisionResolutionNormal collisionResolutionStrategy = new CollisionResolutionNormal();
 		
 		private Straight(Unit u) 
 		{

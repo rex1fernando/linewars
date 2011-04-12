@@ -65,7 +65,7 @@ public class ColoredEdge
 		if(nodeOwner != null)
 		{
 			prevIndex = nodeOwner.getPlayerID();
-			curColor = ImageDrawer.getPlayerColor(prevIndex, numPlayers);
+			curColor = ImageDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
 			g.setColor(curColor);
 		}
 		else
@@ -92,7 +92,7 @@ public class ColoredEdge
 		for(Wave wave : waves)
 		{
 			// set the current color
-			curColor = ImageDrawer.getPlayerColor(prevIndex, numPlayers);
+			curColor = ImageDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
 
 			// if this wave belongs to a different player than the previous one
 			// set the current color to white
@@ -128,7 +128,7 @@ public class ColoredEdge
 			curIndex = nodeOwner.getPlayerID();
 			if(curIndex == prevIndex)
 			{
-				curColor = ImageDrawer.getPlayerColor(prevIndex, numPlayers);
+				curColor = ImageDrawer.getInstance().getPlayerColor(prevIndex, numPlayers);
 				g.setColor(curColor);
 			}
 			else

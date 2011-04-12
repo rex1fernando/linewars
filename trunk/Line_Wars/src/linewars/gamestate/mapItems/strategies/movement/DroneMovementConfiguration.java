@@ -102,7 +102,7 @@ public class DroneMovementConfiguration extends MovementStrategyConfiguration im
 	{
 		super.setPropertyForName("speed", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, 0, EditorUsage.PositiveReal,
-				"The speed of the projectile per second"));
+				"The speed of the drone per second"));
 		super.addObserver(this);
 	}
 

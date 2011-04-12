@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.combat.FocusOnTargetConfiguration;
 import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
@@ -23,7 +25,6 @@ public strictfp class GateDefinition extends UnitDefinition {
 	 */
 	private static final long serialVersionUID = 2038792087029880725L;
 	private MovementStrategyConfiguration mStrat;
-	private CombatStrategyConfiguration combatStrat;
 
 	/**
 	 * Creates a gate definition from the config at URI with owner
@@ -38,7 +39,6 @@ public strictfp class GateDefinition extends UnitDefinition {
 	public GateDefinition() {
 		super();
 		mStrat = new ImmovableConfiguration();
-		combatStrat = new NoCombatConfiguration();
 	}
 	
 	@Override
@@ -50,7 +50,49 @@ public strictfp class GateDefinition extends UnitDefinition {
 	@Override
 	public CombatStrategyConfiguration getCombatStratConfig()
 	{
-		return combatStrat;
+		return new CombatStrategyConfiguration() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3222716959877851602L;
+
+			@Override
+			public boolean equals(Object obj) {
+				return this == obj;
+			}
+			
+			@Override
+			public CombatStrategy createStrategy(final MapItem m) {
+				return new CombatStrategy() {
+					
+					@Override
+					public String name() {
+						return "Gate Combat Strat";
+					}
+					
+					@Override
+					public CombatStrategyConfiguration getConfig() {
+						return null;
+					}
+					
+					@Override
+					public double getRange() {
+						double max = 0;
+						for(Turret t : ((Unit)m).getTurrets())
+							if(t.getTurretStrategy().getRange() > max)
+								max = t.getTurretStrategy().getRange();
+						return max;
+					}
+					
+					@Override
+					public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
+						for(Turret t : ((Unit)m).getTurrets())
+							t.getTurretStrategy().fight(availableEnemies, availableAllies);
+					}
+				};
+			}
+		};
 	}
 	
 	@Override
