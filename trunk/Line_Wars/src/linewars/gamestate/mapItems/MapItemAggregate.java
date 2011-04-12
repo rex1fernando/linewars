@@ -194,6 +194,19 @@ public abstract class MapItemAggregate extends MapItem {
 	}
 	
 	@Override
+	public boolean finished()
+	{
+		if(!super.finished())
+			return false;
+		
+		for(MapItem m : containedItems)
+			if(!m.finished())
+				return false;
+		
+		return true;
+	}
+	
+	@Override
 	public boolean isCollidingWith(MapItem m)
 	{
 		if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
