@@ -61,7 +61,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		
 		boolean updated = false;
 		do{
-			synchronized (this) {
+			/*synchronized (this)*/ {
 				updated = fullyUpdated;
 			}
 			if(!updated)
@@ -75,7 +75,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		} while(updated);
 		
 		updateFreeState(tickID);
-		synchronized (this) {
+		/*synchronized (this)*/ {
 			swapStatesIfPossible();
 		}
 		
@@ -100,13 +100,13 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 				}
 			}
 		}
-		synchronized(this) {
+		/*synchronized(this)*/ {
 			fullyUpdated = true;
 		}
 	}
 
 	@Override
-	public synchronized GameState getCurrentGameState() {
+	public /*synchronized*/ GameState getCurrentGameState() {
 		if(!locked){
 			throw new IllegalStateException("Cannot return an unlocked GameState, please lock the GameState before requesting it.");
 		}
@@ -114,7 +114,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 
 	@Override
-	public synchronized void lockViewableGameState() {
+	public /*synchronized*/ void lockViewableGameState() {
 		if(locked){
 			throw new IllegalStateException("GameState is already locked!");
 		}
@@ -124,7 +124,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 
 	@Override
-	public synchronized void unlockViewableGameState() {
+	public /*synchronized*/ void unlockViewableGameState() {
 		locked = false;
 		viewableState.setLocked(false);
 		swapStatesIfPossible();
