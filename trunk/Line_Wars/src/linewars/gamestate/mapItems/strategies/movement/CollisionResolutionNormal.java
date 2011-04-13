@@ -7,7 +7,7 @@ import java.util.Random;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.Unit;
 
-public class CollisionResolutionNormal {
+public strictfp class CollisionResolutionNormal {
 	private List<Position> collisionsFromLastTick = new ArrayList<Position>();
 	private boolean hadToGoBackwardsLastTick = false;
 	private static final double resolveCollisionAttemptMoveFactor = 0.1;

@@ -12,7 +12,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class DealDurabilityDamageOnceConfiguration extends
+public strictfp class DealDurabilityDamageOnceConfiguration extends
 		ImpactStrategyConfiguration implements Observer {
 	
 	/**
@@ -27,7 +27,7 @@ public class DealDurabilityDamageOnceConfiguration extends
 	
 	private double damage;
 	
-	public class DealDurabilityDamageOnce implements ImpactStrategy
+	public strictfp class DealDurabilityDamageOnce implements ImpactStrategy
 	{
 		
 		private Projectile projectile;

@@ -3,7 +3,7 @@ package linewars.gamestate.mapItems;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapItemModifier {
+public strictfp class MapItemModifier {
 	
 	public enum MapItemModifiers {
 		fireRate, moveSpeed, damageDealt, damageReceived, maxHp, buildingProductionRate

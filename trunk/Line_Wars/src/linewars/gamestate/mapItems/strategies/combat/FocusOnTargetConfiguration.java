@@ -10,7 +10,7 @@ import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 
-public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
+public strictfp class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 
 	/**
 	 * 
@@ -24,7 +24,7 @@ public class FocusOnTargetConfiguration extends CombatStrategyConfiguration {
 	
 	private static final double MIN_TARGET_SWITCH_TIME = 2.5;
 	
-	public class FocusOnTarget implements CombatStrategy 
+	public strictfp class FocusOnTarget implements CombatStrategy 
 	{
 		
 		private Unit unit = null;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import linewars.gamestate.shapes.Rectangle;
 
-public class BuildingSpot implements Serializable
+public strictfp class BuildingSpot implements Serializable
 {
 	/**
 	 * 

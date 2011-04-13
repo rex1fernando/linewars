@@ -37,7 +37,7 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 	
 	private double damage;
 	
-	public class DealDamageOnce implements ImpactStrategy
+	public strictfp class DealDamageOnce implements ImpactStrategy
 	{
 	
 		private boolean hit = false;

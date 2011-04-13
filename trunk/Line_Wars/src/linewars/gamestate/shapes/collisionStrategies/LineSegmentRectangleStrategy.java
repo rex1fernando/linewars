@@ -5,7 +5,7 @@ import linewars.gamestate.shapes.LineSegment;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
-public class LineSegmentRectangleStrategy extends ShapeCollisionStrategy {
+public strictfp class LineSegmentRectangleStrategy extends ShapeCollisionStrategy {
 
 	static {
 		//Adds this Strategy to the map of Strategies for lookup

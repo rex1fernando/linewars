@@ -16,7 +16,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class AntiProjectileConfiguration extends TargetingStrategyConfiguration implements Observer {
+public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfiguration implements Observer {
 	
 	/**
 	 * 
@@ -31,7 +31,7 @@ public class AntiProjectileConfiguration extends TargetingStrategyConfiguration 
 	private double speed;
 	private double turningRadsPerSec;
 	
-	public class AntiProjectile implements TargetingStrategy
+	public strictfp class AntiProjectile implements TargetingStrategy
 	{
 
 		private Projectile projectile;

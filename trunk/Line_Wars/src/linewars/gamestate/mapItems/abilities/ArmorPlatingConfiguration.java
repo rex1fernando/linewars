@@ -11,7 +11,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class ArmorPlatingConfiguration extends AbilityDefinition {
+public strictfp class ArmorPlatingConfiguration extends AbilityDefinition {
 	
 	/**
 	 * 
@@ -23,7 +23,7 @@ public class ArmorPlatingConfiguration extends AbilityDefinition {
 				ArmorPlatingConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class ArmorPlating implements Ability
+	public strictfp class ArmorPlating implements Ability
 	{
 		private MapItem armor;
 		private Unit unit;

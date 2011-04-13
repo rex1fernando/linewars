@@ -12,7 +12,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
+public strictfp class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
 	
 	/**
 	 * 
@@ -24,7 +24,7 @@ public class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
 				SpawnFirePatchConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class SpawnFirePatch implements ImpactStrategy
+	public strictfp class SpawnFirePatch implements ImpactStrategy
 	{
 		
 		private Projectile proj;

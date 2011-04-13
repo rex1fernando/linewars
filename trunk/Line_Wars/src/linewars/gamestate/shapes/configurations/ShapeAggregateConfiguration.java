@@ -11,7 +11,7 @@ import configuration.ListConfiguration;
 import configuration.Property;
 import configuration.Usage;
 
-public class ShapeAggregateConfiguration extends ShapeConfiguration{
+public strictfp class ShapeAggregateConfiguration extends ShapeConfiguration{
 
 	/**
 	 * 

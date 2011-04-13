@@ -16,7 +16,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration {
+public strictfp class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration {
 	
 	/**
 	 * 
@@ -28,7 +28,7 @@ public class CatchTargetOnFireConfiguration extends ImpactStrategyConfiguration 
 				CatchTargetOnFireConfiguration.class, AbilityStrategyEditor.class);
 	}
 
-	public class CatchTargetOnFire implements ImpactStrategy
+	public strictfp class CatchTargetOnFire implements ImpactStrategy
 	{
 		private Projectile proj;
 		private double startTime;

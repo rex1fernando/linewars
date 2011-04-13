@@ -13,7 +13,7 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.targeting.CollideImmediatelyWithGroundConfiguration.CollideImmediatelyWithGround;
 
-public class CollideWithGroundAfterDelayConfiguration extends
+public strictfp class CollideWithGroundAfterDelayConfiguration extends
 		TargetingStrategyConfiguration {
 
 	/**
@@ -26,7 +26,7 @@ public class CollideWithGroundAfterDelayConfiguration extends
 				CollideWithGroundAfterDelayConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class CollideWithGroundAfterDelay implements TargetingStrategy
+	public strictfp class CollideWithGroundAfterDelay implements TargetingStrategy
 	{
 
 		private Projectile m;

@@ -22,7 +22,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
+public strictfp class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 	
 	/**
 	 * 
@@ -34,7 +34,7 @@ public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 				EMPImpactConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class EMPImpact implements ImpactStrategy
+	public strictfp class EMPImpact implements ImpactStrategy
 	{
 		private Projectile proj;
 		

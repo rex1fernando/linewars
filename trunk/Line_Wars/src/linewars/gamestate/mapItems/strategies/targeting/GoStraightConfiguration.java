@@ -13,7 +13,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class GoStraightConfiguration extends TargetingStrategyConfiguration implements Observer {
+public strictfp class GoStraightConfiguration extends TargetingStrategyConfiguration implements Observer {
 	
 	/**
 	 * 
@@ -27,7 +27,7 @@ public class GoStraightConfiguration extends TargetingStrategyConfiguration impl
 	
 	private double velocity;
 	
-	public class GoStraight implements TargetingStrategy
+	public strictfp class GoStraight implements TargetingStrategy
 	{
 		private Projectile projectile;
 		

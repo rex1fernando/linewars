@@ -7,7 +7,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class HealWhenNotInCombatConfiguration extends AbilityDefinition {
+public strictfp class HealWhenNotInCombatConfiguration extends AbilityDefinition {
 
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class HealWhenNotInCombatConfiguration extends AbilityDefinition {
 				HealWhenNotInCombatConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class HealWhenNotInCombat implements Ability
+	public strictfp class HealWhenNotInCombat implements Ability
 	{
 		private Unit u;
 		

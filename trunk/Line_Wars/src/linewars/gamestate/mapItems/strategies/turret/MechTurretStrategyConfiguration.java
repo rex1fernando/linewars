@@ -13,7 +13,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration {
+public strictfp class MechTurretStrategyConfiguration extends TurretStrategyConfiguration {
 	
 	private static final String name = "Mech Turret Strategy";
 	
@@ -81,7 +81,7 @@ public class MechTurretStrategyConfiguration extends TurretStrategyConfiguration
 		return true;
 	}
 	
-	public class MechTurretStrategy implements MinimumRangeTurretStrategy{
+	public strictfp class MechTurretStrategy implements MinimumRangeTurretStrategy{
 		
 		Turret owner;
 		Position target;

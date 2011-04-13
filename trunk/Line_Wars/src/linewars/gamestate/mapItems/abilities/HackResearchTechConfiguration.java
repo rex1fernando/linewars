@@ -7,7 +7,7 @@ import editor.abilitiesstrategies.EditorUsage;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.tech.TechConfiguration;
 
-public class HackResearchTechConfiguration extends AbilityDefinition {
+public strictfp class HackResearchTechConfiguration extends AbilityDefinition {
 	
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class HackResearchTechConfiguration extends AbilityDefinition {
 				HackResearchTechConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class HackResearchTech implements Ability
+	public strictfp class HackResearchTech implements Ability
 	{
 		private MapItem mapItem;
 		private double startTime;

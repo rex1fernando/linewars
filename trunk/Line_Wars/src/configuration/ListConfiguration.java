@@ -19,7 +19,7 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  *
  * @param <T> The type of objects stored in the list
  */
-public class ListConfiguration<T> extends Configuration implements Observer{
+public strictfp class ListConfiguration<T> extends Configuration implements Observer{
 	
 	//this class requires its users to specify the name of each data element... these should all be unique
 	//It stores the contents of each ListObject in the superclass by using the name of the corresponding data element

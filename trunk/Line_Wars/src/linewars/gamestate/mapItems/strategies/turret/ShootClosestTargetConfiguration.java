@@ -40,7 +40,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 	
 	private long shootCoolDown;
 	
-	public class ShootClosestTarget implements TurretStrategy
+	public strictfp class ShootClosestTarget implements TurretStrategy
 	{		
 		private Turret turret = null;
 		private ShootDefinition shootDefinition;

@@ -19,7 +19,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
+public strictfp class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 	
 	/**
 	 * 
@@ -31,7 +31,7 @@ public class MeleeDamageConfiguration extends TurretStrategyConfiguration {
 				MeleeDamageConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class MeleeDamage implements TurretStrategy
+	public strictfp class MeleeDamage implements TurretStrategy
 	{
 		
 		private Turret turret;

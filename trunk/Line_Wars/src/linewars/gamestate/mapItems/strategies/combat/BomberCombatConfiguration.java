@@ -21,7 +21,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class BomberCombatConfiguration extends CombatStrategyConfiguration {
+public strictfp class BomberCombatConfiguration extends CombatStrategyConfiguration {
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 				BomberCombatConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class BomberCombat implements CombatStrategy
+	public strictfp class BomberCombat implements CombatStrategy
 	{
 		private Unit bomber;
 		private Unit target;

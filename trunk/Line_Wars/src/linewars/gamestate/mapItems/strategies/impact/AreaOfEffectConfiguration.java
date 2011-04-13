@@ -15,7 +15,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
+public strictfp class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 
 	/**
 	 * 
@@ -27,7 +27,7 @@ public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 				AreaOfEffectConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class AreaOfEffect implements ImpactStrategy
+	public strictfp class AreaOfEffect implements ImpactStrategy
 	{
 
 		private Projectile proj;

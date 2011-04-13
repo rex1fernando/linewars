@@ -6,7 +6,7 @@ package linewars.gamestate.shapes;
  * @author Rex Fernando
  *
  */
-public class AABB 
+public strictfp class AABB 
 {
 	private double xMin, yMin, xMax, yMax;
 	

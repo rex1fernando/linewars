@@ -13,7 +13,7 @@ import configuration.Configuration;
  * @author Connor Schenck
  *
  */
-public class MapConfiguration extends Configuration {
+public strictfp class MapConfiguration extends Configuration {
 	/**
 	 * 
 	 */

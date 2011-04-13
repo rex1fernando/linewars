@@ -11,7 +11,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class DoDPSConfiguration extends ImpactStrategyConfiguration {
+public strictfp class DoDPSConfiguration extends ImpactStrategyConfiguration {
 
 	/**
 	 * 
@@ -46,7 +46,7 @@ public class DoDPSConfiguration extends ImpactStrategyConfiguration {
 		return other.getPropertyForName(dpsName).equals(this.getPropertyForName(dpsName));
 	}
 
-	public class DoDPS implements ImpactStrategy{
+	public strictfp class DoDPS implements ImpactStrategy{
 		
 		Projectile owner;
 

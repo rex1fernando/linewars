@@ -2,7 +2,7 @@ package linewars.gamestate.shapes.collisionStrategies;
 
 import linewars.gamestate.Position;
 
-public class SeparatingAxisHelper {
+public strictfp class SeparatingAxisHelper {
 	
 
 
