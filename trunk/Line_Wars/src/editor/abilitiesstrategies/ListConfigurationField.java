@@ -15,7 +15,10 @@ import editor.ListGenericSelector;
 
 public class ListConfigurationField extends Field {
 	
-	private BigFrameworkGuy bfg;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4594429586185948646L;
 	private ConfigType type;
 	private ListGenericSelector<Configuration> fullList;
 	private ListGenericSelector<Configuration> enabledList;
@@ -23,7 +26,6 @@ public class ListConfigurationField extends Field {
 	public ListConfigurationField(String name, String description,
 			EditorUsage usage, BigFrameworkGuy bfg, ListConfiguration<? extends Configuration> initialConfig) {
 		super(name, description);
-		this.bfg = bfg;
 		switch (usage)
 		{
 			case ListBuildingConfig:
@@ -37,6 +39,9 @@ public class ListConfigurationField extends Field {
 				break;
 			case ListTechConfig:
 				type = ConfigType.tech;
+				break;
+			case ListImpactConfiguration:
+				type = ConfigType.impactStrategy;
 				break;
 		}
 		

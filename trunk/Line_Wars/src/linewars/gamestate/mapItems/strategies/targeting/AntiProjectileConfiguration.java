@@ -54,12 +54,18 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 
 		@Override
 		public Transformation getTarget() {
+			if(target != null && target.getState().equals(MapItemState.Dead)){
+				target = null;
+			}
 			if(target == null)
 			{
 				double dis = Double.POSITIVE_INFINITY;
 				for(Projectile p : projectile.getLane().getProjectiles())
 				{
 					if(p.getOwner() == projectile.getOwner()){
+						continue;
+					}
+					if(p.getState().equals(MapItemState.Dead)){
 						continue;
 					}
 					
@@ -72,29 +78,44 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 				}
 			}
 			
+			double currentAngle = projectile.getRotation();
+			double normalizedCurrentAngle = AugmentedMath.getAngleInPiToNegPi(currentAngle);
+			double maxTurn = turningRadsPerSec*projectile.getGameState().getLastLoopTime();
+			
+			//if no target exists, let's just fly in a clockwise loop!
 			if(target == null){
-				return projectile.getTransformation();
+				Position actualChange = Position.getUnitVector(
+						maxTurn + currentAngle).scale(
+						speed * projectile.getGameState().getLastLoopTime());
+				Transformation target = new Transformation(actualChange, maxTurn);
+				
+				target = target.add(projectile.getTransformation());
+				
+				return target;
 			}
 			
+			//incoming giant block of scary code, look out!
+			
 			double desiredAngle = target.getPosition().subtract(projectile.getPosition()).getAngle();
-			double maxTurn = turningRadsPerSec*projectile.getGameState().getLastLoopTime();
+			double relativeDesiredAngle = desiredAngle - normalizedCurrentAngle;
+			double normalizedDesiredAngle = AugmentedMath.getAngleInPiToNegPi(relativeDesiredAngle);
 			double actualTurn;
-			if(AugmentedMath.getAngleInPiToNegPi(desiredAngle - projectile.getRotation()) > maxTurn)
-				actualTurn = maxTurn;
+			if(Math.abs(normalizedDesiredAngle) > maxTurn)
+				actualTurn = normalizedDesiredAngle > 0 ? maxTurn : -1 * maxTurn;
 			else
-				actualTurn = AugmentedMath.getAngleInPiToNegPi(desiredAngle - projectile.getRotation());
+				actualTurn = AugmentedMath.getAngleInPiToNegPi(relativeDesiredAngle);
 			
 			Position actualChange = Position.getUnitVector(
-					actualTurn + projectile.getRotation()).scale(
+					actualTurn + currentAngle).scale(
 					speed * projectile.getGameState().getLastLoopTime());
 			
 			Transformation target = new Transformation(actualChange, actualTurn);
 			
+			target = target.add(projectile.getTransformation());
 			//need to handle projectile collisions here
 			checkForCollisionsWithProjectiles(target);
 			
-			return projectile.getTransformation().add(target);
-			
+			return target;
 		}
 		
 		private void checkForCollisionsWithProjectiles(Transformation target)
@@ -105,6 +126,9 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 			{
 				if(projectile.getState().equals(MapItemState.Dead))
 					break;
+				if(p.getState().equals(MapItemState.Dead)){
+					continue;
+				}
 				if(CollisionStrategyConfiguration.isAllowedToCollide(p, projectile) &&
 						body.isCollidingWith(p.getBody()))
 					projectile.getImpactStrategy().handleImpact(p);
