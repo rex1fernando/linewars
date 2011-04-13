@@ -50,9 +50,27 @@ public strictfp class GameState
 	private double lastLoopTime = 0;
 	private double timeAtEndOfLastLoop = 0;
 	
+	private boolean locked = false;
+	
+	public boolean isLocked()
+	{
+		return locked;
+	}
+	
+	public void setLocked(boolean b)
+	{
+		locked = b;
+	}
+	
 	public int getNumPlayers()
 	{
 		return this.players.size();
+	}
+	
+	public void validateLock()
+	{
+		if(this.isLocked())
+			throw new IllegalStateException("Cannot update a locked game state");
 	}
 	
 	public Player getPlayer(int playerID)
@@ -103,25 +121,25 @@ public strictfp class GameState
 		}
 		
 		//TODO this dummy player is for debugging purposes
-//		Race r = null;
-//		int i = this.players.size();
-//		try {
-//			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//		if(r == null)
-//			throw new RuntimeException("Error copying race");
-//		this.races.add(r);
-//		Node[] nodes = this.getMap().getNodes();
-//		List<Node> dummyStartNodes = new ArrayList<Node>();
-//		for(Node n : nodes)
-//			if(n.getOwner() == null)
-//				dummyStartNodes.add(n);
-//		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
-//		this.players.put(i, dummyPlayer);
+		Race r = null;
+		int i = this.players.size();
+		try {
+			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if(r == null)
+			throw new RuntimeException("Error copying race");
+		this.races.add(r);
+		Node[] nodes = this.getMap().getNodes();
+		List<Node> dummyStartNodes = new ArrayList<Node>();
+		for(Node n : nodes)
+			if(n.getOwner() == null)
+				dummyStartNodes.add(n);
+		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
+		this.players.put(i, dummyPlayer);
 		
 	}
 

@@ -46,32 +46,6 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		lastUpdateTime = System.currentTimeMillis();
 		lastLastUpdateTime = System.currentTimeMillis();
 	}
-
-	//NOTE: this method is no longer necessery, but I'll leave it here just in case
-	private List<PlayerData> copyPlayerData(List<PlayerData> players) {
-		List<PlayerData> copyOfPlayers = new ArrayList<PlayerData>();
-		for(PlayerData player : players)
-		{
-			PlayerData newPlayer = new PlayerData();
-			newPlayer.setColor(player.getColor());
-			newPlayer.setName(player.getName());
-			newPlayer.setStartingSlot(player.getStartingSlot());
-			Race r = null;
-			try {
-				r = (Race) Configuration.copyConfiguration(player.getRace());
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			if(r == player.getRace() || r == null)
-				throw new RuntimeException("Player race did not copy correctly");
-			
-			newPlayer.setRace(r);
-			copyOfPlayers.add(newPlayer);			
-		}
-		return copyOfPlayers;
-	}
 	
 	@Override
 	public boolean addOrdersForTick(int tickID, Message[] newOrders) {
@@ -85,16 +59,25 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		Message[] copy = newOrders == null ? null : newOrders.clone();
 		orders.put(tickID, copy);
 		
-		while(fullyUpdated){
+		boolean updated = false;
+		do{
+			synchronized (this) {
+				updated = fullyUpdated;
+			}
+			if(!updated)
+				break;
 			try {
 				Thread.sleep(SLEEP_TIME_MS);
 			} catch (InterruptedException e) {
 				//FFFFFFFUUUUUUUUUUUUU
 				e.printStackTrace();
 			}
-		}
+		} while(updated);
+		
 		updateFreeState(tickID);
-		swapStatesIfPossible();
+		synchronized (this) {
+			swapStatesIfPossible();
+		}
 		
 		if (freeState.getWinningPlayer() != null ||
 			viewableState.getWinningPlayer() != null)
@@ -105,9 +88,10 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	
 	private void updateFreeState(int maxTickID){
 		for(int i = (int) (freeState.getTimerTick() + 1); i <= maxTickID; i++){
-			Message[] currentOrders = orders.get(i);
+			final Message[] currentOrders = orders.get(i);
 			
 			freeState.update(currentOrders);
+			
 			
 			if(freeState.getTimerTick() == viewableState.getTimerTick()){
 				if(!freeState.equals(viewableState)){
@@ -116,11 +100,13 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 				}
 			}
 		}
-		fullyUpdated = true;
+		synchronized(this) {
+			fullyUpdated = true;
+		}
 	}
 
 	@Override
-	public GameState getCurrentGameState() {
+	public synchronized GameState getCurrentGameState() {
 		if(!locked){
 			throw new IllegalStateException("Cannot return an unlocked GameState, please lock the GameState before requesting it.");
 		}
@@ -128,17 +114,19 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 
 	@Override
-	public void lockViewableGameState() {
+	public synchronized void lockViewableGameState() {
 		if(locked){
 			throw new IllegalStateException("GameState is already locked!");
 		}
 		swapStatesIfPossible();
 		locked = true;
+		viewableState.setLocked(true);
 	}
 
 	@Override
-	public void unlockViewableGameState() {
+	public synchronized void unlockViewableGameState() {
 		locked = false;
+		viewableState.setLocked(false);
 		swapStatesIfPossible();
 	}
 	
