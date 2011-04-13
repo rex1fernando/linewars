@@ -44,5 +44,13 @@ public class Turret extends MapItem {
 	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
 		this.def = (TurretDefinition) def;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof Turret) &&
+				super.equals(obj) &&
+				((Turret)obj).turretStrat.equals(turretStrat);
+	}
 
 }

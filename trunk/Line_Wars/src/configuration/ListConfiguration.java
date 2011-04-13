@@ -9,9 +9,6 @@ import java.util.Set;
 import utility.Observable;
 import utility.Observer;
 
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
-
 /**
  * This class may be used to store a list of object in a Configuration in a way that allows Techs access to upgrade elements in the list.
  * 

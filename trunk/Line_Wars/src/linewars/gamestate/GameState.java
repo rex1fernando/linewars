@@ -50,9 +50,27 @@ public strictfp class GameState
 	private double lastLoopTime = 0;
 	private double timeAtEndOfLastLoop = 0;
 	
+	private boolean locked = false;
+	
+	public boolean isLocked()
+	{
+		return locked;
+	}
+	
+	public void setLocked(boolean b)
+	{
+		locked = b;
+	}
+	
 	public int getNumPlayers()
 	{
 		return this.players.size();
+	}
+	
+	public void validateLock()
+	{
+		if(this.isLocked())
+			throw new IllegalStateException("Cannot update a locked game state");
 	}
 	
 	public Player getPlayer(int playerID)
@@ -342,12 +360,6 @@ public strictfp class GameState
 			p.setPlayerEnergy(p.getPlayerEnergy() + energyToAdd);
 			if(p.getPlayerEnergy() > MAX_PLAYER_ENERGY)
 				p.setPlayerEnergy(MAX_PLAYER_ENERGY);
-		}
-		
-		if(timerTick % 10 == 0)
-		{
-			for(Player p : players.values())
-				System.out.println(p.getPlayerName() + ": " + p.getPlayerEnergy());
 		}		
 		
 		timerTick++;

@@ -327,6 +327,21 @@ public abstract class MapItemAggregate extends MapItem {
 		return false;
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapItemAggregate)
+		{
+			MapItemAggregate mia = (MapItemAggregate) obj;
+			return super.equals(mia) &&
+					mia.containedItems.equals(containedItems) &&
+					mia.relativeTrans.equals(relativeTrans) &&
+					mia.transform.equals(transform) &&
+					(mia.body != null && body != null && mia.body.equals(body));
+		}
+		else
+			return false;
+	}
 	
 
 }

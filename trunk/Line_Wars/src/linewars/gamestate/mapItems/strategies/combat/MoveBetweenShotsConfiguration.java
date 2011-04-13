@@ -49,8 +49,8 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 	public boolean equals(Object obj) {
 		if(obj == null || !(obj instanceof MoveBetweenShotsConfiguration)) return false;
 		MoveBetweenShotsConfiguration other = (MoveBetweenShotsConfiguration) obj;
-		if(other.getPropertyForName(cooldownName).getValue().equals(this.getPropertyForName(cooldownName))){
-			if(other.getPropertyForName(durationName).equals(this.getPropertyForName(durationName))){
+		if(other.getPropertyForName(cooldownName).getValue().equals(this.getPropertyForName(cooldownName).getValue())){
+			if(other.getPropertyForName(durationName).getValue().equals(this.getPropertyForName(durationName).getValue())){
 				return true;
 			}
 		}

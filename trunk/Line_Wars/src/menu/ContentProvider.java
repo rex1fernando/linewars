@@ -42,8 +42,10 @@ public class ContentProvider
 		// button icons
 		filenames.put(MenuImage.menu_button_default, "resources/ui/components/button.png");
 		filenames.put(MenuImage.menu_button_rollover, "resources/ui/components/button_highlight.png");
-		filenames.put(MenuImage.lobby_button_default, "resources/ui/components/button.png");
-		filenames.put(MenuImage.lobby_button_rollover, "resources/ui/components/button_highlight.png");
+		filenames.put(MenuImage.lobby_button_default, "resources/ui/components/options_button.png");
+		filenames.put(MenuImage.lobby_button_rollover, "resources/ui/components/options_button_highlight.png");
+		filenames.put(MenuImage.options_button_default, "resources/ui/components/options_button.png");
+		filenames.put(MenuImage.options_button_rollover, "resources/ui/components/options_button_highlight.png");
 		
 		// concept art
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
@@ -51,6 +53,7 @@ public class ContentProvider
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
 		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
+		filenames.put(MenuImage.options_back, "resources/ui/backgrounds/options_back.png");
 		
 		// combo box art
 		filenames.put(MenuImage.combobox_button, "resources/ui/components/combobox_button.png");
@@ -68,6 +71,9 @@ public class ContentProvider
 		// loading screen
 		filenames.put(MenuImage.loading_spinner, "resources/ui/components/loading_spinner.png");
 		
+		// slider
+		filenames.put(MenuImage.slider_thumb, "resources/ui/components/slider_thumb.png");
+		filenames.put(MenuImage.slider_track, "resources/ui/components/slider_track.png");
 	}
 	
 	static
@@ -103,6 +109,10 @@ public class ContentProvider
 		lobby_button_default,
 		lobby_button_rollover,
 		
+		options_back,
+		options_button_default,
+		options_button_rollover,
+		
 		menu_button_default,
 		menu_button_rollover,
 		
@@ -121,7 +131,10 @@ public class ContentProvider
 		background_lobby,
 		background_loading,
 		
-		loading_spinner
+		loading_spinner,
+		
+		slider_thumb,
+		slider_track
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)
