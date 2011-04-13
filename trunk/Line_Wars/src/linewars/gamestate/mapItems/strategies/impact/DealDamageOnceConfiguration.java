@@ -37,7 +37,7 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 	
 	private double damage;
 	
-	public class DealDamageOnce implements ImpactStrategy
+	public strictfp class DealDamageOnce implements ImpactStrategy
 	{
 	
 		private boolean hit = false;
@@ -91,7 +91,7 @@ public strictfp class DealDamageOnceConfiguration extends ImpactStrategyConfigur
 	{
 		super.setPropertyForName("damage", new EditorProperty(
 				Usage.NUMERIC_FLOATING_POINT, null, EditorUsage.PositiveReal,
-				"The damage delt on impact"));
+				"The damage dealt on impact"));
 		this.addObserver(this);
 	}
 

@@ -21,7 +21,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration {
+public strictfp class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration {
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 				GunshipHelpAlliesConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class GunshipHelpAllies implements CombatStrategy
+	public strictfp class GunshipHelpAllies implements CombatStrategy
 	{
 		private Unit gunship;
 		private Unit target;
@@ -91,7 +91,8 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 				List<Unit> potentialHits = gunship.getWave().getLane().getUnitsIn(box);
 				for(Unit u : potentialHits)
 				{
-					if(u.getPosition().distanceSquared(gunship.getPosition()) <= range*range 
+					if(u.getOwner().equals(gunship.getOwner()) &&
+							u.getPosition().distanceSquared(gunship.getPosition()) <= range*range 
 							&& u != gunship && !(u.getCombatStrategy() instanceof GunshipHelpAllies))
 					{
 						boolean found = false;
@@ -165,7 +166,8 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 
 			@Override
 			public boolean finished() {
-				return target != mapItem;
+				return target != mapItem ||
+				gunship.getState().equals(MapItemState.Dead);
 			}
 			
 		}

@@ -2,7 +2,7 @@ package configuration;
 
 import java.io.Serializable;
 
-public class Property implements Serializable {
+public strictfp class Property implements Serializable {
 	/**
 	 * 
 	 */

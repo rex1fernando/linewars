@@ -21,7 +21,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class BomberCombatConfiguration extends CombatStrategyConfiguration {
+public strictfp class BomberCombatConfiguration extends CombatStrategyConfiguration {
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 				BomberCombatConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class BomberCombat implements CombatStrategy
+	public strictfp class BomberCombat implements CombatStrategy
 	{
 		private Unit bomber;
 		private Unit target;
@@ -122,6 +122,7 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 					{
 						lastBombTime = bomber.getGameState().getTime();
 						Projectile proj = getBomb().createMapItem(bomber.getTransformation(), bomber.getOwner(), bomber.getGameState());
+						proj.getModifier().pushUnderStack(bomber.getModifier());
 						bomber.getWave().getLane().addProjectile(proj);
 						bomber.setStateIfInState(MapItemState.Idle, MapItemState.Firing);
 						bomber.addActiveAbility(new Ability() {
@@ -227,7 +228,8 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 
 			@Override
 			public boolean finished() {
-				return unit != target;
+				return unit != target ||
+				BomberCombat.this.bomber.getState().equals(MapItemState.Dead);
 			}
 			
 		}

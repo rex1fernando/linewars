@@ -15,7 +15,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class HealFirstAllyConfiguration extends CombatStrategyConfiguration implements Observer {
+public strictfp class HealFirstAllyConfiguration extends CombatStrategyConfiguration implements Observer {
 	
 	/**
 	 * 
@@ -29,7 +29,7 @@ public class HealFirstAllyConfiguration extends CombatStrategyConfiguration impl
 	
 	private double hps;
 	
-	public class HealFirstAlly extends GeneralDroneCombatStrategy
+	public strictfp class HealFirstAlly extends GeneralDroneCombatStrategy
 	{
 		private Unit lastHealTarget;
 		private Part healPart;

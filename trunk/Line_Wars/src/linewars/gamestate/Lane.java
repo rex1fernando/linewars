@@ -159,7 +159,13 @@ public strictfp class Lane
 	 */
 	public Projectile[] getProjectiles()
 	{
-		return projectiles.toArray(new Projectile[0]);
+		try {
+			return projectiles.toArray(new Projectile[0]);
+		} catch (Exception e) {
+			//TODO fix this
+			System.err.println("Lane:getProjectiles: " + e.toString() + ":" + e.getMessage());
+			return new Projectile[0];
+		}
 	}
 
 	/**

@@ -29,7 +29,7 @@ public strictfp class GenerateStuffDefinition extends AbilityDefinition implemen
 
 	private double stuffIncome;
 	
-	public class GenerateStuff implements Ability {
+	public strictfp class GenerateStuff implements Ability {
 		
 		private Player owner;
 		private double startTime;

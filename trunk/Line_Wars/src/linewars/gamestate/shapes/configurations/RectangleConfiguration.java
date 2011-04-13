@@ -9,7 +9,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Rectangle;
 import linewars.gamestate.shapes.Shape;
 
-public class RectangleConfiguration extends ShapeConfiguration implements Observer {
+public strictfp class RectangleConfiguration extends ShapeConfiguration implements Observer {
 	
 	private static final long serialVersionUID = -2133103860808971483L;
 	

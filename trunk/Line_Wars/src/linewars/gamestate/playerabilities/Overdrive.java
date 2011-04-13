@@ -109,11 +109,13 @@ public class Overdrive extends PlayerAbility {
 		for(Wave w : lane.getWaves())
 		{
 			for(Unit u : w.getUnits())
-				u.addActiveAbility(new Berserk(u));
+				if(player.equals(u.getOwner()))
+					u.addActiveAbility(new Berserk(u));
 		}
 		
 		for(Projectile p1 : lane.getProjectiles())
-			p1.addActiveAbility(new Berserk(p1));
+			if(player.equals(p1.getOwner()))
+				p1.addActiveAbility(new Berserk(p1));
 	}
 
 	@Override

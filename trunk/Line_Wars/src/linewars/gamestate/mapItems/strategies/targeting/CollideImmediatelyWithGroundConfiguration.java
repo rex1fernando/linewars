@@ -6,7 +6,7 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 
-public class CollideImmediatelyWithGroundConfiguration extends TargetingStrategyConfiguration {
+public strictfp class CollideImmediatelyWithGroundConfiguration extends TargetingStrategyConfiguration {
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class CollideImmediatelyWithGroundConfiguration extends TargetingStrategy
 				CollideImmediatelyWithGroundConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class CollideImmediatelyWithGround implements TargetingStrategy
+	public strictfp class CollideImmediatelyWithGround implements TargetingStrategy
 	{
 
 		private Projectile m;

@@ -3,7 +3,7 @@ package linewars.gamestate.mapItems;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapItemModifier {
+public strictfp class MapItemModifier {
 	
 	public enum MapItemModifiers {
 		fireRate, moveSpeed, damageDealt, damageReceived, maxHp, buildingProductionRate
@@ -105,6 +105,21 @@ public class MapItemModifier {
 			wrapped = wrapped.removeModifierLayer(mim);
 			return this;
 		}
+	}
+	
+	/**
+	 * Takes the input modifier and puts it and its entire set of
+	 * wrapped modifiers at the bottom of this modifier's stack
+	 * of wrapped modifiers.
+	 * 
+	 * @param mim
+	 */
+	public void pushUnderStack(MapItemModifier mim)
+	{
+		if(wrapped == null)
+			this.setWrapped(mim);
+		else
+			wrapped.pushUnderStack(mim);
 	}
 
 }

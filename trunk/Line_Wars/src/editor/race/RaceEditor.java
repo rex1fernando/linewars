@@ -187,24 +187,36 @@ public class RaceEditor implements ConfigurationEditor
 			tech.setPreferredSize(new Dimension(720, 480));
 			
 			final JButton techButton = new JButton("Show Tech Panel Editor");
+			final JButton resetTechPanel = new JButton("Reset the tech panel");
 			techButton.addActionListener(new ActionListener() {
 				private JFrame frame = null;
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if(frame == null)
-						initFrame();
-					
-					if(frame.isVisible())
+					if(e.getSource().equals(techButton))
 					{
-						frame.setVisible(false);
-						techButton.setText("Show Tech Panel Editor");
+						if(frame == null)
+							initFrame();
+						
+						if(frame.isVisible())
+						{
+							frame.setVisible(false);
+							techButton.setText("Show Tech Panel Editor");
+						}
+						else
+						{
+							frame.setVisible(true);
+							techButton.setText("Hide Tech Panel Editor");
+							tech.validate();
+							tech.updateUI();
+						}
 					}
-					else
+					else if(e.getSource().equals(resetTechPanel))
 					{
-						frame.setVisible(true);
-						techButton.setText("Hide Tech Panel Editor");
-						tech.validate();
-						tech.updateUI();
+						tech = new TechPanel(bfg);
+						if(frame != null)
+							frame.dispose();
+						initFrame();
+						techButton.setText("Show Tech Panel Editor");
 					}
 				}
 				
@@ -229,8 +241,10 @@ public class RaceEditor implements ConfigurationEditor
 					tech.setVisible(true);
 				}
 			});
+			resetTechPanel.addActionListener(techButton.getActionListeners()[0]);
 			
 			add(techButton);
+			add(resetTechPanel);
 		}
 		
 		private void initConfigSelectors()

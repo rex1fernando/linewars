@@ -9,7 +9,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Shape;
 
-public class CircleConfiguration extends ShapeConfiguration implements Observer {
+public strictfp class CircleConfiguration extends ShapeConfiguration implements Observer {
 
 	private static final long serialVersionUID = 5598610257920078118L;
 	

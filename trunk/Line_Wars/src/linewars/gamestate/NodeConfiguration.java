@@ -7,7 +7,7 @@ import java.util.List;
 import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Shape;
 
-public class NodeConfiguration implements Serializable {
+public strictfp class NodeConfiguration implements Serializable {
 	/**
 	 * 
 	 */

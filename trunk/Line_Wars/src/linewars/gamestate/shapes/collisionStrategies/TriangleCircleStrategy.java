@@ -5,7 +5,7 @@ import linewars.gamestate.shapes.LineSegment;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.Triangle;
 
-public class TriangleCircleStrategy extends ShapeCollisionStrategy {
+public strictfp class TriangleCircleStrategy extends ShapeCollisionStrategy {
 
 	static{
 		ShapeCollisionStrategy.addStrategy(new TriangleCircleStrategy(), Triangle.class, Circle.class);

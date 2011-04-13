@@ -25,6 +25,7 @@ import linewars.display.DisplayConfiguration;
 import linewars.display.sound.SoundInfo;
 import linewars.display.sound.SoundPlayer;
 import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
@@ -211,6 +212,11 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 					@Override
 					public String getURI() {
 						return uri;
+					}
+
+					@Override
+					public SoundType getType() {
+						return SoundType.SOUND_EFFECT;
 					}
 				});
 			}

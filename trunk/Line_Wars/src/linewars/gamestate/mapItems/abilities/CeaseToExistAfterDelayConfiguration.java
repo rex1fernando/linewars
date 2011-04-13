@@ -9,7 +9,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class CeaseToExistAfterDelayConfiguration extends AbilityDefinition {
+public strictfp class CeaseToExistAfterDelayConfiguration extends AbilityDefinition {
 	
 	/**
 	 * 
@@ -51,7 +51,7 @@ public class CeaseToExistAfterDelayConfiguration extends AbilityDefinition {
 		return new CeaseToExistAfterDelay(m);
 	}
 	
-	public class CeaseToExistAfterDelay implements Ability{
+	public strictfp class CeaseToExistAfterDelay implements Ability{
 		
 		MapItem owner;
 		double creationTime;
@@ -85,6 +85,8 @@ public class CeaseToExistAfterDelayConfiguration extends AbilityDefinition {
 				boolean playDeathAnimation = (Boolean) CeaseToExistAfterDelayConfiguration.this.getPropertyForName(deathName).getValue();
 				if(playDeathAnimation){
 					owner.setState(MapItemState.Dead);
+					if(owner instanceof Projectile)
+						((Projectile)owner).getImpactStrategy().handleImpact(owner.getPosition());
 				}else{
 					boolean isProjectile = owner instanceof Projectile;
 					if(isProjectile){

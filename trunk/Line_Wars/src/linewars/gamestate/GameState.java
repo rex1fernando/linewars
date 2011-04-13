@@ -344,6 +344,12 @@ public strictfp class GameState
 				p.setPlayerEnergy(MAX_PLAYER_ENERGY);
 		}
 		
+		if(timerTick % 10 == 0)
+		{
+			for(Player p : players.values())
+				System.out.println(p.getPlayerName() + ": " + p.getPlayerEnergy());
+		}		
+		
 		timerTick++;
 		
 		lastLoopTime = this.getTime() - timeAtEndOfLastLoop;

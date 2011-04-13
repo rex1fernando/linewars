@@ -385,7 +385,8 @@ public strictfp class Node {
 		owner = p;
 		cCenter = p.getCommandCenterDefinition().createMapItem(this.getCommandCenterSpot().getTrans(), p, gameState);
 		cCenter.setNode(this);
-		containedBuildings.clear();
+		for(int i = containedBuildings.size() - 1; i >= 0; i--)
+			this.removeBuilding(i);
 		for(Lane l : attachedLanes)
 		{
 			l.addGate(this, owner);

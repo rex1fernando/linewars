@@ -2,7 +2,7 @@ package linewars.gamestate;
 
 import java.io.Serializable;
 
-public class LaneConfiguration implements Serializable {
+public strictfp class LaneConfiguration implements Serializable {
 	/**
 	 * 
 	 */

@@ -37,7 +37,7 @@ public strictfp class StraightConfiguration extends MovementStrategyConfiguratio
 	
 	private double speed;
 	
-	public class Straight implements MovementStrategy
+	public strictfp class Straight implements MovementStrategy
 	{
 	
 		private Unit unit = null;

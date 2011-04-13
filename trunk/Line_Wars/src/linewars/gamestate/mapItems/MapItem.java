@@ -375,7 +375,8 @@ public strictfp abstract class MapItem implements Observer {
 			double time = 0;
 			for(int i = 0; i < a.getNumImages(); i++)
 				time += a.getImageTime(i);
-			if(time > this.getGameState().getTime()*1000 - this.getStateStartTime())
+			if(time > (this.getGameState().getTime() - this.getGameState().getLastLoopTime())*1000
+					- this.getStateStartTime())
 				return false;
 		}
 		

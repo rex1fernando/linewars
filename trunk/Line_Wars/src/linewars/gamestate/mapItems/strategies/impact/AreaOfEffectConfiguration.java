@@ -6,7 +6,6 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import configuration.Configuration;
@@ -15,7 +14,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
+public strictfp class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 
 	/**
 	 * 
@@ -27,7 +26,7 @@ public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 				AreaOfEffectConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class AreaOfEffect implements ImpactStrategy
+	public strictfp class AreaOfEffect implements ImpactStrategy
 	{
 
 		private Projectile proj;
@@ -63,7 +62,7 @@ public class AreaOfEffectConfiguration extends ImpactStrategyConfiguration {
 			for(Unit u : proj.getLane().getUnitsIn(box))
 			{
 				//if they're not allowed to collide, skip
-				if(!CollisionStrategyConfiguration.isAllowedToCollide(u, proj) || !damageCircle.isCollidingWith(u.getBody()))
+				if(u.getOwner() == proj.getOwner() || !damageCircle.isCollidingWith(u.getBody()))
 					continue;
 				double distance = Math.sqrt(proj.getPosition().distanceSquared(u.getPosition()));
 				u.setHP(u.getHP() - damage(distance));

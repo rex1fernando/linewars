@@ -102,7 +102,8 @@ public class Client implements Runnable
 			gamePanel.setPlayerRace(playerId, (Integer) NetworkUtil.readObject(in));
 			break;
 		case color:
-			gamePanel.setPlayerColor(playerId, (Color) NetworkUtil.readObject(in));
+			Color c = (Color) NetworkUtil.readObject(in);
+			gamePanel.setPlayerColor(playerId, c);
 			break;	
 		case chat:
 			gamePanel.updateChat((String) NetworkUtil.readObject(in));

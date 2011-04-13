@@ -12,7 +12,7 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 
-public class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
+public strictfp class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
 	
 	/**
 	 * 
@@ -24,7 +24,7 @@ public class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
 				SpawnFirePatchConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
-	public class SpawnFirePatch implements ImpactStrategy
+	public strictfp class SpawnFirePatch implements ImpactStrategy
 	{
 		
 		private Projectile proj;
@@ -46,16 +46,20 @@ public class SpawnFirePatchConfiguration extends ImpactStrategyConfiguration {
 
 		@Override
 		public void handleImpact(MapItem m) {
-			proj.getLane().addProjectile(getFirePatch().createMapItem(proj.getTransformation(), 
-					proj.getOwner(), proj.getGameState()));
+			Projectile firePatch = getFirePatch().createMapItem(proj.getTransformation(), 
+					proj.getOwner(), proj.getGameState());
+			firePatch.getModifier().pushUnderStack(proj.getModifier());
+			proj.getLane().addProjectile(firePatch);
 			proj.setState(MapItemState.Dead);
 			proj.setDurability(0);
 		}
 
 		@Override
 		public void handleImpact(Position p) {
-			proj.getLane().addProjectile(getFirePatch().createMapItem(new Transformation(p, proj.getRotation()), 
-					proj.getOwner(), proj.getGameState()));
+			Projectile firePatch = getFirePatch().createMapItem(proj.getTransformation(), 
+					proj.getOwner(), proj.getGameState());
+			firePatch.getModifier().pushUnderStack(proj.getModifier());
+			proj.getLane().addProjectile(firePatch);
 			proj.setState(MapItemState.Dead);
 			proj.setDurability(0);
 		}

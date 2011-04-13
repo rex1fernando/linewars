@@ -39,7 +39,6 @@ import linewars.display.panels.ResourceDisplayPanel;
 import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
 import linewars.display.sound.SoundPlayer;
-import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;

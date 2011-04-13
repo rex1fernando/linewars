@@ -3,14 +3,12 @@ package linewars.display.layers;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 
 import linewars.display.Animation;
 import linewars.display.CircleDrawer;
 import linewars.display.Display;
 import linewars.display.DisplayConfiguration;
-import linewars.display.GameImage;
 import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Position;
@@ -85,8 +83,6 @@ public class MapItemLayer implements ILayer
 				}
 
 				// get the items coordinates based on the visible screen
-				Position upperLeftPos = new Position(pos.getX() - visibleScreen.getX() - (width / 2),
-						pos.getY() - visibleScreen.getY() - (height / 2));
 				pos = display.toScreenCoord(pos);
 
 				// rotate the image

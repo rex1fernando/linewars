@@ -1,24 +1,22 @@
 package linewars.gamestate.mapItems.strategies.turret;
 
+import linewars.display.DisplayConfiguration;
+import linewars.gamestate.Position;
+import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Turret;
+import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.abilities.Ability;
+import linewars.gamestate.mapItems.abilities.AbilityDefinition;
+import linewars.gamestate.mapItems.abilities.ShootDefinition;
+import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import utility.Observable;
 import utility.Observer;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
-
-import linewars.display.DisplayConfiguration;
-import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.mapItems.Turret;
-import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
-import linewars.gamestate.mapItems.abilities.Ability;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.abilities.ShootDefinition;
-import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -42,10 +40,11 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 	
 	private long shootCoolDown;
 	
-	public class ShootClosestTarget implements TurretStrategy
+	public strictfp class ShootClosestTarget implements TurretStrategy
 	{		
 		private Turret turret = null;
 		private ShootDefinition shootDefinition;
+		private Unit target = null;
 		
 		private long lastShootTime = 0;
 		
@@ -99,18 +98,15 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
 			if(availableEnemies.length == 0)
 				throw new IllegalArgumentException("Why are you asking me to fight when there is no one to fight?");
-			//first get the closest target
-			double dis = turret.getPosition().distanceSquared(availableEnemies[0].getPosition());
-			Unit closest = availableEnemies[0];
-			for(Unit u : availableEnemies)
-			{
-				double nd = turret.getPosition().distanceSquared(u.getPosition());
-				if(nd < dis && u.getState() != MapItemState.Dead)
-				{
-					dis = nd;
-					closest = u;
-				}
-			}
+			
+			//do i need a new target?
+			if(target == null || target.getState().equals(MapItemState.Dead))
+				target = acquireTarget(availableEnemies);
+			
+			if(target == null) //there are no valid targets
+				return;
+			
+			double dis = target.getPosition().distanceSquared(turret.getPosition());
 			
 			//if the target is in range, turn to face it
 			if(Math.sqrt(dis) <= shootDefinition.getRange())
@@ -121,7 +117,7 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 					return;
 				}
 				//now calculate the angle the unit needs to face to shoot the target
-				Position p = closest.getPosition().subtract(turret.getPosition());
+				Position p = target.getPosition().subtract(turret.getPosition());
 				double angle = Math.atan2(p.getY(), p.getX());
 				//if we're already facing the correct angle (or close enough) then FIRE!!!!!!
 				//(used cosine and sine so that it doesn't matter the exact value of the rotation)
@@ -147,6 +143,64 @@ public strictfp class ShootClosestTargetConfiguration extends TurretStrategyConf
 		@Override
 		public TurretStrategyConfiguration getConfig() {
 			return ShootClosestTargetConfiguration.this;
+		}
+		
+		private Unit acquireTarget(Unit[] availableEnemies)
+		{
+			Unit ret = null;
+			double dis = Double.POSITIVE_INFINITY;
+			int marks = Integer.MAX_VALUE;
+			for(Unit u : availableEnemies)
+			{
+				int count = 0;
+				for(Ability a : u.getActiveAbilities())
+				{
+					if(a instanceof MarkTarget)
+						++count;
+				}
+				if(count < marks)
+				{
+					ret = u;
+					marks = count;
+					dis = turret.getPosition().distanceSquared(ret.getPosition());
+				}
+				else if(count == marks)
+				{
+					double d = turret.getPosition().distanceSquared(u.getPosition());
+					if(d < dis)
+					{
+						dis = d;
+						ret = u;
+					}
+				}
+			}
+			ret.addActiveAbility(new MarkTarget(ret));
+			return ret;
+		}
+		
+		private class MarkTarget implements Ability
+		{
+			private Unit unit;
+			
+			private MarkTarget(Unit u)
+			{
+				unit = u;
+			}
+
+			@Override
+			public void update() {}
+
+			@Override
+			public boolean killable() {
+				return true;
+			}
+
+			@Override
+			public boolean finished() {
+				return unit != target || 
+				ShootClosestTarget.this.turret.getState().equals(MapItemState.Dead);
+			}
+			
 		}
 	}
 	
