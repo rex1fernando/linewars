@@ -384,4 +384,23 @@ public strictfp abstract class MapItem implements Observer {
 		this.getDefinition().removeObserver(this);
 		return true;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapItem)
+		{
+			MapItem m = (MapItem) obj;
+			return ((m.body == null && body == null) || m.body.equals(body)) &&
+					m.state == state &&
+					m.stateStart == stateStart &&
+					m.modifier.equals(modifier) &&
+					m.cStrat.equals(cStrat) &&
+					m.activeAbilities.equals(activeAbilities) &&
+					m.getID() == ID &&
+					m.getDefinition().equals(this.getDefinition());
+		}
+		else
+			return false;
+	}
 }

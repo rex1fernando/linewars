@@ -57,4 +57,10 @@ public strictfp class Gate extends Unit {
 	{
 		super.setBody(s);
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj) && (obj instanceof Gate);
+	}
 }

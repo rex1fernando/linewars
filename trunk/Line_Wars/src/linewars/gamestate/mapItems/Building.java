@@ -54,5 +54,11 @@ public strictfp class Building extends MapItemAggregate {
 	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
 		definition = (BuildingDefinition) def;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj) && (obj instanceof Building);
+	}
 
 }

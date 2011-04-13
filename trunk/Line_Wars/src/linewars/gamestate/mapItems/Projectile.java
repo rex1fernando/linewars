@@ -168,9 +168,11 @@ public strictfp class Projectile extends MapItemAggregate {
 		if(o == null) return false;
 		if(!(o instanceof Projectile)) return false;
 		Projectile other = (Projectile) o;
-		if(!other.getBody().equals(getBody())) return false;
-		//TODO test other things in here
-		return true;
+		
+		return super.equals(other) &&
+				other.iStrat.equals(iStrat) &&
+				other.tStrat.equals(tStrat) &&
+				other.durability == durability;
 	}
 
 	@Override

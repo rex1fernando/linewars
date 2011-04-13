@@ -103,25 +103,25 @@ public strictfp class GameState
 		}
 		
 		//TODO this dummy player is for debugging purposes
-		Race r = null;
-		int i = this.players.size();
-		try {
-			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		if(r == null)
-			throw new RuntimeException("Error copying race");
-		this.races.add(r);
-		Node[] nodes = this.getMap().getNodes();
-		List<Node> dummyStartNodes = new ArrayList<Node>();
-		for(Node n : nodes)
-			if(n.getOwner() == null)
-				dummyStartNodes.add(n);
-		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
-		this.players.put(i, dummyPlayer);
+//		Race r = null;
+//		int i = this.players.size();
+//		try {
+//			r = (Race) Configuration.copyConfiguration(players.get(0).getRace());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		if(r == null)
+//			throw new RuntimeException("Error copying race");
+//		this.races.add(r);
+//		Node[] nodes = this.getMap().getNodes();
+//		List<Node> dummyStartNodes = new ArrayList<Node>();
+//		for(Node n : nodes)
+//			if(n.getOwner() == null)
+//				dummyStartNodes.add(n);
+//		Player dummyPlayer = new Player(this, dummyStartNodes.toArray(new Node[0]), r, "dummy PLayer", i);
+//		this.players.put(i, dummyPlayer);
 		
 	}
 
@@ -342,12 +342,6 @@ public strictfp class GameState
 			p.setPlayerEnergy(p.getPlayerEnergy() + energyToAdd);
 			if(p.getPlayerEnergy() > MAX_PLAYER_ENERGY)
 				p.setPlayerEnergy(MAX_PLAYER_ENERGY);
-		}
-		
-		if(timerTick % 10 == 0)
-		{
-			for(Player p : players.values())
-				System.out.println(p.getPlayerName() + ": " + p.getPlayerEnergy());
 		}		
 		
 		timerTick++;
