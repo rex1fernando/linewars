@@ -12,7 +12,6 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 import linewars.display.Display;
-import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 
 /**

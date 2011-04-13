@@ -26,7 +26,6 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.BuildMessage;
