@@ -344,6 +344,8 @@ public strictfp class GameState
 	 */
 	public void update(Message[] messages)
 	{
+		this.validateLock();
+		
 		for(Message m : messages)
 			m.apply(this);
 		
