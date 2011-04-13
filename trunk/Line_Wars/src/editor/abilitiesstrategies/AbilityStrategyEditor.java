@@ -19,6 +19,11 @@ import editor.ConfigurationEditor;
 
 public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7151442519676544131L;
+	
 	private Map<String, Field> fields = new HashMap<String, Field>();
 	private BigFrameworkGuy bfg;
 	private Class<? extends Configuration> toInstantiate;
@@ -30,6 +35,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 		setData(instantiateNewConfiguration());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setData(Configuration cd) {
 		this.removeAll();
@@ -70,6 +76,7 @@ public class AbilityStrategyEditor extends JPanel implements ConfigurationEditor
 				case ListUnitConfig:
 				case ListProjectileConfig:
 				case ListTechConfig:
+				case ListImpactConfiguration:
 					f = new ListConfigurationField(field, prop.getDescription(),
 							prop.getEditorUsage(), bfg, (ListConfiguration<? extends Configuration>) prop.getValue());
 					break;

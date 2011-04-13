@@ -3,16 +3,19 @@ package linewars.gamestate.mapItems.strategies.collision;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.CollidesWithAllConfiguration.CollidesWithAll;
-import linewars.gamestate.mapItems.strategies.collision.NoCollisionConfiguration.NoCollision;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 
 public class EnemyProjectilesConfiguration extends
 		CollisionStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6121934056614686805L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Enemy Projectiles",
-				AllEnemyUnitsConfiguration.class, AbilityStrategyEditor.class);
+				EnemyProjectilesConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
 	public class EnemyProjectile implements CollisionStrategy
@@ -37,7 +40,7 @@ public class EnemyProjectilesConfiguration extends
 
 		@Override
 		public boolean canCollideWith(MapItem m) {
-			return m.getCollisionStrategy().canCollideWith(mapItem);
+			return m.getOwner() != mapItem.getOwner() && m instanceof Projectile;
 		}
 		
 	}

@@ -10,7 +10,6 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
@@ -67,8 +66,8 @@ public class EMPImpactConfiguration extends ImpactStrategyConfiguration {
 			List<Unit> possibles = proj.getLane().getUnitsIn(box);
 			for(Unit u : possibles)
 			{
-				if(CollisionStrategyConfiguration.isAllowedToCollide(u, proj) &&
-						damageCircle.isCollidingWith(u.getBody()))
+				if(proj.getOwner() == u.getOwner()) continue;
+				if(damageCircle.isCollidingWith(u.getBody()))
 				{
 					EMPEffect ee = getEMPAbility(u);
 					if(ee == null)
