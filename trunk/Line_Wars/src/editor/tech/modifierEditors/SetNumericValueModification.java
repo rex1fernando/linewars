@@ -4,7 +4,7 @@ import configuration.Property;
 import configuration.Usage;
 import linewars.gamestate.tech.ModifierConfiguration;
 
-public class SetNumericValueModification extends ModifierConfiguration {
+public strictfp class SetNumericValueModification extends ModifierConfiguration {
 
 	/**
 	 * 
