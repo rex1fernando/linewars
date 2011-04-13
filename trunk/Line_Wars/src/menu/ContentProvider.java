@@ -49,7 +49,7 @@ public class ContentProvider
 		
 		// concept art
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
-		getImageResource(MenuImage.background_title);
+		getImageResource(MenuImage.background_title);  // TODO implement swing worker future design
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
 		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
@@ -210,6 +210,11 @@ public class ContentProvider
 			}
 		}
 		return imageResources.get(img);
+	}
+	
+	public static synchronized void clearImageResources()
+	{
+		imageResources = new HashMap<MenuImage, Image>();
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)

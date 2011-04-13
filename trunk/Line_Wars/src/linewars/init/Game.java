@@ -11,6 +11,7 @@ import linewars.gamestate.MapConfiguration;
 import linewars.network.Client;
 import linewars.network.MessageHandler;
 import linewars.network.Server;
+import menu.GameInitializer.LoadingProgress;
 
 /**
  * 
@@ -27,6 +28,7 @@ public strictfp class Game {
 	private TimingManager logic;
 	private Server server;
 	private List<PlayerData> players;
+	private LoadingProgress progress;
 	
 	public void run(){
 		if(server != null){
@@ -58,9 +60,10 @@ public strictfp class Game {
 		sp.start();
 	}
 	
-	public Game(MapConfiguration map, List<PlayerData> players){
+	public Game(MapConfiguration map, List<PlayerData> players, LoadingProgress progress){
 		logic = new TimingManager(map, players);
 		this.players = players; 
+		this.progress = progress;
 	}
 	
 	/**
@@ -96,7 +99,7 @@ public strictfp class Game {
 			e.printStackTrace();
 		}
 		
-		display = new Display(logic.getGameStateManager(), networking, playerIndex);
+		display = new Display(logic.getGameStateManager(), networking, playerIndex, progress);
 		sound = SoundPlayer.getInstance();
 		logic.setClientReference(networking);
 	}

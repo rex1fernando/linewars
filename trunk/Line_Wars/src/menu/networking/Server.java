@@ -93,7 +93,7 @@ public class Server implements Runnable
 		PlayerBean pb = null;
 		synchronized (clientLock)
 		{
-			pb = new PlayerBean("Player", Color.black, 1, 0); // FIXME
+			pb = new PlayerBean("Player", ContentProvider.getAvailableColors()[0], 1, 0); // FIXME
 		}
 		return pb;
 	}
@@ -257,7 +257,7 @@ public class Server implements Runnable
 			}
 		}
 		
-		List<PlayerBean> createCopyOfBeans(List<PlayerBean> lst)
+		private List<PlayerBean> createCopyOfBeans(List<PlayerBean> lst)
 		{
 			List<PlayerBean> ret = new ArrayList<PlayerBean>();
 			for(PlayerBean pb : lst)

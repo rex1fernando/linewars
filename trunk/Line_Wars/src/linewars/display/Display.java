@@ -57,6 +57,7 @@ import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.PlayerAbilityMessage;
+import menu.GameInitializer.LoadingProgress;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -101,7 +102,7 @@ public class Display extends JFrame implements Runnable
 	 * @param curPlayer
 	 *            The index of the player this Display belongs to.
 	 */
-	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer)
+	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer, LoadingProgress progress)
 	{
 		super("Line Wars");
 

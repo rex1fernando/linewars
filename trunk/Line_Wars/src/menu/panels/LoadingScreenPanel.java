@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
+import menu.GameInitializer;
 import menu.WindowManager;
 import menu.components.CustomProgressBar;
 
@@ -36,10 +37,14 @@ public class LoadingScreenPanel extends JPanel
 		setPreferredSize(new Dimension(1024, 640));
 		setMaximumSize(new Dimension(1024, 640));
 		setMinimumSize(new Dimension(1024, 640));
+		
+		add(progressBar);
 	}
 	
-	public void start()
+	public void start(GameInitializer gameInit)
 	{
+		gameInit.setProgressBar(progressBar);
+		
 		// initialize spinner
 		creationTime = System.currentTimeMillis();
 		timer = new Timer(true);
@@ -75,9 +80,13 @@ public class LoadingScreenPanel extends JPanel
 		
 		// get graphics
 		Graphics2D g2 = (Graphics2D) g;
-		g2.rotate(theta, (x + imageWidth / 2), (y + imageHeight / 2));
+		int px = (x + imageWidth / 2);
+		int py = (y + imageHeight / 2);
+		g2.rotate(theta, px, py);
 		
 		// draw spinner
 		g2.drawImage(spinner, x, y, imageWidth, imageHeight, null);
+		
+		g2.rotate(-theta, px, py);
 	}
 }

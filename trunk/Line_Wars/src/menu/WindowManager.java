@@ -21,6 +21,7 @@ import menu.panels.CreateGamePanel;
 import menu.panels.LoadingScreenPanel;
 import menu.panels.OptionsPane;
 import menu.panels.TitlePanel;
+import editor.BigFrameworkGuy;
 
 public class WindowManager extends JFrame
 {	
@@ -37,7 +38,7 @@ public class WindowManager extends JFrame
 	
 	public WindowManager()
 	{
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		backgroundImage = new BufferedImage(screenSize.width, screenSize.height, BufferedImage.TYPE_INT_RGB);
@@ -57,7 +58,6 @@ public class WindowManager extends JFrame
 	{
 		pack();
 		setSize(Toolkit.getDefaultToolkit().getScreenSize());
-		
 		setVisible(true);
 	}
 	
@@ -100,8 +100,11 @@ public class WindowManager extends JFrame
 	
 	public void gotoEditor()
 	{
-		changeContentPane(loadingScreen);
-		loadingScreen.start();
+		new Thread(new Runnable() {
+			public void run() {
+				BigFrameworkGuy.main(new String[0]);
+			}
+		}).start();
 	}
 	
 	public void gotoOptions()
@@ -113,6 +116,12 @@ public class WindowManager extends JFrame
 	public void exitGame()
 	{
 		dispose();
+	}
+	
+	public void startGame(GameInitializer gameInit)
+	{
+		loadingScreen.start(gameInit);
+		changeContentPane(loadingScreen);
 	}
 	
 	private void changeContentPane(JPanel pane)

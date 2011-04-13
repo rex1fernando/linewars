@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import linewars.init.Game;
 import linewars.init.PlayerData;
 import menu.ContentProvider;
+import menu.GameInitializer;
 import menu.panels.CreateGamePanel;
 
 public class Client implements Runnable
@@ -154,14 +156,14 @@ public class Client implements Runnable
 			}
 			else
 			{
-				MapConfiguration map = (MapConfiguration) selection;
-				String serverIp = socket.getInetAddress().getHostAddress();
-				
-				Game g = new Game(map, playerList);
-				if (playerId == 0) 
-					g.initializeServer(clientList);
-				g.initializeClient(serverIp, playerId, isObserver);
-				g.run();
+				GameInitializer gameInit = new GameInitializer();
+				gameInit.setMap((MapConfiguration) selection);
+				gameInit.setServerIp(socket.getInetAddress().getHostAddress());
+				gameInit.setPlayerList(playerList);
+				gameInit.setClientList(clientList);
+				gameInit.setObserver(isObserver);
+				gameInit.setPlayerId(playerId);
+				gamePanel.startGame(gameInit);
 			}
 			
 			// TODO close the lobby system
