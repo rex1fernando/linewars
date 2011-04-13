@@ -24,6 +24,11 @@ import editor.abilitiesstrategies.EditorUsage;
  */
 public strictfp class ConstructUnitDefinition extends AbilityDefinition implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2870972038123246766L;
+
 	static {
 		AbilityDefinition.setAbilityConfigMapping("Construct Unit", ConstructUnitDefinition.class, AbilityStrategyEditor.class);
 	}
@@ -46,7 +51,7 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 		@Override
 		public void update() {
 			if((long)(building.getGameState().getTime()*1000) - startTime > 
-			getBuildTime()*building.getModifier().getModifier(MapItemModifiers.buildingProductionRate))
+			getBuildTime()/building.getModifier().getModifier(MapItemModifiers.buildingProductionRate))
 			{
 				if(building.getState() != MapItemState.Active)
 					building.setState(MapItemState.Active);

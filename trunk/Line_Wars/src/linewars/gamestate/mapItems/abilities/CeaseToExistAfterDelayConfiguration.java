@@ -85,6 +85,8 @@ public strictfp class CeaseToExistAfterDelayConfiguration extends AbilityDefinit
 				boolean playDeathAnimation = (Boolean) CeaseToExistAfterDelayConfiguration.this.getPropertyForName(deathName).getValue();
 				if(playDeathAnimation){
 					owner.setState(MapItemState.Dead);
+					if(owner instanceof Projectile)
+						((Projectile)owner).getImpactStrategy().handleImpact(owner.getPosition());
 				}else{
 					boolean isProjectile = owner instanceof Projectile;
 					if(isProjectile){

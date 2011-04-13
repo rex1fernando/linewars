@@ -6,7 +6,6 @@ import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
 import linewars.gamestate.shapes.Circle;
 import configuration.Configuration;
@@ -63,7 +62,7 @@ public strictfp class AreaOfEffectConfiguration extends ImpactStrategyConfigurat
 			for(Unit u : proj.getLane().getUnitsIn(box))
 			{
 				//if they're not allowed to collide, skip
-				if(!CollisionStrategyConfiguration.isAllowedToCollide(u, proj) || !damageCircle.isCollidingWith(u.getBody()))
+				if(u.getOwner() == proj.getOwner() || !damageCircle.isCollidingWith(u.getBody()))
 					continue;
 				double distance = Math.sqrt(proj.getPosition().distanceSquared(u.getPosition()));
 				u.setHP(u.getHP() - damage(distance));
