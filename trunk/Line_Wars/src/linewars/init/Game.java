@@ -58,9 +58,15 @@ public strictfp class Game {
 		sp.start();
 		
 		try {
+			if(serv != null){
+				server.terminate();
+				serv.join();
+			}
 			disp.join();
+			networking.terminate();
 			net.join();
 			log.join();
+			sound.stop();
 			sp.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
