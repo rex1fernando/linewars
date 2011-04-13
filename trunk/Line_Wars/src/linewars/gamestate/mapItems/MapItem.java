@@ -391,6 +391,8 @@ public strictfp abstract class MapItem implements Observer {
 		if(obj instanceof MapItem)
 		{
 			MapItem m = (MapItem) obj;
+//			if(this.getDefinition().getName().equals("Mech") && m == this)
+//				System.out.println();
 			return ((m.body == null && body == null) || m.body.equals(body)) &&
 					m.state == state &&
 					m.stateStart == stateStart &&
