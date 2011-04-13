@@ -44,4 +44,9 @@ public class SinglePlayerNetworkProxy implements MessageHandler {
 		//do nothing
 	}
 
+	@Override
+	public void terminate() {
+		//do nothing
+	}
+
 }
