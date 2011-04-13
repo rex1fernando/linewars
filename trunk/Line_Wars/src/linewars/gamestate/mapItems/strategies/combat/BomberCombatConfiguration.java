@@ -228,7 +228,8 @@ public class BomberCombatConfiguration extends CombatStrategyConfiguration {
 
 			@Override
 			public boolean finished() {
-				return unit != target;
+				return unit != target ||
+				BomberCombat.this.bomber.getState().equals(MapItemState.Dead);
 			}
 			
 		}

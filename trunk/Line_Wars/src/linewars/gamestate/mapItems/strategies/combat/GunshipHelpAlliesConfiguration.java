@@ -165,7 +165,8 @@ public class GunshipHelpAlliesConfiguration extends CombatStrategyConfiguration 
 
 			@Override
 			public boolean finished() {
-				return target != mapItem;
+				return target != mapItem ||
+				gunship.getState().equals(MapItemState.Dead);
 			}
 			
 		}
