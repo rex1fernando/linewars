@@ -86,6 +86,7 @@ public class Display extends JFrame implements Runnable
 	private GamePanel gamePanel;
 
 	private boolean clicked;
+	private boolean running;
 
 	private int playerIndex;
 	private int activeAbilityIndex;
@@ -125,11 +126,22 @@ public class Display extends JFrame implements Runnable
 		// shows the display
 		setVisible(true);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		synchronized(this){
+			try {
+				this.wait();
+				this.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void exitGame()
 	{
-		//TODO go back to the lobby system
+		synchronized(this){
+			this.notify();
+		}
 		dispose();
 	}
 
