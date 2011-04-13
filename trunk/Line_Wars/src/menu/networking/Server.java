@@ -68,13 +68,15 @@ public class Server implements Runnable
 			synchronized (clientLock)
 			{
 				clients.add(client);
-				players.add(getDefaultPlayerBean());
+				PlayerBean pb = getDefaultPlayerBean();
+				pb.setName(client.playerName);
+				players.add(pb);
 				
 				// send the info needed to the new client
 				NetworkUtil.writeObject(client.out, client.playerId);
-				NetworkUtil.writeObject(client.out, players.toArray(new PlayerBean[0]));
 				NetworkUtil.writeObject(client.out, isReplay);
 				NetworkUtil.writeObject(client.out, selection);
+				NetworkUtil.writeObject(client.out, players.toArray(new PlayerBean[0]));
 				
 				// notify the other players
 				for (ClientConnection conn : clients)
@@ -119,6 +121,7 @@ public class Server implements Runnable
 		
 		private int playerId;
 		private boolean running;
+		private String playerName;
 		
 		public ClientConnection(Socket socket, int playerId) throws IOException
 		{
@@ -128,6 +131,8 @@ public class Server implements Runnable
 			
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
+			
+			playerName = (String) NetworkUtil.readObject(in);
 			
 			// starts the server in its own thread
 			Thread th = new Thread(this);
