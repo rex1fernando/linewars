@@ -58,11 +58,11 @@ public strictfp class Game {
 		sp.start();
 		
 		try {
-			if(serv != null){
+			disp.join();
+			if(server != null){
 				server.terminate();
 				serv.join();
 			}
-			disp.join();
 			networking.terminate();
 			net.join();
 			log.join();
