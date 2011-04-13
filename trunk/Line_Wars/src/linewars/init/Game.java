@@ -29,8 +29,8 @@ public strictfp class Game {
 	private List<PlayerData> players;
 	
 	public void run(){
+		Thread serv = new Thread(server);
 		if(server != null){
-			Thread serv = new Thread(server);
 			serv.setName("Server");
 			serv.setDaemon(true);
 			serv.start();
@@ -56,6 +56,22 @@ public strictfp class Game {
 		sp.setDaemon(true);
 		sp.setName("Sound");
 		sp.start();
+		
+		try {
+			disp.join();
+			if(server != null){
+				server.terminate();
+				serv.join();
+			}
+			networking.terminate();
+			net.join();
+			log.join();
+			sound.stop();
+			sp.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public Game(MapConfiguration map, List<PlayerData> players){

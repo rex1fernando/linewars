@@ -224,15 +224,10 @@ public strictfp class ShapeAggregate extends Shape {
 	@Override
 	public boolean equals(Object obj)
 	{
-		//TODO this is not implemented correctly, it is here for debugging only
-		if(obj instanceof ShapeAggregate)
-		{
-			ShapeAggregate sa = (ShapeAggregate) obj;
-			return sa.center.equals(center) &&
-					sa.members.equals(members) &&
-					sa.rotation == rotation;
-		}
-		else
-			return false;
+		if(obj == null || !(obj instanceof ShapeAggregate)) return false;
+		ShapeAggregate other = (ShapeAggregate) obj;
+		return other.center.equals(center) &&
+				other.members.equals(members) &&
+				other.rotation == rotation;
 	}
 }
