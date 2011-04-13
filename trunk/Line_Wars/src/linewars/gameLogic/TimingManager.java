@@ -28,7 +28,8 @@ public class TimingManager implements Runnable{
 	private long nextUpdateTime;
 	
 	public TimingManager(MapConfiguration map, List<PlayerData> players){
-		manager = new LogicBlockingManager(map, players);
+//		manager = new LogicBlockingManager(map, players);
+		manager = new GameStateSwappingManager(map, players);
 		nextTickID = 1;
 	}
 	

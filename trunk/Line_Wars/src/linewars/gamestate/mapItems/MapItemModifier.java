@@ -121,5 +121,14 @@ public strictfp class MapItemModifier {
 		else
 			wrapped.pushUnderStack(mim);
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof MapItemModifier) &&
+				((MapItemModifier)obj).mappings.equals(mappings) &&
+				((((MapItemModifier)obj).wrapped == null && wrapped == null) || 
+						((MapItemModifier)obj).wrapped.equals(wrapped));
+	}
 
 }

@@ -29,6 +29,8 @@ public class Server implements Runnable
 	private int currentTick;
 	private Message[][] messagesForTick;
 	
+	private boolean running;
+	
 	public Server(String[] clientAddresses, int port) throws SocketException{
 		this.clientAddresses = clientAddresses.clone();
 		gateKeeper = new GateKeeper(clientAddresses, port + 1, port);//TODO retry if it fails?
@@ -49,9 +51,13 @@ public class Server implements Runnable
 		th.setName("Server GateKeeper");
 		th.start();
 		
-		while(true){
+		while(running){
 			doTick();
 		}
+	}
+	
+	public void terminate(){
+		running = false;
 	}
 	
 	/**

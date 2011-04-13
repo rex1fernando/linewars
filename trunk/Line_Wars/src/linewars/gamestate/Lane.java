@@ -163,7 +163,8 @@ public strictfp class Lane
 			return projectiles.toArray(new Projectile[0]);
 		} catch (Exception e) {
 			//TODO fix this
-			System.err.println("Lane:getProjectiles: " + e.toString() + ":" + e.getMessage());
+			System.err.println("Game stat is locked = " + gameState.isLocked());
+			e.printStackTrace();
 			return new Projectile[0];
 		}
 	}
@@ -433,6 +434,7 @@ public strictfp class Lane
 		if(nodes.size() != 2)
 			throw new IllegalStateException("This lane doesn't know about both its end point nodes");
 		
+		gameState.validateLock();
 		
 		
 		for(int i = 0; i < waves.size();)
@@ -453,6 +455,7 @@ public strictfp class Lane
 			p.updateMapItem();
 			//get rid of dead projectiles
 			if(p.getState() == MapItemState.Dead && p.finished()) {
+				gameState.validateLock();
 				projectiles.remove(i);
 			} else {
 				i++;
