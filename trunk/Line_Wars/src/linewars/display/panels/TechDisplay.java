@@ -37,14 +37,13 @@ import linewars.gamestate.Position;
 import linewars.gamestate.tech.CycleException;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
-import linewars.gamestate.tech.UnlockStrategy;
 import linewars.gamestate.tech.TechGraph.TechNode;
+import linewars.gamestate.tech.UnlockStrategy;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.UpgradeMessage;
 import configuration.Configuration;
 import editor.GenericSelector;
-import editor.URISelector;
 
 @SuppressWarnings("serial")
 public class TechDisplay extends JViewport

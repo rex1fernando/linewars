@@ -2,14 +2,8 @@ package linewars.display;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
 
 import linewars.gamestate.Position;
 

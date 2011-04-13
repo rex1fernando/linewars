@@ -45,9 +45,11 @@ public class CreateGamePanel extends javax.swing.JPanel {
 	private List<PlayerPanel> players;
 	private Client client;
 	private boolean isServer;
+	private OptionsPane options;
     
-    public CreateGamePanel(WindowManager wm) {
+    public CreateGamePanel(WindowManager wm, OptionsPane options) {
     	this.wm = wm;
+    	this.options = options;
     	init();
     }
     
@@ -66,7 +68,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }
     
     public void startClient(String serverIp) throws SocketException {
-    	client = new Client(PORT, serverIp, this);
+    	client = new Client(PORT, serverIp, this, options.getPlayerName());
     	client.start();
     	
     	if (!isServer) {
@@ -266,22 +268,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         private void raceChangeActionPerformed(java.awt.event.ActionEvent evt) {         
         	if (allIsWell(this))
         		client.sendMessage(MessageType.race, race.getSelectedIndex());
-        }                                          
-
-        private void nameButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
-            String s = (String) javax.swing.JOptionPane.showInputDialog(this,
-                    "Please enter a new name:",
-                    "Rename",
-                    javax.swing.JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    name.getText());
-            
-            if (s != null && !s.equals(name.getText()) && allIsWell(this)) {
-                name.setText(s);
-                client.sendMessage(MessageType.name, s);
-            }
-        }                                          
+        }              
 
         private void slotChangeActionPerformed(java.awt.event.ActionEvent evt) {
         	if (allIsWell(this))
@@ -309,7 +296,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         	
             slot = new MenuComboBox(false);
             race = new MenuComboBox(false);
-            name = new javax.swing.JButton();
+            name = new javax.swing.JLabel();
             color = new MenuComboBox(true);
 
             setMaximumSize(new java.awt.Dimension(712, 28));
@@ -338,17 +325,14 @@ public class CreateGamePanel extends javax.swing.JPanel {
                 }
             });
 
-            name.setText("Name");
+            name.setText(options.getPlayerName());
             name.setFocusable(false);
             name.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
             name.setMaximumSize(new java.awt.Dimension(53, 28));
             name.setMinimumSize(new java.awt.Dimension(53, 28));
             name.setPreferredSize(new java.awt.Dimension(53, 28));
-            name.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    nameButtonActionPerformed(evt);
-                }
-            });
+            name.setFont(ContentProvider.FONT.deriveFont(16.0f));
+            name.setForeground(Color.black);
 
             color.setModel(new javax.swing.DefaultComboBoxModel(getAvailableColors()));
             color.setBorder(null);
@@ -390,7 +374,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
         }
         
         private javax.swing.JComboBox color;
-        private javax.swing.JButton name;
+        private javax.swing.JLabel name;
         private javax.swing.JComboBox race;
         private javax.swing.JComboBox slot;
     }
@@ -513,10 +497,12 @@ public class CreateGamePanel extends javax.swing.JPanel {
         replayLabel.setFont(ContentProvider.FONT.deriveFont(18.0f));
         replayLabel.setText("Replay");
         replayLabel.setFocusable(false);
+        replayLabel.setForeground(Color.black);
 
         selectionLabel.setFont(ContentProvider.FONT.deriveFont(18.0f));
         selectionLabel.setText("Map Selection");
         selectionLabel.setFocusable(false);
+        selectionLabel.setForeground(Color.black);
 
         replayToggleButton.setFocusPainted(false);
         replayToggleButton.setFocusable(false);

@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import linewars.display.Animation;

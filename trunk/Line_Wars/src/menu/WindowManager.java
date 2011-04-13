@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import menu.ContentProvider.MenuImage;
 import menu.panels.CreateGamePanel;
 import menu.panels.LoadingScreenPanel;
+import menu.panels.OptionsPane;
 import menu.panels.TitlePanel;
 
 public class WindowManager extends JFrame
@@ -30,6 +31,7 @@ public class WindowManager extends JFrame
 	private TitlePanel titleMenu;
 	private CreateGamePanel lobbySystem;
 	private LoadingScreenPanel loadingScreen;
+	private OptionsPane optionsScreen;
 	
 	private Image backgroundImage;
 	
@@ -41,8 +43,9 @@ public class WindowManager extends JFrame
 		backgroundImage = new BufferedImage(screenSize.width, screenSize.height, BufferedImage.TYPE_INT_RGB);
 		
 		titleMenu = new TitlePanel(this);
-		lobbySystem = new CreateGamePanel(this);
 		loadingScreen = new LoadingScreenPanel(this);
+		optionsScreen = new OptionsPane(this);
+		lobbySystem = new CreateGamePanel(this, optionsScreen);
 		
 		innerPanel = new InnerPanel(titleMenu);
 		setContentPane(innerPanel);
@@ -66,7 +69,7 @@ public class WindowManager extends JFrame
 	public void gotoTitleMenu()
 	{
 		if (innerPanel.panel == lobbySystem)
-			lobbySystem = new CreateGamePanel(this);
+			lobbySystem = new CreateGamePanel(this, optionsScreen);
 		
 		changeContentPane(titleMenu);
 	}
@@ -98,11 +101,13 @@ public class WindowManager extends JFrame
 	public void gotoEditor()
 	{
 		changeContentPane(loadingScreen);
+		loadingScreen.start();
 	}
 	
 	public void gotoOptions()
 	{
-		// TODO implement
+		optionsScreen.loadOptions();
+		changeContentPane(optionsScreen);
 	}
 	
 	public void exitGame()

@@ -7,27 +7,32 @@ import java.awt.Image;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
+import menu.components.CustomProgressBar;
 
 public class LoadingScreenPanel extends JPanel
 {
-	private static final double IMAGE_SCALE = 0.1;
+	private static final double IMAGE_SCALE = 0.8;
 	private static final long PERIOD = 10;
-	private static final long REVOLUTION_TIME = 2000;
+	private static final long REVOLUTION_TIME = 5000;
 	
 	private WindowManager wm;
-	private boolean running;
+	private Timer timer;
 	
 	private long creationTime;
+	
+	private CustomProgressBar progressBar;
 	
 	public LoadingScreenPanel(final WindowManager wm)
 	{
 		this.wm = wm;
-		running = false;
+		progressBar = new CustomProgressBar();
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setPreferredSize(new Dimension(1024, 640));
 		setMaximumSize(new Dimension(1024, 640));
 		setMinimumSize(new Dimension(1024, 640));
@@ -35,14 +40,21 @@ public class LoadingScreenPanel extends JPanel
 	
 	public void start()
 	{
+		// initialize spinner
 		creationTime = System.currentTimeMillis();
-		
-		Timer timer = new Timer(true);
+		timer = new Timer(true);
 		timer.schedule(new TimerTask() {
 			public void run() {
 				wm.repaint();
 			}
 		}, 0, PERIOD);
+		
+		// start progress bar and load resources
+	}
+	
+	public void stop()
+	{
+		timer.cancel();
 	}
 	
 	@Override
