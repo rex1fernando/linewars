@@ -3,6 +3,7 @@ package linewars.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -57,6 +57,8 @@ import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.PlayerAbilityMessage;
+import menu.GameInitializer.LoadingProgress;
+import menu.WindowManager;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -68,7 +70,7 @@ import configuration.Usage;
  * @author Ryan Tew
  */
 @SuppressWarnings("serial")
-public class Display extends JFrame implements Runnable
+public class Display
 {
 	private static final boolean DEBUG_MODE = true;
 
@@ -86,10 +88,13 @@ public class Display extends JFrame implements Runnable
 	private GamePanel gamePanel;
 
 	private boolean clicked;
+	private int loadedCount;
 
 	private int playerIndex;
 	private int activeAbilityIndex;
 	private Position activeAbilityPosition;
+	
+	private WindowManager windowManager;
 
 	/**
 	 * Creates and initializes the Display.
@@ -101,10 +106,9 @@ public class Display extends JFrame implements Runnable
 	 * @param curPlayer
 	 *            The index of the player this Display belongs to.
 	 */
-	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer)
+	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer, LoadingProgress progress, WindowManager wm)
 	{
-		super("Line Wars");
-
+		windowManager = wm;
 		playerIndex = curPlayer;
 		activeAbilityIndex = -1;
 		activeAbilityPosition = null;
@@ -112,25 +116,17 @@ public class Display extends JFrame implements Runnable
 
 		messageReceiver = receiver;
 		gameStateProvider = provider;
-		gamePanel = new GamePanel();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setContentPane(gamePanel);
-		setSize(new Dimension(800, 600));
-		setUndecorated(!DEBUG_MODE);
-	}
-
-	@Override
-	public void run()
-	{
-		// shows the display
-		setVisible(true);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		gamePanel = new GamePanel(progress);
 	}
 
 	public void exitGame()
 	{
-		//TODO go back to the lobby system
-		dispose();
+		windowManager.exitGame();
+	}
+	
+	public JPanel getGamePanel()
+	{
+		return gamePanel;
 	}
 
 	//TODO Titus, I changed my mind and decided to put this method in the sound player
@@ -198,30 +194,80 @@ public class Display extends JFrame implements Runnable
 				(gameCoord.getY() - gamePanel.viewport.getY()) * scale);
 	}
 	
-	public void loadDisplayResources()
+	public void loadDisplayResources(LoadingProgress progress)
 	{
 		GameState state = gameStateProvider.getCurrentGameState();
+		ArrayList<Configuration> countedConfigs = new ArrayList<Configuration>();
 		ArrayList<Configuration> loadedConfigs = new ArrayList<Configuration>();
 		
+		ArrayList<Configuration> configs = new ArrayList<Configuration>();
 		for(Player p : state.getPlayers())
 		{
 			Race race = p.getRace();
 
-			ArrayList<Configuration> configs = new ArrayList<Configuration>();
 //			configs.add(race.getCommandCenter());
 //			configs.add(race.getGate());
 //			configs.addAll(race.getAllBuildings());
 //			configs.addAll(race.getAllUnits());
 			configs.add(race); //Ryan I swear to GOD I'm going to punch you for this, lol jk :)
 			
-			for(Configuration c : configs)
-			{
-				loadDisplayResourcesRecursive(c, loadedConfigs);
-			}
+		}
+
+		int total = 0;
+		for(Configuration c : configs)
+		{
+			total += countDisplayResourcesRecursive(c, countedConfigs);
+		}
+		
+		progress.setMaxValue(total);
+		
+		loadedCount = 0;
+		for(Configuration c : configs)
+		{
+			loadDisplayResourcesRecursive(progress, c, loadedConfigs);
 		}
 	}
 	
-	private void loadDisplayResourcesRecursive(Configuration config, ArrayList<Configuration> loadedConfigs)
+	private int countDisplayResourcesRecursive(Configuration config, ArrayList<Configuration> countedConfigs)
+	{
+		if(countedConfigs.contains(config) || config == null)
+			return 0;
+		
+		countedConfigs.add(config);
+		
+		int total = 0;
+		for(String s : config.getPropertyNames())
+		{
+			Property p = config.getPropertyForName(s);
+			if(p.getUsage() == Usage.CONFIGURATION)
+			{
+				Configuration c = (Configuration)p.getValue();
+				
+				if(c instanceof DisplayConfiguration)
+				{
+					total += countDisplayResourcesFromConfiguration((DisplayConfiguration)c);
+				}
+				else
+				{
+					total += countDisplayResourcesRecursive(c, countedConfigs);
+				}
+			}
+			else if(p.getUsage() == Usage.ANIMATION)
+			{
+				++total;
+			}
+			else if(p.getValue() instanceof TechGraph)
+			{
+				TechGraph tg = (TechGraph) p.getValue();
+				for(TechNode tn : tg.getOrderedList())
+					total += countDisplayResourcesRecursive(tn.getTechConfig(), countedConfigs);
+			}
+		}
+		
+		return total;
+	}
+	
+	private void loadDisplayResourcesRecursive(LoadingProgress progress, Configuration config, ArrayList<Configuration> loadedConfigs)
 	{
 		if(loadedConfigs.contains(config) || config == null)
 			return;
@@ -237,11 +283,11 @@ public class Display extends JFrame implements Runnable
 				
 				if(c instanceof DisplayConfiguration)
 				{
-					loadDisplayResourcesFromConfiguration((DisplayConfiguration)c);
+					loadDisplayResourcesFromConfiguration(progress, (DisplayConfiguration)c);
 				}
 				else
 				{
-					loadDisplayResourcesRecursive(c, loadedConfigs);
+					loadDisplayResourcesRecursive(progress, c, loadedConfigs);
 				}
 			}
 			else if(p.getUsage() == Usage.ANIMATION)
@@ -249,17 +295,40 @@ public class Display extends JFrame implements Runnable
 				//TODO Ryan figure out how to load
 				//animations here, the dimension is unknown
 				//at this time
+				progress.updateValue(++loadedCount);
 			}
 			else if(p.getValue() instanceof TechGraph)
 			{
 				TechGraph tg = (TechGraph) p.getValue();
 				for(TechNode tn : tg.getOrderedList())
-					loadDisplayResourcesRecursive(tn.getTechConfig(), loadedConfigs);
+					loadDisplayResourcesRecursive(progress, tn.getTechConfig(), loadedConfigs);
 			}
 		}
 	}
 	
-	private void loadDisplayResourcesFromConfiguration(DisplayConfiguration config)
+	private int countDisplayResourcesFromConfiguration(DisplayConfiguration config)
+	{
+		int total = 0;
+		for(MapItemState state : config.getDefinedStates())
+		{
+			Animation anim = config.getAnimation(state);
+			String sound = config.getSound(state);
+			
+			if(anim != null)
+			{
+				++total;
+			}
+			
+			if(sound != null)
+			{
+				++total;
+			}
+		}
+		
+		return total;
+	}
+
+	private void loadDisplayResourcesFromConfiguration(LoadingProgress progress, DisplayConfiguration config)
 	{
 		for(MapItemState state : config.getDefinedStates())
 		{
@@ -269,6 +338,7 @@ public class Display extends JFrame implements Runnable
 			if(anim != null)
 			{
 				anim.loadAnimationResources(config.getDimensions());
+				progress.updateValue(++loadedCount);
 			}
 			
 			if(sound != null)
@@ -285,6 +355,8 @@ public class Display extends JFrame implements Runnable
 				{
 					e.printStackTrace();
 				}
+				
+				progress.updateValue(++loadedCount);
 			}
 		}
 	}
@@ -330,14 +402,14 @@ public class Display extends JFrame implements Runnable
 		/**
 		 * Constructs and initializes this GamePanel
 		 */
-		public GamePanel()
+		public GamePanel(LoadingProgress progress)
 		{
 			super(null);
 
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 
-			mousePosition = null;
+			mousePosition = new Position(0,0);
 			lastClickPosition = null;
 			
 			panLeft = false;
@@ -391,7 +463,7 @@ public class Display extends JFrame implements Runnable
 
 			gameStateProvider.lockViewableGameState();
 			
-			loadDisplayResources();
+			loadDisplayResources(progress);
 
 			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, emptyButton, clickedButton, rightUIPanel);
 			add(commandCardPanel);
@@ -452,6 +524,9 @@ public class Display extends JFrame implements Runnable
 			
 			KeyboardHandler keyListener = new KeyboardHandler();
 			addKeyListener(keyListener);
+			
+			setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			validate();
 		}
 
 		/**
