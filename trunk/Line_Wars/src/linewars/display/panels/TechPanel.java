@@ -12,10 +12,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -23,7 +25,9 @@ import javax.swing.JPanel;
 
 import linewars.display.Animation;
 import linewars.display.Display;
+import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
+import linewars.gamestate.Position;
 import linewars.gamestate.tech.TechConfiguration;
 import linewars.gamestate.tech.TechGraph;
 import linewars.gamestate.tech.TechGraph.TechNode;
@@ -43,20 +47,20 @@ public class TechPanel extends Panel
 {
 	private static final double ASPECT_RATIO = 0.75;
 
-	private static final int DEFAULT_WIDTH = 831;
-	static final int DEFAULT_HEIGHT = 491;
+	private static final int DEFAULT_WIDTH = 1024;
+	static final int DEFAULT_HEIGHT = 640;
 	
-	private static final int TAB_PANEL_X = 84;
-	private static final int TAB_PANEL_Y = 17;
+	private static final int TAB_PANEL_X = 7;
+	private static final int TAB_PANEL_Y = 7;
 	
-	private static final int TAB_PANEL_WIDTH = 661;
+	private static final int TAB_PANEL_WIDTH = 1010;
 	private static final int TAB_PANEL_HEIGHT = 30;
 	
 	private static final int TECH_PANEL_X = 20;
-	private static final int TECH_PANEL_Y = 65;
+	private static final int TECH_PANEL_Y = 37;
 	
-	private static final int TECH_PANEL_WIDTH = 789;
-	private static final int TECH_PANEL_HEIGHT = 393;
+	private static final int TECH_PANEL_WIDTH = 1004;
+	private static final int TECH_PANEL_HEIGHT = 582;
 	
 	private static final int EDITOR_PANEL_HEIGHT = 30;
 	
@@ -70,7 +74,7 @@ public class TechPanel extends Panel
 	private JPanel techPanel;
 	private JPanel editorComponents;
 	
-	private ArrayList<JButton> tabs;
+	private ArrayList<TabButton> tabs;
 	private ArrayList<TechDisplay> techs;
 	
 	private TechDisplay activeTech;
@@ -91,7 +95,7 @@ public class TechPanel extends Panel
 		
 		this.bfg = bfg;
 
-		tabs = new ArrayList<JButton>();
+		tabs = new ArrayList<TabButton>();
 		techs = new ArrayList<TechDisplay>();
 		
 		initialize();
@@ -107,14 +111,14 @@ public class TechPanel extends Panel
 	 * @param stateManager The GameStateProvider for the current session of the game.
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 */
-	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver, Animation... anims)
+	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver, Animation regularButton, Animation clickedButton, Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims[0]);
 		
 		this.display = display;
 		this.displayed = false;
 		
-		tabs = new ArrayList<JButton>();
+		tabs = new ArrayList<TabButton>();
 		techs = new ArrayList<TechDisplay>();
 		
 		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
@@ -122,7 +126,11 @@ public class TechPanel extends Panel
 		for(int i = 0; i < graphs.size(); ++i)
 		{
 			TechGraph graph = graphs.get(i);
-			tabs.add(new JButton(graph.getName()));
+			TabButton tab = new TabButton(graph.getName());
+			tab.setRegularAnimaiton(regularButton);
+			tab.setPressedAnimaiton(clickedButton);
+			
+			tabs.add(tab);
 			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1]));
 		}
 		
@@ -147,7 +155,7 @@ public class TechPanel extends Panel
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
 			
-			JButton tab = new JButton(graph.getName());
+			TabButton tab = new TabButton(graph.getName());
 			tab.addActionListener(new TabButtonHandler(tech));
 			tabs.add(tab);
 			tabPanel.add(tab);
@@ -295,6 +303,11 @@ public class TechPanel extends Panel
 			editorComponents.setSize(getWidth(), EDITOR_PANEL_HEIGHT);
 			editorComponents.setLocation(0, getHeight() - EDITOR_PANEL_HEIGHT);
 		}
+		else
+		{
+			for(TabButton b : tabs)
+				b.updateBackgroundSize(b.getWidth(), b.getHeight());
+		}
 	}
 	
 	@Override
@@ -328,6 +341,74 @@ public class TechPanel extends Panel
 			height -= editorComponents.getHeight();
 		
 		return new Dimension(width, height);
+	}
+	
+	private class TabButton extends JButton
+	{
+		private boolean selected;
+		private Animation regularButton;
+		private Animation pressedButton;
+		
+		public TabButton()
+		{
+			this("");
+		}
+		
+		public TabButton(String label)
+		{
+			super(label);
+			selected = false;
+			regularButton = null;
+			pressedButton = null;
+		}
+		
+		public void setTabSelected(boolean selected)
+		{
+			this.selected = selected;
+		}
+		
+		public void setRegularAnimaiton(Animation regular)
+		{
+			regularButton = regular;
+		}
+		
+		public void setPressedAnimaiton(Animation pressed)
+		{
+			pressedButton = pressed;
+		}
+		
+		public void updateBackgroundSize(int width, int height)
+		{
+			if(width <= 0 || height <= 0)
+				return;
+			
+			for(int i = 0; i < regularButton.getNumImages(); ++i)
+				addIconImage(regularButton.getImage(i), width, height);
+
+			for(int i = 0; i < pressedButton.getNumImages(); ++i)
+				addIconImage(pressedButton.getImage(i), width, height);
+		}
+
+		private void addIconImage(String uri, int width, int height)
+		{
+			try
+			{
+				ImageDrawer.getInstance().addImage(uri, width, height);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		public void paint(Graphics g)
+		{
+			if(selected)
+				ImageDrawer.getInstance().draw(g, pressedButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+			else
+				ImageDrawer.getInstance().draw(g, regularButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+		}
 	}
 	
 	private class ResizeListener extends ComponentAdapter
@@ -405,7 +486,7 @@ public class TechPanel extends Panel
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
 			
-			JButton tab = new JButton(s);
+			TabButton tab = new TabButton(s);
 			tab.addActionListener(new TabButtonHandler(tech));
 			tabs.add(tab);
 			tabPanel.add(tab);

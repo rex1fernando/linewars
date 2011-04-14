@@ -32,20 +32,20 @@ public class NodeStatusPanel extends Panel
 	/**
 	 * The default height and width of the panel
 	 */
-	private static final int DEFAULT_WIDTH = 486;
-	private static final int DEFAULT_HEIGHT = 374;
+	private static final int DEFAULT_WIDTH = 600;
+	private static final int DEFAULT_HEIGHT = 500;
 
 	/**
 	 * The location of the command button panel within the command card
 	 */
-	private static final int STATUS_PANEL_X = 10;
-	private static final int STATUS_PANEL_Y = 80;
+	private static final int STATUS_PANEL_X = 1;
+	private static final int STATUS_PANEL_Y = 61;
 
 	/**
 	 * The height and width of the command button panel
 	 */
-	private static final int STATUS_PANEL_WIDTH = 395;
-	private static final int STATUS_PANEL_HEIGHT = 284;
+	private static final int STATUS_PANEL_WIDTH = 574;
+	private static final int STATUS_PANEL_HEIGHT = 439;
 
 	private Display display;
 	private JList nodeStatus;

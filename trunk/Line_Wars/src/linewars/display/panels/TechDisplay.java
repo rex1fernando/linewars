@@ -300,7 +300,7 @@ public class TechDisplay extends JViewport
 			int endX = child.getX() * TECH_BUTTON_SIZE - offset.x;
 			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
 			
-			Position vector = new Position(startX - endX, startY - endY);
+			Position vector = new Position(endX - startX, endY - startY);
 
 			if(editorNOTgame)
 			{
@@ -320,7 +320,7 @@ public class TechDisplay extends JViewport
 				g.rotate(rotation, vector.getX() + startX, vector.getY() + startY);
 				
 				Image toDraw = arrowImages.get(arrow.getImage(stateManager.getCurrentGameState().getTime(), 0.0));
-				g.drawImage(toDraw, startX, startY, (int)vector.length(), 20, null);
+				g.drawImage(toDraw, startX - 10, startY - 10, (int)vector.length(), 20, null);
 				
 				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
 			}

@@ -347,6 +347,8 @@ public class Display extends JFrame implements Runnable
 			setIgnoreRepaint(true);
 			setOpaque(false);
 
+			Animation emptyButton = null;
+			Animation clickedButton = null;
 			Animation leftUIPanel = null;
 			Animation rightUIPanel = null;
 			Animation exitButton = null;
@@ -355,8 +357,12 @@ public class Display extends JFrame implements Runnable
 			Animation techPanelDisable = null;
 			Animation techPanelBackground = null;
 			Animation techPanelArrow = null;
+			Animation techTabRegular = null;
+			Animation techTabPressed = null;
 			try
 			{
+				emptyButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/emptyButton.cfg"))).readObject();
+				clickedButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/clickedButton.cfg"))).readObject();
 				leftUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/left_ui_panel.cfg"))).readObject();
 				rightUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/right_ui_panel.cfg"))).readObject();
 				exitButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button.cfg"))).readObject();
@@ -365,6 +371,8 @@ public class Display extends JFrame implements Runnable
 				techPanelDisable = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_disable.cfg"))).readObject();
 				techPanelBackground = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel.cfg"))).readObject();
 				techPanelArrow = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_arrow.cfg"))).readObject();
+				techTabRegular = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/UnclickedTechTab.cfg"))).readObject();
+				techTabPressed = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/ClickedTechTab.cfg"))).readObject();
 			}
 			catch (FileNotFoundException e)
 			{
@@ -383,7 +391,7 @@ public class Display extends JFrame implements Runnable
 			
 			loadDisplayResources();
 
-			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, emptyButton, clickedButton, rightUIPanel);
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
@@ -391,7 +399,7 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techPanelBackground, techPanelArrow);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techTabRegular, techTabPressed, techPanelBackground, techPanelArrow);
 			add(techPanel);
 			techButtonPanel = new TechButtonPanel(techPanel, Display.this, gameStateProvider, techPanelActivate, techPanelDisable);
 			add(techButtonPanel);

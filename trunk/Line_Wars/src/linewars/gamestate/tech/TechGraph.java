@@ -3,13 +3,7 @@ package linewars.gamestate.tech;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-
-import linewars.network.MessageReceiver;
-import linewars.network.messages.Message;
-import linewars.network.messages.UpgradeMessage;
-
 
 public class TechGraph implements Serializable
 {
@@ -213,9 +207,6 @@ public class TechGraph implements Serializable
 		
 		private void unmarkAll()
 		{
-			if(!marked)
-				return;
-			
 			marked = false;
 			
 			TechNode child = getChild();

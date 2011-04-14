@@ -49,24 +49,24 @@ public class CommandCardPanel extends Panel
 	/**
 	 * The default height and width of the panel
 	 */
-	private static final int DEFAULT_WIDTH = 486;
-	private static final int DEFAULT_HEIGHT = 374;
+	private static final int DEFAULT_WIDTH = 650;
+	private static final int DEFAULT_HEIGHT = 550;
 	
-	private static final int TOGGLE_PANEL_X = 0;
-	private static final int TOGGLE_PANEL_Y = 80;
+	private static final int TOGGLE_PANEL_X = 4;
+	private static final int TOGGLE_PANEL_Y = 230;
 	
-	private static final int TOGGLE_PANEL_WIDTH = 80;
-	private static final int TOGGLE_PANEL_HEIGHT = 200;
+	private static final int TOGGLE_PANEL_WIDTH = 47;
+	private static final int TOGGLE_PANEL_HEIGHT = 306;
 	
 	private static final int NUM_ACTIVE_ABILITIES = 3;
 	
-	private static final int ABILITY_HEIGHT = 75;
+	private static final int ABILITY_HEIGHT = 116;
 	
-	private static final int ABILITY_PANEL_X = 90;
-	private static final int ABILITY_PANEL_Y = 0;
+	private static final int ABILITY_PANEL_X = 161;
+	private static final int ABILITY_PANEL_Y = 24;
 	
-	private static final int ABILITY_PANEL_WIDTH = 386;
-	private static final int ABILITY_PANEL_HEIGHT = 70;
+	private static final int ABILITY_PANEL_WIDTH = 489;
+	private static final int ABILITY_PANEL_HEIGHT = 73;
 
 	/**
 	 * The number of buttons on the command card
@@ -77,14 +77,14 @@ public class CommandCardPanel extends Panel
 	/**
 	 * The location of the command button panel within the command card
 	 */
-	private static final int BTN_PANEL_X = 90;
-	private static final int BTN_PANEL_Y = 80;
+	private static final int BTN_PANEL_X = 112;
+	private static final int BTN_PANEL_Y = 144;
 
 	/**
 	 * The height and width of the command button panel
 	 */
-	private static final int BTN_PANEL_WIDTH = 386;
-	private static final int BTN_PANEL_HEIGHT = 284;
+	private static final int BTN_PANEL_WIDTH = 523;
+	private static final int BTN_PANEL_HEIGHT = 393;
 
 	/**
 	 * The gaps between the command buttons
@@ -130,16 +130,16 @@ public class CommandCardPanel extends Panel
 	 * @param anims
 	 *            An array of animations to use for this panel.
 	 */
-	public CommandCardPanel(Display display, int pID, GameStateProvider stateManager, MessageReceiver receiver,
+	public CommandCardPanel(Display display, int pID, GameStateProvider stateManager, MessageReceiver receiver, Animation regularButton, Animation clickedButton,
 			Animation... anims)
 	{
-		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
+		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims[0]);
 
 		this.display = display;
 		this.receiver = receiver;
 		this.playerID = pID;
 		this.displayed = false;
-		
+				
 		togglePanel = new JPanel(new GridLayout(2, 1));
 		buildNotDestroy = true;
 		
@@ -168,6 +168,9 @@ public class CommandCardPanel extends Panel
 			activeAbilities[i].setOpaque(false);
 			activeAbilities[i].setVisible(false);
 			abilityPanel.add(activeAbilities[i]);
+			
+			activeAbilities[i].setRegularAnimaiton(regularButton);
+			activeAbilities[i].setPressedAnimaiton(clickedButton);
 			
 			abilityIcons[i] = new ButtonIcon(activeAbilities[i]);
 			activeAbilities[i].setIcon(abilityIcons[i]);
@@ -202,6 +205,9 @@ public class CommandCardPanel extends Panel
 			buttons[i].setVisible(false);
 			buttonPanel.add(buttons[i]);
 
+			buttons[i].setRegularAnimaiton(regularButton);
+			buttons[i].setPressedAnimaiton(clickedButton);
+			
 			buttonIcons[i] = new ButtonIcon(buttons[i]);
 			buttons[i].setIcon(buttonIcons[i]);
 
@@ -317,7 +323,7 @@ public class CommandCardPanel extends Panel
 			int height = activeAbilities[i].getHeight();
 			if(width > 0 && height > 0)
 			{
-				
+				activeAbilities[i].updateBackgroundSize(width, height);
 				addIconImage(iconURI, width, height);
 				addIconImage(pressedURI, width, height);
 				addIconImage(rolloverURI, width, height);
@@ -380,7 +386,7 @@ public class CommandCardPanel extends Panel
 			int height = buttons[i].getHeight();
 			if(width > 0 && height > 0)
 			{
-				
+				buttons[i].updateBackgroundSize(width, height);
 				addIconImage(iconURI, width, height);
 				addIconImage(pressedURI, width, height);
 				addIconImage(rolloverURI, width, height);
@@ -406,6 +412,34 @@ public class CommandCardPanel extends Panel
 	 */
 	private class CommandButton extends JButton
 	{
+		private Animation regularButton;
+		private Animation pressedButton;
+		
+		public CommandButton()
+		{
+			regularButton = null;
+			pressedButton = null;
+		}
+		
+		public void setRegularAnimaiton(Animation regular)
+		{
+			regularButton = regular;
+		}
+		
+		public void setPressedAnimaiton(Animation pressed)
+		{
+			pressedButton = pressed;
+		}
+		
+		public void updateBackgroundSize(int width, int height)
+		{
+			for(int i = 0; i < regularButton.getNumImages(); ++i)
+				addIconImage(regularButton.getImage(i), width, height);
+
+			for(int i = 0; i < pressedButton.getNumImages(); ++i)
+				addIconImage(pressedButton.getImage(i), width, height);
+		}
+
 		@Override
 		public void paint(Graphics g)
 		{
@@ -415,6 +449,12 @@ public class CommandCardPanel extends Panel
 			Icon icon = getIcon();
 
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
+			
+			if(model.isPressed())
+				ImageDrawer.getInstance().draw(g, pressedButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+			else
+				ImageDrawer.getInstance().draw(g, regularButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+			
 			if(model.isPressed())
 			{
 				if(pressedIcon != null)
