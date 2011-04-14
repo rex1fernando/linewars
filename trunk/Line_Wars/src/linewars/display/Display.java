@@ -324,6 +324,8 @@ public class Display extends JFrame implements Runnable
 		private boolean panDown;
 
 		private long lastTime;
+		
+		private boolean displayedWin = false;
 
 		/**
 		 * Constructs and initializes this GamePanel
@@ -468,8 +470,9 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
 			
-			if (gamestate.getWinningPlayer() != null)
+			if (gamestate.getWinningPlayer() != null && !displayedWin)
 			{
+				displayedWin = true;
 				if (gamestate.getPlayer(playerIndex) == gamestate.getWinningPlayer())
 				{
 					JOptionPane.showMessageDialog(this, "You won", "You won", JOptionPane.PLAIN_MESSAGE);
