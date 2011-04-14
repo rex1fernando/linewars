@@ -42,6 +42,8 @@ import linewars.network.messages.Message;
 @SuppressWarnings("serial")
 public class CommandCardPanel extends Panel
 {
+	private static final int ENERGY_COLOR = 0x00FFFF;
+	
 	/**
 	 * The ratio of the width of this panel to the with of the main display
 	 */
@@ -73,7 +75,7 @@ public class CommandCardPanel extends Panel
 	private static final int ENERGY_PANEL_Y = 104;
 
 	private static final int ENERGY_PANEL_WIDTH = 482;
-	private static final int ENERGY_PANEL_HEIGHT = 5;
+	private static final int ENERGY_PANEL_HEIGHT = 7;
 	
 	/**
 	 * The number of buttons on the command card
@@ -238,6 +240,7 @@ public class CommandCardPanel extends Panel
 
 		add(togglePanel);
 		add(abilityPanel);
+		add(energyPanel);
 		add(buttonPanel);
 		validate();
 	}
@@ -631,9 +634,11 @@ public class CommandCardPanel extends Panel
 	{
 		private double energy;
 		private double maxEnergy;
+		private Color c;
 		
 		public EnergyPanel()
 		{
+			this.c = new Color(ENERGY_COLOR);
 			this.maxEnergy = 0.0;
 			this.energy = 0.0;
 		}
@@ -653,7 +658,7 @@ public class CommandCardPanel extends Panel
 		{
 			double barWidth = getWidth() * (energy / maxEnergy);
 			
-			g.setColor(Color.blue);
+			g.setColor(c);
 			g.fillRect(0, 0, (int)barWidth, getHeight());
 		}
 	}

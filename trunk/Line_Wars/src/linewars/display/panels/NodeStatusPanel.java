@@ -41,13 +41,13 @@ public class NodeStatusPanel extends Panel
 	 * The location of the command button panel within the command card
 	 */
 	private static final int STATUS_PANEL_X = 1;
-	private static final int STATUS_PANEL_Y = 61;
+	private static final int STATUS_PANEL_Y = 76;
 
 	/**
 	 * The height and width of the command button panel
 	 */
 	private static final int STATUS_PANEL_WIDTH = 574;
-	private static final int STATUS_PANEL_HEIGHT = 439;
+	private static final int STATUS_PANEL_HEIGHT = 424;
 
 	private Display display;
 	private JList nodeStatus;
