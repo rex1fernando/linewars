@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -18,9 +19,9 @@ import menu.components.CustomProgressBar;
 
 public class LoadingScreenPanel extends JPanel
 {
-	private static final double IMAGE_SCALE = 0.8;
+	private static final double IMAGE_SCALE = 0.2;
 	private static final long PERIOD = 10;
-	private static final long REVOLUTION_TIME = 5000;
+	private static final long REVOLUTION_TIME = 2000;
 	
 	private WindowManager wm;
 	private Timer timer;
@@ -54,7 +55,7 @@ public class LoadingScreenPanel extends JPanel
 			}
 		}, 0, PERIOD);
 		
-		// start progress bar and load resources
+		gameInit.execute();
 	}
 	
 	public void stop()

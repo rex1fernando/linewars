@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import linewars.init.Game;
 import menu.ContentProvider.MenuImage;
 import menu.panels.CreateGamePanel;
 import menu.panels.LoadingScreenPanel;
@@ -122,6 +124,12 @@ public class WindowManager extends JFrame
 	{
 		loadingScreen.start(gameInit);
 		changeContentPane(loadingScreen);
+		try {
+			Game g = gameInit.get();
+			g.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void changeContentPane(JPanel pane)
