@@ -4,10 +4,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
@@ -22,6 +23,7 @@ public class LoadingScreenPanel extends JPanel
 	private static final double IMAGE_SCALE = 0.2;
 	private static final long PERIOD = 10;
 	private static final long REVOLUTION_TIME = 2000;
+	private static final double VERTICAL_POSITION = 0.4;
 	
 	private WindowManager wm;
 	private Timer timer;
@@ -35,10 +37,14 @@ public class LoadingScreenPanel extends JPanel
 		this.wm = wm;
 		progressBar = new CustomProgressBar();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setPreferredSize(new Dimension(1024, 640));
-		setMaximumSize(new Dimension(1024, 640));
-		setMinimumSize(new Dimension(1024, 640));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		setPreferredSize(screenSize);
+		setMaximumSize(screenSize);
+		setMinimumSize(screenSize);
 		
+		double screenRatio = 0.6;
+		
+		add(Box.createRigidArea(new Dimension(0, (int) (screenRatio * screenSize.height))));
 		add(progressBar);
 	}
 	
@@ -77,7 +83,7 @@ public class LoadingScreenPanel extends JPanel
 		int imageWidth = (int) (spinner.getWidth(null) * IMAGE_SCALE);
 		int imageHeight = (int) (spinner.getHeight(null) * IMAGE_SCALE);
 		int x = (getWidth() - imageWidth) / 2;
-		int y = (getHeight() - imageHeight) / 2;
+		int y = (int) (getHeight() * VERTICAL_POSITION) / 2;
 		
 		// get graphics
 		Graphics2D g2 = (Graphics2D) g;

@@ -74,6 +74,10 @@ public class ContentProvider
 		// slider
 		filenames.put(MenuImage.slider_thumb, "resources/ui/components/slider_thumb.png");
 		filenames.put(MenuImage.slider_track, "resources/ui/components/slider_track.png");
+		
+		// progress bar
+		filenames.put(MenuImage.progressbar_back, "resources/ui/components/loadingbar_back.png");
+		filenames.put(MenuImage.progressbar_front, "resources/ui/components/loadingbar_front.png");
 	}
 	
 	static
@@ -134,7 +138,10 @@ public class ContentProvider
 		loading_spinner,
 		
 		slider_thumb,
-		slider_track
+		slider_track,
+		
+		progressbar_back,
+		progressbar_front
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)

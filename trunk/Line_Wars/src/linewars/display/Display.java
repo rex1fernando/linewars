@@ -3,6 +3,7 @@ package linewars.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -58,6 +58,7 @@ import linewars.network.MessageReceiver;
 import linewars.network.messages.Message;
 import linewars.network.messages.PlayerAbilityMessage;
 import menu.GameInitializer.LoadingProgress;
+import menu.WindowManager;
 import configuration.Configuration;
 import configuration.Property;
 import configuration.Usage;
@@ -69,7 +70,7 @@ import configuration.Usage;
  * @author Ryan Tew
  */
 @SuppressWarnings("serial")
-public class Display extends JFrame implements Runnable
+public class Display
 {
 	private static final boolean DEBUG_MODE = true;
 
@@ -92,6 +93,8 @@ public class Display extends JFrame implements Runnable
 	private int playerIndex;
 	private int activeAbilityIndex;
 	private Position activeAbilityPosition;
+	
+	private WindowManager windowManager;
 
 	/**
 	 * Creates and initializes the Display.
@@ -103,10 +106,9 @@ public class Display extends JFrame implements Runnable
 	 * @param curPlayer
 	 *            The index of the player this Display belongs to.
 	 */
-	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer, LoadingProgress progress)
+	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer, LoadingProgress progress, WindowManager wm)
 	{
-		super("Line Wars");
-
+		windowManager = wm;
 		playerIndex = curPlayer;
 		activeAbilityIndex = -1;
 		activeAbilityPosition = null;
@@ -115,24 +117,16 @@ public class Display extends JFrame implements Runnable
 		messageReceiver = receiver;
 		gameStateProvider = provider;
 		gamePanel = new GamePanel(progress);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setContentPane(gamePanel);
-		setSize(new Dimension(800, 600));
-		setUndecorated(!DEBUG_MODE);
-	}
-
-	@Override
-	public void run()
-	{
-		// shows the display
-		setVisible(true);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	public void exitGame()
 	{
-		//TODO go back to the lobby system
-		dispose();
+		windowManager.exitGame();
+	}
+	
+	public JPanel getGamePanel()
+	{
+		return gamePanel;
 	}
 
 	//TODO Titus, I changed my mind and decided to put this method in the sound player
@@ -520,6 +514,9 @@ public class Display extends JFrame implements Runnable
 			
 			KeyboardHandler keyListener = new KeyboardHandler();
 			addKeyListener(keyListener);
+			
+			setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			validate();
 		}
 
 		/**

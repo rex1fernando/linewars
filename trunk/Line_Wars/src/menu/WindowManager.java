@@ -122,10 +122,13 @@ public class WindowManager extends JFrame
 	
 	public void startGame(GameInitializer gameInit)
 	{
+		gameInit.setWindowManager(this);
 		loadingScreen.start(gameInit);
 		changeContentPane(loadingScreen);
 		try {
 			Game g = gameInit.get();
+			innerPanel.removeAll();
+			changeContentPane(g.getGamePanel());
 			g.run();
 		} catch (Exception e) {
 			e.printStackTrace();

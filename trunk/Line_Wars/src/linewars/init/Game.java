@@ -3,6 +3,8 @@ package linewars.init;
 import java.net.SocketException;
 import java.util.List;
 
+import javax.swing.JPanel;
+
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
 import linewars.display.sound.SoundPlayer;
@@ -12,6 +14,7 @@ import linewars.network.Client;
 import linewars.network.MessageHandler;
 import linewars.network.Server;
 import menu.GameInitializer.LoadingProgress;
+import menu.WindowManager;
 
 /**
  * 
@@ -29,6 +32,7 @@ public strictfp class Game {
 	private Server server;
 	private List<PlayerData> players;
 	private LoadingProgress progress;
+	private WindowManager wm;
 	
 	public void run(){
 		Thread serv = new Thread(server);
@@ -48,11 +52,8 @@ public strictfp class Game {
 		log.setName("Game Logic");
 		log.start();
 		
-		Thread disp = new Thread(display);
 		for(int i = 0; i < players.size(); i++)
 			ImageDrawer.getInstance().setPlayerColor(i, players.get(i).getColor());
-		disp.setName("Display");
-		disp.start();
 		
 		Thread sp = new Thread(sound);
 		sp.setDaemon(true);
@@ -60,7 +61,6 @@ public strictfp class Game {
 		sp.start();
 		
 		try {
-			disp.join();
 			if(server != null){
 				server.terminate();
 				serv.join();
@@ -76,10 +76,16 @@ public strictfp class Game {
 		}
 	}
 	
-	public Game(MapConfiguration map, List<PlayerData> players, LoadingProgress progress){
+	public Game(MapConfiguration map, List<PlayerData> players, LoadingProgress progress, WindowManager wm){
 		logic = new TimingManager(map, players);
 		this.players = players; 
 		this.progress = progress;
+		this.wm = wm;
+	}
+	
+	public JPanel getGamePanel()
+	{
+		return display.getGamePanel();
 	}
 	
 	/**
@@ -115,7 +121,7 @@ public strictfp class Game {
 			e.printStackTrace();
 		}
 		
-		display = new Display(logic.getGameStateManager(), networking, playerIndex, progress);
+		display = new Display(logic.getGameStateManager(), networking, playerIndex, progress, wm);
 		sound = SoundPlayer.getInstance();
 		logic.setClientReference(networking);
 	}

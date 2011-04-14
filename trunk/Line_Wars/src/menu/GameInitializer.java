@@ -21,6 +21,7 @@ public class GameInitializer extends SwingWorker<Game, Object>
 	
 	private LoadingProgress progress;
 	private JProgressBar progressBar;
+	private WindowManager wm;
 	
 	public GameInitializer() {
 		progress = new LoadingProgressImp();
@@ -54,6 +55,10 @@ public class GameInitializer extends SwingWorker<Game, Object>
 		this.progressBar = progressBar;
 	}
 	
+	public void setWindowManager(WindowManager wm) {
+		this.wm = wm;
+	}
+	
 	public LoadingProgress getLoadingProgress() {
 		return progress;
 	}
@@ -61,7 +66,7 @@ public class GameInitializer extends SwingWorker<Game, Object>
 	@Override
 	protected Game doInBackground()
 	{
-		Game g = new Game(map, playerList, progress);
+		Game g = new Game(map, playerList, progress, wm);
 		if (playerId == 0) 
 			g.initializeServer(clientList);
 		g.initializeClient(serverIp, playerId, isObserver);
