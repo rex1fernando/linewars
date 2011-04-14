@@ -8,6 +8,7 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
+import linewars.gamestate.shapes.Circle;
 import linewars.gamestate.shapes.Shape;
 import linewars.gamestate.shapes.ShapeAggregate;
 import utility.Observable;
@@ -221,8 +222,12 @@ public abstract class MapItemAggregate extends MapItem {
 	@Override
 	public Shape getBody()
 	{
-//		if(checkForContainedItemsChange(this))
+		if(!this.getGameState().isLocked() /*&& checkForContainedItemsChange(this)*/)
 			updateInternalVariables();
+			
+		if(body == null && this.getGameState().isLocked())
+			return new Circle(transform, 10);
+		
 		return body;
 	}
 	

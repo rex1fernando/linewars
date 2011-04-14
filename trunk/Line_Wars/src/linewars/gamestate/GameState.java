@@ -349,12 +349,17 @@ public strictfp class GameState
 		for(Message m : messages)
 			m.apply(this);
 		
+		this.validateLock();
+		
 		for(Node n : map.getNodes())
 			n.update();
+		
+		this.validateLock();
 		
 		for(Lane l : map.getLanes())
 			l.update();
 		
+		this.validateLock();
 		
 		double energyToAdd = ENERGY_INCREMENT_RATE*this.getLastLoopTime();
 		for(Player p : players.values())
@@ -368,6 +373,8 @@ public strictfp class GameState
 		
 		lastLoopTime = this.getTime() - timeAtEndOfLastLoop;
 		timeAtEndOfLastLoop = this.getTime();
+		
+		this.validateLock();
 		
 		//check for win
 		Node n1 = map.getNodes()[0];

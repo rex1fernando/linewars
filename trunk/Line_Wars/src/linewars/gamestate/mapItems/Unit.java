@@ -182,7 +182,7 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public double getPositionAlongCurve()
 	{
-		if(lastTickPositionMarker != getGameState().getTimerTick())
+		if(!this.getGameState().isLocked() && lastTickPositionMarker != getGameState().getTimerTick())
 		{
 			lastTickPositionMarker = getGameState().getTimerTick();
 			positionOnCurve = currentWave.getLane().getClosestPointRatio(this.getPosition());
@@ -196,13 +196,15 @@ public strictfp class Unit extends MapItemAggregate {
 	}
 
 	//This should be very strict; true iff the two objects are bit-identical
-//	@Override
-//	public boolean equals(Object o){
-//		if(o == null) return false;
-//		if(!(o instanceof Unit)) return false;
-//		Unit other = (Unit) o;
-//		if(!other.getBody().equals(getBody())) return false;
-//		//TODO test other things in here
-//		return true;
-//	}
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Unit)) return false;
+		Unit other = (Unit) o;
+		if(!super.equals(o)) return false;
+		//if(!other.mStrat.equals(mStrat)) return false;
+		//if(!other.cStrat.equals(cStrat)) return false;
+		if(other.hp != hp) return false;
+		return true;
+	}
 }

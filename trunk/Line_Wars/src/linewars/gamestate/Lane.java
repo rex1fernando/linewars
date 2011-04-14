@@ -439,6 +439,7 @@ public strictfp class Lane
 		
 		for(int i = 0; i < waves.size();)
 		{
+			this.getGameState().validateLock();
 			Wave w = waves.get(i);
 			w.update();
 			//get rid of dead waves
@@ -450,12 +451,12 @@ public strictfp class Lane
 		
 		for(int i = 0; i < projectiles.size();)
 		{
+			this.getGameState().validateLock();
 			Projectile p = projectiles.get(i);
 			p.move();
 			p.updateMapItem();
 			//get rid of dead projectiles
 			if(p.getState() == MapItemState.Dead && p.finished()) {
-				gameState.validateLock();
 				projectiles.remove(i);
 			} else {
 				i++;
@@ -472,6 +473,7 @@ public strictfp class Lane
 //			w.moveUnits();
 //		}
 
+		this.getGameState().validateLock();
 		findCollisions();
 		
 		for(Projectile p : projectilesInNeedOfRemoval)
@@ -750,7 +752,8 @@ public strictfp class Lane
 	public boolean equals(Object o){
 		if(o instanceof Lane)
 		{
-			return config.equals(((Lane)o).config);
+			Lane l = (Lane) o;
+			return l.waves.equals(waves) && l.projectiles.equals(projectiles);
 		}
 		else
 			return false;

@@ -170,8 +170,8 @@ public strictfp class Projectile extends MapItemAggregate {
 		Projectile other = (Projectile) o;
 		
 		return super.equals(other) &&
-				other.iStrat.equals(iStrat) &&
-				other.tStrat.equals(tStrat) &&
+				//other.iStrat.equals(iStrat) &&
+				//other.tStrat.equals(tStrat) &&
 				other.durability == durability;
 	}
 

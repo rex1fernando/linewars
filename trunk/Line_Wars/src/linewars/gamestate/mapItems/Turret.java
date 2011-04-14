@@ -49,8 +49,8 @@ public class Turret extends MapItem {
 	public boolean equals(Object obj)
 	{
 		return (obj instanceof Turret) &&
-				super.equals(obj) &&
-				((Turret)obj).turretStrat.equals(turretStrat);
+				super.equals(obj) /*&&
+				((Turret)obj).turretStrat.equals(turretStrat)*/;
 	}
 
 }

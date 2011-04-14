@@ -18,7 +18,6 @@ public class GameStateSwappingManager implements GameStateProvider,
 	private GameState viewableState, freeState;
 	
 	private boolean waitingForSwap = false;
-	private Object gameLogicSemaphore = new Object();
 	
 	private long lastUpdateTime;
 	private long lastLastUpdateTime;
@@ -48,6 +47,7 @@ public class GameStateSwappingManager implements GameStateProvider,
 		//now update the free state
 		boolean win = updateFreeState(tickID);
 		
+		
 		//wait for the game states to get swapped
 		waitForSwap();
 		
@@ -75,13 +75,11 @@ public class GameStateSwappingManager implements GameStateProvider,
 	{
 		synchronized (this) {
 			waitingForSwap = true;
-		}
-		try {
-			synchronized (gameLogicSemaphore) {
-				gameLogicSemaphore.wait();
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -104,9 +102,7 @@ public class GameStateSwappingManager implements GameStateProvider,
 				waitingForSwap = false;
 				viewableState.setLocked(true);
 				freeState.setLocked(false);
-				synchronized (gameLogicSemaphore) {
-					gameLogicSemaphore.notify();
-				}
+				this.notify();
 			}
 		}
 	}
