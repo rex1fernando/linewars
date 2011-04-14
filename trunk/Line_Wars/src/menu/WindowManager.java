@@ -130,6 +130,7 @@ public class WindowManager extends JFrame
 			innerPanel.removeAll();
 			changeContentPane(g.getGamePanel());
 			g.run();
+			loadingScreen.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
