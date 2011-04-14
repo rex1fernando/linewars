@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,11 +17,13 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import linewars.init.Game;
 import menu.ContentProvider.MenuImage;
 import menu.panels.CreateGamePanel;
 import menu.panels.LoadingScreenPanel;
 import menu.panels.OptionsPane;
 import menu.panels.TitlePanel;
+import editor.BigFrameworkGuy;
 
 public class WindowManager extends JFrame
 {	
@@ -37,7 +40,7 @@ public class WindowManager extends JFrame
 	
 	public WindowManager()
 	{
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		backgroundImage = new BufferedImage(screenSize.width, screenSize.height, BufferedImage.TYPE_INT_RGB);
@@ -57,7 +60,6 @@ public class WindowManager extends JFrame
 	{
 		pack();
 		setSize(Toolkit.getDefaultToolkit().getScreenSize());
-		
 		setVisible(true);
 	}
 	
@@ -100,8 +102,11 @@ public class WindowManager extends JFrame
 	
 	public void gotoEditor()
 	{
-		changeContentPane(loadingScreen);
-		loadingScreen.start();
+		new Thread(new Runnable() {
+			public void run() {
+				BigFrameworkGuy.main(new String[0]);
+			}
+		}).start();
 	}
 	
 	public void gotoOptions()
@@ -113,6 +118,21 @@ public class WindowManager extends JFrame
 	public void exitGame()
 	{
 		dispose();
+	}
+	
+	public void startGame(GameInitializer gameInit)
+	{
+		gameInit.setWindowManager(this);
+		loadingScreen.start(gameInit);
+		changeContentPane(loadingScreen);
+		try {
+			Game g = gameInit.get();
+			innerPanel.removeAll();
+			changeContentPane(g.getGamePanel());
+			g.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void changeContentPane(JPanel pane)

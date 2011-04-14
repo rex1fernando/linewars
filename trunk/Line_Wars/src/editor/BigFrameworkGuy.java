@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import configuration.Configuration;
 import configuration.Property;
@@ -305,12 +306,14 @@ public class BigFrameworkGuy
 		
 		//set up the frame
 		frame.add(mainPanel);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setMinimumSize(prefferedSize);
 		frame.setVisible(true);
 		
 		//can't start the animation editors display loop until the panel is added to the frame
-		new Thread(toStart).run();
+		Thread th = new Thread(toStart);
+		th.setDaemon(true);
+		th.start();
 		
 	}
 	

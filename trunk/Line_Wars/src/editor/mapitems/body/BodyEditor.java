@@ -209,7 +209,9 @@ public class BodyEditor extends JPanel implements ConfigurationEditor {
 				
 			}
 		});
+		animationThread.setDaemon(true);
 		animationThread.start();
+		
 	}
 	
 	public void stopDisplayAnimation()

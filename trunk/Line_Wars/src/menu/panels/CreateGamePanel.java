@@ -22,6 +22,7 @@ import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Race;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
+import menu.GameInitializer;
 import menu.WindowManager;
 import menu.components.ComboBoxRenderer;
 import menu.components.CustomScrollBar;
@@ -147,6 +148,11 @@ public class CreateGamePanel extends javax.swing.JPanel {
     		lobbyPanel.validate();
     		lobbyPanel.repaint();
     	}});
+    }
+    
+    public void startGame(GameInitializer gameInit)
+    {
+    	wm.startGame(gameInit);
     }
     
     private void init() {

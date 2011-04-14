@@ -49,7 +49,7 @@ public class ContentProvider
 		
 		// concept art
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
-		getImageResource(MenuImage.background_title);
+		getImageResource(MenuImage.background_title);  // TODO implement swing worker future design
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
 		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
@@ -74,6 +74,10 @@ public class ContentProvider
 		// slider
 		filenames.put(MenuImage.slider_thumb, "resources/ui/components/slider_thumb.png");
 		filenames.put(MenuImage.slider_track, "resources/ui/components/slider_track.png");
+		
+		// progress bar
+		filenames.put(MenuImage.progressbar_back, "resources/ui/components/loadingbar_back.png");
+		filenames.put(MenuImage.progressbar_front, "resources/ui/components/loadingbar_front.png");
 	}
 	
 	static
@@ -134,7 +138,10 @@ public class ContentProvider
 		loading_spinner,
 		
 		slider_thumb,
-		slider_track
+		slider_track,
+		
+		progressbar_back,
+		progressbar_front
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)
@@ -210,6 +217,11 @@ public class ContentProvider
 			}
 		}
 		return imageResources.get(img);
+	}
+	
+	public static synchronized void clearImageResources()
+	{
+		imageResources = new HashMap<MenuImage, Image>();
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)
