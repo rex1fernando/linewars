@@ -616,8 +616,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
         lobbyScrollPane.setOpaque(false);
         lobbyScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         lobbyScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        lobbyScrollPane.setBorder(null);
-        lobbyScrollPane.setVerticalScrollBar(new CustomScrollBar());
 
         lobbyPanel.setOpaque(false);
         lobbyPanel.setBorder(null);

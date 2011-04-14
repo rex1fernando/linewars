@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
@@ -75,6 +76,8 @@ public class NodeStatusPanel extends Panel
 		scrollPane.setViewportView(nodeStatus);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
+		nodeStatus.setCellRenderer(new CustomRenderer());
+		
 		add(scrollPane);
 	}
 
@@ -155,5 +158,13 @@ public class NodeStatusPanel extends Panel
 		}
 
 		nodeStatus.setListData(status.toArray());
+	}
+	
+	private class CustomRenderer extends DefaultListCellRenderer
+	{
+		public CustomRenderer()
+		{
+			setOpaque(false);
+		}
 	}
 }
