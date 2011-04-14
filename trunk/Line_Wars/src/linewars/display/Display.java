@@ -409,7 +409,7 @@ public class Display
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 
-			mousePosition = null;
+			mousePosition = new Position(0,0);
 			lastClickPosition = null;
 			
 			panLeft = false;
