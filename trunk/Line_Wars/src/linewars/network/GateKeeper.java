@@ -466,10 +466,6 @@ public class GateKeeper
 				return (playerID * 31) + (timeStep * 31 * 31);
 			}
 		}
-
-		public void terminate() {
-			isListening = false;
-		}
 	}
 	
 	/**
@@ -656,9 +652,5 @@ public class GateKeeper
 		{
 			super(e);
 		}
-	}
-
-	public void terminate() {
-		msgListener.terminate();
 	}
 }

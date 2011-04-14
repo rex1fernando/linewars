@@ -1,6 +1,7 @@
 package linewars.network;
 
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -144,9 +145,5 @@ public class Client implements MessageHandler
 		// NOTE this method steals this thread!  the start listening uses
 		// the current thread to do the listening.
 		gateKeeper.startListening();
-	}
-	
-	public void terminate(){
-		gateKeeper.terminate();
 	}
 }
