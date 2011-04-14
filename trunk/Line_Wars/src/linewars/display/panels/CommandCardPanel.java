@@ -6,10 +6,13 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.activation.CommandInfo;
 import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -102,8 +105,8 @@ public class CommandCardPanel extends Panel
 	private static final int BTN_V_GAP = 10;
 	
 	private JPanel togglePanel;
-	private JButton buildButton;
-	private JButton destroyButton;
+	private CommandButton buildButton;
+	private CommandButton destroyButton;
 	private boolean buildNotDestroy;
 
 	private JPanel abilityPanel;
@@ -123,6 +126,9 @@ public class CommandCardPanel extends Panel
 	private ButtonIcon[] rolloverIcons;
 	private ButtonIcon[] selectedIcons;
 	private ClickHandler[] clickEvents;
+	
+	private Animation regularButton;
+	private Animation pressedButton;
 
 	private Display display;
 	private MessageReceiver receiver;
@@ -150,12 +156,46 @@ public class CommandCardPanel extends Panel
 		this.receiver = receiver;
 		this.playerID = pID;
 		this.displayed = false;
+		
+		this.regularButton = regularButton;
+		this.pressedButton = clickedButton;
 				
 		togglePanel = new JPanel(new GridLayout(2, 1));
 		buildNotDestroy = true;
 		
-		buildButton = new JButton("B");
-		destroyButton = new JButton("D");
+		buildButton = new CommandButton("B");
+		ButtonIcon buildIcon = new ButtonIcon(buildButton);
+		buildIcon.setBackground(regularButton);
+		buildButton.setIcon(buildIcon);
+		
+		ButtonIcon buildPressed = new ButtonIcon(buildButton);
+		buildPressed.setBackground(clickedButton);
+		buildButton.setPressedIcon(buildPressed);
+		
+		ButtonIcon buildRollover = new ButtonIcon(buildButton);
+		buildRollover.setBackground(regularButton);
+		buildButton.setPressedIcon(buildRollover);
+		
+		ButtonIcon buildSelected = new ButtonIcon(buildButton);
+		buildSelected.setBackground(regularButton);
+		buildButton.setPressedIcon(buildSelected);
+		
+		destroyButton = new CommandButton("D");
+		ButtonIcon destroyIcon = new ButtonIcon(destroyButton);
+		destroyIcon.setBackground(regularButton);
+		destroyButton.setIcon(destroyIcon);
+		
+		ButtonIcon destroyPressed = new ButtonIcon(destroyButton);
+		destroyPressed.setBackground(clickedButton);
+		destroyButton.setPressedIcon(destroyPressed);
+		
+		ButtonIcon destroyRollover = new ButtonIcon(destroyButton);
+		destroyRollover.setBackground(regularButton);
+		destroyButton.setPressedIcon(destroyRollover);
+		
+		ButtonIcon destroySelected = new ButtonIcon(destroyButton);
+		destroySelected.setBackground(regularButton);
+		destroyButton.setPressedIcon(destroySelected);
 		
 		ToggleListener toggle = new ToggleListener();
 		buildButton.addActionListener(toggle);
@@ -183,19 +223,20 @@ public class CommandCardPanel extends Panel
 			activeAbilities[i].setVisible(false);
 			abilityPanel.add(activeAbilities[i]);
 			
-			activeAbilities[i].setRegularAnimaiton(regularButton);
-			activeAbilities[i].setPressedAnimaiton(clickedButton);
-			
 			abilityIcons[i] = new ButtonIcon(activeAbilities[i]);
+			abilityIcons[i].setBackground(regularButton);
 			activeAbilities[i].setIcon(abilityIcons[i]);
 			
 			abilityPressedIcons[i] = new ButtonIcon(activeAbilities[i]);
+			abilityPressedIcons[i].setBackground(clickedButton);
 			activeAbilities[i].setPressedIcon(abilityPressedIcons[i]);
 			
 			abilityRolloverIcons[i] = new ButtonIcon(activeAbilities[i]);
+			abilityRolloverIcons[i].setBackground(regularButton);
 			activeAbilities[i].setRolloverIcon(abilityRolloverIcons[i]);
 			
 			abilitySelectedIcons[i] = new ButtonIcon(activeAbilities[i]);
+			abilitySelectedIcons[i].setBackground(regularButton);
 			activeAbilities[i].setSelectedIcon(abilitySelectedIcons[i]);
 
 			abilityEvents[i] = new ActiveAbilityHandler();
@@ -219,19 +260,20 @@ public class CommandCardPanel extends Panel
 			buttons[i].setVisible(false);
 			buttonPanel.add(buttons[i]);
 
-			buttons[i].setRegularAnimaiton(regularButton);
-			buttons[i].setPressedAnimaiton(clickedButton);
-			
 			buttonIcons[i] = new ButtonIcon(buttons[i]);
+			buttonIcons[i].setBackground(regularButton);
 			buttons[i].setIcon(buttonIcons[i]);
 
 			pressedIcons[i] = new ButtonIcon(buttons[i]);
+			pressedIcons[i].setBackground(clickedButton);
 			buttons[i].setPressedIcon(pressedIcons[i]);
 
 			rolloverIcons[i] = new ButtonIcon(buttons[i]);
+			rolloverIcons[i].setBackground(regularButton);
 			buttons[i].setRolloverIcon(rolloverIcons[i]);
 
 			selectedIcons[i] = new ButtonIcon(buttons[i]);
+			selectedIcons[i].setBackground(regularButton);
 			buttons[i].setSelectedIcon(selectedIcons[i]);
 
 			clickEvents[i] = new ClickHandler();
@@ -321,6 +363,24 @@ public class CommandCardPanel extends Panel
 		
 		energyPanel.setEnergy(player.getPlayerEnergy());
 		
+		int width = buildButton.getWidth();
+		int height = buildButton.getHeight();
+		if(width > 0 && height > 0)
+		{
+			Position size = new Position(width, height);
+			regularButton.loadAnimationResources(size);
+			pressedButton.loadAnimationResources(size);
+		}
+		
+		width = destroyButton.getWidth();
+		height = destroyButton.getHeight();
+		if(width > 0 && height > 0)
+		{
+			Position size = new Position(width, height);
+			regularButton.loadAnimationResources(size);
+			pressedButton.loadAnimationResources(size);
+		}
+		
 		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
 		List<PlayerAbility> unlockedAbilities = player.getUnlockedPlayerAbilities();
 		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
@@ -340,11 +400,13 @@ public class CommandCardPanel extends Panel
 			String rolloverURI = icons.getIconURI(IconType.rollover);
 			String selectedURI = icons.getIconURI(IconType.highlighted);
 
-			int width = activeAbilities[i].getWidth();
-			int height = activeAbilities[i].getHeight();
+			width = activeAbilities[i].getWidth();
+			height = activeAbilities[i].getHeight();
 			if(width > 0 && height > 0)
 			{
-				activeAbilities[i].updateBackgroundSize(width, height);
+				Position size = new Position(width, height);
+				regularButton.loadAnimationResources(size);
+				pressedButton.loadAnimationResources(size);
 				addIconImage(iconURI, width, height);
 				addIconImage(pressedURI, width, height);
 				addIconImage(rolloverURI, width, height);
@@ -403,11 +465,13 @@ public class CommandCardPanel extends Panel
 			String pressedURI = icons.getIconURI(IconType.pressed);
 			String rolloverURI = icons.getIconURI(IconType.rollover);
 			String selectedURI = icons.getIconURI(IconType.highlighted);
-			int width = buttons[i].getWidth();
-			int height = buttons[i].getHeight();
+			width = buttons[i].getWidth();
+			height = buttons[i].getHeight();
 			if(width > 0 && height > 0)
 			{
-				buttons[i].updateBackgroundSize(width, height);
+				Position size = new Position(width, height);
+				regularButton.loadAnimationResources(size);
+				pressedButton.loadAnimationResources(size);
 				addIconImage(iconURI, width, height);
 				addIconImage(pressedURI, width, height);
 				addIconImage(rolloverURI, width, height);
@@ -433,37 +497,25 @@ public class CommandCardPanel extends Panel
 	 */
 	private class CommandButton extends JButton
 	{
-		private Animation regularButton;
-		private Animation pressedButton;
+		private boolean isPressed;
 		
 		public CommandButton()
 		{
-			regularButton = null;
-			pressedButton = null;
+			this("");
 		}
 		
-		public void setRegularAnimaiton(Animation regular)
+		public CommandButton(String label)
 		{
-			regularButton = regular;
+			super(label);
+			
+			isPressed = false;
+			addMouseListener(new MousePressAdapter());
 		}
 		
-		public void setPressedAnimaiton(Animation pressed)
-		{
-			pressedButton = pressed;
-		}
-		
-		public void updateBackgroundSize(int width, int height)
-		{
-			for(int i = 0; i < regularButton.getNumImages(); ++i)
-				addIconImage(regularButton.getImage(i), width, height);
-
-			for(int i = 0; i < pressedButton.getNumImages(); ++i)
-				addIconImage(pressedButton.getImage(i), width, height);
-		}
-
 		@Override
 		public void paint(Graphics g)
 		{
+			super.paint(g);
 			Icon pressedIcon = getPressedIcon();
 			Icon selectedIcon = getSelectedIcon();
 			Icon rolloverIcon = getRolloverIcon();
@@ -471,12 +523,7 @@ public class CommandCardPanel extends Panel
 
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
 			
-			if(model.isPressed())
-				ImageDrawer.getInstance().draw(g, pressedButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
-			else
-				ImageDrawer.getInstance().draw(g, regularButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
-			
-			if(model.isPressed())
+			if(isPressed)
 			{
 				if(pressedIcon != null)
 					pressedIcon.paintIcon(this, g, 0, 0);
@@ -497,6 +544,18 @@ public class CommandCardPanel extends Panel
 					icon.paintIcon(this, g, 0, 0);
 			}
 		}
+		private class MousePressAdapter extends MouseAdapter
+		{
+			public void mousePressed(MouseEvent e)
+			{
+				isPressed = true;
+			}
+			
+			public void mouseReleased(MouseEvent e)
+			{
+				isPressed = false;
+			}
+		}
 	}
 
 	/**
@@ -509,6 +568,7 @@ public class CommandCardPanel extends Panel
 	{
 		private JButton button;
 		private String uri;
+		private Animation background;
 
 		/**
 		 * Constructs the icon.
@@ -533,6 +593,11 @@ public class CommandCardPanel extends Panel
 			uri = newUri;
 		}
 		
+		public void setBackground(Animation background)
+		{
+			this.background = background;
+		}
+		
 		public String getURI()
 		{
 			return uri;
@@ -553,6 +618,7 @@ public class CommandCardPanel extends Panel
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
+			ImageDrawer.getInstance().draw(g, background.getImage(0.0, 0.0), button.getWidth(), button.getHeight(), new Position(x, y), 1);
 			ImageDrawer.getInstance().draw(g, uri, button.getWidth(), button.getHeight(), new Position(x, y), 1);
 		}
 	}
