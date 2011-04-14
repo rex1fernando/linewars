@@ -53,10 +53,10 @@ public class temp2userstart
 		clientList.add("129.186.150.111");
 		
 		//construct the game
-		Game testGame = new Game(testMap, playerList);
-		testGame.initializeServer(clientList);
-		testGame.initializeClient("127.0.0.1", 1, false);
-		testGame.run();
+//		Game testGame = new Game(testMap, playerList);
+//		testGame.initializeServer(clientList);
+//		testGame.initializeClient("127.0.0.1", 1, false);
+//		testGame.run();
 	}
 	
 //	private static Race createRace()

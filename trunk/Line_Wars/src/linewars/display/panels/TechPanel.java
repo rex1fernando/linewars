@@ -1,6 +1,7 @@
 package linewars.display.panels;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -74,7 +76,8 @@ public class TechPanel extends Panel
 	private JPanel techPanel;
 	private JPanel editorComponents;
 	
-	private ArrayList<TabButton> tabs;
+	private ArrayList<JButton> tabs;
+	private ArrayList<TabIcon> icons;
 	private ArrayList<TechDisplay> techs;
 	
 	private TechDisplay activeTech;
@@ -95,7 +98,8 @@ public class TechPanel extends Panel
 		
 		this.bfg = bfg;
 
-		tabs = new ArrayList<TabButton>();
+		tabs = new ArrayList<JButton>();
+		icons = new ArrayList<TabIcon>();
 		techs = new ArrayList<TechDisplay>();
 		
 		initialize();
@@ -118,7 +122,8 @@ public class TechPanel extends Panel
 		this.display = display;
 		this.displayed = false;
 		
-		tabs = new ArrayList<TabButton>();
+		tabs = new ArrayList<JButton>();
+		icons = new ArrayList<TabIcon>();
 		techs = new ArrayList<TechDisplay>();
 		
 		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
@@ -126,11 +131,16 @@ public class TechPanel extends Panel
 		for(int i = 0; i < graphs.size(); ++i)
 		{
 			TechGraph graph = graphs.get(i);
-			TabButton tab = new TabButton(graph.getName());
-			tab.setRegularAnimaiton(regularButton);
-			tab.setPressedAnimaiton(clickedButton);
+			JButton tab = new JButton(graph.getName());
+			
+			TabIcon tabIcon = new TabIcon(tab);
+			tabIcon.setRegularAnimaiton(regularButton);
+			tabIcon.setPressedAnimaiton(clickedButton);
+			
+			tab.setIcon(tabIcon);
 			
 			tabs.add(tab);
+			icons.add(tabIcon);
 			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1]));
 		}
 		
@@ -155,7 +165,7 @@ public class TechPanel extends Panel
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
 			
-			TabButton tab = new TabButton(graph.getName());
+			JButton tab = new JButton(graph.getName());
 			tab.addActionListener(new TabButtonHandler(tech));
 			tabs.add(tab);
 			tabPanel.add(tab);
@@ -274,9 +284,11 @@ public class TechPanel extends Panel
 		for(int i = 0; i < techs.size(); ++i)
 		{
 			techs.get(i).setVisible(false);
+			icons.get(i).setTabSelected(false);
 		}
 		
 		activeTech.setVisible(true);
+		icons.get(techs.indexOf(activeTech)).setTabSelected(true);
 	}
 	
 	@Override
@@ -305,8 +317,8 @@ public class TechPanel extends Panel
 		}
 		else
 		{
-			for(TabButton b : tabs)
-				b.updateBackgroundSize(b.getWidth(), b.getHeight());
+			for(TabIcon i : icons)
+				i.updateBackgroundSize(i.getIconWidth(), i.getIconHeight());
 		}
 	}
 	
@@ -343,23 +355,19 @@ public class TechPanel extends Panel
 		return new Dimension(width, height);
 	}
 	
-	private class TabButton extends JButton
+	private class TabIcon implements Icon
 	{
 		private boolean selected;
 		private Animation regularButton;
 		private Animation pressedButton;
+		private JButton button;
 		
-		public TabButton()
+		public TabIcon(JButton button)
 		{
-			this("");
-		}
-		
-		public TabButton(String label)
-		{
-			super(label);
-			selected = false;
-			regularButton = null;
-			pressedButton = null;
+			this.selected = false;
+			this.regularButton = null;
+			this.pressedButton = null;
+			this.button = button;
 		}
 		
 		public void setTabSelected(boolean selected)
@@ -402,12 +410,25 @@ public class TechPanel extends Panel
 		}
 		
 		@Override
-		public void paint(Graphics g)
+		public int getIconHeight()
+		{
+			return button.getHeight();
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+			return button.getWidth();
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
 			if(selected)
-				ImageDrawer.getInstance().draw(g, pressedButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+				ImageDrawer.getInstance().draw(g, pressedButton.getImage(0.0, 0.0), getIconWidth(), getIconHeight(), new Position(0.0, 0.0), 1.0);
 			else
-				ImageDrawer.getInstance().draw(g, regularButton.getImage(0.0, 0.0), getWidth(), getHeight(), new Position(0.0, 0.0), 1.0);
+				ImageDrawer.getInstance().draw(g, regularButton.getImage(0.0, 0.0), getIconWidth(), getIconHeight(), new Position(0.0, 0.0), 1.0);
+			
 		}
 	}
 	
@@ -442,6 +463,7 @@ public class TechPanel extends Panel
 		{
 			activeTech = tech;
 			setAllTechGraphsInvisible();
+			
 
 			if(bfg != null)
 			{
@@ -486,7 +508,7 @@ public class TechPanel extends Panel
 			techPanel.add(tech);
 			techLayout.addLayoutComponent(tech, c);
 			
-			TabButton tab = new TabButton(s);
+			JButton tab = new JButton(s);
 			tab.addActionListener(new TabButtonHandler(tech));
 			tabs.add(tab);
 			tabPanel.add(tab);
