@@ -13,6 +13,8 @@ import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.Unit;
+import menu.components.CustomList;
+import menu.components.MenuScrollPane;
 
 /**
  * Encapsulates the information needed to display Node status information.
@@ -65,12 +67,13 @@ public class NodeStatusPanel extends Panel
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 
+		setOpaque(false);
+		
 		this.display = display;
-		this.nodeStatus = new JList();
-		this.scrollPane = new JScrollPane(nodeStatus);
-
-		nodeStatus.setOpaque(false);
-		scrollPane.setOpaque(false);
+		this.nodeStatus = new CustomList();
+		this.scrollPane = new MenuScrollPane();
+		scrollPane.setViewportView(nodeStatus);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		add(scrollPane);
 	}
