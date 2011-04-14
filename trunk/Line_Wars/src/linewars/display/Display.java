@@ -363,8 +363,8 @@ public class Display extends JFrame implements Runnable
 			Animation techTabPressed = null;
 			try
 			{
-				emptyButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/emptyButton.cfg"))).readObject();
-				clickedButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/clickedButton.cfg"))).readObject();
+				emptyButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/EmptyButton.cfg"))).readObject();
+				clickedButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/ClickedButton.cfg"))).readObject();
 				leftUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/left_ui_panel.cfg"))).readObject();
 				rightUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/right_ui_panel.cfg"))).readObject();
 				exitButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button.cfg"))).readObject();

@@ -1,5 +1,6 @@
 package linewars.display.panels;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -62,12 +63,18 @@ public class CommandCardPanel extends Panel
 	
 	private static final int ABILITY_HEIGHT = 116;
 	
-	private static final int ABILITY_PANEL_X = 161;
+	private static final int ABILITY_PANEL_X = 187;
 	private static final int ABILITY_PANEL_Y = 24;
 	
-	private static final int ABILITY_PANEL_WIDTH = 489;
+	private static final int ABILITY_PANEL_WIDTH = 462;
 	private static final int ABILITY_PANEL_HEIGHT = 73;
+	
+	private static final int ENERGY_PANEL_X = 167;
+	private static final int ENERGY_PANEL_Y = 104;
 
+	private static final int ENERGY_PANEL_WIDTH = 482;
+	private static final int ENERGY_PANEL_HEIGHT = 5;
+	
 	/**
 	 * The number of buttons on the command card
 	 */
@@ -104,6 +111,8 @@ public class CommandCardPanel extends Panel
 	private ButtonIcon[] abilityRolloverIcons;
 	private ButtonIcon[] abilitySelectedIcons;
 	private ActiveAbilityHandler[] abilityEvents;
+	
+	private EnergyPanel energyPanel;
 	
 	private JPanel buttonPanel;
 	private CommandButton[] buttons;
@@ -152,6 +161,9 @@ public class CommandCardPanel extends Panel
 		
 		togglePanel.add(buildButton);
 		togglePanel.add(destroyButton);
+		
+		energyPanel = new EnergyPanel();
+		energyPanel.setMaxEnergy(GameState.MAX_PLAYER_ENERGY);
 		
 		abilityPanel = new JPanel(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		abilityPanel.setOpaque(false);
@@ -250,6 +262,9 @@ public class CommandCardPanel extends Panel
 		abilityPanel.setLocation((int)(ABILITY_PANEL_X * scaleFactor), (int)(ABILITY_PANEL_Y * scaleFactor));
 		abilityPanel.setSize((int)(ABILITY_PANEL_WIDTH * scaleFactor), (int)(ABILITY_PANEL_HEIGHT * scaleFactor));
 		
+		energyPanel.setLocation((int)(ENERGY_PANEL_X * scaleFactor), (int)(ENERGY_PANEL_Y * scaleFactor));
+		energyPanel.setSize((int)(ENERGY_PANEL_WIDTH * scaleFactor), (int)(ENERGY_PANEL_HEIGHT * scaleFactor));
+		
 		buttonPanel.setLayout(new GridLayout(NUM_V_BUTTONS, NUM_H_BUTTONS, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		buttonPanel.setLocation((int)(BTN_PANEL_X * scaleFactor), (int)(BTN_PANEL_Y * scaleFactor));
 		buttonPanel.setSize((int)(BTN_PANEL_WIDTH * scaleFactor), (int)(BTN_PANEL_HEIGHT * scaleFactor));
@@ -300,6 +315,9 @@ public class CommandCardPanel extends Panel
 	public void updateButtons(GameState state, Node node)
 	{
 		Player player = state.getPlayer(playerID);
+		
+		energyPanel.setEnergy(player.getPlayerEnergy());
+		
 		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
 		List<PlayerAbility> unlockedAbilities = player.getUnlockedPlayerAbilities();
 		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
@@ -606,6 +624,37 @@ public class CommandCardPanel extends Panel
 			{
 				setBuildNotDestroy(false);
 			}
+		}
+	}
+	
+	private class EnergyPanel extends JPanel
+	{
+		private double energy;
+		private double maxEnergy;
+		
+		public EnergyPanel()
+		{
+			this.maxEnergy = 0.0;
+			this.energy = 0.0;
+		}
+		
+		public void setEnergy(double energy)
+		{
+			this.energy = energy;
+		}
+		
+		public void setMaxEnergy(double maxEnergy)
+		{
+			this.maxEnergy = maxEnergy;
+		}
+		
+		@Override
+		public void paint(Graphics g)
+		{
+			double barWidth = getWidth() * (energy / maxEnergy);
+			
+			g.setColor(Color.blue);
+			g.fillRect(0, 0, (int)barWidth, getHeight());
 		}
 	}
 }
