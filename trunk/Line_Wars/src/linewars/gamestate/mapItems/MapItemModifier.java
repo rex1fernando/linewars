@@ -11,6 +11,7 @@ public strictfp class MapItemModifier {
 	
 	public interface MapItemModifierType {
 		public double modify(double x);
+		public boolean equals(Object obj);
 	}
 	
 	public static class Constant implements MapItemModifierType {
@@ -25,6 +26,11 @@ public strictfp class MapItemModifier {
 		@Override
 		public double modify(double x) {
 			return value;
+		}
+		
+		public boolean equals(Object obj)
+		{
+			return (obj instanceof Constant) && ((Constant)obj).value == value;
 		}
 		
 	}
@@ -43,6 +49,11 @@ public strictfp class MapItemModifier {
 			return x + value;
 		}
 		
+		public boolean equals(Object obj)
+		{
+			return (obj instanceof Add) && ((Add)obj).value == value;
+		}
+		
 	}
 	
 	public static class Multiply implements MapItemModifierType {
@@ -57,6 +68,11 @@ public strictfp class MapItemModifier {
 		@Override
 		public double modify(double x) {
 			return x*value;
+		}
+		
+		public boolean equals(Object obj)
+		{
+			return (obj instanceof Multiply) && ((Multiply)obj).value == value;
 		}
 		
 	}

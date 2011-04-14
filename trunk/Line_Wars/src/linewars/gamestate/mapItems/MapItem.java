@@ -118,6 +118,7 @@ public strictfp abstract class MapItem implements Observer {
 	 */
 	public void updateMapItem()
 	{
+		this.getGameState().validateLock();
 		for(int i = 0; i < activeAbilities.size();)
 		{
 			//only update this ability if the mapItem isn't dead or if the
@@ -397,8 +398,8 @@ public strictfp abstract class MapItem implements Observer {
 					m.state == state &&
 					m.stateStart == stateStart &&
 					m.modifier.equals(modifier) &&
-					m.cStrat.equals(cStrat) &&
-					m.activeAbilities.equals(activeAbilities) &&
+					/*m.cStrat.equals(cStrat) &&*/
+					/*m.activeAbilities.equals(activeAbilities) &&*/
 					m.getID() == ID &&
 					m.getDefinition().equals(this.getDefinition());
 		}
