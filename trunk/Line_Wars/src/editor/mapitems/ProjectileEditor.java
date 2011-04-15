@@ -1,15 +1,10 @@
 package editor.mapitems;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -23,8 +18,6 @@ import editor.BigFrameworkGuy.ConfigType;
 import editor.BigFrameworkGuy;
 import editor.ConfigurationEditor;
 import editor.GenericSelector;
-import editor.GenericSelector.CustomToString;
-import editor.GenericSelector.GenericListCallback;
 
 /**
  * 

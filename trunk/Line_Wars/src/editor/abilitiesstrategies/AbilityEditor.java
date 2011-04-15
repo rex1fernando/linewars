@@ -21,6 +21,11 @@ import editor.BigFrameworkGuy.ConfigType;
 
 public class AbilityEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5298788276631666078L;
+
 	static {
 		ForceLoadPackage.forceLoadClassesInPackage(Ability.class.getPackage());
 	}

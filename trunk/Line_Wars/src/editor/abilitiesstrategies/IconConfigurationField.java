@@ -3,7 +3,6 @@ package editor.abilitiesstrategies;
 import java.util.ArrayList;
 import java.util.List;
 
-import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
 import configuration.Configuration;
 import editor.ConfigurationEditor;

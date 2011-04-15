@@ -3,7 +3,6 @@ package linewars.gamestate.mapItems.strategies.collision;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.GroundConfiguration.Ground;
 
 /**
  * 

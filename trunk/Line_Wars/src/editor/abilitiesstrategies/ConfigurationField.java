@@ -1,18 +1,17 @@
 package editor.abilitiesstrategies;
 
-import java.util.List;
-import java.util.Scanner;
-
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.BigFrameworkGuy.ConfigType;
 import editor.GenericSelector;
-import editor.URISelector;
-import editor.URISelector.SelectorOptions;
 import editor.GenericSelector.*;
 
 public class ConfigurationField extends Field  {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2896834889914467413L;
 	private BigFrameworkGuy bfg;
 	private ConfigType type;
 	private GenericSelector<Configuration> selector;

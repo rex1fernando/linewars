@@ -2,7 +2,6 @@ package linewars.gamestate.mapItems.strategies.collision;
 
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 
 /**

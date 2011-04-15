@@ -7,7 +7,6 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.Wave;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 

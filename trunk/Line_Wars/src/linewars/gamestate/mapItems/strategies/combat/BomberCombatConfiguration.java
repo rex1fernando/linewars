@@ -1,7 +1,5 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
-import java.util.Random;
-
 import utility.AugmentedMath;
 import linewars.display.Animation;
 import linewars.display.DisplayConfiguration;
@@ -15,7 +13,6 @@ import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.combat.FocusOnTargetConfiguration.FocusOnTarget;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;
 import editor.abilitiesstrategies.EditorProperty;

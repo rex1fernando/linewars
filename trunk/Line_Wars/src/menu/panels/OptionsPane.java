@@ -27,6 +27,11 @@ import menu.components.MenuTextField;
 
 public class OptionsPane extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2104236176196959841L;
+
 	public static final String FILENAME = "resources/Options.cfg";
 	
 	private MenuTextField nameField;
@@ -102,6 +107,11 @@ public class OptionsPane extends JPanel
 	
 	private class Option extends JPanel
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -454128596201128963L;
+
 		public Option(String text, JComponent c)
 		{
 			Dimension size = new Dimension(500, 100);

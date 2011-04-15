@@ -16,6 +16,10 @@ import editor.GenericSelector;
 
 public class TurretEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6932482141992182453L;
 	private GenericSelector<Configuration> turretStrat;
 	
 	public TurretEditor(BigFrameworkGuy bfg)

@@ -5,12 +5,15 @@ import java.util.Map;
 import java.util.Set;
 
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import configuration.Configuration;
 import editor.ConfigurationEditor;
 
 public abstract class StrategyConfiguration<T> extends Configuration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3670824416568146710L;
 	private static Map<String, Class<? extends ConfigurationEditor>> strategyEditors;
 	private static Map<String, Class<? extends StrategyConfiguration<?>>> strategyConfigs;
 	private static Map<String, Class<? extends StrategyConfiguration<?>>> strategyTypes;

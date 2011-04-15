@@ -8,6 +8,11 @@ import menu.ContentProvider;
 
 public class CustomList extends JList
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4827473406658812837L;
+
 	public CustomList()
 	{
 		setOpaque(false);

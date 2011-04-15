@@ -128,6 +128,10 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	private class IconPanel extends JPanel implements ActionListener {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8295708975464054523L;
 		private IconType type;
 		private String description;
 		private JLabel icon;

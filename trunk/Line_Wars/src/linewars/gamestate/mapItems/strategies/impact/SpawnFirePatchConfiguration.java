@@ -1,7 +1,6 @@
 package linewars.gamestate.mapItems.strategies.impact;
 
 import linewars.gamestate.Position;
-import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;

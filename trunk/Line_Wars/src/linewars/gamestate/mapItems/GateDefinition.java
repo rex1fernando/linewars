@@ -7,8 +7,6 @@ import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.combat.FocusOnTargetConfiguration;
-import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
 

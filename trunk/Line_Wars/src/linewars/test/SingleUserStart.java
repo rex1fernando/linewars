@@ -9,10 +9,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import linewars.gamestate.MapConfiguration;
-import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Race;
-import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.init.Game;
 import linewars.init.PlayerData;
 import linewars.init.UserData;
 

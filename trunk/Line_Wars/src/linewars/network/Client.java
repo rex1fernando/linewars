@@ -1,7 +1,6 @@
 package linewars.network;
 
 import java.net.SocketException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 

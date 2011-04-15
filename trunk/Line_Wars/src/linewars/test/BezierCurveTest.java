@@ -2,8 +2,6 @@ package linewars.test;
 
 import linewars.gamestate.Position;
 
-import org.junit.Test;
-
 
 public class BezierCurveTest {
 	

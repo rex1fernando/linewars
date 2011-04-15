@@ -13,6 +13,11 @@ import editor.BigFrameworkGuy.ConfigType;
 
 public class PartEditor extends JPanel implements ConfigurationEditor {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1698135020265565651L;
+
 	@Override
 	public void setData(Configuration cd) {}
 	

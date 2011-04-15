@@ -3,7 +3,6 @@ package linewars.gamestate.mapItems.abilities;
 import utility.Observable;
 import utility.Observer;
 
-import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.MapItem;
@@ -23,6 +22,11 @@ import editor.abilitiesstrategies.EditorUsage;
  */
 public strictfp class GenerateStuffDefinition extends AbilityDefinition implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5823141978350694783L;
+
 	static {
 		AbilityDefinition.setAbilityConfigMapping("Generate Stuff", GenerateStuffDefinition.class, AbilityStrategyEditor.class);
 	}

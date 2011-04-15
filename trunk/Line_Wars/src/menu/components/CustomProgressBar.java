@@ -14,6 +14,11 @@ import menu.ContentProvider.MenuImage;
 
 public class CustomProgressBar extends JProgressBar
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4231856083346895464L;
+
 	public CustomProgressBar()
 	{
 		setUI(new CustomPBUI());

@@ -2,8 +2,6 @@ package menu.components;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
-
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
@@ -12,6 +10,10 @@ import menu.ContentProvider.MenuImage;
 
 public class CustomSlider extends JSlider
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7789228430009816757L;
 	private static final int EDGE = 33;
 	
 	public CustomSlider()

@@ -14,7 +14,6 @@ import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.shapes.AABB;
-import linewars.gamestate.shapes.Circle;
 import configuration.Property;
 import configuration.Usage;
 import editor.abilitiesstrategies.AbilityStrategyEditor;

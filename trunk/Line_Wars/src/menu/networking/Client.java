@@ -12,13 +12,10 @@ import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-
 import linewars.display.sound.SoundPlayer;
 import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
-import linewars.init.Game;
 import linewars.init.PlayerData;
 import menu.ContentProvider;
 import menu.GameInitializer;

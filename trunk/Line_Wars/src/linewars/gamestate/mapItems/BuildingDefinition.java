@@ -1,7 +1,5 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
-
 import configuration.Property;
 import configuration.Usage;
 
@@ -9,7 +7,6 @@ import linewars.display.IconConfiguration;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 /**
  * 

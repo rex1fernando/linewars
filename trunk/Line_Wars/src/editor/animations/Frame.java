@@ -1,11 +1,8 @@
 package editor.animations;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
@@ -32,6 +29,10 @@ import javax.swing.JTextField;
  */
 public class Frame extends JPanel implements ItemListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2471078384331097506L;
 	private JLabel file;
 	private JTextField time;
 	private Sprite frame;

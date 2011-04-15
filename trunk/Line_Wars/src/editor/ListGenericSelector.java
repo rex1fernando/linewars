@@ -4,10 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,12 +15,13 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import editor.GenericSelector.CustomToString;
-import editor.GenericSelector.GenericListCallback;
-import editor.GenericSelector.SelectionChangeListener;
-
 
 public class ListGenericSelector<T> extends GenericSelector<T> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5653591073826618628L;
 
 	/**
 	 * The interface for controlling the behavior of the list selector.
