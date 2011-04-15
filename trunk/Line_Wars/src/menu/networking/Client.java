@@ -1,16 +1,21 @@
 package menu.networking;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 import linewars.init.Game;
@@ -18,6 +23,7 @@ import linewars.init.PlayerData;
 import menu.ContentProvider;
 import menu.GameInitializer;
 import menu.panels.CreateGamePanel;
+import menu.panels.OptionsPane;
 
 public class Client implements Runnable
 {
@@ -165,6 +171,16 @@ public class Client implements Runnable
 				gameInit.setPlayerId(playerId);
 				gamePanel.startGame(gameInit);
 			}
+			
+			//set the volumes
+			Scanner s;
+			try {
+				s = new Scanner(new File(OptionsPane.FILENAME));
+				s.next();
+				SoundPlayer.getInstance().setVolume(SoundType.MUSIC, s.nextDouble()/100.0);
+				SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, s.nextDouble()/100.0);
+			} catch (FileNotFoundException e) {}
+			
 			
 			// TODO close the lobby system
 			

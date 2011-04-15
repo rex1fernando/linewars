@@ -310,6 +310,7 @@ public class SoundPlayer implements Runnable
 					byte toSave = (byte)(channelSample & 255L);
 					typeData[type][byteNum] = toSave;
 					channelSample = channelSample >> 8;
+					channelData[byteNum] = toSave;
 				}
 			}
 		}

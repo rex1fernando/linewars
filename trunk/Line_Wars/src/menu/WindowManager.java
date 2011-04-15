@@ -40,6 +40,7 @@ public class WindowManager extends JFrame
 	
 	public WindowManager()
 	{
+		super("Titus");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -118,6 +119,8 @@ public class WindowManager extends JFrame
 	public void exitGame()
 	{
 		dispose();
+		System.exit(0); //TODO fix this, the server keeps running after the game quits, preventing
+						//a new game from starting because it doesn't release its port binding
 	}
 	
 	public void startGame(GameInitializer gameInit)
