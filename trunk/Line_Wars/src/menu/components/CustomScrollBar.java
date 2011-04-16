@@ -16,6 +16,11 @@ import menu.ContentProvider.MenuImage;
 
 public class CustomScrollBar extends JScrollBar
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 736213111629593196L;
+
 	public CustomScrollBar()
 	{
 		setUI(new CustomScrollBarUI());
@@ -53,6 +58,10 @@ public class CustomScrollBar extends JScrollBar
 	
 	private class ScrollbarButton extends JButton
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2616576965641481610L;
 		private int orientation;
 		private Color disabledColor;
 		

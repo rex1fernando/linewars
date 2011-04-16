@@ -14,6 +14,11 @@ import linewars.display.panels.TechPanel;
 
 public class TechPanelTest extends JFrame
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8460140642733323924L;
+
 	public static void main(String args[])
 	{
 		new TechPanelTest();

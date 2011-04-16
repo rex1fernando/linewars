@@ -21,6 +21,11 @@ import editor.BigFrameworkGuy.ConfigType;
 
 public class GenericSelector<T> extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -273270517620732530L;
+
 	public interface GenericListCallback<E> {
 		public List<E> getSelectionList();
 	}

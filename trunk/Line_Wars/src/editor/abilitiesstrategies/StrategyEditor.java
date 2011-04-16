@@ -24,6 +24,11 @@ import editor.ConfigurationEditor;
 
 public class StrategyEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4943959099048067535L;
+
 	static {
 		ForceLoadPackage.forceLoadClassesInPackage(Strategy.class.getPackage());
 	}

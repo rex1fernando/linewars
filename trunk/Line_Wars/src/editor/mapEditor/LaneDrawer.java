@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.LaneConfiguration;
-import linewars.gamestate.Node;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.shapes.Circle;

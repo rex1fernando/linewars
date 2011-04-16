@@ -6,7 +6,6 @@ import editor.abilitiesstrategies.EditorProperty;
 import editor.abilitiesstrategies.EditorUsage;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemModifier;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Unit;

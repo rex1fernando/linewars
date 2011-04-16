@@ -1,6 +1,5 @@
 package linewars.test.Ezra;
 
-import static org.junit.Assert.*;
 import linewars.gamestate.shapes.Circle;
 
 import org.junit.Before;

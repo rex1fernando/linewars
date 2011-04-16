@@ -22,7 +22,7 @@ import linewars.gamestate.shapes.Shape;
  */
 public strictfp class Node {
 	
-	private static final long TIME_TO_OCCUPY = 30000;
+	private static final long TIME_TO_OCCUPY = 15000;
 	private static final long TIME_TO_SPAWN = 5000;
 	
 	private GameState gameState;

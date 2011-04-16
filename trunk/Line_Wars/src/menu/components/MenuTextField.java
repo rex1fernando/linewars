@@ -8,6 +8,11 @@ import menu.ContentProvider;
 
 public class MenuTextField extends JTextField
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2654144002984910408L;
+
 	public MenuTextField()
 	{
 		setOpaque(false);

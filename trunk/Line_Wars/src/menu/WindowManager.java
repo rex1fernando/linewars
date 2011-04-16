@@ -9,8 +9,6 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.concurrent.ExecutionException;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -40,6 +38,8 @@ public class WindowManager extends JFrame
 	
 	public WindowManager()
 	{
+		super("Titus");
+		
 		// wait for the background image to load
 		ContentProvider.getImageResource(MenuImage.background_title);
 		
@@ -119,6 +119,8 @@ public class WindowManager extends JFrame
 	public void exitGame()
 	{
 		dispose();
+		System.exit(0); //TODO fix this, the server keeps running after the game quits, preventing
+						//a new game from starting because it doesn't release its port binding
 	}
 	
 	public void startGame(GameInitializer gameInit)

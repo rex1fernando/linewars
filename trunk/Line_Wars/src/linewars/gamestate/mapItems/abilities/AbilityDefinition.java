@@ -21,6 +21,10 @@ import editor.ConfigurationEditor;
  */
 public strictfp abstract class AbilityDefinition extends Configuration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1977688331131288065L;
 	private static Map<String, Class<? extends ConfigurationEditor>> abilityEditors;
 	private static Map<String, Class<? extends AbilityDefinition>> abilityConfigs;
 	

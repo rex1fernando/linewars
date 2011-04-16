@@ -23,6 +23,11 @@ import editor.abilitiesstrategies.EditorUsage;
  */
 public strictfp class ConstructBuildingDefinition extends AbilityDefinition implements Observer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2267724322796418793L;
+
 	static {
 		AbilityDefinition.setAbilityConfigMapping("Construct Building", ConstructBuildingDefinition.class, AbilityStrategyEditor.class);
 	}

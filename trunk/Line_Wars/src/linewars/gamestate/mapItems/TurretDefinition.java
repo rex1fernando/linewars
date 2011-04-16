@@ -9,6 +9,10 @@ import configuration.Usage;
 
 public class TurretDefinition extends MapItemDefinition<Turret> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1210445672977764346L;
 	private TurretStrategyConfiguration turretStrat;
 
 	public TurretDefinition() {

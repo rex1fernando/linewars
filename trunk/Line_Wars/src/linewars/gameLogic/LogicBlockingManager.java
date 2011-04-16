@@ -1,16 +1,10 @@
 package linewars.gameLogic;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import configuration.Configuration;
-
 import linewars.gamestate.GameState;
-import linewars.gamestate.Map;
 import linewars.gamestate.MapConfiguration;
-import linewars.gamestate.Race;
 import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 

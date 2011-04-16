@@ -4,7 +4,6 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 /**
  * 
@@ -15,6 +14,11 @@ import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
  */
 public strictfp class NoCombatConfiguration extends CombatStrategyConfiguration {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8382407691883956886L;
+
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("No Combat",
 				NoCombatConfiguration.class, AbilityStrategyEditor.class);

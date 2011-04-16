@@ -60,6 +60,11 @@ import editor.GenericSelector.GenericListCallback;
 
 public class BodyEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6947204546386124876L;
+
 	public interface DisplayConfigurationCallback {
 		public DisplayConfiguration getDisplayConfiguration();
 	}

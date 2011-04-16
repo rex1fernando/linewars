@@ -20,6 +20,10 @@ import menu.components.CustomProgressBar;
 
 public class LoadingScreenPanel extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7891162540306393100L;
 	private static final double IMAGE_SCALE = 0.2;
 	private static final long PERIOD = 10;
 	private static final long REVOLUTION_TIME = 2000;

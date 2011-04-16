@@ -30,6 +30,11 @@ import editor.mapitems.body.BodyEditor.DisplayConfigurationCallback;
 
 public class MapItemEditor extends JPanel implements ConfigurationEditor {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 528965313918070215L;
+
 	public class Wrapper<T> {
 		private T data;
 		public Wrapper(T d) {

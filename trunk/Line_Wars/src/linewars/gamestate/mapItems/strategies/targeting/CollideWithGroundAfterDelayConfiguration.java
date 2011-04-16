@@ -11,7 +11,6 @@ import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.targeting.CollideImmediatelyWithGroundConfiguration.CollideImmediatelyWithGround;
 
 public strictfp class CollideWithGroundAfterDelayConfiguration extends
 		TargetingStrategyConfiguration {

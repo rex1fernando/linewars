@@ -4,7 +4,6 @@ import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
 /**
  * 

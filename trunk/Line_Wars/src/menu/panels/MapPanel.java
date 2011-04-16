@@ -13,6 +13,10 @@ import linewars.gamestate.MapConfiguration;
 
 public class MapPanel extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9078593187354990077L;
 	private MapConfiguration map;
 	private Image image;
 	

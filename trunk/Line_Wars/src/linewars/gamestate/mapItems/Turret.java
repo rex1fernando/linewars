@@ -1,7 +1,6 @@
 package linewars.gamestate.mapItems;
 
 import linewars.gamestate.GameState;
-import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.Wave;

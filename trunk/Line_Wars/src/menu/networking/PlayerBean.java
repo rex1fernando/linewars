@@ -3,8 +3,6 @@ package menu.networking;
 import java.awt.Color;
 import java.io.Serializable;
 
-import linewars.gamestate.Race;
-
 
 public class PlayerBean implements Serializable
 {

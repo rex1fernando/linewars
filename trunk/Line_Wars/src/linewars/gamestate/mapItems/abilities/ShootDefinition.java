@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.abilities;
 
-import linewars.gamestate.Lane;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Projectile;

@@ -1,7 +1,6 @@
 package linewars.network.messages;
 
 import linewars.gamestate.GameState;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.tech.TechConfiguration;
 
 public class UpgradeMessage extends Message

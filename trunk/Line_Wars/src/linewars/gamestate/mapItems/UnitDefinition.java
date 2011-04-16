@@ -5,12 +5,8 @@ import configuration.Usage;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.combat.NoCombatConfiguration.NoCombat;
-import linewars.gamestate.mapItems.strategies.movement.ImmovableConfiguration.Immovable;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.movement.StraightConfiguration.Straight;
 
 /**
  * 

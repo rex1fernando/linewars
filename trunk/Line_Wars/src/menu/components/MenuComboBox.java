@@ -2,7 +2,6 @@ package menu.components;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -20,6 +19,10 @@ import menu.ContentProvider.MenuImage;
 
 public class MenuComboBox extends JComboBox
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8518354321623578493L;
 	private Font font;
 	private Color disabledColor;
 	private boolean hideTopLevel;
@@ -61,6 +64,11 @@ public class MenuComboBox extends JComboBox
 	
 	private class ComboButton extends JButton
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -5979772517370746761L;
+
 		public ComboButton()
 		{
 			setBorder(null);

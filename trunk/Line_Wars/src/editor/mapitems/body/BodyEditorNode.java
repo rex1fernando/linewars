@@ -12,12 +12,16 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemDefinition;
 import linewars.gamestate.mapItems.MapItemState;
-import linewars.gamestate.shapes.Rectangle;
 import editor.mapitems.body.BodyEditor.DisplayConfigurationCallback;
 import editor.mapitems.body.BodyEditor.Inputs;
 
 public class BodyEditorNode extends DefaultMutableTreeNode {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2971833673292512799L;
+
 	public static final Transformation DEFAULT_TRANS = new Transformation(new Position(0, 100), 0);
 	
 	private MapItemDefinition<? extends MapItem> mid;

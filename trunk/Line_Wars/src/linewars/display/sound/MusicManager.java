@@ -18,6 +18,7 @@ public class MusicManager
 	public MusicManager(String[] songs)
 	{
 		songList = new ArrayList<String>();
+		songList.add("Guitar_test_riff.wav");
 		playing = null;
 		songIndex = 0;
 		

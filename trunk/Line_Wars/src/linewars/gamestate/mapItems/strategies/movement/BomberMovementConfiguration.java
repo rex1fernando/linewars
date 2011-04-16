@@ -1,8 +1,5 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;

@@ -8,7 +8,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.playerabilities.PlayerAbility;
 import utility.ForceLoadPackage;
 import configuration.Configuration;
@@ -17,6 +16,11 @@ import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 
 public class PlayerAbilityEditor extends JPanel implements ConfigurationEditor {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4119089454633723682L;
 
 	static {
 		ForceLoadPackage.forceLoadClassesInPackage(PlayerAbility.class.getPackage());

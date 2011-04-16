@@ -9,6 +9,10 @@ import menu.ContentProvider;
 
 public class MenuTextArea extends JTextArea
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2586863049655768935L;
 	public static final int OPACITY = 180;
 	public static final Color BACKGROUND = new Color(44,61,47, OPACITY);
 	public static final Color FOREGROUND = new Color(160,224,171);

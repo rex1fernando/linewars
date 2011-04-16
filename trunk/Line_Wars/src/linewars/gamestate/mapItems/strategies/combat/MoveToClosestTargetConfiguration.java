@@ -1,6 +1,5 @@
 package linewars.gamestate.mapItems.strategies.combat;
 
-import java.util.List;
 import java.util.Queue;
 
 import editor.abilitiesstrategies.AbilityStrategyEditor;
@@ -8,13 +7,10 @@ import editor.abilitiesstrategies.AbilityStrategyEditor;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemAggregate;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.UnitDefinition;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
-import linewars.gamestate.mapItems.strategies.collision.AllEnemiesConfiguration;
 
 public class MoveToClosestTargetConfiguration extends CombatStrategyConfiguration {
 	

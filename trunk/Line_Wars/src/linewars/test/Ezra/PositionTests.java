@@ -6,7 +6,6 @@ package linewars.test.Ezra;
 import static org.junit.Assert.*;
 import linewars.gamestate.Position;
 
-import org.junit.After;
 import org.junit.Before;
 
 import org.junit.Test;
