@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems.strategies.impact;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
@@ -52,7 +53,8 @@ public strictfp class DealDurabilityDamageOnceConfiguration extends
 			if(m instanceof Projectile)
 			{
 				Projectile p = (Projectile) m;
-				p.setDurability(p.getDurability() - damage);
+				double damageMultiplier = projectile.getModifier().getModifier(MapItemModifiers.damageDealt);
+				p.setDurability(p.getDurability() - damage * damageMultiplier);
 			}
 			projectile.setState(MapItemState.Dead);
 		}
