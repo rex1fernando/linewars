@@ -39,6 +39,10 @@ public class WindowManager extends JFrame
 	public WindowManager()
 	{
 		super("Titus");
+		
+		// wait for the background image to load
+		ContentProvider.getImageResource(MenuImage.background_title);
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -51,8 +55,6 @@ public class WindowManager extends JFrame
 		
 		innerPanel = new InnerPanel(titleMenu);
 		setContentPane(innerPanel);
-		
-		
 	}
 	
 	public void showWindow()
