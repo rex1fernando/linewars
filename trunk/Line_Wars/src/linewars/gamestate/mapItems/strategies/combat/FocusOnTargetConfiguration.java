@@ -159,7 +159,7 @@ public strictfp class FocusOnTargetConfiguration extends CombatStrategyConfigura
 			
 			double disSquared = unit.getPosition().distanceSquared(target.getPosition());
 			//if i have a target, but i am not in range, move towards it
-			if(disSquared > minRange*minRange)
+			if(disSquared > 0.95*0.95*minRange*minRange)
 			{
 				Position pos = target.getPosition();
 				double angle = pos.subtract(unit.getPosition()).getAngle();
