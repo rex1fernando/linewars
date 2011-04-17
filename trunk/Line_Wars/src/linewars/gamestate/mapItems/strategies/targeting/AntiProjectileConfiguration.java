@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems.strategies.targeting;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
@@ -84,9 +85,10 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 			
 			//if no target exists, let's just fly in a clockwise loop!
 			if(target == null){
+				double speedModifier = projectile.getModifier().getModifier(MapItemModifiers.moveSpeed);
 				Position actualChange = Position.getUnitVector(
 						maxTurn + currentAngle).scale(
-						speed * projectile.getGameState().getLastLoopTime());
+						speed * speedModifier * projectile.getGameState().getLastLoopTime());
 				Transformation target = new Transformation(actualChange, maxTurn);
 				
 				target = target.add(projectile.getTransformation());

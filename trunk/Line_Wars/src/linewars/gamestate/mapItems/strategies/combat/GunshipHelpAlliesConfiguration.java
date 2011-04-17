@@ -6,6 +6,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemModifier;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Part;
 import linewars.gamestate.mapItems.PartDefinition;
@@ -32,12 +33,15 @@ public strictfp class GunshipHelpAlliesConfiguration extends CombatStrategyConfi
 				GunshipHelpAlliesConfiguration.class, AbilityStrategyEditor.class);
 	}
 	
+	private static final double TIME_TO_SWITCH_TARGETS = 3.5;
+	
 	public strictfp class GunshipHelpAllies implements CombatStrategy
-	{
+	{		
 		private Unit gunship;
 		private Unit target;
 		private double lastPulseTime;
 		private CombatStrategy nullCombat;
+		private double lastTimeOnTarget;
 		
 		private GunshipHelpAllies(Unit u)
 		{
@@ -64,9 +68,11 @@ public strictfp class GunshipHelpAlliesConfiguration extends CombatStrategyConfi
 		@Override
 		public void fight(Unit[] availableEnemies, Unit[] availableAllies) {
 			//first check to see if we need a new target
-			if(target == null || target == gunship || target.getState().equals(MapItemState.Dead))
+			if(target == null || target == gunship || target.getState().equals(MapItemState.Dead) ||
+					gunship.getGameState().getTime() - lastTimeOnTarget > TIME_TO_SWITCH_TARGETS)
 			{
 				target = acquireTarget(availableAllies);
+				lastTimeOnTarget = gunship.getGameState().getTime();
 				if(target == null)
 				{
 					nullCombat.fight(availableEnemies, availableAllies);
@@ -80,6 +86,8 @@ public strictfp class GunshipHelpAlliesConfiguration extends CombatStrategyConfi
 			//next check to see if we're hovering over the target
 			if(!gunship.getBody().isCollidingWith(target.getBody()))
 				gunship.getMovementStrategy().setTarget(target.getTransformation());
+			else
+				lastTimeOnTarget = gunship.getGameState().getTime();
 			
 			//next check to see if we can pulse
 			if(gunship.getGameState().getTime() - lastPulseTime > getDoubleValue("cooldown"))
@@ -121,7 +129,8 @@ public strictfp class GunshipHelpAlliesConfiguration extends CombatStrategyConfi
 			double dis = Double.POSITIVE_INFINITY;
 			for(Unit u : availableAllies)
 			{
-				if(u == gunship || u.getCombatStrategy() instanceof GunshipHelpAllies)
+				if(u == gunship || u.getCombatStrategy() instanceof GunshipHelpAllies 
+						|| u == target || u instanceof Gate)
 					continue;
 				boolean found = false;
 				for(Ability a : u.getActiveAbilities())

@@ -10,6 +10,7 @@ import java.awt.Point;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
+import linewars.display.sound.SoundPlayer;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 
@@ -30,6 +31,7 @@ public class MenuButton extends JButton
 		setIcon(new ButtonIcon(buttonDefault));
 		setRolloverIcon(new ButtonIcon(buttonRollover));
 		setBorder(null);
+		addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 	}
 	
 	@Override

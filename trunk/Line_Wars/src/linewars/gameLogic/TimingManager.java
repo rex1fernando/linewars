@@ -25,7 +25,6 @@ public class TimingManager implements Runnable{
 	private MessageProvider network;
 
 	private int nextTickID;
-	private long nextUpdateTime;
 	
 	public TimingManager(MapConfiguration map, List<PlayerData> players){
 //		manager = new LogicBlockingManager(map, players);
@@ -52,11 +51,11 @@ public class TimingManager implements Runnable{
 
 	@Override
 	public void run() {
-		nextUpdateTime = System.currentTimeMillis();
-		
 		boolean someoneWon = false;
 		
 		while(!someoneWon){
+			long loopStartTime = System.currentTimeMillis();
+			
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
 			
@@ -65,9 +64,8 @@ public class TimingManager implements Runnable{
 				someoneWon = true;
 			//update tick id
 			++nextTickID;
-			nextUpdateTime += TIME_PER_TICK_MILLIS;
 			//compute time to sleep for
-			long timeToSleep = nextUpdateTime - System.currentTimeMillis();
+			long timeToSleep = TIME_PER_TICK_MILLIS - (System.currentTimeMillis() - loopStartTime);
 			
 			//idle until it's time to update again
 			if(timeToSleep > 0)

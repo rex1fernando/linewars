@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 
@@ -87,6 +88,11 @@ public class TechButtonPanel extends Panel
 	 */
 	private class ArrowButton extends JButton
 	{
+		public ArrowButton()
+		{
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
+		}
+		
 		@Override
 		public void paint(Graphics g)
 		{

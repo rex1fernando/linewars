@@ -6,15 +6,26 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.Scanner;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import linewars.display.sound.SoundInfo;
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.Channel;
+import linewars.display.sound.SoundPlayer.SoundType;
 import linewars.init.Game;
 import menu.ContentProvider.MenuImage;
 import menu.panels.CreateGamePanel;
@@ -36,9 +47,15 @@ public class WindowManager extends JFrame
 	
 	private Image backgroundImage;
 	
+	private Thread soundThread;
+	
 	public WindowManager()
 	{
 		super("Titus");
+		
+		// wait for the background image to load
+		ContentProvider.getImageResource(MenuImage.background_title);
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -52,7 +69,41 @@ public class WindowManager extends JFrame
 		innerPanel = new InnerPanel(titleMenu);
 		setContentPane(innerPanel);
 		
-		
+		//start the lobby music
+		try {
+			SoundPlayer.getInstance().addSound("Intro.wav");
+			SoundPlayer.getInstance().addSound("Menu_Click.wav");
+			SoundPlayer.getInstance().playSound(new SoundInfo() {
+				
+				@Override
+				public double getVolume(Channel c) {
+					return 1.0;
+				}
+				
+				@Override
+				public String getURI() {
+					return "Intro.wav";
+				}
+				
+				@Override
+				public SoundType getType() {
+					return SoundType.MUSIC;
+				}
+			});
+			
+			try {
+				Scanner s = new Scanner(new File(OptionsPane.FILENAME));
+				s.next();
+				SoundPlayer.getInstance().setVolume(SoundType.MUSIC, s.nextDouble()/100.0);
+			} catch(FileNotFoundException e) {}
+			
+			soundThread = new Thread(SoundPlayer.getInstance());
+			soundThread.start();
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void showWindow()
@@ -123,6 +174,15 @@ public class WindowManager extends JFrame
 	
 	public void startGame(GameInitializer gameInit)
 	{
+		//stop the lobby system sound
+		SoundPlayer.getInstance().stop();
+		try {
+			soundThread.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		SoundPlayer.getInstance().removeAllPlayingSounds();
+		
 		gameInit.setWindowManager(this);
 		loadingScreen.start(gameInit);
 		changeContentPane(loadingScreen);
@@ -130,6 +190,17 @@ public class WindowManager extends JFrame
 			Game g = gameInit.get();
 			innerPanel.removeAll();
 			changeContentPane(g.getGamePanel());
+			
+			//set the volumes
+			Scanner s;
+			try {
+				s = new Scanner(new File(OptionsPane.FILENAME));
+				s.next();
+				SoundPlayer.getInstance().setVolume(SoundType.MUSIC, s.nextDouble()/100.0);
+				SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, s.nextDouble()/100.0);
+			} catch (FileNotFoundException e) {}
+			
+			
 			g.run();
 			loadingScreen.stop();
 		} catch (Exception e) {

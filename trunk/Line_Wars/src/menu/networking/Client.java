@@ -167,17 +167,7 @@ public class Client implements Runnable
 				gameInit.setObserver(isObserver);
 				gameInit.setPlayerId(playerId);
 				gamePanel.startGame(gameInit);
-			}
-			
-			//set the volumes
-			Scanner s;
-			try {
-				s = new Scanner(new File(OptionsPane.FILENAME));
-				s.next();
-				SoundPlayer.getInstance().setVolume(SoundType.MUSIC, s.nextDouble()/100.0);
-				SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, s.nextDouble()/100.0);
-			} catch (FileNotFoundException e) {}
-			
+			}			
 			
 			// TODO close the lobby system
 			

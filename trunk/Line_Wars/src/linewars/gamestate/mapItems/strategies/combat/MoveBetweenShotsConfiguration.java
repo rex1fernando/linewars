@@ -5,6 +5,7 @@ import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.StrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.turret.MinimumRangeTurretStrategy;
 import configuration.Usage;
@@ -94,6 +95,10 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 			double cooldown = (Double) getPropertyForName(cooldownName).getValue();
 			double currentTime = unit.getGameState().getTime();
 			
+			double fireRateModifier = unit.getModifier().getModifier(MapItemModifiers.fireRate);
+			duration /= fireRateModifier;
+			cooldown /= fireRateModifier;
+			
 			boolean firing = false;
 			boolean readyToFire = false;
 			if(currentTime < duration + lastShotStartedTime){
@@ -131,11 +136,7 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 			}
 			
 			//Now we know what to shoot; let's do so!
-			for(Turret t : unit.getTurrets()){
-				//TODO we need to figure out how far offset this turret is
-				//but that's impossible because all of their centers are at the same spot...
-				//do their turret strategies have to know??? that would suck ass
-				
+			for(Turret t : unit.getTurrets()){				
 				MinimumRangeTurretStrategy strat = (MinimumRangeTurretStrategy) t.getTurretStrategy();
 				strat.setTarget(closestTarget);
 				strat.fight(availableEnemies, availableAllies);

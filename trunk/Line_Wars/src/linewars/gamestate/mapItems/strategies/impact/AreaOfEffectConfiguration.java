@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems.strategies.impact;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.Unit;
@@ -65,7 +66,10 @@ public strictfp class AreaOfEffectConfiguration extends ImpactStrategyConfigurat
 				if(u.getOwner() == proj.getOwner() || !damageCircle.isCollidingWith(u.getBody()))
 					continue;
 				double distance = Math.sqrt(proj.getPosition().distanceSquared(u.getPosition()));
-				u.setHP(u.getHP() - damage(distance));
+				double damage = damage(distance);
+				double damageMultiplier = proj.getModifier().getModifier(MapItemModifiers.damageDealt);
+				damage *= damageMultiplier;
+				u.setHP(u.getHP() - damage);
 			}
 		}
 		

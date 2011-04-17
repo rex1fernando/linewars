@@ -89,6 +89,8 @@ public class Display
 
 	private boolean clicked;
 	private int loadedCount;
+	
+	private boolean showUnderlays;
 
 	private int playerIndex;
 	private int activeAbilityIndex;
@@ -360,6 +362,21 @@ public class Display
 			}
 		}
 	}
+	
+	public boolean showUnderlays()
+	{
+		return showUnderlays;
+	}
+	
+	public void setShowingUnderlays(boolean b)
+	{
+		showUnderlays = b;
+	}
+	
+	public void toggleUnderlays()
+	{
+		showUnderlays = !showUnderlays;
+	}
 
 	/**
 	 * The main content panel for the main window. It is responsible for drawing
@@ -394,6 +411,8 @@ public class Display
 		private boolean panRight;
 		private boolean panUp;
 		private boolean panDown;
+		private boolean altDown;
+		private boolean initialUnderlayState;
 
 		private long lastTime;
 		
@@ -1020,6 +1039,15 @@ public class Display
 				case KeyEvent.VK_DOWN:
 					panDown = true;
 					break;
+				case KeyEvent.VK_ALT:
+					if(!altDown)
+					{
+						initialUnderlayState = showUnderlays();
+						setShowingUnderlays(!showUnderlays());
+					}
+					altDown = true;
+					break;
+				
 				}
 			}
 			
@@ -1040,6 +1068,10 @@ public class Display
 					break;
 				case KeyEvent.VK_DOWN:
 					panDown = false;
+					break;
+				case KeyEvent.VK_ALT:
+					altDown = false;
+					setShowingUnderlays(initialUnderlayState);
 					break;
 				}
 			}

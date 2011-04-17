@@ -9,34 +9,47 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
 
 import linewars.gamestate.MapConfiguration;
 import linewars.gamestate.Race;
 
 public class ContentProvider
 {
-	private static Map<MenuImage, Image> imageResources = new HashMap<MenuImage, Image>();
+	private static final Image BLANK_IMAGE;
+	
+	private static final ResourceLoader loader;
+	
+	private static Map<MenuImage, Future<Image>> imageResources;
 	private static Map<MenuImage, String> filenames;
 	
 	private static final Race[] races;
 	public static final Font FONT;
-	
+
+	// loads the blank image
 	static
 	{
-		Image blankImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = blankImage.getGraphics();
+		BLANK_IMAGE = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = BLANK_IMAGE.getGraphics();
 		g.setColor(Color.black);
-		g.fillRect(0, 0, blankImage.getWidth(null), blankImage.getHeight(null));
-		imageResources.put(MenuImage.blank, blankImage);
-		
+		g.fillRect(0, 0, BLANK_IMAGE.getWidth(null), BLANK_IMAGE.getHeight(null));
+	}
+	
+	// initializes the map of filenames
+	static
+	{
 		filenames = new HashMap<MenuImage, String>();
 		
 		// button icons
@@ -49,7 +62,6 @@ public class ContentProvider
 		
 		// concept art
 		filenames.put(MenuImage.background_title, "resources/ui/backgrounds/title_menu.png");
-		getImageResource(MenuImage.background_title);  // TODO implement swing worker future design
 		filenames.put(MenuImage.background_lobby, "resources/ui/backgrounds/lobby_system.png");
 		filenames.put(MenuImage.lobby_back, "resources/ui/backgrounds/lobby_back.png");
 		filenames.put(MenuImage.background_loading, "resources/ui/backgrounds/loading_screen.png");
@@ -78,8 +90,19 @@ public class ContentProvider
 		// progress bar
 		filenames.put(MenuImage.progressbar_back, "resources/ui/components/loadingbar_back.png");
 		filenames.put(MenuImage.progressbar_front, "resources/ui/components/loadingbar_front.png");
+		
+		// initialize image resources
+		clearImageResources();
+		
+		// init loader
+		loader = new ResourceLoader();
+		loader.prioritize(MenuImage.background_title);
+		loader.prioritize(MenuImage.menu_button_rollover);
+		loader.prioritize(MenuImage.menu_button_default);
+		loader.execute();
 	}
 	
+	// initialize races
 	static
 	{
 		String from = "resources/races";
@@ -96,6 +119,7 @@ public class ContentProvider
 		races = maps.toArray(new Race[0]);
 	}
 	
+	// initialize font
 	static
 	{
 		Font temp = null;
@@ -155,7 +179,6 @@ public class ContentProvider
 		return p;
 	}
 	
-	
 	public static Race[] getAvailableRaces()
 	{
 		return races;
@@ -208,20 +231,23 @@ public class ContentProvider
 	
 	public static synchronized Image getImageResource(MenuImage img)
 	{
-		if (imageResources.containsKey(img) == false)
-		{
-			try {
-				imageResources.put(img, ImageIO.read(new File(filenames.get(img))));
-			} catch (IOException e) {
-				return imageResources.get(MenuImage.blank);
-			}
+		loader.prioritize(img);
+		try {
+			return imageResources.get(img).get();
+		} catch (Exception e) {
+			return BLANK_IMAGE;
 		}
-		return imageResources.get(img);
 	}
 	
 	public static synchronized void clearImageResources()
 	{
-		imageResources = new HashMap<MenuImage, Image>();
+		imageResources = new HashMap<MenuImage, Future<Image>>();
+		
+		for (MenuImage key : filenames.keySet())
+		{
+			imageResources.put(key, new ImageProxy(filenames.get(key)));
+		}
+		
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)
@@ -263,5 +289,78 @@ public class ContentProvider
 		} catch (Exception e) {}
 		
 		return obj;
+	}
+	
+	private static class ResourceLoader extends SwingWorker<Object, Object>
+	{
+		private Deque<MenuImage> queue;
+		private Object lock;
+		
+		public ResourceLoader()
+		{
+			initQueue();
+			lock = new Object();
+		}
+		
+		private void initQueue()
+		{
+			queue = new ArrayDeque<MenuImage>(filenames.size());
+			for (MenuImage key : filenames.keySet())
+			{
+				queue.offer(key);
+			}
+		}
+		
+		public void prioritize(MenuImage key)
+		{
+			synchronized (lock)
+			{
+				if (queue.contains(key))
+				{
+					queue.remove(key);
+					queue.offerFirst(key);
+				}
+			}
+		}
+		
+		@Override
+		protected Object doInBackground() throws Exception
+		{
+			while (queue.isEmpty() == false)
+			{
+				MenuImage key = null;
+				synchronized (lock) {
+					key = queue.poll();
+				}
+				ImageProxy img = (ImageProxy) imageResources.get(key);
+				img.run();
+			}
+			
+			return null;
+		}
+	}
+	
+	private static class ImageProxy extends FutureTask<Image>
+	{
+		public ImageProxy(String filename)
+		{
+			super(new ImageLoader(filename));
+		}
+	}
+	
+	private static class ImageLoader implements Callable<Image>
+	{
+		private String filename;
+		
+		public ImageLoader(String filename)
+		{
+			this.filename = filename;
+		}
+		
+		@Override
+		public Image call() throws Exception
+		{
+			return ImageIO.read(new File(filename));
+		}		
 	}
 }

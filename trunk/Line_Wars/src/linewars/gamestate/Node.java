@@ -169,8 +169,12 @@ public strictfp class Node {
 	{
 		if(gameState.getTime()*1000 - lastSpawnTime > TIME_TO_SPAWN)
 		{
-			
-			Random rand = new Random(gameState.getTimerTick());
+			int addToRand = 0;
+			if(owner != null)
+				addToRand += owner.getPlayerID();
+			if(invader != null)
+				addToRand += invader.getPlayerID();
+			Random rand = new Random(gameState.getTimerTick() + addToRand);
 			HashMap<Player, Entry<Double[], Lane[]>> flows = getAllFlow(this);
 			for(int i = 0; i < containedUnits.size();)
 			{

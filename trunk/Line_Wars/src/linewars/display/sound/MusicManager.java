@@ -11,9 +11,12 @@ import linewars.gamestate.GameState;
 
 public class MusicManager
 {
+	private static final long SONG_PAUSE_TIME = 120000;
+	
 	private ArrayList<String> songList;
 	private MusicInfo playing;
 	private int songIndex;
+	private long songPauseStartTime = -1;
 	
 	public MusicManager(String[] songs)
 	{
@@ -55,13 +58,17 @@ public class MusicManager
 			songIndex = (songIndex + 1) % songList.size();
 		}
 		
-		if(playing.isDone())
+		if(playing.isDone() && System.currentTimeMillis() - songPauseStartTime > SONG_PAUSE_TIME)
 		{
 			playing = new MusicInfo(songList.get(songIndex));
 			SoundPlayer.getInstance().playSound(playing);
 			
 			songIndex = (songIndex + 1) % songList.size();
+			songPauseStartTime = -1;
 		}
+		else if(playing.isDone() && songPauseStartTime < 0)
+			songPauseStartTime = System.currentTimeMillis();
+			
 	}
 	
 	private class MusicInfo extends SoundInfo

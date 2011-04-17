@@ -168,9 +168,11 @@ public class MeleeChargeOnTargetConfiguration extends
 			if(disSquared > minRange*minRange)
 			{
 				//can I charge?
-				if(unit.getGameState().getTime() - lastChargeTime > getChargeCooldown())
+				if(unit.getGameState().getTime() - lastChargeTime > getChargeCooldown() 
+						&& disSquared <= Math.pow(getMinimumChargeRange() + target.getRadius(), 2))
 				{//AWWWWWWWWWWWWWWW YEAHHHHHHHHHHHHHHHHH
 					unit.addActiveAbility(new Charge()); //haul ass
+					lastChargeTime = unit.getGameState().getTime();
 				}
 				Position pos = target.getPosition();
 				double angle = pos.subtract(unit.getPosition()).getAngle();
@@ -230,6 +232,13 @@ public class MeleeChargeOnTargetConfiguration extends
 				null, EditorUsage.PositiveReal, "The cooldown of the charge"));
 		super.setPropertyForName("moveSpeedIncrease", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, 
 				null, EditorUsage.Real, "The ratio to incerase the move speed by (e.g. a 50% increase would be 0.5)"));
+		super.setPropertyForName("minimumChargeRange", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, 
+				null, EditorUsage.PositiveReal, "The minimum distance a unit must be within of its target to charge"));
+	}
+	
+	public double getMinimumChargeRange()
+	{
+		return (Double)super.getPropertyForName("minimumChargeRange").getValue();
 	}
 	
 	public double getChargeDuration()
@@ -260,6 +269,7 @@ public class MeleeChargeOnTargetConfiguration extends
 		return (obj instanceof MeleeChargeOnTargetConfiguration) &&
 				((MeleeChargeOnTargetConfiguration)obj).getChargeDuration() == getChargeDuration() &&
 				((MeleeChargeOnTargetConfiguration)obj).getChargeCooldown() == getChargeCooldown() &&
+				((MeleeChargeOnTargetConfiguration)obj).getMinimumChargeRange() == getMinimumChargeRange() &&
 				((MeleeChargeOnTargetConfiguration)obj).getMoveSpeedIncrease() == getMoveSpeedIncrease();
 	}
 
