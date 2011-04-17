@@ -1,8 +1,12 @@
 package linewars.display.panels;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,6 +21,7 @@ import linewars.display.ImageDrawer;
 import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
+import menu.ContentProvider;
 
 /**
  * Encapsulates the Exit button.
@@ -33,8 +38,8 @@ public class ExitButtonPanel extends Panel
 	/**
 	 * The height and width of the panel
 	 */
-	private static final int DEFAULT_WIDTH = 600;
-	private static final int DEFAULT_HEIGHT = 200;
+	private static final int DEFAULT_WIDTH = 500;
+	private static final int DEFAULT_HEIGHT = 250;
 
 	private Display display;
 	private JButton exitButton;
@@ -105,19 +110,36 @@ public class ExitButtonPanel extends Panel
 	 */
 	private class ExitButton extends JButton
 	{
+		private String text;
+		private Font font;
+
 		public ExitButton()
 		{
 			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
+
+			this.text = "EXIT";
+			
+			setOpaque(false);
+			setBorder(null);
 		}
 		
 		@Override
-		public void paint(Graphics g)
+		public void paintComponent(Graphics g)
 		{
+			super.paintComponent(g);
+			
 			DefaultButtonModel model = (DefaultButtonModel)getModel();
 			if(model.isPressed())
 				getPressedIcon().paintIcon(this, g, 0, 0);
 			else
 				getIcon().paintIcon(this, g, 0, 0);
+
+			g.setFont(font);
+			FontMetrics fm = g.getFontMetrics();
+			
+			Point pos = ContentProvider.centerText(fm, text, getWidth(), getHeight());
+			g.setColor(Color.white);
+			g.drawString(text, pos.x, pos.y);
 		}
 	}
 

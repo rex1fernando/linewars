@@ -31,7 +31,6 @@ import linewars.display.Animation;
 import linewars.display.GameImage;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
-import linewars.display.sound.SoundPlayer;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
@@ -303,28 +302,28 @@ public class TechDisplay extends JViewport
 			
 			Position vector = new Position(endX - startX, endY - startY);
 
-			if(editorNOTgame)
-			{
+//			if(editorNOTgame)
+//			{
 				vector = vector.normalize().scale(15);
 				
 				g.drawLine(startX, startY, endX, endY);	
 	
 				vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
-				g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
+				g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
 	
 				vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
-				g.drawLine(endX, endY, endX + (int)vector.getX(), endY + (int)vector.getY());
-			}
-			else
-			{
-				double rotation = vector.getAngle();
-				g.rotate(rotation, vector.getX() + startX, vector.getY() + startY);
-				
-				Image toDraw = arrowImages.get(arrow.getImage(stateManager.getCurrentGameState().getTime(), 0.0));
-				g.drawImage(toDraw, startX - 10, startY - 10, (int)vector.length(), 20, null);
-				
-				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
-			}
+				g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
+//			}
+//			else
+//			{
+//				double rotation = vector.getAngle();
+//				g.rotate(rotation, vector.getX() + startX, vector.getY() + startY);
+//				
+//				Image toDraw = arrowImages.get(arrow.getImage(stateManager.getCurrentGameState().getTime(), 0.0));
+//				g.drawImage(toDraw, startX - 10, startY - 10, (int)vector.length(), 20, null);
+//				
+//				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
+//			}
 			
 			drawDependencyLines(g, child);
 			child = node.getNextChild();
@@ -378,8 +377,6 @@ public class TechDisplay extends JViewport
 				setInfoFromTech(tech.getTechConfig());
 			else
 				setInfoFromTech(null);
-			
-			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 		}
 		
 		public void setTech(TechNode tech)
@@ -680,6 +677,7 @@ public class TechDisplay extends JViewport
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			System.out.println("research " + buttons[index].tech.getTechConfig().getName());
 			if(!buttons[index].tech.isUnlocked())
 				return;
 			

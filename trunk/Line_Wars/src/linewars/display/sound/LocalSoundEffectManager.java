@@ -71,7 +71,6 @@ public class LocalSoundEffectManager
 			{
 				for(Channel c : Channel.values())
 					pair.sound.setVolume(c, mapItemVol[c.ordinal()]);
-				System.out.println(mapItemVol[0] + ", " + mapItemVol[1]);
 			}
 		}
 	}

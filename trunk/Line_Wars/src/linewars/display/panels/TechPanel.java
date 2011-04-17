@@ -51,7 +51,7 @@ import editor.GenericSelector.SelectionChangeListener;
 @SuppressWarnings("serial")
 public class TechPanel extends Panel
 {
-	private static final double ASPECT_RATIO = 0.75;
+	private static final double ASPECT_RATIO = 0.45;
 
 	private static final int DEFAULT_WIDTH = 1024;
 	static final int DEFAULT_HEIGHT = 640;
