@@ -267,7 +267,10 @@ public class TechGraph implements Serializable
 		
 		public boolean isUnlocked()
 		{
-			return getUnlockStrategy().isUnlocked(this);
+			if(getUnlockStrategy() != null)
+				return getUnlockStrategy().isUnlocked(this);
+			else
+				return true;
 		}
 
 		public void addChild(TechNode node) throws CycleException
