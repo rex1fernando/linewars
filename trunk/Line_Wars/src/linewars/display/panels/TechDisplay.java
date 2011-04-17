@@ -31,6 +31,7 @@ import linewars.display.Animation;
 import linewars.display.GameImage;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
+import linewars.display.sound.SoundPlayer;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
@@ -377,6 +378,8 @@ public class TechDisplay extends JViewport
 				setInfoFromTech(tech.getTechConfig());
 			else
 				setInfoFromTech(null);
+			
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 		}
 		
 		public void setTech(TechNode tech)

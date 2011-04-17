@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 
@@ -104,6 +105,11 @@ public class ExitButtonPanel extends Panel
 	 */
 	private class ExitButton extends JButton
 	{
+		public ExitButton()
+		{
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
+		}
+		
 		@Override
 		public void paint(Graphics g)
 		{

@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
+import linewars.display.sound.SoundPlayer;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 
@@ -71,6 +72,7 @@ public class CustomScrollBar extends JScrollBar
 			this.orientation = orientation;
 			setPreferredSize(new Dimension(0, 18));
 			setBorder(null);
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 		}
 		
 		@Override

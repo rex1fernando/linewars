@@ -14,6 +14,7 @@ import javax.swing.JList;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
+import linewars.display.sound.SoundPlayer;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 

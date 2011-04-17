@@ -71,6 +71,7 @@ public class LocalSoundEffectManager
 			{
 				for(Channel c : Channel.values())
 					pair.sound.setVolume(c, mapItemVol[c.ordinal()]);
+				System.out.println(mapItemVol[0] + ", " + mapItemVol[1]);
 			}
 		}
 	}
@@ -85,55 +86,77 @@ public class LocalSoundEffectManager
 		currentEffects.put(id, new StateSoundPair(state, newEffect));
 	}
 	
+	//lets try something a little bit different
 	private double mapItemVol(Channel c, Position mapItemPos, Rectangle screenRect)
 	{
-		//get the vector from the screen to the mapitem
-		Position vectorFromScreenCenter = mapItemPos.subtract(screenRect.position().getPosition());
-		
-		// get the horizontal and vertical distances from the screen center
-		double horizDistFromScreenCenter = vectorFromScreenCenter.scalarProjection(new Position(1, 0));
-		double vertDistFromScreenCenter = vectorFromScreenCenter.scalarProjection(new Position(0, 1));
-		
-		//return 0 if the mapitem is further that half the screen size from the edge of the screen
-		if(horizDistFromScreenCenter > screenRect.getWidth() || vertDistFromScreenCenter > screenRect.getHeight())
-			return 0.0;
-		
-		/*
-		 * TODO THIS CODE WILL HAVE TO CHANGE IF THE NUMBER OF CHANNELS CHANGES
-		 */
-		
-		//the left and right channels are mirror images
-		if(c.compareTo(Channel.LEFT) == 0)
-			horizDistFromScreenCenter = -horizDistFromScreenCenter;
-		
-		//up and down are mirror images
-		if(vertDistFromScreenCenter > 0)
-			vertDistFromScreenCenter = -vertDistFromScreenCenter;
-		
-		double halfScreenWidth = screenRect.getWidth() / 2;
-		double halfScreenHeight = screenRect.getHeight() / 2;
-		
-		//get the component of the volume from the vertical distance
-		double vertComponent;
-		if(vertDistFromScreenCenter <= halfScreenHeight)
-			vertComponent = 1.0;
-		else
-			vertComponent = 1.0 - Math.pow(((vertDistFromScreenCenter - halfScreenHeight) / halfScreenHeight), 2);
-		
-		//get the component of the volume from the horizontal distance
-		double horizComponent;
-		if(horizDistFromScreenCenter < -halfScreenWidth)
-			horizComponent = 0.0;
-		else if(horizDistFromScreenCenter >= 0 && horizDistFromScreenCenter <= halfScreenWidth)
-			horizComponent = 1.0;
-		else if(horizDistFromScreenCenter < 0)
-			horizComponent = -Math.pow((horizDistFromScreenCenter / halfScreenWidth), 2) + 1.0;
-		else
-			horizComponent = 1.0 - Math.pow(((horizDistFromScreenCenter - halfScreenWidth) / halfScreenWidth), 2);
-		
-		//multiply the two components together and return the result
-		return vertComponent * horizComponent;
+		Position micPos = getMicrophonePos(c, screenRect);
+		double ret = 1.0 - mapItemPos.distanceSquared(micPos)*0.0000000005*Math.sqrt(screenRect.getWidth()*screenRect.getHeight());
+		if(ret < 0)
+			ret = 0;
+		else if(ret > 1)
+			ret = 1;
+		return ret;
 	}
+	
+	private Position getMicrophonePos(Channel c, Rectangle screenRect)
+	{
+		if(c.compareTo(Channel.LEFT) == 0)
+			return screenRect.position().getPosition().subtract(screenRect.getWidth()/6, 0);
+		else if(c.compareTo(Channel.RIGHT) == 0)
+			return screenRect.position().getPosition().subtract(-screenRect.getWidth()/6, 0);
+		else
+			throw new IllegalArgumentException("The channel " + c + " is not supported");
+	}
+	
+//	private double mapItemVol(Channel c, Position mapItemPos, Rectangle screenRect)
+//	{
+//		//get the vector from the screen to the mapitem
+//		Position vectorFromScreenCenter = mapItemPos.subtract(screenRect.position().getPosition());
+//		
+//		// get the horizontal and vertical distances from the screen center
+//		double horizDistFromScreenCenter = vectorFromScreenCenter.scalarProjection(new Position(1, 0));
+//		double vertDistFromScreenCenter = vectorFromScreenCenter.scalarProjection(new Position(0, 1));
+//		
+//		//return 0 if the mapitem is further that half the screen size from the edge of the screen
+//		if(horizDistFromScreenCenter > screenRect.getWidth() || vertDistFromScreenCenter > screenRect.getHeight())
+//			return 0.0;
+//		
+//		/*
+//		 * TODO THIS CODE WILL HAVE TO CHANGE IF THE NUMBER OF CHANNELS CHANGES
+//		 */
+//		
+//		//the left and right channels are mirror images
+//		if(c.compareTo(Channel.LEFT) == 0)
+//			horizDistFromScreenCenter = -horizDistFromScreenCenter;
+//		
+//		//up and down are mirror images
+//		if(vertDistFromScreenCenter > 0)
+//			vertDistFromScreenCenter = -vertDistFromScreenCenter;
+//		
+//		double halfScreenWidth = screenRect.getWidth() / 2;
+//		double halfScreenHeight = screenRect.getHeight() / 2;
+//		
+//		//get the component of the volume from the vertical distance
+//		double vertComponent;
+//		if(vertDistFromScreenCenter <= halfScreenHeight)
+//			vertComponent = 1.0;
+//		else
+//			vertComponent = 1.0 - Math.pow(((vertDistFromScreenCenter - halfScreenHeight) / halfScreenHeight), 2);
+//		
+//		//get the component of the volume from the horizontal distance
+//		double horizComponent;
+//		if(horizDistFromScreenCenter < -halfScreenWidth)
+//			horizComponent = 0.0;
+//		else if(horizDistFromScreenCenter >= 0 && horizDistFromScreenCenter <= halfScreenWidth)
+//			horizComponent = 1.0;
+//		else if(horizDistFromScreenCenter < 0)
+//			horizComponent = -Math.pow((horizDistFromScreenCenter / halfScreenWidth), 2) + 1.0;
+//		else
+//			horizComponent = 1.0 - Math.pow(((horizDistFromScreenCenter - halfScreenWidth) / halfScreenWidth), 2);
+//		
+//		//multiply the two components together and return the result
+//		return vertComponent * horizComponent;
+//	}
 	
 	private class LocalSoundEffectInfo extends SoundInfo
 	{

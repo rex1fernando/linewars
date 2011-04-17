@@ -18,6 +18,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import linewars.display.sound.SoundPlayer;
+import linewars.display.sound.SoundPlayer.SoundType;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
@@ -52,6 +54,9 @@ public class OptionsPane extends JPanel
 		public void actionPerformed(ActionEvent e)
 		{
 			saveOptions();
+			//also set the music volume for the lobby music
+			SoundPlayer.getInstance().setVolume(SoundType.MUSIC, musicSlider.getValue()/100.0);
+			SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, effectsSlider.getValue()/100.0);
 		}
 	}
 	

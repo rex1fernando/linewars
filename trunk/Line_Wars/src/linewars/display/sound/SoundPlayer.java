@@ -1,5 +1,7 @@
 package linewars.display.sound;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,6 +59,8 @@ public class SoundPlayer implements Runnable
 	private long lastTime;
 	private float loopTime;
 
+	private ActionListener buttonClickSound;
+
 	private SoundPlayer()
 	{
 		running = false;
@@ -68,6 +72,36 @@ public class SoundPlayer implements Runnable
 		playing = new ArrayList<SoundPair>();
 		format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE_IN_BYTES * 8, Channel.values().length, true, false);
 		loopTime = MIN_LOOP_TIME_MS;
+		
+		buttonClickSound = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(SoundPlayer.getInstance().isRunning())
+					SoundPlayer.getInstance().playSound(new SoundInfo() {
+						
+						@Override
+						public double getVolume(Channel c) {
+							return 1.0;
+						}
+						
+						@Override
+						public String getURI() {
+							return "Menu_Click.wav";
+						}
+						
+						@Override
+						public SoundType getType() {
+							return SoundType.SOUND_EFFECT;
+						}
+					});
+			}
+		};
+	}
+	
+	public ActionListener getButtonSoundListener()
+	{
+		return buttonClickSound;
 	}
 
 	public static SoundPlayer getInstance()
@@ -84,6 +118,11 @@ public class SoundPlayer implements Runnable
 		}
 
 		return instance;
+	}
+	
+	public boolean isRunning()
+	{
+		return running;
 	}
 	
 	public void setVolume(SoundType type, double vol)
@@ -114,6 +153,11 @@ public class SoundPlayer implements Runnable
 			return;
 
 		playing.add(new SoundPair(0, playMe));
+	}
+	
+	public void removeAllPlayingSounds()
+	{
+		playing.clear();
 	}
 	
 	public void stop()

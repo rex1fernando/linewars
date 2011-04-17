@@ -21,6 +21,7 @@ import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
+import linewars.display.sound.SoundPlayer;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
@@ -501,6 +502,7 @@ public class CommandCardPanel extends Panel
 		public CommandButton()
 		{
 			this("");
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 		}
 		
 		public CommandButton(String label)
