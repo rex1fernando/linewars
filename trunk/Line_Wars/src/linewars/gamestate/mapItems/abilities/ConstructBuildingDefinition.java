@@ -34,7 +34,7 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition impl
 	
 	private BuildingDefinition buildingDefinition;
 	
-	public strictfp class ConstructBuilding implements Ability {
+	public strictfp class ConstructBuilding implements Ability, ProgressAbility {
 
 		private long startTime;
 		private boolean built = false;
@@ -86,6 +86,11 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition impl
 		@Override
 		public boolean finished() {
 			return built;
+		}
+
+		@Override
+		public double getProgress() {
+			return (building.getGameState().getTime()*1000 - startTime)/buildingDefinition.getBuildTime();
 		}
 
 	}

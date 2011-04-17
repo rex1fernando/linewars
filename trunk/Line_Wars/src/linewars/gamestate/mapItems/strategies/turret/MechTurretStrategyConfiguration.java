@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems.strategies.turret;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
 import linewars.gamestate.mapItems.Turret;
@@ -124,6 +125,8 @@ public strictfp class MechTurretStrategyConfiguration extends TurretStrategyConf
 			owner.getWave().getLane().addProjectile(spawnedProjectile);
 			
 			spawnedProjectile.getModifier().pushUnderStack(owner.getModifier());
+			
+			owner.setState(MapItemState.Firing);
 		}
 
 		@Override

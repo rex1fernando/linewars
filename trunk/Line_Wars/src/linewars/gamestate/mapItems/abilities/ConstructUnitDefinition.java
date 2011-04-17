@@ -36,7 +36,7 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 	private UnitDefinition unitDefinition = null;
 	private long buildtime;
 	
-	public strictfp class ConstructUnit implements Ability {
+	public strictfp class ConstructUnit implements Ability, ProgressAbility {
 		
 		private Building building;
 		private long startTime;
@@ -70,6 +70,13 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition implemen
 		@Override
 		public boolean finished() {
 			return false;
+		}
+
+		@Override
+		public double getProgress() {
+			return (building.getGameState().getTime() * 1000 - startTime)
+					/ (getBuildTime() / building.getModifier().getModifier(
+							MapItemModifiers.buildingProductionRate));
 		}
 
 	}
