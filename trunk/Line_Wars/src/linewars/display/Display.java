@@ -452,6 +452,7 @@ public class Display
 			Animation techPanelArrow = null;
 			Animation techTabRegular = null;
 			Animation techTabPressed = null;
+			Animation techButtonLocked = null;
 			try
 			{
 				emptyButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/EmptyButton.cfg"))).readObject();
@@ -466,6 +467,7 @@ public class Display
 				techPanelArrow = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_arrow.cfg"))).readObject();
 				techTabRegular = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/UnclickedTechTab.cfg"))).readObject();
 				techTabPressed = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/ClickedTechTab.cfg"))).readObject();
+				techButtonLocked = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/emptyIconLocked.cfg"))).readObject();
 			}
 			catch (FileNotFoundException e)
 			{
@@ -492,7 +494,8 @@ public class Display
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techTabRegular, techTabPressed, techPanelBackground, techPanelArrow);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techTabRegular, techTabPressed, 
+					emptyButton, clickedButton, techButtonLocked, techPanelBackground, techPanelArrow);
 			add(techPanel);
 			techButtonPanel = new TechButtonPanel(techPanel, Display.this, gameStateProvider, techPanelActivate, techPanelDisable);
 			add(techButtonPanel);

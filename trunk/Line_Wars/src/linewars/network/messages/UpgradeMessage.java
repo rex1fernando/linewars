@@ -2,6 +2,7 @@ package linewars.network.messages;
 
 import linewars.gamestate.GameState;
 import linewars.gamestate.tech.TechConfiguration;
+import linewars.gamestate.tech.TechGraph.TechNode;
 
 public class UpgradeMessage extends Message
 {
@@ -32,7 +33,7 @@ public class UpgradeMessage extends Message
 
 	@Override
 	public void apply(GameState gameState) {
-		TechConfiguration tech = gameState.getPlayer(getPlayerId()).getRace().getAllTechGraphs().get(techGraphID).getOrderedList().get(techID).getTechConfig();
+		TechNode tech = gameState.getPlayer(getPlayerId()).getRace().getAllTechGraphs().get(techGraphID).getOrderedList().get(techID);
 		tech.research(gameState.getPlayer(getPlayerId()));
 	}
 

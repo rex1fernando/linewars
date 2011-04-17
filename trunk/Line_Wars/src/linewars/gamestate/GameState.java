@@ -34,7 +34,7 @@ import linewars.network.messages.Message;
 public strictfp class GameState
 {
 	
-	private static final double STARTING_STUFF = 400;
+	private static final double STARTING_STUFF = 10000;
 	public static final double MAX_PLAYER_ENERGY = 100;
 	private static final double ENERGY_INCREMENT_RATE = 1;
 	

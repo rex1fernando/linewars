@@ -20,6 +20,8 @@ public class UnlockStrategyNoSyblings extends UnlockStrategy
 		TechNode parent = node.getParent();
 		while(parent != null)
 		{
+			if(!parent.isResearched())
+				return false;
 			TechNode child = parent.getChild();
 			while(child != null)
 			{
