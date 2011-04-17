@@ -137,6 +137,11 @@ public class TechPanel extends Panel
 			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1], regularTechButton, presssedTechButton, lockedTechButton));
 		}
 		
+		if(techs.size() > 0)
+		{
+			activeTech = techs.get(0);
+		}
+		
 		initialize();
 	}
 	

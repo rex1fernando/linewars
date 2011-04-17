@@ -314,34 +314,21 @@ public class TechDisplay extends JViewport
 			
 			Position vector = new Position(endX - startX, endY - startY);
 
-//			if(editorNOTgame)
-//			{
 			if(child.isResearched())
-				g.setColor(Color.blue);
+				g.setColor(Color.gray);
 			else
 				g.setColor(Color.black);
 			
-				vector = vector.normalize().scale(15);
-				
-				g.drawLine(startX, startY, endX, endY);	
-	
-				vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
-				g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
-	
-				vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
-				g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
-//			}
-//			else
-//			{
-//				double rotation = vector.getAngle();
-//				g.rotate(rotation, vector.getX() + startX, vector.getY() + startY);
-//				
-//				Image toDraw = arrowImages.get(arrow.getImage(stateManager.getCurrentGameState().getTime(), 0.0));
-//				g.drawImage(toDraw, startX - 10, startY - 10, (int)vector.length(), 20, null);
-//				
-//				g.rotate(-rotation, vector.getX() + startX, vector.getY() + startY);
-//			}
+			vector = vector.normalize().scale(15);
 			
+			g.drawLine(startX, startY, endX, endY);	
+
+			vector = vector.rotateAboutPosition(new Position(0, 0), Math.PI / 4);
+			g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
+
+			vector = vector.rotateAboutPosition(new Position(0, 0), -Math.PI / 2);
+			g.drawLine(endX, endY, endX - (int)vector.getX(), endY - (int)vector.getY());
+
 			drawDependencyLines(g, child);
 			child = node.getNextChild();
 		}

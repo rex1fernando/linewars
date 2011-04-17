@@ -17,6 +17,9 @@ public class UnlockStrategyAll extends UnlockStrategy
 	@Override
 	public boolean isUnlocked(TechNode node)
 	{
+		if(node.isResearched())
+			return false;
+		
 		TechNode parent = node.getParent();
 		while(parent != null)
 		{

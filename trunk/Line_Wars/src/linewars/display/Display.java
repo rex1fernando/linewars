@@ -24,6 +24,7 @@ import java.util.List;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
 
 import linewars.display.layers.FlowIndicator;
 import linewars.display.layers.GraphLayer;
@@ -499,6 +500,8 @@ public class Display
 			add(techPanel);
 			techButtonPanel = new TechButtonPanel(techPanel, Display.this, gameStateProvider, techPanelActivate, techPanelDisable);
 			add(techButtonPanel);
+			
+			ToolTipManager.sharedInstance().setInitialDelay(0);
 
 			GameState state = gameStateProvider.getCurrentGameState();
 			Map map = state.getMap();
