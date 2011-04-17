@@ -545,6 +545,7 @@ public class CommandCardPanel extends Panel
 					icon.paintIcon(this, g, 0, 0);
 			}
 		}
+		
 		private class MousePressAdapter extends MouseAdapter
 		{
 			public void mousePressed(MouseEvent e)

@@ -307,15 +307,20 @@ public class TechDisplay extends JViewport
 		{
 			Point offset = getViewPosition();
 			
-			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE - offset.x;
-			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
-			int endX = child.getX() * TECH_BUTTON_SIZE - offset.x;
-			int endY = child.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.y;
+			int startX = node.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.x;
+			int startY = node.getY() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE - offset.y;
+			int endX = child.getX() * TECH_BUTTON_SIZE + TECH_BUTTON_SIZE / 2 - offset.x;
+			int endY = child.getY() * TECH_BUTTON_SIZE - offset.y;
 			
 			Position vector = new Position(endX - startX, endY - startY);
 
 //			if(editorNOTgame)
 //			{
+			if(child.isResearched())
+				g.setColor(Color.blue);
+			else
+				g.setColor(Color.black);
+			
 				vector = vector.normalize().scale(15);
 				
 				g.drawLine(startX, startY, endX, endY);	
@@ -371,12 +376,15 @@ public class TechDisplay extends JViewport
 		private TechNode tech;
 		private int row;
 		private int col;
+		private boolean isPressed;
+		
 		
 		public TechButton(TechNode tech, int row, int col)
 		{
 			this.row = row;
 			this.col = col;
 			this.tech = tech;
+			isPressed = false;
 			
 			Dimension size = new Dimension(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
 			
@@ -389,6 +397,8 @@ public class TechDisplay extends JViewport
 				setInfoFromTech(tech.getTechConfig());
 			else
 				setInfoFromTech(null);
+
+			addMouseListener(new MousePressAdapter());
 		}
 		
 		public void setTech(TechNode tech)
@@ -484,7 +494,7 @@ public class TechDisplay extends JViewport
 				if(disabledIcon != null)
 					disabledIcon.paintIcon(this, g, 0, 0);
 			}
-			else if(model.isPressed())
+			else if(isPressed)
 			{
 				if(pressedIcon != null)
 					pressedIcon.paintIcon(this, g, 0, 0);
@@ -503,6 +513,19 @@ public class TechDisplay extends JViewport
 			{
 				if(icon != null)
 					icon.paintIcon(this, g, 0, 0);
+			}
+		}
+		
+		private class MousePressAdapter extends MouseAdapter
+		{
+			public void mousePressed(MouseEvent e)
+			{
+				isPressed = true;
+			}
+			
+			public void mouseReleased(MouseEvent e)
+			{
+				isPressed = false;
 			}
 		}
 	}
@@ -698,7 +721,6 @@ public class TechDisplay extends JViewport
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			System.out.println("research " + buttons[index].tech.getTechConfig().getName());
 			if(!buttons[index].tech.isUnlocked())
 				return;
 			
