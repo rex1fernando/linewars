@@ -73,6 +73,10 @@ public class TechDisplay extends JViewport
 	private GenericSelector<Configuration> techSelector;
 	private GenericSelector<UnlockStrategy> unlockStrategySelector;
 	
+	private Animation regularIcon;
+	private Animation pressedIcon;
+	private Animation lockedIcon;
+	
 	/**
 	 * Constructs the TechDisplay for the editors, allows all elements to be edited.
 	 * @param techGraph The TechGraph this TechDisplay will show and edit.
@@ -95,7 +99,8 @@ public class TechDisplay extends JViewport
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 * @param techGraph The TechGraph this TechDisplay will show.
 	 */
-	public TechDisplay(GameStateProvider stateManager, int pID, MessageReceiver receiver, TechPanel techPanel, TechGraph techGraph, int graphID, Animation arrow)
+	public TechDisplay(GameStateProvider stateManager, int pID, MessageReceiver receiver, TechPanel techPanel, TechGraph techGraph, int graphID, Animation arrow,
+			Animation regular, Animation pressed, Animation locked)
 	{
 		this.editorNOTgame = false;
 		this.pID = pID;
@@ -106,6 +111,13 @@ public class TechDisplay extends JViewport
 		this.arrow = arrow;
 		this.arrowImages = new HashMap<String, Image>();
 		this.stateManager = stateManager;
+		
+		regularIcon = regular;
+		regularIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
+		pressedIcon = pressed;
+		pressedIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
+		lockedIcon = locked;
+		lockedIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
 		
 		for(int i = 0; i < arrow.getNumImages(); ++i)
 		{
@@ -410,21 +422,21 @@ public class TechDisplay extends JViewport
 					}
 				}
 				
-				setIcon(new ButtonIcon(this, icons.getIconURI(IconType.regular)));
-				setPressedIcon(new ButtonIcon(this, icons.getIconURI(IconType.pressed)));
-				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover)));
-				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted)));
-				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled)));
+				setIcon(new ButtonIcon(this, icons.getIconURI(IconType.regular), regularIcon));
+				setPressedIcon(new ButtonIcon(this, icons.getIconURI(IconType.pressed), pressedIcon));
+				setRolloverIcon(new ButtonIcon(this, icons.getIconURI(IconType.rollover), regularIcon));
+				setSelectedIcon(new ButtonIcon(this, icons.getIconURI(IconType.highlighted), regularIcon));
+				setDisabledIcon(new ButtonIcon(this, icons.getIconURI(IconType.disabled), lockedIcon));
 				
 				setToolTipText(tech.getTooltip());
 			}
 			else
 			{
-				setIcon(new ButtonIcon(this, null));
-				setPressedIcon(new ButtonIcon(this, null));
-				setRolloverIcon(new ButtonIcon(this, null));
-				setSelectedIcon(new ButtonIcon(this, null));
-				setDisabledIcon(new ButtonIcon(this, null));
+				setIcon(new ButtonIcon(this, null, null));
+				setPressedIcon(new ButtonIcon(this, null, null));
+				setRolloverIcon(new ButtonIcon(this, null, null));
+				setSelectedIcon(new ButtonIcon(this, null, null));
+				setDisabledIcon(new ButtonIcon(this, null, null));
 				
 				setToolTipText(null);
 			}
@@ -508,6 +520,7 @@ public class TechDisplay extends JViewport
 	{
 		private JButton button;
 		private String uri;
+		private Animation background;
 
 		/**
 		 * Constructs the icon.
@@ -515,10 +528,16 @@ public class TechDisplay extends JViewport
 		 * @param b
 		 *            The button this icon is on.
 		 */
-		public ButtonIcon(JButton b, String uri)
+		public ButtonIcon(JButton b, String uri, Animation background)
 		{
 			this.button = b;
 			this.uri = uri;
+			this.background = background;
+		}
+		
+		public void setBackground(Animation background)
+		{
+			this.background = background;
 		}
 
 		@Override
@@ -536,6 +555,8 @@ public class TechDisplay extends JViewport
 		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
+			if(background != null)
+				ImageDrawer.getInstance().draw(g, background.getImage(0.0, 0.0), TECH_BUTTON_SIZE, TECH_BUTTON_SIZE, new Position(x, y), 1);
 			ImageDrawer.getInstance().draw(g, uri, TECH_BUTTON_SIZE, TECH_BUTTON_SIZE, new Position(x, y), 1);
 		}
 	}
@@ -689,8 +710,6 @@ public class TechDisplay extends JViewport
 			int techID = techGraph.getOrderedList().indexOf(buttons[index].tech);
 			Message message = new UpgradeMessage(pID, graphID, techID);
 			receiver.addMessage(message);
-
-			buttons[index].tech.research();
 		}
 	}
 }

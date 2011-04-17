@@ -117,7 +117,8 @@ public class TechPanel extends Panel
 	 * @param stateManager The GameStateProvider for the current session of the game.
 	 * @param pID The ID of the player this TechPanel is displayed for.
 	 */
-	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver, Animation regularButton, Animation clickedButton, Animation... anims)
+	public TechPanel(Display display, GameStateProvider stateManager, int pID, MessageReceiver receiver, Animation regularButton,
+			Animation clickedButton, Animation regularTechButton, Animation presssedTechButton, Animation lockedTechButton, Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims[0]);
 		
@@ -133,7 +134,7 @@ public class TechPanel extends Panel
 		{
 			TechGraph graph = graphs.get(i);
 			tabs.add(new TabButton(graph.getName(), regularButton, clickedButton, TAB_PANEL_HEIGHT));
-			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1]));
+			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1], regularTechButton, presssedTechButton, lockedTechButton));
 		}
 		
 		initialize();
@@ -181,6 +182,7 @@ public class TechPanel extends Panel
 		
 		for(TechDisplay disp : techs)
 		{
+			disp.getTechGraph().pruneEmptyNodes();
 			graphs.add(disp.getTechGraph());
 		}
 		
@@ -195,6 +197,7 @@ public class TechPanel extends Panel
 		{
 			if(disp.getTechGraph().isEnabled())
 			{
+				disp.getTechGraph().pruneEmptyNodes();
 				graphs.add(disp.getTechGraph());
 			}
 		}

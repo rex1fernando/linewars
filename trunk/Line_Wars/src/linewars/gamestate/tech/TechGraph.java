@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import linewars.gamestate.Player;
+
 public class TechGraph implements Serializable
 {
 	/**
@@ -125,6 +127,21 @@ public class TechGraph implements Serializable
 		return maxY;
 	}
 	
+	public void pruneEmptyNodes()
+	{
+		TechNode node = getRoot();
+		while(node != null)
+		{
+			if(node.getTechConfig() == null)
+			{
+				roots.remove(node);
+				--rootIndex;
+			}
+			node = getNextRoot();
+		}
+		unmarkAll();
+	}
+	
 	public class TechNode implements Comparable<TechNode>, Serializable
 	{
 		/**
@@ -222,9 +239,9 @@ public class TechGraph implements Serializable
 			return researched;
 		}
 		
-		public void research()
+		public void research(Player owner)
 		{
-			researched = true;
+			researched = techConfig.research(owner);
 		}
 		
 		public void setPosition(int x, int y)
@@ -250,7 +267,7 @@ public class TechGraph implements Serializable
 		
 		public boolean isUnlocked()
 		{
-			return true; //getUnlockStrategy().isUnlocked(this);
+			return getUnlockStrategy().isUnlocked(this);
 		}
 
 		public void addChild(TechNode node) throws CycleException
