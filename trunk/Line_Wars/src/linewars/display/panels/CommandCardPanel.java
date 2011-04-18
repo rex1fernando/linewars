@@ -21,8 +21,8 @@ import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
-import linewars.display.sound.SoundPlayer;
 import linewars.display.ImageDrawer;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
@@ -142,9 +142,6 @@ public class CommandCardPanel extends Panel
 	private ButtonIcon[] selectedIcons;
 	private ClickHandler[] clickEvents;
 	
-	private Animation regularButton;
-	private Animation pressedButton;
-
 	private Display display;
 	private MessageReceiver receiver;
 	private int playerID;
@@ -172,10 +169,17 @@ public class CommandCardPanel extends Panel
 		this.playerID = pID;
 		this.displayed = false;
 		
-		this.regularButton = regularButton;
-		this.pressedButton = clickedButton;
-				
 		buildNotDestroy = true;
+		
+		try
+		{
+			ImageDrawer.getInstance().addImage(buildURI);
+			ImageDrawer.getInstance().addImage(destroyURI);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 		
 		buildButton = new CommandButton();
 		buildIcon = new ButtonIcon(buildButton);
@@ -360,18 +364,6 @@ public class CommandCardPanel extends Panel
 		this.buildNotDestroy = buildNotDestroy;
 	}
 	
-	private void addIconImage(String uri, int width, int height)
-	{
-		try
-		{
-			ImageDrawer.getInstance().addImage(uri, width, height);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * Updates the icons, the action, and the tooltip of every button in the
 	 * panel. Also handles disabling buttons if they are not usable.
@@ -387,42 +379,6 @@ public class CommandCardPanel extends Panel
 		
 		energyPanel.setEnergy(player.getPlayerEnergy());
 		
-		String iconURI = buildIcon.getURI();
-		String pressedURI = buildPressed.getURI();
-		String rolloverURI = buildRollover.getURI();
-		String selectedURI = buildSelected.getURI();
-
-		int width = buildButton.getWidth();
-		int height = buildButton.getHeight();
-		if(width > 0 && height > 0)
-		{
-			Position size = new Position(width, height);
-			regularButton.loadAnimationResources(size);
-			pressedButton.loadAnimationResources(size);
-			addIconImage(iconURI, width, height);
-			addIconImage(pressedURI, width, height);
-			addIconImage(rolloverURI, width, height);
-			addIconImage(selectedURI, width, height);
-		}
-		
-		iconURI = destroyIcon.getURI();
-		pressedURI = destroyPressed.getURI();
-		rolloverURI = destroyRollover.getURI();
-		selectedURI = destroySelected.getURI();
-
-		width = destroyButton.getWidth();
-		height = destroyButton.getHeight();
-		if(width > 0 && height > 0)
-		{
-			Position size = new Position(width, height);
-			regularButton.loadAnimationResources(size);
-			pressedButton.loadAnimationResources(size);
-			addIconImage(iconURI, width, height);
-			addIconImage(pressedURI, width, height);
-			addIconImage(rolloverURI, width, height);
-			addIconImage(selectedURI, width, height);
-		}
-		
 		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
 		List<PlayerAbility> unlockedAbilities = player.getUnlockedPlayerAbilities();
 		for(int i = 0; i < NUM_ACTIVE_ABILITIES; ++i)
@@ -437,29 +393,11 @@ public class CommandCardPanel extends Panel
 			PlayerAbility ability = unlockedAbilities.get(i);
 			IconConfiguration icons = (IconConfiguration)ability.getIconConfiguration();
 
-			iconURI = icons.getIconURI(IconType.regular);
-			pressedURI = icons.getIconURI(IconType.pressed);
-			rolloverURI = icons.getIconURI(IconType.rollover);
-			selectedURI = icons.getIconURI(IconType.highlighted);
-
-			width = activeAbilities[i].getWidth();
-			height = activeAbilities[i].getHeight();
-			if(width > 0 && height > 0)
-			{
-				Position size = new Position(width, height);
-				regularButton.loadAnimationResources(size);
-				pressedButton.loadAnimationResources(size);
-				addIconImage(iconURI, width, height);
-				addIconImage(pressedURI, width, height);
-				addIconImage(rolloverURI, width, height);
-				addIconImage(selectedURI, width, height);
-			}
-
 			activeAbilities[i].setVisible(true);
-			abilityIcons[i].setURI(iconURI);
-			abilityPressedIcons[i].setURI(pressedURI);
-			abilityRolloverIcons[i].setURI(rolloverURI);
-			abilitySelectedIcons[i].setURI(selectedURI);
+			abilityIcons[i].setURI(icons.getIconURI(IconType.regular));
+			abilityPressedIcons[i].setURI(icons.getIconURI(IconType.pressed));
+			abilityRolloverIcons[i].setURI(icons.getIconURI(IconType.rollover));
+			abilitySelectedIcons[i].setURI(icons.getIconURI(IconType.highlighted));
 			activeAbilities[i].setToolTipText(ability.getTooltip());
 			abilityEvents[i].setAbility(allAbilities.indexOf(ability));
 			activeAbilities[i].setEnabled(true);
@@ -503,28 +441,11 @@ public class CommandCardPanel extends Panel
 			BuildingDefinition def = displayedBuildings.get(i);
 			IconConfiguration icons = def.getIconConfig();
 			
-			iconURI = icons.getIconURI(IconType.regular);
-			pressedURI = icons.getIconURI(IconType.pressed);
-			rolloverURI = icons.getIconURI(IconType.rollover);
-			selectedURI = icons.getIconURI(IconType.highlighted);
-			width = buttons[i].getWidth();
-			height = buttons[i].getHeight();
-			if(width > 0 && height > 0)
-			{
-				Position size = new Position(width, height);
-				regularButton.loadAnimationResources(size);
-				pressedButton.loadAnimationResources(size);
-				addIconImage(iconURI, width, height);
-				addIconImage(pressedURI, width, height);
-				addIconImage(rolloverURI, width, height);
-				addIconImage(selectedURI, width, height);
-			}
-			
 			buttons[i].setVisible(true);
-			buttonIcons[i].setURI(iconURI);
-			pressedIcons[i].setURI(pressedURI);
-			rolloverIcons[i].setURI(rolloverURI);
-			selectedIcons[i].setURI(selectedURI);
+			buttonIcons[i].setURI(icons.getIconURI(IconType.regular));
+			pressedIcons[i].setURI(icons.getIconURI(IconType.pressed));
+			rolloverIcons[i].setURI(icons.getIconURI(IconType.rollover));
+			selectedIcons[i].setURI(icons.getIconURI(IconType.highlighted));
 			buttons[i].setToolTipText(def.getToolTip());
 			clickEvents[i].setAbility(node.getID(), allBuildings.indexOf(def));
 			buttons[i].setEnabled(true);

@@ -128,6 +128,12 @@ public class TechPanel extends Panel
 		tabs = new ArrayList<TabButton>();
 		techs = new ArrayList<TechDisplay>();
 		
+		regularButton.loadAnimationResources();
+		clickedButton.loadAnimationResources();
+		regularTechButton.loadAnimationResources();
+		presssedTechButton.loadAnimationResources();
+		lockedTechButton.loadAnimationResources();
+
 		List<TechGraph> graphs = stateManager.getCurrentGameState().getPlayer(pID).getRace().getAllTechGraphs();
 		
 		for(int i = 0; i < graphs.size(); ++i)
@@ -316,11 +322,6 @@ public class TechPanel extends Panel
 			editorComponents.setSize(getWidth(), EDITOR_PANEL_HEIGHT);
 			editorComponents.setLocation(0, getHeight() - EDITOR_PANEL_HEIGHT);
 		}
-		else
-		{
-			for(TabButton t : tabs)
-				t.updateBackgroundSize(t.getIconWidth(), t.getIconHeight());
-		}
 	}
 	
 	@Override
@@ -418,30 +419,6 @@ public class TechPanel extends Panel
 		public void setPressedAnimaiton(Animation pressed)
 		{
 			pressedButton = pressed;
-		}
-		
-		public void updateBackgroundSize(int width, int height)
-		{
-			if(width <= 0 || height <= 0)
-				return;
-			
-			for(int i = 0; i < regularButton.getNumImages(); ++i)
-				addIconImage(regularButton.getImage(i), width, height);
-
-			for(int i = 0; i < pressedButton.getNumImages(); ++i)
-				addIconImage(pressedButton.getImage(i), width, height);
-		}
-
-		private void addIconImage(String uri, int width, int height)
-		{
-			try
-			{
-				ImageDrawer.getInstance().addImage(uri, width, height);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
 		}
 		
 		@Override

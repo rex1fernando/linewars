@@ -58,14 +58,14 @@ public class Animation extends Configuration
 	{
 		this.next = next;
 	}
-
-	public void loadAnimationResources(Position size)
+	
+	public void loadAnimationResources()
 	{
 		for(int i = 0; i < getNumImages(); ++i)
 		{
 			try
 			{
-				ImageDrawer.getInstance().addImage(getImage(i), (int)size.getX(), (int)size.getY());
+				ImageDrawer.getInstance().addImage(getImage(i));
 			}
 			catch (IOException e)
 			{

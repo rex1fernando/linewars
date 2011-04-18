@@ -31,16 +31,6 @@ public class TechButtonPanel extends Panel
 	private TechPanel techPanel;
 	private JButton techButton;
 
-	/**
-	 * Constructs this exit button.
-	 * 
-	 * @param frame
-	 *            The JFrame to close on exit.
-	 * @param stateManager
-	 *            The gamestate manager for this instance of the game.
-	 * @param anims
-	 *            The list of animations for the button.
-	 */
 	public TechButtonPanel(TechPanel techPanel, Display display, GameStateProvider stateManager, Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);

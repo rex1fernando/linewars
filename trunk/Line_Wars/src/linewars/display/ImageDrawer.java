@@ -52,21 +52,17 @@ public class ImageDrawer
 	 * 
 	 * @param uri
 	 *            The URI of the image to load.
-	 * @param width
-	 *            The width of the image in game units.
-	 * @param height
-	 *            The height of the image in game units.
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, int width, int height) throws IOException
+	public void addImage(String uri) throws IOException
 	{
-		if(images.get(uri + width + height) != null)
+		if(images.get(uri) != null)
 			return;
 
-		GameImage scaledImage = new GameImage(uri, width, height);
+		GameImage image = new GameImage(uri);
 
-		images.put(uri + width + height, scaledImage);
+		images.put(uri, image);
 	}
 
 	/**
@@ -87,7 +83,14 @@ public class ImageDrawer
 	{
 		GameImage image = images.get(uri + width + height);
 		if(image == null)
-			return;
+		{
+			GameImage unscaledImage = images.get(uri);
+			if(unscaledImage == null)
+				return;
+			
+			image = new GameImage(unscaledImage, width, height);
+			images.put(uri + width + height, image);
+		}
 		
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
@@ -105,7 +108,14 @@ public class ImageDrawer
 	{
 		GameImage image = images.get(uri + width + height);
 		if(image == null)
-			return;
+		{
+			GameImage unscaledImage = images.get(uri);
+			if(unscaledImage == null)
+				return;
+			
+			image = new GameImage(unscaledImage, width, height);
+			images.put(uri + width + height, image);
+		}
 		
 		image.draw(g, position, scale);
 	}

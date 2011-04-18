@@ -69,11 +69,10 @@ public abstract class Panel extends JPanel
 
 		this.stateManager = stateManager;
 
-		Position size = new Position(panelWidth, panelHeight);
 		this.animations = new Animation[animations.length];
 		for(int i = 0; i < animations.length; ++i)
 		{
-			animations[i].loadAnimationResources(size);
+			animations[i].loadAnimationResources();
 			this.animations[i] = animations[i];
 		}
 
