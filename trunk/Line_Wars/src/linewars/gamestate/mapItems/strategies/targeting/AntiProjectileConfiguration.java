@@ -1,5 +1,7 @@
 package linewars.gamestate.mapItems.strategies.targeting;
 
+import java.util.Random;
+
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
@@ -23,6 +25,10 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 	 * 
 	 */
 	private static final long serialVersionUID = 6174791286606222739L;
+	/**
+	 * A probability that influences the target selected by an anti-projectile missile
+	 */
+	public static final double SWAP_TO_BEST_CHANCE = 0.3;
 
 	static {
 		StrategyConfiguration.setStrategyConfigMapping("Anti Projectile",
@@ -38,9 +44,13 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 		private Projectile projectile;
 		private Projectile target;
 		
+		private boolean clockwise;
+		
 		private AntiProjectile(Projectile p)
 		{
 			projectile = p;
+			Random gen = new Random(p.getID());
+			clockwise = gen.nextBoolean();
 		}
 		
 		@Override
@@ -60,56 +70,23 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 			}
 			if(target == null)
 			{
-				double dis = Double.POSITIVE_INFINITY;
-				for(Projectile p : projectile.getLane().getProjectiles())
-				{
-					if(p.getOwner() == projectile.getOwner()){
-						continue;
-					}
-					if(p.getState().equals(MapItemState.Dead)){
-						continue;
-					}
-					
-					double temp = p.getPosition().distanceSquared(projectile.getPosition()); 
-					if(temp < dis)
-					{
-						dis = temp;
-						target = p;
-					}
-				}
+				pickNewTarget();
 			}
 			
 			double currentAngle = projectile.getRotation();
-			double normalizedCurrentAngle = AugmentedMath.getAngleInPiToNegPi(currentAngle);
 			double maxTurn = turningRadsPerSec*projectile.getGameState().getLastLoopTime();
 			
-			//if no target exists, let's just fly in a clockwise loop!
+			//if no target exists, let's enter a holding pattern!
 			if(target == null){
-				double speedModifier = projectile.getModifier().getModifier(MapItemModifiers.moveSpeed);
-				Position actualChange = Position.getUnitVector(
-						maxTurn + currentAngle).scale(
-						speed * speedModifier * projectile.getGameState().getLastLoopTime());
-				Transformation target = new Transformation(actualChange, maxTurn);
-				
-				target = target.add(projectile.getTransformation());
-				
-				return target;
+				return doHoldingPattern(currentAngle, maxTurn);
 			}
 			
-			//incoming giant block of scary code, look out!
+			double actualTurn = computeTurnAngle(currentAngle, maxTurn);
 			
-			double desiredAngle = target.getPosition().subtract(projectile.getPosition()).getAngle();
-			double relativeDesiredAngle = desiredAngle - normalizedCurrentAngle;
-			double normalizedDesiredAngle = AugmentedMath.getAngleInPiToNegPi(relativeDesiredAngle);
-			double actualTurn;
-			if(Math.abs(normalizedDesiredAngle) > maxTurn)
-				actualTurn = normalizedDesiredAngle > 0 ? maxTurn : -1 * maxTurn;
-			else
-				actualTurn = AugmentedMath.getAngleInPiToNegPi(relativeDesiredAngle);
-			
+			double speedModifier = projectile.getModifier().getModifier(MapItemModifiers.moveSpeed);
 			Position actualChange = Position.getUnitVector(
 					actualTurn + currentAngle).scale(
-					speed * projectile.getGameState().getLastLoopTime());
+					speed * speedModifier * projectile.getGameState().getLastLoopTime());
 			
 			Transformation target = new Transformation(actualChange, actualTurn);
 			
@@ -117,6 +94,56 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 			//need to handle projectile collisions here
 			checkForCollisionsWithProjectiles(target);
 			
+			return target;
+		}
+
+		private double computeTurnAngle(double currentAngle, double maxTurn) {
+			double desiredAngle = target.getPosition().subtract(projectile.getPosition()).getAngle();
+			double relativeDesiredAngle = desiredAngle - currentAngle;
+			double normalizedRelativeDesiredAngle = AugmentedMath.getAngleInPiToNegPi(relativeDesiredAngle);
+			double actualTurn;
+			if(Math.abs(normalizedRelativeDesiredAngle) > maxTurn)
+				actualTurn = normalizedRelativeDesiredAngle > 0 ? maxTurn : -1 * maxTurn;
+			else
+				actualTurn = normalizedRelativeDesiredAngle;
+			return actualTurn;
+		}
+
+		private void pickNewTarget() {
+			Random gen = new Random(projectile.getGameState().getTimerTick() + projectile.getID());
+			double minDistance = Double.POSITIVE_INFINITY;
+			for(Projectile p : projectile.getLane().getProjectiles())
+			{
+				if(p.getOwner() == projectile.getOwner()){
+					continue;
+				}
+				if(p.getState().equals(MapItemState.Dead)){
+					continue;
+				}
+				
+				double currentDistance = p.getPosition().distanceSquared(projectile.getPosition()); 
+				if(currentDistance < minDistance)
+				{
+					if(target == null || gen.nextDouble() <= SWAP_TO_BEST_CHANCE){
+						minDistance = currentDistance;
+						target = p;
+					}
+				}
+			}
+		}
+
+		private Transformation doHoldingPattern(double currentAngle,
+				double maxTurn) {
+			if(clockwise){
+				maxTurn *= -1;
+			}
+			double speedModifier = projectile.getModifier().getModifier(MapItemModifiers.moveSpeed);
+			Position actualChange = Position.getUnitVector(
+					maxTurn + currentAngle).scale(
+					speed * speedModifier * projectile.getGameState().getLastLoopTime());
+			Transformation target = new Transformation(actualChange, maxTurn);
+			
+			target = target.add(projectile.getTransformation());
 			return target;
 		}
 		
