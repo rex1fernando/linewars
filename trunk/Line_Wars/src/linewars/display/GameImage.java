@@ -22,7 +22,6 @@ public class GameImage
 	private double scale;
 	private double lastScale;
 	private Image originalImage;
-//	private byte[] originalImage;
 	private int originalWidth;
 	private int originalHeight;
 	private Image lastScaledImage;
@@ -30,22 +29,41 @@ public class GameImage
 	/**
 	 * Constructs this game image.
 	 * 
+	 * @param uri
+	 *            The URI of the image.
+	 * @throws IOException 
+	 */
+	public GameImage(String uri) throws IOException
+	{
+		Image image = loadImage(uri);
+		if(image == null)
+			throw new IOException(uri + " was not loaded properly from the game resources.");
+		
+		originalImage = image;
+		originalWidth = image.getWidth(null);
+		originalHeight = image.getHeight(null);
+
+		scale = -1;
+		lastScale = -1;
+		lastScaledImage = null;
+	}
+	
+	/**
+	 * Constructs this game image.
+	 * 
 	 * @param image
-	 *            The image to encapsulate.
+	 *            The GameImage to copy.
 	 * @param width
 	 *            The width of the image in game units.
 	 * @param height
 	 *            The height of the image in game units.
 	 * @throws IOException 
 	 */
-	public GameImage(String uri, int width, int height) throws IOException
+	public GameImage(GameImage image, int width, int height)
 	{
-		Image image = loadImage(uri);
-		if(image == null)
-			throw new IOException(uri + " was not loaded properly from the game resources.");
-		
-		originalWidth = image.getWidth(null);
-		originalHeight = image.getHeight(null);
+		originalImage = image.originalImage;
+		originalWidth = image.originalWidth;
+		originalHeight = image.originalHeight;
 
 		double scaleX = (double)width / originalWidth;
 		double scaleY = (double)height / originalHeight;
@@ -55,11 +73,9 @@ public class GameImage
 		else
 			scale = scaleY;
 
-		originalImage = image;
-
 		lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = lastScaledImage.getGraphics();
-		g.drawImage(image, 0, 0, width, height, null);
+		g.drawImage(originalImage, 0, 0, width, height, null);
 
 		lastScale = 1.0;
 	}
@@ -75,7 +91,6 @@ public class GameImage
 	 */
 	public static BufferedImage loadImage(String uri) throws IOException
 	{
-//		String absURI = System.getProperty("user.dir") + "/resources/images/" + uri;
 		String absURI = "File:" + System.getProperty("user.dir") + "/resources/images/" + uri;
 		absURI = absURI.replace("/", File.separator);
 
@@ -88,16 +103,6 @@ public class GameImage
 		{
 			throw new IOException("Unable to load " + uri + " from the game resources.");
 		}
-		
-//		File file = new File(absURI);
-//		FileInputStream fis = new FileInputStream(file);
-//		long length = file.length();
-//		
-//		originalImage = new byte[(int)length];
-//		fis.read(originalImage);
-//				
-//		ByteArrayInputStream inStream = new ByteArrayInputStream(originalImage);
-//		BufferedImage image = ImageIO.read(inStream);
 
 		return image;
 	}
@@ -121,16 +126,10 @@ public class GameImage
 			int width = (int)(originalWidth * this.scale * scale);
 			int height = (int)(originalHeight * this.scale * scale);
 
-//			ByteArrayInputStream inStream = new ByteArrayInputStream(originalImage);
-//			BufferedImage image = ImageIO.read(inStream);
-//			if(image == null)
-//				throw new IOException("Could not read byte stream for image");
-
 			lastScaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
 			Graphics g = lastScaledImage.getGraphics();
 			g.drawImage(originalImage, 0, 0, width, height, null);
-//			g.drawImage(image, 0, 0, width, height, null);
 
 			lastScale = scale;
 		}

@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
 
+import linewars.display.IconConfiguration.IconType;
 import linewars.display.layers.FlowIndicator;
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
@@ -131,13 +132,6 @@ public class Display
 	{
 		return gamePanel;
 	}
-
-	//TODO Titus, I changed my mind and decided to put this method in the sound player
-	//it is a singleton so just get the instance and call the setVolume method
-//	public void setVolume(SoundType type, double vol)
-//	{
-//		//TODO set the volume
-//	}
 	
 	/**
 	 * Gets the width of the GamePanel.
@@ -146,7 +140,10 @@ public class Display
 	 */
 	public int getScreenWidth()
 	{
-		return gamePanel.getWidth();
+		if(gamePanel == null)
+			return 0;
+		else
+			return gamePanel.getWidth();
 	}
 
 	/**
@@ -156,7 +153,10 @@ public class Display
 	 */
 	public int getScreenHeight()
 	{
-		return gamePanel.getHeight();
+		if(gamePanel == null)
+			return 0;
+		else
+			return gamePanel.getHeight();
 	}
 	
 	public void setActiveAbilityIndex(int index)
@@ -206,13 +206,7 @@ public class Display
 		ArrayList<Configuration> configs = new ArrayList<Configuration>();
 		for(Player p : state.getPlayers())
 		{
-			Race race = p.getRace();
-
-//			configs.add(race.getCommandCenter());
-//			configs.add(race.getGate());
-//			configs.addAll(race.getAllBuildings());
-//			configs.addAll(race.getAllUnits());
-			configs.add(race); //Ryan I swear to GOD I'm going to punch you for this, lol jk :)
+			configs.add(p.getRace());
 			
 		}
 
@@ -249,6 +243,10 @@ public class Display
 				if(c instanceof DisplayConfiguration)
 				{
 					total += countDisplayResourcesFromConfiguration((DisplayConfiguration)c);
+				}
+				else if(c instanceof IconConfiguration)
+				{
+					++total;
 				}
 				else
 				{
@@ -288,6 +286,20 @@ public class Display
 				{
 					loadDisplayResourcesFromConfiguration(progress, (DisplayConfiguration)c);
 				}
+				else if(c instanceof IconConfiguration)
+				{
+					for(IconType t : ((IconConfiguration)c).getIconTypes())
+					{
+						try
+						{
+							ImageDrawer.getInstance().addImage(((IconConfiguration)c).getIconURI(t));
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
 				else
 				{
 					loadDisplayResourcesRecursive(progress, c, loadedConfigs);
@@ -295,9 +307,7 @@ public class Display
 			}
 			else if(p.getUsage() == Usage.ANIMATION)
 			{
-				//TODO Ryan figure out how to load
-				//animations here, the dimension is unknown
-				//at this time
+				((Animation)p.getValue()).loadAnimationResources();
 				progress.updateValue(++loadedCount);
 			}
 			else if(p.getValue() instanceof TechGraph)
@@ -340,7 +350,7 @@ public class Display
 			
 			if(anim != null)
 			{
-				anim.loadAnimationResources(config.getDimensions());
+				anim.loadAnimationResources();
 				progress.updateValue(++loadedCount);
 			}
 			

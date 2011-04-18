@@ -111,11 +111,8 @@ public class TechDisplay extends JViewport
 		this.stateManager = stateManager;
 		
 		regularIcon = regular;
-		regularIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
 		pressedIcon = pressed;
-		pressedIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
 		lockedIcon = locked;
-		lockedIcon.loadAnimationResources(new Position(TECH_BUTTON_SIZE, TECH_BUTTON_SIZE));
 		
 		for(int i = 0; i < arrow.getNumImages(); ++i)
 		{
@@ -404,17 +401,21 @@ public class TechDisplay extends JViewport
 			{
 				IconConfiguration icons = tech.getIcons();
 				
-				for(IconType type : icons.getIconTypes())
+				if(editorNOTgame)
 				{
-					try
+					for(IconType type : icons.getIconTypes())
 					{
-						ImageDrawer.getInstance().addImage(icons.getIconURI(type), TECH_BUTTON_SIZE, TECH_BUTTON_SIZE);
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
+						try
+						{
+							ImageDrawer.getInstance().addImage(icons.getIconURI(type));
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
 					}
 				}
+				
 				
 				setIcon(new ButtonIcon(this, icons.getIconURI(IconType.regular), regularIcon));
 				setPressedIcon(new ButtonIcon(this, icons.getIconURI(IconType.pressed), pressedIcon));
