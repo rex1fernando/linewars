@@ -31,6 +31,7 @@ import linewars.display.Animation;
 import linewars.display.GameImage;
 import linewars.display.IconConfiguration;
 import linewars.display.IconConfiguration.IconType;
+import linewars.display.sound.SoundPlayer;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
@@ -65,7 +66,6 @@ public class TechDisplay extends JViewport
 	
 	private boolean editorNOTgame;
 	
-	private Animation arrow;
 	private Map<String, Image> arrowImages;
 	
 	private TechNode activeTech;
@@ -107,7 +107,6 @@ public class TechDisplay extends JViewport
 		this.techGraph = techGraph;
 		this.techPanel = techPanel;
 		this.graphID = graphID;
-		this.arrow = arrow;
 		this.arrowImages = new HashMap<String, Image>();
 		this.stateManager = stateManager;
 		
@@ -368,6 +367,7 @@ public class TechDisplay extends JViewport
 		
 		public TechButton(TechNode tech, int row, int col)
 		{
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 			this.row = row;
 			this.col = col;
 			this.tech = tech;
@@ -550,13 +550,13 @@ public class TechDisplay extends JViewport
 		@Override
 		public int getIconHeight()
 		{
-			return getHeight();
+			return button.getHeight();
 		}
 
 		@Override
 		public int getIconWidth()
 		{
-			return getWidth();
+			return button.getWidth();
 		}
 
 		@Override

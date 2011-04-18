@@ -58,11 +58,17 @@ public class CommandCardPanel extends Panel
 	private static final int DEFAULT_WIDTH = 650;
 	private static final int DEFAULT_HEIGHT = 550;
 	
-	private static final int TOGGLE_PANEL_X = 4;
-	private static final int TOGGLE_PANEL_Y = 230;
+	private static final int BUILD_BUTTON_X = 4;
+	private static final int BUILD_BUTTON_Y = 264;
 	
-	private static final int TOGGLE_PANEL_WIDTH = 47;
-	private static final int TOGGLE_PANEL_HEIGHT = 306;
+	private static final int BUILD_BUTTON_WIDTH = 47;
+	private static final int BUILD_BUTTON_HEIGHT = 111;
+	
+	private static final int DESTROY_BUTTON_X = 4;
+	private static final int DESTROY_BUTTON_Y = 425;
+	
+	private static final int DESTROY_BUTTON_WIDTH = 47;
+	private static final int DESTROY_BUTTON_HEIGHT = 111;
 	
 	private static final int NUM_ACTIVE_ABILITIES = 3;
 	
@@ -104,7 +110,6 @@ public class CommandCardPanel extends Panel
 	private static final int BTN_H_GAP = 10;
 	private static final int BTN_V_GAP = 10;
 	
-	private JPanel togglePanel;
 	private CommandButton buildButton;
 	private ButtonIcon buildIcon;
 	private ButtonIcon buildPressed;
@@ -170,10 +175,9 @@ public class CommandCardPanel extends Panel
 		this.regularButton = regularButton;
 		this.pressedButton = clickedButton;
 				
-		togglePanel = new JPanel(new GridLayout(2, 1));
 		buildNotDestroy = true;
 		
-		buildButton = new CommandButton("B");
+		buildButton = new CommandButton();
 		buildIcon = new ButtonIcon(buildButton);
 		buildIcon.setURI(buildURI);
 		buildIcon.setBackground(regularButton);
@@ -194,7 +198,7 @@ public class CommandCardPanel extends Panel
 		buildSelected.setBackground(regularButton);
 		buildButton.setPressedIcon(buildSelected);
 		
-		destroyButton = new CommandButton("D");
+		destroyButton = new CommandButton();
 		destroyIcon = new ButtonIcon(destroyButton);
 		destroyIcon.setURI(destroyURI);
 		destroyIcon.setBackground(regularButton);
@@ -219,8 +223,8 @@ public class CommandCardPanel extends Panel
 		buildButton.addActionListener(toggle);
 		destroyButton.addActionListener(toggle);
 		
-		togglePanel.add(buildButton);
-		togglePanel.add(destroyButton);
+		add(buildButton);
+		add(destroyButton);
 		
 		energyPanel = new EnergyPanel();
 		energyPanel.setMaxEnergy(GameState.MAX_PLAYER_ENERGY);
@@ -298,7 +302,6 @@ public class CommandCardPanel extends Panel
 			buttons[i].addActionListener(clickEvents[i]);
 		}
 
-		add(togglePanel);
 		add(abilityPanel);
 		add(energyPanel);
 		add(buttonPanel);
@@ -318,8 +321,11 @@ public class CommandCardPanel extends Panel
 			setLocation(getParent().getWidth() - getWidth(), getParent().getHeight() - (int)(scaleFactor * ABILITY_HEIGHT));
 
 		// resizes the inner panels
-		togglePanel.setLocation((int)(TOGGLE_PANEL_X * scaleFactor), (int)(TOGGLE_PANEL_Y * scaleFactor));
-		togglePanel.setSize((int)(TOGGLE_PANEL_WIDTH * scaleFactor), (int)(TOGGLE_PANEL_HEIGHT * scaleFactor));
+		buildButton.setLocation((int)(BUILD_BUTTON_X * scaleFactor), (int)(BUILD_BUTTON_Y * scaleFactor));
+		buildButton.setSize((int)(BUILD_BUTTON_WIDTH * scaleFactor), (int)(BUILD_BUTTON_HEIGHT * scaleFactor));
+
+		destroyButton.setLocation((int)(DESTROY_BUTTON_X * scaleFactor), (int)(DESTROY_BUTTON_Y * scaleFactor));
+		destroyButton.setSize((int)(DESTROY_BUTTON_WIDTH * scaleFactor), (int)(DESTROY_BUTTON_HEIGHT * scaleFactor));
 
 		abilityPanel.setLayout(new GridLayout(1, NUM_ACTIVE_ABILITIES, (int)(BTN_H_GAP * scaleFactor), (int)(BTN_V_GAP * scaleFactor)));
 		abilityPanel.setLocation((int)(ABILITY_PANEL_X * scaleFactor), (int)(ABILITY_PANEL_Y * scaleFactor));
@@ -399,10 +405,10 @@ public class CommandCardPanel extends Panel
 			addIconImage(selectedURI, width, height);
 		}
 		
-		iconURI = buildIcon.getURI();
-		pressedURI = buildPressed.getURI();
-		rolloverURI = buildRollover.getURI();
-		selectedURI = buildSelected.getURI();
+		iconURI = destroyIcon.getURI();
+		pressedURI = destroyPressed.getURI();
+		rolloverURI = destroyRollover.getURI();
+		selectedURI = destroySelected.getURI();
 
 		width = destroyButton.getWidth();
 		height = destroyButton.getHeight();
@@ -537,14 +543,7 @@ public class CommandCardPanel extends Panel
 		
 		public CommandButton()
 		{
-			this("");
 			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
-		}
-		
-		public CommandButton(String label)
-		{
-			super(label);
-			
 			isPressed = false;
 			addMouseListener(new MousePressAdapter());
 		}
@@ -644,13 +643,13 @@ public class CommandCardPanel extends Panel
 		@Override
 		public int getIconHeight()
 		{
-			return getHeight();
+			return button.getHeight();
 		}
 
 		@Override
 		public int getIconWidth()
 		{
-			return getWidth();
+			return button.getWidth();
 		}
 
 		@Override

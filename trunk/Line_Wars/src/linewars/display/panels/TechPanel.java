@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.display.ImageDrawer;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Position;
 import linewars.gamestate.tech.TechConfiguration;
@@ -41,7 +42,6 @@ import linewars.gamestate.tech.UnlockStrategyNoSyblings;
 import linewars.gamestate.tech.UnlockStrategyOne;
 import linewars.network.MessageReceiver;
 import menu.ContentProvider;
-import menu.ContentProvider.MenuImage;
 import configuration.Configuration;
 import editor.BigFrameworkGuy;
 import editor.GenericSelector;
@@ -133,13 +133,14 @@ public class TechPanel extends Panel
 		for(int i = 0; i < graphs.size(); ++i)
 		{
 			TechGraph graph = graphs.get(i);
-			tabs.add(new TabButton(graph.getName(), regularButton, clickedButton, TAB_PANEL_HEIGHT));
+			tabs.add(new TabButton(graph.getName(), regularButton, clickedButton, TAB_PANEL_HEIGHT / 2));
 			techs.add(new TechDisplay(stateManager, pID, receiver, this, graph, i, anims[1], regularTechButton, presssedTechButton, lockedTechButton));
 		}
 		
-		if(techs.size() > 0)
+		if(graphs.size() > 0)
 		{
 			activeTech = techs.get(0);
+			tabs.get(0).setTabSelected(true);
 		}
 		
 		initialize();
@@ -360,7 +361,6 @@ public class TechPanel extends Panel
 		private boolean selected;
 		private Animation regularButton;
 		private Animation pressedButton;
-		private JButton button;
 	
 		private String text;
 		private Font font;
@@ -372,6 +372,7 @@ public class TechPanel extends Panel
 		
 		public TabButton(String text, Animation buttonDefault, Animation buttonPressed, float size)
 		{
+			addActionListener(SoundPlayer.getInstance().getButtonSoundListener());
 			selected = false;
 			regularButton = buttonDefault;
 			pressedButton = buttonPressed;
@@ -396,6 +397,7 @@ public class TechPanel extends Panel
 		{
 			super.paintComponent(g);
 			
+			g.setColor(Color.white);
 			g.setFont(font);
 			FontMetrics fm = g.getFontMetrics();
 			

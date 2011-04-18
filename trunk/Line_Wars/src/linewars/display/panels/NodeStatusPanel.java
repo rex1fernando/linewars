@@ -13,6 +13,7 @@ import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Unit;
 import menu.components.CustomList;
 import menu.components.MenuScrollPane;
@@ -135,6 +136,21 @@ public class NodeStatusPanel extends Panel
 			unitTypeToNumber.put(unitType, numUnits + 1);
 		}
 
+		Building[] buildings = node.getContainedBuildings();
+		Map<String, Integer> buildingToNumber = new HashMap<String, Integer>();
+		for(Building b : buildings)
+		{
+			String buildingType = b.getName();
+
+			Integer numBuildings = buildingToNumber.get(buildingType);
+			if(numBuildings == null)
+			{
+				numBuildings = 0;
+			}
+
+			buildingToNumber.put(buildingType, numBuildings + 1);
+		}
+
 		status.add("time to next spawn: " + (int)timeToNextSpawn);
 
 		if(invader != null)
@@ -145,6 +161,12 @@ public class NodeStatusPanel extends Panel
 
 		if(invader != null)
 			status.add("invader: " + invader.getPlayerName());
+		
+		status.add("buildings:");
+		for(String building : buildingToNumber.keySet())
+		{
+			status.add("  " + building + " x" + buildingToNumber.get(building));
+		}
 
 		for(Player p : playerToUnits.keySet())
 		{
