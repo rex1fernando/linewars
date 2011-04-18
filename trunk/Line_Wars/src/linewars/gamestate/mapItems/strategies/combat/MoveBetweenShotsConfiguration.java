@@ -3,6 +3,7 @@ package linewars.gamestate.mapItems.strategies.combat;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
@@ -132,6 +133,7 @@ public class MoveBetweenShotsConfiguration extends CombatStrategyConfiguration {
 				if(closestTargetDistance > minimumRange){
 					unit.getMovementStrategy().setTarget(new Transformation(closestTarget, unit.getRotation()));
 				}
+				unit.setStateIfInState(MapItemState.Firing, MapItemState.Idle);
 				return;
 			}
 			
