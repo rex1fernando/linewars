@@ -50,7 +50,6 @@ public class GameImage
 		double scaleX = (double)width / originalWidth;
 		double scaleY = (double)height / originalHeight;
 		
-		//TODO Ryan I fixed this, it was stretching the images before -Connor
 		if(scaleX < scaleY)
 			scale = scaleX;
 		else

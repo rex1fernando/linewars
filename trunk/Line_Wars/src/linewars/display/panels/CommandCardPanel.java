@@ -106,7 +106,17 @@ public class CommandCardPanel extends Panel
 	
 	private JPanel togglePanel;
 	private CommandButton buildButton;
+	private ButtonIcon buildIcon;
+	private ButtonIcon buildPressed;
+	private ButtonIcon buildRollover;
+	private ButtonIcon buildSelected;
+	
 	private CommandButton destroyButton;
+	private ButtonIcon destroyIcon;
+	private ButtonIcon destroyPressed;
+	private ButtonIcon destroyRollover;
+	private ButtonIcon destroySelected;
+	
 	private boolean buildNotDestroy;
 
 	private JPanel abilityPanel;
@@ -147,7 +157,7 @@ public class CommandCardPanel extends Panel
 	 * @param anims
 	 *            An array of animations to use for this panel.
 	 */
-	public CommandCardPanel(Display display, int pID, GameStateProvider stateManager, MessageReceiver receiver, Animation regularButton, Animation clickedButton,
+	public CommandCardPanel(Display display, int pID, GameStateProvider stateManager, MessageReceiver receiver, String buildURI, String destroyURI, Animation regularButton, Animation clickedButton,
 			Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims[0]);
@@ -164,36 +174,44 @@ public class CommandCardPanel extends Panel
 		buildNotDestroy = true;
 		
 		buildButton = new CommandButton("B");
-		ButtonIcon buildIcon = new ButtonIcon(buildButton);
+		buildIcon = new ButtonIcon(buildButton);
+		buildIcon.setURI(buildURI);
 		buildIcon.setBackground(regularButton);
 		buildButton.setIcon(buildIcon);
 		
-		ButtonIcon buildPressed = new ButtonIcon(buildButton);
+		buildPressed = new ButtonIcon(buildButton);
+		buildPressed.setURI(buildURI);
 		buildPressed.setBackground(clickedButton);
 		buildButton.setPressedIcon(buildPressed);
 		
-		ButtonIcon buildRollover = new ButtonIcon(buildButton);
+		buildRollover = new ButtonIcon(buildButton);
+		buildRollover.setURI(buildURI);
 		buildRollover.setBackground(regularButton);
 		buildButton.setPressedIcon(buildRollover);
 		
-		ButtonIcon buildSelected = new ButtonIcon(buildButton);
+		buildSelected = new ButtonIcon(buildButton);
+		buildSelected.setURI(buildURI);
 		buildSelected.setBackground(regularButton);
 		buildButton.setPressedIcon(buildSelected);
 		
 		destroyButton = new CommandButton("D");
-		ButtonIcon destroyIcon = new ButtonIcon(destroyButton);
+		destroyIcon = new ButtonIcon(destroyButton);
+		destroyIcon.setURI(destroyURI);
 		destroyIcon.setBackground(regularButton);
 		destroyButton.setIcon(destroyIcon);
 		
-		ButtonIcon destroyPressed = new ButtonIcon(destroyButton);
+		destroyPressed = new ButtonIcon(destroyButton);
+		destroyPressed.setURI(destroyURI);
 		destroyPressed.setBackground(clickedButton);
 		destroyButton.setPressedIcon(destroyPressed);
 		
-		ButtonIcon destroyRollover = new ButtonIcon(destroyButton);
+		destroyRollover = new ButtonIcon(destroyButton);
+		destroyRollover.setURI(destroyURI);
 		destroyRollover.setBackground(regularButton);
 		destroyButton.setPressedIcon(destroyRollover);
 		
-		ButtonIcon destroySelected = new ButtonIcon(destroyButton);
+		destroySelected = new ButtonIcon(destroyButton);
+		destroySelected.setURI(destroyURI);
 		destroySelected.setBackground(regularButton);
 		destroyButton.setPressedIcon(destroySelected);
 		
@@ -363,6 +381,11 @@ public class CommandCardPanel extends Panel
 		
 		energyPanel.setEnergy(player.getPlayerEnergy());
 		
+		String iconURI = buildIcon.getURI();
+		String pressedURI = buildPressed.getURI();
+		String rolloverURI = buildRollover.getURI();
+		String selectedURI = buildSelected.getURI();
+
 		int width = buildButton.getWidth();
 		int height = buildButton.getHeight();
 		if(width > 0 && height > 0)
@@ -370,8 +393,17 @@ public class CommandCardPanel extends Panel
 			Position size = new Position(width, height);
 			regularButton.loadAnimationResources(size);
 			pressedButton.loadAnimationResources(size);
+			addIconImage(iconURI, width, height);
+			addIconImage(pressedURI, width, height);
+			addIconImage(rolloverURI, width, height);
+			addIconImage(selectedURI, width, height);
 		}
 		
+		iconURI = buildIcon.getURI();
+		pressedURI = buildPressed.getURI();
+		rolloverURI = buildRollover.getURI();
+		selectedURI = buildSelected.getURI();
+
 		width = destroyButton.getWidth();
 		height = destroyButton.getHeight();
 		if(width > 0 && height > 0)
@@ -379,6 +411,10 @@ public class CommandCardPanel extends Panel
 			Position size = new Position(width, height);
 			regularButton.loadAnimationResources(size);
 			pressedButton.loadAnimationResources(size);
+			addIconImage(iconURI, width, height);
+			addIconImage(pressedURI, width, height);
+			addIconImage(rolloverURI, width, height);
+			addIconImage(selectedURI, width, height);
 		}
 		
 		List<PlayerAbility> allAbilities = player.getAllPlayerAbilities();
@@ -395,10 +431,10 @@ public class CommandCardPanel extends Panel
 			PlayerAbility ability = unlockedAbilities.get(i);
 			IconConfiguration icons = (IconConfiguration)ability.getIconConfiguration();
 
-			String iconURI = icons.getIconURI(IconType.regular);
-			String pressedURI = icons.getIconURI(IconType.pressed);
-			String rolloverURI = icons.getIconURI(IconType.rollover);
-			String selectedURI = icons.getIconURI(IconType.highlighted);
+			iconURI = icons.getIconURI(IconType.regular);
+			pressedURI = icons.getIconURI(IconType.pressed);
+			rolloverURI = icons.getIconURI(IconType.rollover);
+			selectedURI = icons.getIconURI(IconType.highlighted);
 
 			width = activeAbilities[i].getWidth();
 			height = activeAbilities[i].getHeight();
@@ -461,10 +497,10 @@ public class CommandCardPanel extends Panel
 			BuildingDefinition def = displayedBuildings.get(i);
 			IconConfiguration icons = def.getIconConfig();
 			
-			String iconURI = icons.getIconURI(IconType.regular);
-			String pressedURI = icons.getIconURI(IconType.pressed);
-			String rolloverURI = icons.getIconURI(IconType.rollover);
-			String selectedURI = icons.getIconURI(IconType.highlighted);
+			iconURI = icons.getIconURI(IconType.regular);
+			pressedURI = icons.getIconURI(IconType.pressed);
+			rolloverURI = icons.getIconURI(IconType.rollover);
+			selectedURI = icons.getIconURI(IconType.highlighted);
 			width = buttons[i].getWidth();
 			height = buttons[i].getHeight();
 			if(width > 0 && height > 0)

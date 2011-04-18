@@ -487,7 +487,7 @@ public class Display
 			
 			loadDisplayResources(progress);
 
-			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, emptyButton, clickedButton, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, "BuildIcon.png", "TrashIcon.png", emptyButton, clickedButton, rightUIPanel);
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
