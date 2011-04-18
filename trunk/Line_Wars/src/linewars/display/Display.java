@@ -73,7 +73,7 @@ import configuration.Usage;
 @SuppressWarnings("serial")
 public class Display
 {
-	private static final boolean DEBUG_MODE = true;
+	private static final boolean DEBUG_MODE = false;
 
 	/**
 	 * The threshold when zooming out where the view switches from tactical view
