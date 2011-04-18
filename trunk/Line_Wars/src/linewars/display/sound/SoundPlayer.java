@@ -164,6 +164,10 @@ public class SoundPlayer implements Runnable
 	{
 		running = false;
 
+		if(line == null){
+			return;
+		}
+		
 		line.drain();
 		line.stop();
 		line.close();
