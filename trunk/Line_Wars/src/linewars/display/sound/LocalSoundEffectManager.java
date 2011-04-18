@@ -89,8 +89,16 @@ public class LocalSoundEffectManager
 	private double mapItemVol(Channel c, Position mapItemPos, Rectangle screenRect)
 	{
 		Position micPos = getMicrophonePos(c, screenRect);
-		double ret = 1.0 - mapItemPos.distanceSquared(micPos)*0.0000000005*Math.sqrt(screenRect.getWidth()*screenRect.getHeight());
-		if(ret < 0)
+		//to calculate the volume, consider the mic to be positioned in 3D space,
+		//where the third dimension, height, is 0 of for the map item and related to
+		//the width of the screenRect for the mic
+		double ret = 1.0/(0.00005*(Math.pow(micPos.getX() - mapItemPos.getX(), 2) +
+										 Math.pow(micPos.getY() - mapItemPos.getY(), 2) +
+										 Math.pow((screenRect.getWidth() - 100)*0.2, 2)));
+//		System.out.println(ret);
+//		System.out.println(Math.pow(micPos.getX() - screenCenter.getX(), 2) +
+//				", " + Math.pow((screenRect.getWidth() - 100)*0.016, 2)) ;
+		if(ret <= 0.01)
 			ret = 0;
 		else if(ret > 1)
 			ret = 1;
