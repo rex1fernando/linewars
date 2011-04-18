@@ -412,8 +412,6 @@ public class Display
 		private boolean panRight;
 		private boolean panUp;
 		private boolean panDown;
-		private boolean altDown;
-		private boolean initialUnderlayState;
 
 		private long lastTime;
 		
@@ -1034,24 +1032,20 @@ public class Display
 				switch(code)
 				{
 				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_A:
 					panLeft = true;
 					break;
 				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_D:
 					panRight = true;
 					break;
 				case KeyEvent.VK_UP:
+				case KeyEvent.VK_W:
 					panUp = true;
 					break;
 				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_S:
 					panDown = true;
-					break;
-				case KeyEvent.VK_ALT:
-					if(!altDown)
-					{
-						initialUnderlayState = showUnderlays();
-						setShowingUnderlays(!showUnderlays());
-					}
-					altDown = true;
 					break;
 				
 				}
@@ -1064,20 +1058,25 @@ public class Display
 				switch(code)
 				{
 				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_A:
 					panLeft = false;
 					break;
 				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_D:
 					panRight = false;
 					break;
 				case KeyEvent.VK_UP:
+				case KeyEvent.VK_W:
 					panUp = false;
 					break;
 				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_S:
 					panDown = false;
 					break;
+				case KeyEvent.VK_CONTROL:
 				case KeyEvent.VK_ALT:
-					altDown = false;
-					setShowingUnderlays(initialUnderlayState);
+				case KeyEvent.VK_TAB:
+					setShowingUnderlays(!showUnderlays());
 					break;
 				}
 			}
