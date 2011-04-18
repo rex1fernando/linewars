@@ -99,7 +99,11 @@ public strictfp class AreaOfEffectConfiguration extends ImpactStrategyConfigurat
 		double b = (Double) super.getPropertyForName("b").getValue();
 		double c = (Double) super.getPropertyForName("c").getValue();
 		
-		return a*x*x + b*x + c;
+		double damage = a*x*x + b*x + c;
+		if(damage < 0){
+			damage = 0;
+		}
+		return damage;
 	}
 
 	@Override
