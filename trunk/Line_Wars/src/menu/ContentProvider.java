@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -33,6 +34,7 @@ public class ContentProvider
 	private static final ResourceLoader loader;
 	
 	private static Map<MenuImage, Future<Image>> imageResources;
+	private static Map<Integer, Future<Image>> mapImages;
 	private static Map<MenuImage, String> filenames;
 	
 	private static final Race[] races;
@@ -229,6 +231,16 @@ public class ContentProvider
 		return maps.toArray(new MapConfiguration[0]);
 	}
 	
+	public static Image getMapImage(int map)
+	{
+		try {
+			return mapImages.get(map).get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public static synchronized Image getImageResource(MenuImage img)
 	{
 		loader.prioritize(img);
@@ -241,13 +253,26 @@ public class ContentProvider
 	
 	public static synchronized void clearImageResources()
 	{
+		if (imageResources != null) imageResources.clear();
+		if (mapImages != null) mapImages.clear();
+		
 		imageResources = new HashMap<MenuImage, Future<Image>>();
+		mapImages = new HashMap<Integer, Future<Image>>();
 		
 		for (MenuImage key : filenames.keySet())
 		{
 			imageResources.put(key, new ImageProxy(filenames.get(key)));
 		}
 		
+		MapConfiguration[] maps = getAvailableMaps();
+		for (int i = 0; i < maps.length; ++i)
+		{
+			String filename = "resources/images/" + maps[i].getImageURI();
+			mapImages.put(i, new ImageProxy(filename));
+		}
+		
+		MapImageLoader loader = new MapImageLoader();
+		loader.execute();
 	}
 	
 	private static Object[] deserializeObjects(String from, String extension)
@@ -289,6 +314,19 @@ public class ContentProvider
 		} catch (Exception e) {}
 		
 		return obj;
+	}
+	
+	private static class MapImageLoader extends SwingWorker<Object, Object>
+	{
+		@Override
+		protected Object doInBackground() throws Exception {
+			for (int i = 0; i < mapImages.size(); ++i)
+			{
+				ImageProxy img = (ImageProxy) mapImages.get(i);
+				img.run();
+			}
+			return null;
+		}
 	}
 	
 	private static class ResourceLoader extends SwingWorker<Object, Object>

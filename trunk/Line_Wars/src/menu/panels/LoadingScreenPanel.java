@@ -20,9 +20,6 @@ import menu.components.CustomProgressBar;
 
 public class LoadingScreenPanel extends JPanel
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7891162540306393100L;
 	private static final double IMAGE_SCALE = 0.2;
 	private static final long PERIOD = 10;
@@ -71,6 +68,10 @@ public class LoadingScreenPanel extends JPanel
 	public void stop()
 	{
 		timer.cancel();
+		wm = null;
+		timer = null;
+		removeAll();
+		progressBar = null;
 	}
 	
 	@Override
@@ -99,5 +100,7 @@ public class LoadingScreenPanel extends JPanel
 		g2.drawImage(spinner, x, y, imageWidth, imageHeight, null);
 		
 		g2.rotate(-theta, px, py);
+		
+		spinner = null;
 	}
 }

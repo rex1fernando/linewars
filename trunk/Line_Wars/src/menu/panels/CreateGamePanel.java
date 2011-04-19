@@ -54,9 +54,19 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	init();
     }
     
+    public void startGame(GameInitializer gameInit)
+    {
+    	wm.startGame(gameInit);
+    	wm = null;
+    	client = null;
+    	options = null;
+    	removeAll();
+    }
+    
     @Override
     public void paintComponent(Graphics g)
     {
+    	super.paintComponent(g);
     	Image img = ContentProvider.getImageResource(MenuImage.lobby_back);
     	g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
     }
@@ -150,11 +160,6 @@ public class CreateGamePanel extends javax.swing.JPanel {
     	}});
     }
     
-    public void startGame(GameInitializer gameInit)
-    {
-    	wm.startGame(gameInit);
-    }
-    
     private void init() {
     	players = new ArrayList<PlayerPanel>();
     	isServer = false;
@@ -201,7 +206,7 @@ public class CreateGamePanel extends javax.swing.JPanel {
     private void selectionBoxActionPerformed(java.awt.event.ActionEvent evt) {
     	if (replayToggleButton.isSelected() == false)
     	{
-    		previewPanel.setMap((MapConfiguration) selectionComboBox.getSelectedItem());
+    		previewPanel.setMap(selectionComboBox.getSelectedIndex());
     	}
     	client.sendMessage(MessageType.selection, selectionComboBox.getSelectedItem());
     }                                            
