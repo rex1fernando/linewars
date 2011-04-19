@@ -1,6 +1,7 @@
 package menu;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -265,10 +265,11 @@ public class ContentProvider
 		}
 		
 		MapConfiguration[] maps = getAvailableMaps();
+		Dimension size = new Dimension(250, 250);
 		for (int i = 0; i < maps.length; ++i)
 		{
 			String filename = "resources/images/" + maps[i].getImageURI();
-			mapImages.put(i, new ImageProxy(filename));
+			mapImages.put(i, new ImageProxy(filename, size));
 		}
 		
 		MapImageLoader loader = new MapImageLoader();
@@ -384,21 +385,65 @@ public class ContentProvider
 		{
 			super(new ImageLoader(filename));
 		}
+		
+		public ImageProxy(String filename, Dimension size)
+		{
+			super(new ImageLoader(filename, size));
+		}
 	}
 	
 	private static class ImageLoader implements Callable<Image>
 	{
 		private String filename;
+		private Dimension size;
 		
 		public ImageLoader(String filename)
 		{
+			this(filename, null);
+		}
+		
+		public ImageLoader(String filename, Dimension size)
+		{
 			this.filename = filename;
+			this.size = size;
 		}
 		
 		@Override
 		public Image call() throws Exception
 		{
-			return ImageIO.read(new File(filename));
+			Image img = ImageIO.read(new File(filename));
+			
+			if (size != null)
+			{
+				Image newImg = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+				Graphics g = newImg.getGraphics();
+				
+				g.setColor(Color.black);
+				g.fillRect(0, 0, newImg.getWidth(null), newImg.getHeight(null));
+				
+				double thisWidth = newImg.getWidth(null);
+				double thisHeight = newImg.getHeight(null);
+				double thatWidth = img.getWidth(null);
+				double thatHeight = img.getHeight(null);
+				
+				double thisRatio = thisWidth / thisHeight;
+				double thatRatio = thatWidth / thatHeight * 1.0;
+				
+				double scale = (thisRatio > thatRatio) ? thisHeight / thatHeight : thisWidth / thatWidth;
+				
+				int imgWidth = (int) (thatWidth * scale);
+				int imgHeight = (int) (thatHeight * scale);
+				int x = (int) (thisWidth - imgWidth) / 2;
+				int y = (int) (thisHeight - imgHeight) / 2;
+				
+				g.drawImage(img, x, y, imgWidth, imgHeight, null);
+				
+				return newImg;
+			}
+			else
+			{
+				return img;
+			}
 		}		
 	}
 }
