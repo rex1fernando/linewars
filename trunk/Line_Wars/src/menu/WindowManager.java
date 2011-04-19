@@ -200,7 +200,6 @@ public class WindowManager extends JFrame
 				SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, s.nextDouble()/100.0);
 			} catch (FileNotFoundException e) {}
 			
-			
 			g.run();
 			loadingScreen.stop();
 		} catch (Exception e) {

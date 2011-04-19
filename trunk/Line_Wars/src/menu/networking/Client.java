@@ -57,6 +57,14 @@ public class Client implements Runnable
 		}
 	}
 	
+	private void cleanup()
+	{
+		socket = null;
+		gamePanel = null;
+		out = null;
+		in = null;
+	}
+	
 	public int getPlayerIndex()
 	{
 		return playerIndex;
@@ -169,8 +177,7 @@ public class Client implements Runnable
 				gamePanel.startGame(gameInit);
 			}			
 			
-			// TODO close the lobby system
-			
+			// cleanup();
 			break;
 		}
 	}

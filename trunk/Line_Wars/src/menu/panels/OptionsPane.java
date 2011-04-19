@@ -29,9 +29,6 @@ import menu.components.MenuTextField;
 
 public class OptionsPane extends JPanel
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2104236176196959841L;
 
 	public static final String FILENAME = "resources/Options.cfg";

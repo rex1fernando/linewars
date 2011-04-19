@@ -13,6 +13,12 @@ public class TitlePanel extends javax.swing.JPanel {
     	this.windowManager = windowManager;
         initComponents();
     }
+    
+    public void cleaup()
+    {
+    	removeAll();
+    	windowManager = null;
+    }
                       
     private void initComponents() {
     	

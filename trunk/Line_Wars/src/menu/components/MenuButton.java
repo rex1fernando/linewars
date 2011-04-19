@@ -16,9 +16,6 @@ import menu.ContentProvider.MenuImage;
 
 public class MenuButton extends JButton
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2909656368809486512L;
 	private String text;
 	private Font font;
