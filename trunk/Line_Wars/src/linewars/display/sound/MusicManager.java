@@ -21,7 +21,8 @@ public class MusicManager
 	public MusicManager(String[] songs)
 	{
 		songList = new ArrayList<String>();
-		songList.add("Guitar_Reduced_Volume.wav");
+		songList.add("Guitar_Reduced_Volume1.wav");
+		songList.add("GameSong2.wav");
 		playing = null;
 		songIndex = 0;
 		
