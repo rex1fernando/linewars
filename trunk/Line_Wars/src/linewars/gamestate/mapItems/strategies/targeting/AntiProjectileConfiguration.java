@@ -49,8 +49,9 @@ public strictfp class AntiProjectileConfiguration extends TargetingStrategyConfi
 		private AntiProjectile(Projectile p)
 		{
 			projectile = p;
-			Random gen = new Random(p.getID());
+			Random gen = new Random(Double.doubleToLongBits(p.getPosition().getX()) + p.getGameState().getTimerTick());
 			clockwise = gen.nextBoolean();
+			p.setState(MapItemState.Moving);
 		}
 		
 		@Override

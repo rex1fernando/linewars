@@ -150,6 +150,9 @@ public class MapItemCommanalitiesEditor extends JPanel implements ConfigurationE
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
+				if(fc == null){
+					fc = new JFileChooser();
+				}
 				fc.setMultiSelectionEnabled(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				if(fc.showOpenDialog(MapItemCommanalitiesEditor.this) == JFileChooser.APPROVE_OPTION)
