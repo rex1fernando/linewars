@@ -93,6 +93,9 @@ public class ContentProvider
 		filenames.put(MenuImage.progressbar_back, "resources/ui/components/loadingbar_back.png");
 		filenames.put(MenuImage.progressbar_front, "resources/ui/components/loadingbar_front.png");
 		
+		// checkbox
+		filenames.put(MenuImage.checkbox, "resources/ui/components/checkbox.png");
+		
 		// initialize image resources
 		clearImageResources();
 		
@@ -167,7 +170,9 @@ public class ContentProvider
 		slider_track,
 		
 		progressbar_back,
-		progressbar_front
+		progressbar_front,
+		
+		checkbox
 	}
 	
 	public static Point centerText(FontMetrics f, String text, int width, int height)

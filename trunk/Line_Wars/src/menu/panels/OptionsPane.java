@@ -23,6 +23,7 @@ import linewars.display.sound.SoundPlayer.SoundType;
 import menu.ContentProvider;
 import menu.ContentProvider.MenuImage;
 import menu.WindowManager;
+import menu.components.CustomCheckBox;
 import menu.components.CustomSlider;
 import menu.components.MenuButton;
 import menu.components.MenuTextField;
@@ -36,6 +37,7 @@ public class OptionsPane extends JPanel
 	private MenuTextField nameField;
 	private CustomSlider musicSlider;
 	private CustomSlider effectsSlider;
+	private CustomCheckBox healthCheckBox;
 	
 	private WindowManager wm;
 	
@@ -51,7 +53,6 @@ public class OptionsPane extends JPanel
 		public void actionPerformed(ActionEvent e)
 		{
 			saveOptions();
-			//also set the music volume for the lobby music
 			SoundPlayer.getInstance().setVolume(SoundType.MUSIC, musicSlider.getValue()/100.0);
 			SoundPlayer.getInstance().setVolume(SoundType.SOUND_EFFECT, effectsSlider.getValue()/100.0);
 		}
@@ -80,6 +81,7 @@ public class OptionsPane extends JPanel
 			nameField.setText(in.next());
 			musicSlider.setValue(in.nextInt());
 			effectsSlider.setValue(in.nextInt());
+			healthCheckBox.setSelected(in.nextBoolean());
 			in.close();
 		}
     	catch (Exception e)
@@ -87,6 +89,7 @@ public class OptionsPane extends JPanel
 			nameField.setText("Unamed-Noob");
 			musicSlider.setValue(50);
 			effectsSlider.setValue(50);
+			healthCheckBox.setSelected(false);
 		}
     }
     
@@ -96,6 +99,11 @@ public class OptionsPane extends JPanel
     	return nameField.getText();
     }
     
+    public boolean getHealthBarsSelected()
+    {
+    	return healthCheckBox.isSelected();
+    }
+    
     private void saveOptions()
     {
     	try {
@@ -103,15 +111,13 @@ public class OptionsPane extends JPanel
 			pw.println(nameField.getText());
 			pw.println(musicSlider.getValue());
 			pw.println(effectsSlider.getValue());
+			pw.println(healthCheckBox.isSelected());
 			pw.close();
 		} catch (FileNotFoundException e) {}
     }
 	
 	private class Option extends JPanel
 	{
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -454128596201128963L;
 
 		public Option(String text, JComponent c)
@@ -166,6 +172,14 @@ public class OptionsPane extends JPanel
 		effectsSlider.setMaximum(100);
 		effectsSlider.setMinimum(0);
 		add(new Option("Effects Volume", effectsSlider));
+		
+		JPanel boxPanel = new JPanel();
+		boxPanel.setOpaque(false);
+		boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.X_AXIS));
+		healthCheckBox = new CustomCheckBox();
+		boxPanel.add(healthCheckBox);
+		boxPanel.add(Box.createHorizontalGlue());
+		add(new Option("Health Always On", boxPanel));
 		
 		add(Box.createVerticalGlue());
 		JPanel panel = new JPanel();
