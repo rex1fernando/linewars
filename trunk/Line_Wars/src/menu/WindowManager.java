@@ -71,7 +71,7 @@ public class WindowManager extends JFrame
 		
 		//start the lobby music
 		try {
-			SoundPlayer.getInstance().addSound("Intro.wav");
+			SoundPlayer.getInstance().addSound("HinrichsenProject2.wav");
 			SoundPlayer.getInstance().addSound("Menu_Click.wav");
 			SoundPlayer.getInstance().playSound(new SoundInfo() {
 				
@@ -82,7 +82,7 @@ public class WindowManager extends JFrame
 				
 				@Override
 				public String getURI() {
-					return "Intro.wav";
+					return "HinrichsenProject2.wav";
 				}
 				
 				@Override
