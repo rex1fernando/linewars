@@ -2,6 +2,7 @@ package linewars.gamestate.mapItems.strategies.impact;
 
 import linewars.gamestate.Position;
 import linewars.gamestate.mapItems.MapItem;
+import linewars.gamestate.mapItems.strategies.Strategy;
 
 /**
  * 
@@ -10,16 +11,7 @@ import linewars.gamestate.mapItems.MapItem;
  * This interface specifies how a projectile handles impacting
  * mapItems.
  */
-public strictfp interface ImpactStrategy {
-	
-	/**
-	 * Creates a new instance of the same type of ImpactStrategy
-	 * with the given mapItem as the owner.
-	 * 
-	 * @param m		the mapItem to own the new strategy
-	 * @return		the new strategy
-	 */
-	public ImpactStrategy createInstanceOf(MapItem m);
+public strictfp interface ImpactStrategy extends Strategy<ImpactStrategyConfiguration> {
 	
 	/**
 	 * Tells this impact strategy to handle an impact with a

@@ -1,17 +1,12 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.GameState;
-import linewars.gamestate.Lane;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
-import linewars.gamestate.mapItems.strategies.impact.DealDamageOnce;
-import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
+import linewars.gamestate.mapItems.strategies.impact.ImpactStrategyConfiguration;
+import linewars.gamestate.mapItems.strategies.targeting.TargetingStrategyConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 /**
  * 
@@ -23,67 +18,80 @@ import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
  */
 public strictfp class ProjectileDefinition extends MapItemAggregateDefinition<Projectile> {
 	
-	private double velocity;
-	private ImpactStrategy iStrat;
+	private static final long serialVersionUID = 7752872630909701946L;
+	
+	private double baseDurability;
+	private ImpactStrategyConfiguration iStrat;
+	private TargetingStrategyConfiguration tStrat;
 
-	public ProjectileDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);		
+	public ProjectileDefinition() {
+		super();	
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT));
+		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION));
+		super.setPropertyForName("tStrat", new Property(Usage.CONFIGURATION));
 	}
 	
-	/**
-	 * 
-	 * @return	the velocity of the projectile
-	 */
-	public double getVelocity()
+	public double getBaseDurability()
 	{
-		return velocity;
+		return baseDurability;
 	}
 	
-	/**
-	 * 
-	 * @param velocity	the new velocity of the projectile
-	 */
-	public void setVelocity(double velocity)
+	public void setBaseDurability(double baseDurability)
 	{
-		this.velocity = velocity;
-	}
-	
-	/**
-	 * Creates a projectile
-	 * 
-	 * @param t	the transformation to create the projectile at
-	 * @return	the projectile
-	 */
-	public Projectile createProjectile(Transformation t, Lane l)
-	{
-		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
-		p.setLane(l);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				p.addActiveAbility(ad.createAbility(p));
-		return p;
+		super.setPropertyForName("baseDurability", new Property(Usage.NUMERIC_FLOATING_POINT, baseDurability));
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
-		velocity = super.getParser().getNumber(ParserKeys.velocity);
-		ConfigData is = super.getParser().getConfig(ParserKeys.impactStrategy);
-		if(is.getString(ParserKeys.type).equalsIgnoreCase("DealDamageOnce"))
+	protected Projectile createMapItemAggregate(Transformation t, Player owner, GameState gameState) {
+		Projectile p = new Projectile(t, this, owner, gameState);
+		return p;
+	}
+
+	public ImpactStrategyConfiguration getImpactStratConfig() {
+		return iStrat;
+	}
+	
+	public void setImpactStratConfig(ImpactStrategyConfiguration isc)
+	{
+		super.setPropertyForName("iStrat", new Property(Usage.CONFIGURATION, isc));
+	}
+	
+	public TargetingStrategyConfiguration getTargetingStratConfig()
+	{
+		return tStrat;
+	}
+	
+	public void setTargetingStratConfig(TargetingStrategyConfiguration tsc)
+	{
+		super.setPropertyForName("tStrat", new Property(Usage.CONFIGURATION, tsc));
+	}
+
+	@Override
+	protected void forceAggregateSubReloadConfigData() {
+		if(super.getPropertyForName("baseDurability") != null && 
+				super.getPropertyForName("baseDurability").getValue() != null)
+			baseDurability = (Double)super.getPropertyForName("baseDurability").getValue();
+		
+		if(super.getPropertyForName("iStrat") != null)
+			iStrat = (ImpactStrategyConfiguration)super.getPropertyForName("iStrat").getValue();
+		
+		if(super.getPropertyForName("tStrat") != null)
+			tStrat = (TargetingStrategyConfiguration)super.getPropertyForName("tStrat").getValue();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof ProjectileDefinition)
 		{
-			iStrat = new DealDamageOnce(is.getNumber(ParserKeys.damage));
+			ProjectileDefinition pd = (ProjectileDefinition) obj;
+			return super.equals(obj) &&
+					baseDurability == pd.baseDurability &&
+					iStrat.equals(pd.iStrat) &&
+					tStrat.equals(pd.tStrat);
 		}
 		else
-			throw new IllegalArgumentException("Invalid impact strategy for " + this.getName());		
-	}
-
-	@Override
-	protected Projectile createMapItemAggregate(Transformation t) {
-		Projectile p = new Projectile(t, this, this.getCollisionStrategy(), iStrat);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				p.addActiveAbility(ad.createAbility(p));
-		return p;
+			return false;
 	}
 
 }

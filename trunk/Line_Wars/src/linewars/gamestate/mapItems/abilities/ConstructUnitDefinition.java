@@ -1,16 +1,18 @@
 package linewars.gamestate.mapItems.abilities;
 
-import java.io.FileNotFoundException;
+import utility.Observable;
+import utility.Observer;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Player;
 import linewars.gamestate.mapItems.Building;
-import linewars.gamestate.mapItems.BuildingDefinition;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.Unit;
 import linewars.gamestate.mapItems.UnitDefinition;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
+import configuration.*;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 
@@ -20,23 +22,72 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * Knows which unit it creates and starts active. Must be given
  * what UnitDefinition to create from and the build time of that unit.
  */
-public strictfp class ConstructUnitDefinition extends AbilityDefinition {
+public strictfp class ConstructUnitDefinition extends AbilityDefinition implements Observer {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2870972038123246766L;
+
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Construct Unit", ConstructUnitDefinition.class, AbilityStrategyEditor.class);
+	}
 	
 	private UnitDefinition unitDefinition = null;
 	private long buildtime;
-	private ConfigData parser;
 	
-	public ConstructUnitDefinition(ConfigData cd, Player owner, int ID)
-	{
-		super(ID);
-		this.owner = owner;
-		parser = cd;
-		this.forceReloadConfigData();
-	}
+	public strictfp class ConstructUnit implements Ability, ProgressAbility {
+		
+		private Building building;
+		private long startTime;
+		
+		private ConstructUnit(Building b)
+		{
+			building = b;
+			b.setState(MapItemState.Active);
+			startTime = (long)(b.getGameState().getTime()*1000);
+		}
 
-	@Override
-	public boolean checkValidity() {
-		return (unitDefinition != null);
+		@Override
+		public void update() {
+			if((long)(building.getGameState().getTime()*1000) - startTime > 
+			getBuildTime()/building.getModifier().getModifier(MapItemModifiers.buildingProductionRate))
+			{
+				if(building.getState() != MapItemState.Active)
+					building.setState(MapItemState.Active);
+				Unit u = getUnitDefinition().createMapItem(building.getTransformation(), 
+						building.getOwner(), building.getGameState());
+				building.getNode().addUnit(u);
+				startTime = (long)(building.getGameState().getTime()*1000);
+			}
+		}
+
+		@Override
+		public boolean killable() {
+			return true;
+		}
+
+		@Override
+		public boolean finished() {
+			return false;
+		}
+
+		@Override
+		public double getProgress() {
+			return (building.getGameState().getTime() * 1000 - startTime)
+					/ (getBuildTime() / building.getModifier().getModifier(
+							MapItemModifiers.buildingProductionRate));
+		}
+
+	}
+	
+	public ConstructUnitDefinition()
+	{
+		super.setPropertyForName("unitDefinition", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.UnitConfig, "The unit to build"));
+		super.setPropertyForName("buildtime", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, 
+				null, EditorUsage.NaturalNumber, "The time it takes to build the unit in ms"));
+		super.addObserver(this);
 	}
 
 	@Override
@@ -47,19 +98,17 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 	@Override
 	public Ability createAbility(MapItem m) {
 		if(m instanceof Building)
-			return new ConstructUnit((Building)m, this);
+			return new ConstructUnit((Building)m);
 		else
 			throw new IllegalArgumentException("Only buildings may construct units");
 	}
 
 	@Override
-	public boolean unlocked() {
-		return true;
-	}
-
-	@Override
 	public String getName() {
-		return "Construct Unit: " + unitDefinition.getName();
+		if(unitDefinition != null)
+			return "Construct Unit: " + unitDefinition.getName();
+		else
+			return "Construct Unit: undefinded";
 	}
 
 	@Override
@@ -74,43 +123,6 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 		else
 			return false;
 	}
-
-	@Override
-	public String getIconURI() {
-		return unitDefinition.getParser().getString(ParserKeys.icon);
-	}
-
-	@Override
-	public String getPressedIconURI() {
-		return unitDefinition.getParser().getString(ParserKeys.pressedIcon);
-	}
-
-	@Override
-	public String getRolloverIconURI() {
-		return unitDefinition.getParser().getString(ParserKeys.rolloverIcon);
-	}
-
-	@Override
-	public String getSelectedIconURI() {
-		return unitDefinition.getParser().getString(ParserKeys.selectedIcon);
-	}
-
-	@Override
-	public ConfigData getParser() {
-		return parser;
-	}
-
-	@Override
-	public void forceReloadConfigData() {
-		buildtime = (long)(double)parser.getNumber(ParserKeys.buildTime);
-		try {
-			unitDefinition = owner.getUnitDefinition(parser.getString(ParserKeys.unitURI));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (InvalidConfigFileException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public long getBuildTime()
 	{
@@ -120,6 +132,17 @@ public strictfp class ConstructUnitDefinition extends AbilityDefinition {
 	public UnitDefinition getUnitDefinition()
 	{
 		return unitDefinition;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if(o == this)
+		{
+			if(arg.equals("unitDefinition"))
+				unitDefinition = (UnitDefinition)super.getPropertyForName("unitDefinition").getValue();
+			if(arg.equals("buildtime"))
+				buildtime = (long)(int)(Integer)super.getPropertyForName("buildtime").getValue();
+		}
 	}
 
 }

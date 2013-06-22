@@ -1,16 +1,17 @@
 package linewars.gamestate.mapItems.abilities;
 
-import java.io.FileNotFoundException;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Player;
+import linewars.gamestate.Transformation;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.Projectile;
 import linewars.gamestate.mapItems.ProjectileDefinition;
+import linewars.gamestate.mapItems.Turret;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.mapItems.UnitDefinition;
+import utility.Observable;
+import utility.Observer;
+import configuration.Usage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 
@@ -20,23 +21,59 @@ import linewars.gamestate.mapItems.UnitDefinition;
  * It knows what projectile definition to use and the maximum
  * range away this ability can be used.
  */
-public strictfp class ShootDefinition extends AbilityDefinition {
+public strictfp class ShootDefinition extends AbilityDefinition implements Observer {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6555026615288652899L;
+
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Shoot", ShootDefinition.class, AbilityStrategyEditor.class);
+	}
 	
 	private ProjectileDefinition ammo = null;
 	private double range;
-	private ConfigData parser;
 	
-	public ShootDefinition(ConfigData cd, Player owner, int ID)
-	{
-		super(ID);
-		this.owner = owner;
-		parser = cd;
-		this.forceReloadConfigData();
-	}
+	public strictfp class Shoot implements Ability {
+		
+		private Shoot(MapItem m)
+		{
+			Transformation t = m.getTransformation();
+			//TODO figure out how to move the position of the bullet spawning
+			//position out in front of the unit that's shooting it
+			Projectile p = ammo.createMapItem(t, m.getOwner(), m.getGameState());
+			p.getModifier().pushUnderStack(m.getModifier());
+			if(m instanceof Unit)
+				((Unit)m).getWave().getLane().addProjectile(p);
+			else if(m instanceof Turret)
+				((Turret)m).getWave().getLane().addProjectile(p);
+			else
+				throw new IllegalArgumentException("Only units and turrets may shoot");
+		}
 
-	@Override
-	public boolean checkValidity() {
-		return (ammo != null);
+		@Override
+		public void update() {}
+
+		@Override
+		public boolean killable() {
+			return true;
+		}
+
+		@Override
+		public boolean finished() {
+			return true;
+		}
+
+	}
+	
+	public ShootDefinition()
+	{
+		super.setPropertyForName("ammo", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.ProjectileConfig, "The Projectile that is shot"));
+		super.setPropertyForName("range", new EditorProperty(Usage.NUMERIC_FLOATING_POINT, 
+				null, EditorUsage.PositiveReal, "The range of this shoot ability"));
+		super.addObserver(this);
 	}
 
 	@Override
@@ -46,15 +83,7 @@ public strictfp class ShootDefinition extends AbilityDefinition {
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		if(m instanceof Unit)
-			return new Shoot(ammo, (Unit)m);
-		else
-			throw new IllegalArgumentException(m.getName() + " cannot shoot.");
-	}
-
-	@Override
-	public boolean unlocked() {
-		return true;
+		return new Shoot(m);
 	}
 
 	@Override
@@ -81,40 +110,14 @@ public strictfp class ShootDefinition extends AbilityDefinition {
 	}
 
 	@Override
-	public String getIconURI() {
-		return ammo.getParser().getString(ParserKeys.icon);
-	}
-
-	@Override
-	public String getPressedIconURI() {
-		return ammo.getParser().getString(ParserKeys.pressedIcon);
-	}
-
-	@Override
-	public String getRolloverIconURI() {
-		return ammo.getParser().getString(ParserKeys.rolloverIcon);
-	}
-
-	@Override
-	public String getSelectedIconURI() {
-		return ammo.getParser().getString(ParserKeys.selectedIcon);
-	}
-
-	@Override
-	public ConfigData getParser() {
-		return parser;
-	}
-
-	@Override
-	public void forceReloadConfigData() {
-		try {
-			ammo = owner.getProjectileDefinition(parser.getString(ParserKeys.projectileURI));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (InvalidConfigFileException e) {
-			e.printStackTrace();
+	public void update(Observable o, Object arg) {
+		if(o == this)
+		{
+			if(arg.equals("ammo"))
+				ammo = (ProjectileDefinition)super.getPropertyForName("ammo").getValue();
+			if(arg.equals("range") && super.getPropertyForName("range").getValue() != null)
+				range = (Double)super.getPropertyForName("range").getValue();
 		}
-		range = parser.getNumber(ParserKeys.range);
 	}
 
 }

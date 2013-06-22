@@ -1,9 +1,7 @@
 package linewars.gamestate;
 
+import java.io.Serializable;
 import java.util.Scanner;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -13,7 +11,14 @@ import linewars.configfilehandler.ParserKeys;
  * immutable.
  *
  */
-public strictfp class Position {
+public strictfp class Position implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1353848648582707930L;
+
+	public static final Position ORIGIN = new Position(0, 0);
 	
 	private double x;
 	private double y;
@@ -46,16 +51,6 @@ public strictfp class Position {
 		Scanner s = new Scanner(toParse);
 		x = s.nextDouble();
 		y = s.nextDouble();
-	}
-	
-	/**
-	 * Parses a position from a config data.
-	 * 
-	 * @param toParse
-	 */
-	public Position(ConfigData toParse) {
-		x = toParse.getNumber(ParserKeys.x);
-		y = toParse.getNumber(ParserKeys.y);
 	}
 
 	/**
@@ -238,7 +233,7 @@ public strictfp class Position {
 	
 	@Override
 	public String toString(){
-		return "(" + (int)x + ", " + (int)y + ")";
+		return "(" + (Math.floor(1000*x))/1000.0 + ", " + (Math.floor(1000*y))/1000.0 + ")";
 	}
 
 	/**
@@ -259,5 +254,9 @@ public strictfp class Position {
 	static public Position getUnitVector(double theta)
 	{
 		return new Position(Math.cos(theta), Math.sin(theta));
+	}
+
+	public double crossProduct(Position other) {
+		return this.x * other.y - this.y * other.x;
 	}
 }

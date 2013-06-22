@@ -1,13 +1,13 @@
 package linewars.gamestate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import linewars.gamestate.mapItems.Gate;
-import linewars.gamestate.mapItems.MapItem;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.AABB;
 
 /**
  * 
@@ -18,8 +18,9 @@ import linewars.gamestate.shapes.Circle;
 public strictfp class Wave {
 	private Lane owner;
 	private Node origin;
-	private ArrayList<Unit> units;
-	private Wave opponent;
+	private List<Unit> units;
+	private List<Unit> unitsInNeedOfRemoval = new LinkedList<Unit>();
+	private boolean inCombat = false;
 	
 	/**
 	 * Gets the lane that owns this wave
@@ -52,8 +53,7 @@ public strictfp class Wave {
 	public Wave(Lane owner, Unit u, Node origin)
 	{
 		this.owner = owner;
-		opponent = null;
-		units = new ArrayList<Unit>();
+		units = new LinkedList<Unit>();
 		this.addUnit(u);
 		this.origin = origin;
 	}
@@ -66,8 +66,7 @@ public strictfp class Wave {
 	public Wave(Lane owner)
 	{
 		this.owner = owner;
-		units = new ArrayList<Unit>();
-		opponent = null;
+		units = new LinkedList<Unit>();
 	}
 	
 	/**
@@ -92,6 +91,7 @@ public strictfp class Wave {
 			return false;
 		}
 		u.setWave(this);
+		owner.notifySweepAndPruneUnitAdded(u);
 		return units.add(u);
 	}
 	
@@ -158,16 +158,23 @@ public strictfp class Wave {
 	 */
 	public void update()
 	{
+		List<Unit> deadButNotFinished = new ArrayList<Unit>();
 		//first check for dead units
 		for(int i = 0; i < units.size();)
-			if(units.get(i).getState() == MapItemState.Dead)
-				units.remove(i);
-			else
+			if(units.get(i).getState() == MapItemState.Dead && units.get(i).finished()) {
+				owner.notifySweepAndPruneUnitRemoved(units.remove(i));
+			} else if(units.get(i).getState().equals(MapItemState.Dead)) {
+				deadButNotFinished.add(units.remove(i));
+			} else {
 				i++;
+			}
 		
 		//don't do anything if there are no units
-		if(units.size() <= 0)
+		if(units.size() <= 0 && deadButNotFinished.size() <= 0)
+		{
+			inCombat = false;
 			return;
+		}
 		
 
 		//if(!(units.get(0) instanceof Gate))
@@ -183,11 +190,18 @@ public strictfp class Wave {
 				maxRad = rad;
 		}
 		
-		List<Unit> unitsInRange = owner.getUnitsIn(new Circle(new Transformation(center, 0), maxRad));
+		//this is to prevent units from doing a run by on accident
+		if(maxRad < owner.getWidth())
+			maxRad = owner.getWidth();
+		
+		AABB box = new AABB(center.getX() - maxRad, center.getY() - maxRad, 
+				center.getX() + maxRad, center.getY() + maxRad);
+		List<Unit> unitsInRange = owner.getUnitsIn(box);
+		List<Unit> alliesInRange = new ArrayList<Unit>();
 		//remove friendly units
 		for(int i = 0; i < unitsInRange.size();)
 			if(unitsInRange.get(i).getOwner().equals(units.get(0).getOwner()))
-				unitsInRange.remove(i);
+				alliesInRange.add(unitsInRange.remove(i));
 			else
 				i++;
 		
@@ -195,12 +209,15 @@ public strictfp class Wave {
 		if(unitsInRange.size() > 0)
 		{
 			//for efficiency reasons
-			Unit[] unitsInRangeArray = unitsInRange.toArray(new Unit[0]);
+			Unit[] unitsInRangeArray = unitsInRange.toArray(new Unit[unitsInRange.size()]);
+			Unit[] alliesInRangeArray = alliesInRange.toArray(new Unit[alliesInRange.size()]);
 			for(Unit u : units)
-				u.getCombatStrategy().fight(unitsInRangeArray);
+				u.getCombatStrategy().fight(unitsInRangeArray, alliesInRangeArray);
+			inCombat = true;
 		}
 		else
 		{
+			inCombat = false;
 			//figure out which direction we're going
 			boolean forward = true;
 			if (origin.getTransformation().getPosition().distanceSquared(
@@ -233,7 +250,7 @@ public strictfp class Wave {
 						target.setInvader(u.getOwner());
 					u.setTransformation(target.getTransformation());
 					target.addUnit(u);
-					units.remove(i);
+					owner.notifySweepAndPruneUnitRemoved(units.remove(i));
 					continue;
 				}
 				//if we're close enough but the gate isn't down
@@ -277,51 +294,37 @@ public strictfp class Wave {
 				Transformation t = new Transformation(units.get(i).getPosition().add(dis*Math.cos(angle), dis*Math.sin(angle)), angle);
 				units.get(i).getMovementStrategy().setTarget(t);
 			}
+			inCombat = false;
 		}
 		
 		for(Unit u : units)
 		{
 			u.getMovementStrategy().move();
-			u.update();
+			u.updateMapItem();
 		}
+		
+		//add the dead but not finished units back in
+		//also call update for them so they may finish their abilities
+		for(Unit u : deadButNotFinished)
+		{
+			u.updateMapItem();
+			units.add(u);
+		}
+		
+		for(Unit u : unitsInNeedOfRemoval)
+		{
+			units.remove(u);
+			owner.notifySweepAndPruneUnitRemoved(u);
+		}
+		unitsInNeedOfRemoval.clear();
+	}
+	
+	public boolean isInCombat()
+	{
+		return inCombat;
 	}
 	
 
-	/**
-	 * Helper method for the update() method. Sets the targets for all the units in this wave based on the scale and returns the lowest move.
-	 * @param destGate The gate the units are using as their target.
-	 * @param gatePos The position of the target gate.
-	 * @param scale The modifier to the movement of the units.
-	 * @return The lowest move speed found.
-	 */
-	private double setTransformations(Gate destGate, Position gatePos, double scale) {
-		double ret = 1;
-		for(int i = 0; i < units.size(); i++)
-		{
-			Unit u = units.get(i);
-			
-			double destX = 0;
-			Position currentPos = u.getPosition();
-			double plus = currentPos.getX() - (gatePos.getX()+(destGate.getWidth()/2));
-			double minus = currentPos.getX() - (gatePos.getX()-(destGate.getWidth()/2));
-			if(Math.abs(plus) < Math.abs(minus))
-			{
-				destX = plus;
-			}else{
-				destX = minus;
-			}
-			
-			Position destPos = new Position((scale * destX), currentPos.getY());
-			Transformation target = new Transformation(destPos, u.getTransformation().getRotation());
-			double currentSpeed = u.getMovementStrategy().setTarget(target);
-			if(currentSpeed < ret)
-			{
-				ret = currentSpeed;
-			}
-		}
-		return ret;
-	}
-	
 	/**
 	 * Checks whether or not this Wave contains a given Unit.
 	 * @param u
@@ -342,7 +345,7 @@ public strictfp class Wave {
 	 */
 	public void remove(Unit u)
 	{
-		units.remove(u);
+		unitsInNeedOfRemoval.add(u);
 	}
 	
 	/**

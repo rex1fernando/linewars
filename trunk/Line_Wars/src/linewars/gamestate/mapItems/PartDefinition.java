@@ -1,27 +1,36 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
 
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 
 public class PartDefinition extends MapItemDefinition<Part> {
 
-	public PartDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6955722405607312188L;
+
+	public PartDefinition() {
+		super();
 	}
 
 	@Override
-	public Part createMapItem(Transformation t) {
-		return new Part(t, this);
+	public Part createMapItem(Transformation t, Player owner, GameState gameState) {
+		return new Part(t, this, owner, gameState);
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
+	protected void forceSubclassReloadConfiguration() {
 				
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof PartDefinition) &&
+				super.equals(obj);
 	}
 
 }

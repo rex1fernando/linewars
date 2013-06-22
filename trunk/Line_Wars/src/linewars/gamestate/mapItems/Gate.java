@@ -1,12 +1,9 @@
 package linewars.gamestate.mapItems;
 
-import linewars.gamestate.Node;
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
-import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
-import linewars.gamestate.mapItems.strategies.combat.NoCombat;
-import linewars.gamestate.mapItems.strategies.movement.Immovable;
-import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * 
@@ -26,9 +23,8 @@ public strictfp class Gate extends Unit {
 	 * @param ms	the movement strategy for this gate
 	 * @param cs	the combat strategy for this gate
 	 */
-	public Gate(Transformation t, GateDefinition def, MovementStrategy ms,
-			CombatStrategy cs) {
-		super(t, def, ms, cs);
+	public Gate(Transformation t, GateDefinition def, Player owner, GameState gameState) {
+		super(t, def, owner, gameState);
 	}
 
 	/**
@@ -36,14 +32,8 @@ public strictfp class Gate extends Unit {
 	 * 
 	 * @param t
 	 */
-	public Gate(Transformation t) {
-		super(t, null, new Immovable(), new NoCombat());
-	}
-	
-	@Override
-	public void setState(MapItemState m)
-	{
-		super.setState(m);
+	public Gate(Transformation t, GameState gameState) {
+		super(t, new GateDefinition(), null, gameState);
 	}
 	
 	@Override
@@ -63,4 +53,14 @@ public strictfp class Gate extends Unit {
 		
 	}
 	
+	public void setBody(Shape s)
+	{
+		super.setBody(s);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj) && (obj instanceof Gate);
+	}
 }

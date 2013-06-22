@@ -1,18 +1,10 @@
 package linewars.gamestate.shapes;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.io.Serializable;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.shapes.collisionStrategies.ShapeCollisionStrategy;
 
 /**
  * Represents an area in 2D space.
@@ -20,108 +12,15 @@ import linewars.gamestate.Transformation;
  * @author Taylor Bergquist
  *
  */
-public strictfp abstract class Shape {
+public strictfp abstract class Shape implements Serializable {
 	
-	private static HashMap<String, Class<? extends Shape>> typeToClass;
-	
-	static{
-		try {
-			List<Class> classes = getClasses(Shape.class.getPackage().getName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	private AABB aabb = null;
 	
 	/**
-     * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
-     *
-     * @param packageName The base package
-     * @return The classes
-     * @throws ClassNotFoundException
-     * @throws IOException
-     */
-    @SuppressWarnings("unchecked")
-	private static List<Class> getClasses(String packageName)
-            throws ClassNotFoundException, IOException 
-    {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        assert classLoader != null;
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<File>();
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            String fileName = resource.getFile();
-            String fileNameDecoded = URLDecoder.decode(fileName, "UTF-8");
-            dirs.add(new File(fileNameDecoded));
-        }
-        ArrayList<Class> classes = new ArrayList<Class>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
-        }
-        return classes;
-    }
-    
-    /**
-     * Recursive method used to find all classes in a given directory and subdirs.
-     *
-     * @param directory   The base directory
-     * @param packageName The package name for classes found inside the base directory
-     * @return The classes
-     * @throws ClassNotFoundException
-     */
-    @SuppressWarnings("unchecked")
-	private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException 
-	{
-        List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists()) {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files) {
-        	String fileName = file.getName();
-            if (file.isDirectory()) {
-                assert !fileName.contains(".");
-            	classes.addAll(findClasses(file, packageName + "." + fileName));
-            } else if (fileName.endsWith(".class") && !fileName.contains("$")) {
-            	Class _class;
-				try {
-					_class = Class.forName(packageName + '.' + fileName.substring(0, fileName.length() - 6));
-				} catch (ExceptionInInitializerError e) {
-					// happen, for example, in classes, which depend on 
-					// Spring to inject some beans, and which fail, 
-					// if dependency is not fulfilled
-					_class = Class.forName(packageName + '.' + fileName.substring(0, fileName.length() - 6),
-							false, Thread.currentThread().getContextClassLoader());
-				}
-				classes.add(_class);
-            }
-        }
-        return classes;
-    }
-	
-    /**
-     * 
-     * Adds the given Class object to a HashMap so it can be looked up by the factory method.
-     * 
-     * When creating a new Shape, call this method with the value of the 'type' ParserKey you are using for your Shape.
-     * 
-     * @argument type
-     * A String that identifies the type of the Shape you being added
-     * @argument entry
-     * The Class of the Shape being added
-     */
-	protected static void addClassForInitialization(String type, Class<? extends Shape> entry){
-		if(typeToClass == null){
-			typeToClass = new HashMap<String, Class<? extends Shape>>();
-		}
-		
-		//to lower case to reduce incidence of errors in the config file
-		typeToClass.put(type.toLowerCase(), entry);
-	}
-	
+	 * 
+	 */
+	private static final long serialVersionUID = 5336545043378845718L;
+
 	/**
 	 * Computes whether this Shape and the given Shape intersect.  Two Shapes are defined to intersect if the area of their intersection is nonzero.
 	 * @param other
@@ -159,33 +58,6 @@ public strictfp abstract class Shape {
 	 * @return
 	 */
 	public abstract Transformation position();
-
-	/**
-	 * Constructs a Shape on the data in the given ConfigData object.
-	 * 
-	 * @param parser
-	 * @return
-	 */
-	public static Shape buildFromParser(ConfigData parser) {
-		String type = parser.getString(ParserKeys.shapetype);
-		Class<? extends Shape> initializer = typeToClass.get(type.toLowerCase());
-		Shape ret = null;
-		try{
-			ret = initializer.getConstructor(ConfigData.class).newInstance(parser);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		if(ret == null){
-			throw new IllegalArgumentException("A Shape could not be constructed from the given Parser " + parser.toString());
-		}
-		return ret;
-	}
-	
-	/**
-	 * Returns a ConfigData object that contains all the information needed to reconstruct this shape.
-	 * @return
-	 */
-	public abstract ConfigData getData();
 	
 	/**
 	 * Returns a Circle which bounds the Shape, such that anything which intersects the Shape also
@@ -218,4 +90,16 @@ public strictfp abstract class Shape {
 	 * @return true if the Position is contained within the Shape, false otherwise.
 	 */
 	public abstract boolean positionIsInShape(Position toTest);
+	
+	public abstract AABB calculateAABB();
+	
+	public abstract Shape scale(double scaleFactor);
+	
+	public AABB getAABB()
+	{
+		if (aabb == null) aabb = calculateAABB();
+		
+		return aabb;
+	}
+
 }

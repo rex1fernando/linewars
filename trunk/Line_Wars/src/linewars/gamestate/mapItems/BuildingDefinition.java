@@ -1,15 +1,12 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
+import configuration.Property;
+import configuration.Usage;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
+import linewars.display.IconConfiguration;
 import linewars.gamestate.GameState;
-import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 
 /**
  * 
@@ -21,29 +18,20 @@ import linewars.gamestate.mapItems.abilities.AbilityDefinition;
  */
 public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Building> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8970630381058998453L;
 	private double cost;
 	private double buildTime;
+	private IconConfiguration iconConfig;
 
-	public BuildingDefinition(String URI, Player owner, GameState gameState)
-			throws FileNotFoundException, InvalidConfigFileException {
-		super(URI, owner, gameState);
-	}
-
-	/**
-	 * Creates a building at the given transformation and in the
-	 * given node.
-	 * 
-	 * @param t	the transformation to place the building at
-	 * @param n	the node that contains this building
-	 * @return	the created building
-	 */
-	public Building createBuilding(Transformation t, Node n) {
-		Building b = new Building(t, this);
-		b.setNode(n);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				b.addActiveAbility(ad.createAbility(b));
-		return b;
+	public BuildingDefinition() {
+		super();
+		
+		super.setPropertyForName("cost", new Property(Usage.NUMERIC_FLOATING_POINT, null));
+		super.setPropertyForName("buildTime", new Property(Usage.NUMERIC_FLOATING_POINT, null));
+		super.setPropertyForName("iconConfig", new Property(Usage.CONFIGURATION));
 	}
 	
 	/**
@@ -64,13 +52,28 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 		return buildTime;
 	}
 	
+	public IconConfiguration getIconConfig()
+	{
+		return iconConfig;
+	}
+	
+	public String getToolTip()
+	{
+		return (String)super.getPropertyForName("toolTip").getValue();
+	}
+	
+	public void setToolTip(String toolTip)
+	{
+		super.setPropertyForName("toolTip", new Property(Usage.STRING, toolTip));
+	}
+	
 	/**
 	 * 
 	 * @param cost	the new cost of this building
 	 */
 	public void setCost(double cost)
 	{
-		this.cost = cost;
+		super.setPropertyForName("cost", new Property(Usage.NUMERIC_FLOATING_POINT, cost));
 	}
 	
 	/**
@@ -79,22 +82,44 @@ public strictfp class BuildingDefinition extends MapItemAggregateDefinition<Buil
 	 */
 	public void setBuildTime(double buildTime)
 	{
-		this.buildTime = buildTime;
+		super.setPropertyForName("buildTime", new Property(Usage.NUMERIC_FLOATING_POINT, buildTime));
+	}
+	
+	public void setIconConfig(IconConfiguration ic)
+	{
+		super.setPropertyForName("iconConfig", new Property(Usage.CONFIGURATION, ic));
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
-		cost = super.getParser().getNumber(ParserKeys.cost);
-		buildTime = super.getParser().getNumber(ParserKeys.buildTime);		
-	}
-
-	@Override
-	protected Building createMapItemAggregate(Transformation t) {
-		Building b = new Building(t, this);
-		for(AbilityDefinition ad : this.getAbilityDefinitions())
-			if(ad.startsActive())
-				b.addActiveAbility(ad.createAbility(b));
+	protected Building createMapItemAggregate(Transformation t, Player owner, GameState gameState) {
+		Building b = new Building(t, this, owner, gameState);
 		return b;
+	}
+
+	@Override
+	protected void forceAggregateSubReloadConfigData() {
+		if(super.getPropertyForName("cost")!= null && 
+				super.getPropertyForName("cost").getValue() != null)
+			cost = (Double)super.getPropertyForName("cost").getValue();
+		if(super.getPropertyForName("buildTime") != null &&
+				super.getPropertyForName("buildTime").getValue() != null)
+			buildTime = (Double)super.getPropertyForName("buildTime").getValue();
+		if(super.getPropertyForName("iconConfig") != null)
+			iconConfig = (IconConfiguration)super.getPropertyForName("iconConfig").getValue();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof BuildingDefinition)
+		{
+			BuildingDefinition bd = (BuildingDefinition) obj;
+			return super.equals(obj) &&
+					cost == bd.cost &&
+					buildTime == bd.buildTime;
+		}
+		else 
+			return false;
 	}
 
 }

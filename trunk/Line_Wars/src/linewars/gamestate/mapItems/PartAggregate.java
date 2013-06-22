@@ -1,17 +1,16 @@
 package linewars.gamestate.mapItems;
 
+import linewars.gamestate.GameState;
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
 public class PartAggregate extends MapItemAggregate {
 
 	private PartAggregateDefinition def;
-	private CollisionStrategy colStrat;
 	
-	public PartAggregate(Transformation trans, PartAggregateDefinition def) {
-		super(trans, def);
+	public PartAggregate(Transformation trans, PartAggregateDefinition def, Player owner, GameState gameState) {
+		super(trans, def, gameState, owner);
 		this.def = def;
-		colStrat = def.getCollisionStrategy().createInstanceOf(this);
 	}
 
 	@Override
@@ -20,8 +19,15 @@ public class PartAggregate extends MapItemAggregate {
 	}
 
 	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return colStrat;
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		this.def = (PartAggregateDefinition) def;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof PartAggregate) &&
+				super.equals(obj);
 	}
 
 }

@@ -1,11 +1,16 @@
 package linewars.gamestate.mapItems;
 
 
+import java.util.List;
+
+import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.mapItems.strategies.impact.ImpactStrategy;
+import linewars.gamestate.mapItems.strategies.targeting.TargetingStrategy;
 import linewars.gamestate.shapes.Shape;
 
 /**
@@ -18,11 +23,10 @@ import linewars.gamestate.shapes.Shape;
 public strictfp class Projectile extends MapItemAggregate {
 
 	private ProjectileDefinition definition;
-	private CollisionStrategy cStrat;
 	private ImpactStrategy iStrat;
+	private TargetingStrategy tStrat;
 	private Lane lane;
-	
-	private Shape tempBody = null;
+	private double durability;
 	
 	/**
 	 * Creates a projectile at transformation t with definition def,
@@ -35,11 +39,12 @@ public strictfp class Projectile extends MapItemAggregate {
 	 * @param is	the impact strategy for this projectile
 	 * @param l		the lane that this projectile is in
 	 */
-	public Projectile(Transformation t, ProjectileDefinition def, CollisionStrategy cs, ImpactStrategy is) {
-		super(t, def);
+	public Projectile(Transformation t, ProjectileDefinition def, Player owner, GameState gameState) {
+		super(t, def, gameState, owner);
 		definition = def;
-		cStrat = cs.createInstanceOf(this);
-		iStrat = is.createInstanceOf(this);
+		iStrat = def.getImpactStratConfig().createStrategy(this);
+		durability = def.getBaseDurability();
+		tStrat = def.getTargetingStratConfig().createStrategy(this);
 	}
 	
 	public void setLane(Lane l)
@@ -47,32 +52,64 @@ public strictfp class Projectile extends MapItemAggregate {
 		lane = l;
 	}
 	
-	//TODO NOTE: this will be changed to implement a projectileMovementStrategy later
+	public Lane getLane()
+	{
+		return lane;
+	}
+	
+	public double getDurability()
+	{
+		return durability;
+	}
+	
+	public void setDurability(double d)
+	{
+		durability = d;
+		if(durability <= 0)
+			this.setState(MapItemState.Dead);
+	}
+
 	/**
 	 * This method moves the projetile forward at a constant velocity, checks for collisions,
 	 * and calls its impact strategy on those collisions.
 	 */
 	public void move()
 	{
-		//first check to see if this unit is outside the lane
-		Transformation t = lane.getPosition(lane.getClosestPointRatio(this.getPosition()));
-		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2))
+		//make sure we're not already dead
+		if(this.getState().equals(MapItemState.Dead))
+			return;
+		
+		//first check to see if this projectile is outside the lane
+		double pointRatio = lane.getClosestPointRatio(this.getPosition());
+		Transformation t = lane.getPosition(pointRatio);
+		if(this.getPosition().distanceSquared(t.getPosition()) > Math.pow(lane.getWidth()/2, 2) ||
+				pointRatio >= 1.0 || pointRatio <= 0.0)
 		{
 			this.setState(MapItemState.Dead);
 			return;
 		}
 		
-		double v = definition.getVelocity();
-		double r = this.getRotation();
-		Position change = new Position(v*Math.cos(r), v*Math.sin(r));
+		Transformation target = tStrat.getTarget();
+		Position change = target.getPosition().subtract(this.getPosition());
 		
-		tempBody = this.getBody().stretch(new Transformation(change, this.getRotation()));
+		Shape tempBody = this.getBody();
+		//if the projectile has moved
+		if(change.distanceSquared(Position.ORIGIN) >= Math.pow(this.getBody().boundingCircle().getRadius(), 2))
+			tempBody = this.getBody().stretch(new Transformation(change, target.getRotation()));
 		
 		//this is the raw list of items colliding with this projetile's path
-		MapItem[] rawCollisions = lane.getCollisions(this);
+		List<Unit> rawCollisions = this.getLane().getUnitsIn(tempBody.getAABB());
+		for(int i = 0; i < rawCollisions.size();)
+		{
+			if(!CollisionStrategyConfiguration.isAllowedToCollide(this, rawCollisions.get(i)) ||
+					!tempBody.isCollidingWith(rawCollisions.get(i).getBody()))
+				rawCollisions.remove(i);
+			else
+				i++;
+		}
 		tempBody = null;
 		//this list will be the list of how far along that path each map item is
-		double[] scores = new double[rawCollisions.length];
+		double[] scores = new double[rawCollisions.size()];
 		//the negative sine of the angle that the path was rotated by from 0 rads
 		double sine = -change.getY();
 		//the negative cosine of the angle that the path was rotated by from 0 rads
@@ -82,7 +119,7 @@ public strictfp class Projectile extends MapItemAggregate {
 		//the projectile hit each map item
 		for(int i = 0; i < scores.length; i++)
 		{
-			Position p = rawCollisions[i].getPosition().subtract(this.getPosition());
+			Position p = rawCollisions.get(i).getPosition().subtract(this.getPosition());
 			scores[i] = cosine*p.getX() - sine*p.getY();
 		}
 			
@@ -96,14 +133,12 @@ public strictfp class Projectile extends MapItemAggregate {
 				if(scores[j] < scores[smallest])
 					smallest = j;
 			
-			collisions[i] = rawCollisions[smallest];
+			collisions[i] = rawCollisions.get(smallest);
 			scores[smallest] = Double.MAX_VALUE;
 		}
 		
 		//move the projectile before calling the impact strategy so that the impact strategy may move the projectile
-		Position thisOne = this.getPosition();
-		thisOne = thisOne.add(change);
-		this.setPosition(thisOne);
+		this.setTransformation(target);
 		//there's no need to call the collision strategy, it was taken into account when calculating collision
 		for(int i = 0; i < collisions.length && !this.getState().equals(MapItemState.Dead); i++)
 			iStrat.handleImpact(collisions[i]);
@@ -112,11 +147,6 @@ public strictfp class Projectile extends MapItemAggregate {
 	@Override
 	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
-	}
-
-	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return cStrat;
 	}
 	
 	/**
@@ -128,30 +158,9 @@ public strictfp class Projectile extends MapItemAggregate {
 		return iStrat;
 	}
 	
-	@Override
-	public boolean isCollidingWith(MapItem m)
+	public void setImpactStrategy(ImpactStrategy is)
 	{
-		if(tempBody == null)
-			return super.isCollidingWith(m);
-		else
-		{
-			if(!m.getCollisionStrategy().canCollideWith(this))
-				return false;
-			else
-				return tempBody.isCollidingWith(m.getBody());
-		}
-	}
-	
-	@Override
-	public void setRotation(double rot)
-	{
-		super.setRotation(rot);
-	}
-	
-	@Override
-	public void setTransformation(Transformation t)
-	{
-		super.setTransformation(t);
+		iStrat = is;
 	}
 
 	@Override
@@ -159,8 +168,15 @@ public strictfp class Projectile extends MapItemAggregate {
 		if(o == null) return false;
 		if(!(o instanceof Projectile)) return false;
 		Projectile other = (Projectile) o;
-		if(!other.getBody().equals(getBody())) return false;
-		//TODO test other things in here
-		return true;
+		
+		return super.equals(other) &&
+				//other.iStrat.equals(iStrat) &&
+				//other.tStrat.equals(tStrat) &&
+				other.durability == durability;
+	}
+
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (ProjectileDefinition) def;
 	}
 }

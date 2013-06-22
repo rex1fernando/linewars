@@ -1,7 +1,8 @@
 package linewars.gamestate.mapItems.strategies.movement;
 
+import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.Unit;
+import linewars.gamestate.mapItems.strategies.Strategy;
 
 /**
  * 
@@ -11,21 +12,8 @@ import linewars.gamestate.mapItems.Unit;
  * the map. Before it can be told to move, the target
  * must be set and whether or not to ignore collision.
  */
-public strictfp interface MovementStrategy {
+public strictfp interface MovementStrategy extends Strategy<MovementStrategyConfiguration> {
 	
-	/**
-	 * Sets the unit associated with this movement strategy
-	 * 
-	 * @param u		the unit that owns this strategy
-	 */
-	public void setUnit(Unit u);
-	
-	/**
-	 * creates a copy of this movement strategy
-	 * 
-	 * @return	a copy of this movement strategy
-	 */
-	public MovementStrategy copy();
 	
 	/**
 	 * Sets the target for this unit to move to. Returns on average
@@ -45,5 +33,17 @@ public strictfp interface MovementStrategy {
 	 * @param possibleCollisions	the list of possible units for this unit to collide with.
 	 */
 	public void move();
+	
+	/**
+	 * Notifies this MovementStrategy that its unit is currently colliding with something.
+	 * The MovementStrategy is then responsible for modifying its future behavior to resolve the collision
+	 * at some point in the future.  Note that this method must not cause the unit to move IMMEDIATELY,
+	 * but rather ONLY THE NEXT TIME move() IS CALLED.  Bad things will happen otherwise.
+	 * 
+	 * @param direction
+	 * Indicates the direction to the center of the object that this unit is colliding with.
+	 * Note that the length of this vector is not important.
+	 */
+	public void notifyOfCollision(Position direction);
 
 }

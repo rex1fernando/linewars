@@ -1,552 +1,246 @@
 package editor.mapitems;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileWriter;
-import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.mapItems.BuildingDefinition;
+import linewars.gamestate.mapItems.GateDefinition;
+import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.PartDefinition;
+import linewars.gamestate.mapItems.ProjectileDefinition;
+import linewars.gamestate.mapItems.TurretDefinition;
+import linewars.gamestate.mapItems.UnitDefinition;
+import configuration.Configuration;
 import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
-import editor.ListURISelector;
-import editor.ListURISelector.ListSelectorOptions;
-import editor.URISelector;
-import editor.URISelector.SelectorOptions;
-import editor.mapitems.StrategySelector.StrategySelectorCallback;
+import editor.GenericSelector.GenericListCallback;
+import editor.mapitems.body.BodyEditor;
+import editor.mapitems.body.BodyEditor.DisplayConfigurationCallback;
 
-/**
- * 
- * @author Connor Schenck
- *
- * This editor represents the panel that allows users to
- * edit map items. 
- *
- */
-public class MapItemEditor extends JPanel implements ConfigurationEditor, ActionListener {
+public class MapItemEditor extends JPanel implements ConfigurationEditor {
 	
-	//variable for the name
-	private JTextField name;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 528965313918070215L;
+
+	public class Wrapper<T> {
+		private T data;
+		public Wrapper(T d) {
+			data = d;
+		}
+		public T getData() {
+			return data;
+		}
+		public void setData(T d) {
+			data = d;
+		}
+	}
 	
-	//variables for the states and corresponding animations
-	private ListURISelector validStates;
-	private URISelector animations;
-	private HashMap<MapItemState, String> animationMap = new HashMap<MapItemState, String>();
+	private ConfigurationEditor commanalities;
+	private ConfigurationEditor variabilities;
+	private ConfigurationEditor bodyEditor;
 	
-	//variable for the abilities and collision strategies
-	private ListURISelector abilities;
-	private URISelector collisionStrat;
-	
-	//variables for setting the body
-	private JButton bodyButton;
-	private JLabel bodyStatus;
-	private ConfigData bodyConfig;
-	
-	//variables related to the specific type
-	private URISelector mapItemType;
-	private ConfigurationEditor mapItemTypeInfo;
+	private JButton showBodyEditor;
+	private JFrame bodyEditorFrame;
 	
 	private BigFrameworkGuy bfg;
+	private String imagePath;
 	
-	/**
-	 * Constructs this map item editor. Takes in a reference to a
-	 * BigFrameworkGuy so that it can know about URIs for abilities,
-	 * etc.
-	 * 
-	 * @param guy	the big framework guy with a list of all relevant URIs
-	 */
-	public MapItemEditor(BigFrameworkGuy guy)
+	public MapItemEditor(BigFrameworkGuy guy, String imagePath)
 	{
-		bfg = guy;
-		
-		//set up the name panel
-		JPanel namePanel = new JPanel();
-		namePanel.add(new JLabel("Name"));
-		name = new JTextField();
-		name.setColumns(20);
-		namePanel.add(name);
-		
-		//set up the states panel
-		validStates = new ListURISelector("Valid States", new MapItemStateSelector());
-		animations = new URISelector("Animation", new AnimationSelector());
-		JPanel statesPanel = new JPanel();
-		statesPanel.add(validStates);
-		statesPanel.add(animations);
-		
-		//set up the abilities and collision strat panel
-		abilities = new ListURISelector("Abilities", new AbilitySelector());
-		JPanel aPanel = new JPanel();
-		aPanel.add(abilities);
-		collisionStrat = new URISelector("Collision Strategy", new CollisionStrategySelector());
-		JPanel cPanel = new JPanel();
-		cPanel.add(collisionStrat);
-		
-		//set up the body panel
-		bodyButton = new JButton("Set the body...");
-		bodyButton.addActionListener(this);
-		bodyStatus = new JLabel("Not Set");
-		JPanel bodyPanel = new JPanel();
-		bodyPanel.add(bodyButton);
-		bodyPanel.add(bodyStatus);
-		
-		//set up the map item type selector
-		mapItemType = new URISelector("Type", new MapItemTypeSelector());
-		
-		//set up the main panel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.add(namePanel);
-		this.add(statesPanel);
-		this.add(aPanel);
-		this.add(cPanel);
-		this.add(bodyPanel);
-		this.add(mapItemType);
-		
-		this.reset();
-		
-		this.setPreferredSize(new Dimension(800, 600));
-	}
-	
-	/**
-	 * Returns the URI of the animation associated with the
-	 * given MapItemState. If there is no animation defined,
-	 * then it returns null.
-	 * 
-	 * @param key	the MapItemState of the animation to get
-	 * @return		the URI for the animation associated with key.
-	 */
-	public String getAnimation(MapItemState key)
-	{
-		return animationMap.get(key);
-	}
-	
-	/**
-	 * Sets the body config to the given config
-	 * 
-	 * @param cd	the body config
-	 */
-	public void setBody(ConfigData cd)
-	{
-		bodyConfig = cd;
-		bodyStatus.setText("Set");
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2434216613579213750L;
-
-	@Override
-	public void setData(ConfigData cd) {
-		setData(cd, false);
+		bfg = guy;
+		this.imagePath = imagePath;
 	}
 
 	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
+	public void setData(Configuration cd) {
+		setUpPanels(getConfigEditor(getType(cd)));
+		commanalities.setData(cd);
+		variabilities.setData(cd);
+		bodyEditor.setData(cd);
 	}
 	
-	private void setData(ConfigData cd, boolean force)
+	private void setUpPanels(ConfigurationEditor variabilitiesEditor)
 	{
-		//look for the name
-		if(cd.getDefinedKeys().contains(ParserKeys.name))
-			name.setText(cd.getString(ParserKeys.name));
-		else if(force)
-			name.setText("");
-		else
-			throw new IllegalArgumentException("Name not defined");
-		
-		//look for the valid states
-		if(cd.getDefinedKeys().contains(ParserKeys.ValidStates))
-		{
-			if(!cd.getStringList(ParserKeys.ValidStates).contains(MapItemState.Idle.toString()))
-			{
-				if(force)
-					cd.add(ParserKeys.ValidStates, MapItemState.Idle.toString());
-				else
-					throw new IllegalArgumentException("Idle is not defined");
+		Wrapper<DisplayConfigurationCallback> callback = new Wrapper<DisplayConfigurationCallback>(null);
+		commanalities = new MapItemCommanalitiesEditor(bfg, callback);
+		variabilities = variabilitiesEditor;
+		bodyEditor = new BodyEditor(callback.getData(), imagePath, new GenericListCallback<MapItemDefinition<?>>() {
+			@Override
+			public List<MapItemDefinition<?>> getSelectionList() {
+				List<MapItemDefinition<?>> ret = new ArrayList<MapItemDefinition<?>>();
+				for(Configuration c : bfg.getConfigurationsByType(ConfigType.part))
+					ret.add((MapItemDefinition<?>) c);
+				for(Configuration c : bfg.getConfigurationsByType(ConfigType.turret))
+					ret.add((MapItemDefinition<?>) c);
+				return ret;
 			}
-				
-			validStates.setSelectedURIs(cd.getStringList(ParserKeys.ValidStates).toArray(new String[0]));
-		}
-		else if(force)
-			validStates.setSelectedURIs(new String[0]);
-		else 
-			throw new IllegalArgumentException("Valid States are not defined");
+		});
+		bodyEditorFrame = new JFrame("Body Editor");
+		bodyEditorFrame.setContentPane(bodyEditor.getPanel());
+		bodyEditorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		bodyEditorFrame.addWindowListener(new BodyEditorFrameListener());
 		
-		animationMap.clear();
-		//set up the animations
-		for(String state : validStates.getSelectedURIs())
-		{
-			ParserKeys key = ParserKeys.valueOf(state);
-			MapItemState s = MapItemState.valueOf(state);
-			if(cd.getDefinedKeys().contains(key))
-				animationMap.put(s, cd.getString(key));
-			else if(!force)
-				throw new IllegalArgumentException(s.toString() + " has no animation defined");
-		}
-		
-		//set up the abilities
-		if(cd.getDefinedKeys().contains(ParserKeys.abilities))
-			abilities.setSelectedURIs(cd.getStringList(ParserKeys.abilities).toArray(new String[0]));
-		else  //NOTE: the config files do not require abilities to be defined if there are none
-			abilities.setSelectedURIs(new String[0]);
-		
-		//load the collision strategy NOTE: collision strategies atm only define type
-		if(cd.getDefinedKeys().contains(ParserKeys.collisionStrategy))
-			collisionStrat.setSelectedURI(cd.getConfig(ParserKeys.collisionStrategy).getString(ParserKeys.type));
-		else if(force)
-			collisionStrat.setSelectedURI("");
-		else
-			throw new IllegalArgumentException("Collision strategy is not defined");
-		
-		if(cd.getDefinedKeys().contains(ParserKeys.body))
-		{
-			bodyConfig = cd.getConfig(ParserKeys.body);
-			bodyStatus.setText("Set");
-		}
-		else if(force)
-		{
-			bodyConfig = null;
-			bodyStatus.setText("Not Set");
-		}
-		else
-			throw new IllegalArgumentException("The Body is not defined");
-		
-		if(mapItemTypeInfo != null)
-			this.remove(mapItemTypeInfo.getPanel());
-		//now we need to figure out what type of map item this is
-		//first check to see if its a gate, only gates have coefficients :) hi taylor!
-		if(cd.getDefinedKeys().contains(ParserKeys.coefficients))
-		{
-			mapItemTypeInfo = new GateEditor();
-			mapItemType.setSelectedURI("Gate");
-		}
-		else if(cd.getDefinedKeys().contains(ParserKeys.maxHP)) //we're a unit!
-		{
-			mapItemTypeInfo = new UnitEditorPanel();
-			mapItemType.setSelectedURI("Unit");
-		}
-		else if(cd.getDefinedKeys().contains(ParserKeys.cost)) //we're a building!
-		{
-			mapItemTypeInfo = new BuildingEditor();
-			mapItemType.setSelectedURI("Building");
-		}
-		else if(cd.getDefinedKeys().contains(ParserKeys.velocity))
-		{
-			mapItemTypeInfo = new ProjectileEditor();
-			mapItemType.setSelectedURI("Projectile");
-		}
-		else if(force)
-		{
-			mapItemTypeInfo = null;
-			mapItemType.setSelectedURI("");
-		}
-		else
-			throw new IllegalArgumentException("Invalid config data");
-		
-		if(mapItemTypeInfo != null)
-		{
-			if(force)
-				mapItemTypeInfo.forceSetData(cd);
-			else
-				mapItemTypeInfo.setData(cd);
-			
-			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
-			this.add(mapItemTypeInfo.getPanel());
-		}
-	}
+		showBodyEditor = new JButton("Show Body Editor");
+		showBodyEditor.addActionListener(new ShowBodyEditorListener());
 
-	@Override
-	public void reset() {
-		//reset the name
-		name.setText("");
-		
-		//reset the states and animations
-		validStates.setSelectedURIs(new String[]{MapItemState.Idle.toString()});
-		animationMap.clear();
-		animations.setSelectedURI("");
-		
-		//reset the abilities and collision strat
-		abilities.setSelectedURIs(new String[0]);
-		collisionStrat.setSelectedURI("");
-		
-		//reset the body config
-		bodyConfig = null;
-		bodyStatus.setText("Not Set");
-		
-		//resets the map item type
-		mapItemType.setSelectedURI("");
-		if(mapItemTypeInfo != null)
-			this.remove(mapItemTypeInfo.getPanel());
-	}
-
-	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		
-		//if the type is specified, then use the parser from that
-		if(mapItemTypeInfo != null)
-			cd = mapItemTypeInfo.getData();
-		
-		//add the name
-		if(!name.getText().equals(""))
-			cd.set(ParserKeys.name, name.getText());
-		
-		//add the valid states and their animations
-		for(String s : validStates.getSelectedURIs())
-		{
-			cd.add(ParserKeys.ValidStates, s);
-			MapItemState state = MapItemState.valueOf(s);
-			if(animationMap.containsKey(state))
-				cd.set(ParserKeys.valueOf(state.toString()), animationMap.get(state));
-		}
-		
-		//get the abilities
-		if(abilities.getSelectedURIs().length > 0)
-			cd.set(ParserKeys.abilities, abilities.getSelectedURIs());
-		
-		//add the collision strat
-		if(!collisionStrat.getSelectedURI().equals(""))
-		{
-			ConfigData col = new ConfigData();
-			col.set(ParserKeys.type, collisionStrat.getSelectedURI());
-			cd.set(ParserKeys.collisionStrategy, col);
-		}
-		
-		//set the body
-		if(bodyConfig != null)
-			cd.set(ParserKeys.body, bodyConfig);
-		
-		return cd;
-	}
-
-	@Override
-	public ParserKeys getType() {
-		if(mapItemTypeInfo != null)
-			return mapItemTypeInfo.getType();
-		else //use unit as default type
-			return ParserKeys.unitURI;
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		if(name == null)
-			return false;
-		
-		//if the type is specified, then use the parser from that
-		if(mapItemTypeInfo != null)
-		{
-			if(!mapItemTypeInfo.isValidConfig())
-				return false;
-		}
-		else
-			return false;
-		
-		//check the name
-		if(name.getText().equals(""))
-			return false;
-		
-		List<String> vs = new ArrayList<String>();
-		for(String s : validStates.getSelectedURIs())
-			vs.add(s);
-		
-		//make sure idle is defined
-		if(!vs.contains("Idle"))
-			return false;
-		
-		//units and projectiles need dead
-		if((mapItemType.getSelectedURI().equalsIgnoreCase("Unit") 
-				|| mapItemType.getSelectedURI().equalsIgnoreCase("Projectile")
-				|| mapItemType.getSelectedURI().equalsIgnoreCase("Gate"))
-				&& !vs.contains("Dead"))
-				return false;
-		
-		//check to make sure the animations are defined
-		for(String s : validStates.getSelectedURIs())
-		{
-			MapItemState state = MapItemState.valueOf(s);
-			if(!animationMap.containsKey(state))
-				return false;
-		}
-		
-		//add the collision strat
-		if(collisionStrat.getSelectedURI().equals(""))
-			return false;
-		
-		//set the body
-		if(bodyConfig == null)
-			return false;
-		
-		return true;
+		this.removeAll();
+		this.add(showBodyEditor);
+		this.add(commanalities.getPanel());
+		this.add(variabilities.getPanel());
+		this.validate();
+		this.updateUI();
 	}
 	
+	public void resetEditor()
+	{
+		commanalities = null;
+		variabilities = null;
+		bodyEditor = null;
+		this.removeAll();
+		this.validate();
+		this.updateUI();
+	}
+
+	@Override
+	public Configuration instantiateNewConfiguration() {
+		Configuration ret = null;
+		if(commanalities == null || variabilities == null || bodyEditor == null)
+		{
+			Object[] possibilities = {"Unit", "Building", "Projectile", "Gate", "Turret", "Part"};
+			String type = (String) JOptionPane.showInputDialog(this,
+					"Which type of map item would you look to create?",
+					"Select type", JOptionPane.PLAIN_MESSAGE, null, possibilities,
+					"Unit");
+			
+			setUpPanels(getConfigEditor(getType(type)));
+			ret = variabilities.instantiateNewConfiguration();
+			bodyEditor.setData(ret);
+		}
+		else
+			ret = variabilities.instantiateNewConfiguration();
+		
+		return ret;
+	}
+
+	@Override
+	public ConfigType getData(Configuration toSet) {
+		commanalities.getData(toSet);
+		bodyEditor.getData(toSet);
+		return variabilities.getData(toSet);
+	}
+
+	@Override
+	public List<ConfigType> getAllLoadableTypes() {
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.unit);
+		ret.add(ConfigType.building);
+		ret.add(ConfigType.gate);
+		ret.add(ConfigType.projectile);
+		ret.add(ConfigType.part);
+		ret.add(ConfigType.turret);
+		return ret;
+	}
+
 	@Override
 	public JPanel getPanel() {
 		return this;
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		if(arg0.getSource().equals(bodyButton))
+	private ConfigType getType(String s)
+	{
+		return ConfigType.valueOf(s.toLowerCase());
+	}
+	
+	private ConfigType getType(Configuration c)
+	{
+		if(c instanceof GateDefinition)
+			return ConfigType.gate;
+		else if(c instanceof UnitDefinition)
+			return ConfigType.unit;
+		else if(c instanceof BuildingDefinition)
+			return ConfigType.building;
+		else if(c instanceof ProjectileDefinition)
+			return ConfigType.projectile;
+		else if(c instanceof TurretDefinition)
+			return ConfigType.turret;
+		else if(c instanceof PartDefinition)
+			return ConfigType.part;
+		else
+			throw new IllegalArgumentException("Configuration type not identified");
+	}
+	
+	private ConfigurationEditor getConfigEditor(ConfigType type)
+	{
+		if(type.equals(ConfigType.unit))
+			return new UnitEditor(bfg);
+		else if(type.equals(ConfigType.building))
+			return new BuildingEditor();
+		else if(type.equals(ConfigType.projectile))
+			return new ProjectileEditor(bfg);
+		else if(type.equals(ConfigType.gate))
+			return new GateEditor();
+		else if(type.equals(ConfigType.turret))
+			return new TurretEditor(bfg);
+		else if(type.equals(ConfigType.part))
+			return new PartEditor();
+		else
+			throw new IllegalArgumentException(type.toString() + " not recognized");
+	}
+	
+	private void setBodyEditorVisible(boolean visible)
+	{
+		if(visible)
 		{
-			if(animationMap.get(MapItemState.Idle) == null)
-			{
-				JOptionPane.showMessageDialog(this,
-					    "The Idle animation must be set before setting the body.",
-					    "Error",
-					    JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			BodyEditor be = new BodyEditor(this);
-			if(bodyConfig != null)
-				be.setData(bodyConfig);
+			showBodyEditor.setText("Hide Body Editor");
+			bodyEditorFrame.setVisible(true);
+			bodyEditorFrame.pack();
+			bodyEditor.getPanel().setVisible(true);
+		}
+		else
+		{
+			showBodyEditor.setText("Show Body Editor");
+			bodyEditorFrame.setVisible(false);
+			bodyEditor.getPanel().setVisible(false);
 		}
 	}
 	
-	private class MapItemStateSelector implements ListSelectorOptions {
+	private class ShowBodyEditorListener implements ActionListener
+	{
 
 		@Override
-		public String[] getOptions() {
-			String[] options = new String[MapItemState.values().length];
-			for(int i = 0; i < options.length; i++)
-				options[i] = MapItemState.values()[i].toString();
-			return options;
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			getPanel().validate();	
-			getPanel().updateUI();
-		}
-
-		@Override
-		public void uriRemoved(String uri) {
-		}
-
-		@Override
-		public void uriHighlightChange(String[] uris) {
-			MapItemState key = null;
-			if(uris.length > 0)
-				key = MapItemState.valueOf(uris[0]);
-			if(uris.length != 1 || animationMap.get(key) == null)
-				animations.setSelectedURI("");
-			else
-				animations.setSelectedURI(animationMap.get(key));
+		public void actionPerformed(ActionEvent e) {
+			setBodyEditorVisible(showBodyEditor.getText().contains("Show"));
 		}
 		
 	}
 	
-	private class AnimationSelector implements SelectorOptions {
+	private class BodyEditorFrameListener implements WindowListener
+	{
+		public void windowActivated(WindowEvent e) {}
+		public void windowClosed(WindowEvent e) {}
 
 		@Override
-		public String[] getOptions() {
-			return bfg.getAnimationURIs();
+		public void windowClosing(WindowEvent e) {
+			setBodyEditorVisible(false);
 		}
-
-		@Override
-		public void uriSelected(String uri) {
-			String[] highlighted = validStates.getHighlightedURIs();
-			if(highlighted.length != 1)
-				animations.setSelectedURI("");
-			else
-				animationMap.put(MapItemState.valueOf(highlighted[0]), animations.getSelectedURI());
-		}
-		
-	}
-	
-	private class AbilitySelector implements ListSelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return bfg.getAbilityURIs();
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			getPanel().validate();
-			getPanel().updateUI();
-		}
-
-		@Override
-		public void uriRemoved(String uri) {
-		}
-
-		@Override
-		public void uriHighlightChange(String[] uris) {
-		}
-		
-	}
-	
-	private class CollisionStrategySelector implements SelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return new String[]{"AllEnemies", "CollidesWithAll", "Ground", "NoCollision", "AllEnemyUnits"};
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-						
-		}
-		
-	}
-	
-	private class MapItemTypeSelector implements SelectorOptions {
-
-		@Override
-		public String[] getOptions() {
-			return new String[]{"Unit", "Building", "Projectile", "Gate"};
-		}
-
-		@Override
-		public void uriSelected(String uri) {
-			if(mapItemTypeInfo != null)
-				MapItemEditor.this.remove(mapItemTypeInfo.getPanel());
-			
-			if(uri.equalsIgnoreCase("Unit"))
-				mapItemTypeInfo = new UnitEditorPanel();
-			else if(uri.equalsIgnoreCase("Building"))
-				mapItemTypeInfo = new BuildingEditor();
-			else if(uri.equalsIgnoreCase("Projectile"))
-				mapItemTypeInfo = new ProjectileEditor();
-			else if(uri.equalsIgnoreCase("Gate"))
-				mapItemTypeInfo = new GateEditor();
-			
-			//make sure the dead state is on the list
-			if(uri.equalsIgnoreCase("Unit") ||
-					uri.equalsIgnoreCase("Projectile") || 
-					uri.equalsIgnoreCase("Gate"))
-			{
-				String[] states = validStates.getSelectedURIs();
-				boolean found = false;
-				for(String s : states)
-					if(s.equals("Dead"))
-						found = true;
-				if(!found)
-				{
-					states = Arrays.copyOf(states, states.length + 1);
-					states[states.length - 1] = "Dead";
-					validStates.setSelectedURIs(states);
-				}
-			}
-			
-			mapItemTypeInfo.getPanel().setBorder(BorderFactory.createBevelBorder(1));
-			MapItemEditor.this.add(mapItemTypeInfo.getPanel());
-			MapItemEditor.this.validate();
-			MapItemEditor.this.updateUI();
-		}
-		
+		public void windowDeactivated(WindowEvent e) {}
+		public void windowDeiconified(WindowEvent e) {}
+		public void windowIconified(WindowEvent e) {}
+		public void windowOpened(WindowEvent e) {}
 	}
 
 }

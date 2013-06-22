@@ -1,11 +1,8 @@
 package editor.animations;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
@@ -32,6 +29,10 @@ import javax.swing.JTextField;
  */
 public class Frame extends JPanel implements ItemListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2471078384331097506L;
 	private JLabel file;
 	private JTextField time;
 	private Sprite frame;
@@ -45,9 +46,9 @@ public class Frame extends JPanel implements ItemListener{
 	 * @param filePath	the file path to the image
 	 * @throws IOException
 	 */
-	public Frame(String filePath) throws IOException
+	public Frame(String filePath, String imagePath) throws IOException
 	{
-		frame = new Sprite(filePath, true);
+		frame = new Sprite(filePath, new File(filePath).getParentFile().equals(new File(imagePath)));
 		ImageIcon icon = new ImageIcon(filePath);
 		Image img = icon.getImage();
 		img = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);

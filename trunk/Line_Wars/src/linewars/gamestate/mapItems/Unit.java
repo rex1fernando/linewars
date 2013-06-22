@@ -1,11 +1,12 @@
 package linewars.gamestate.mapItems;
 
 
+import utility.Observable;
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
 import linewars.gamestate.Wave;
-import linewars.gamestate.mapItems.abilities.Ability;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.strategies.combat.CombatStrategy;
 import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 
@@ -20,7 +21,6 @@ import linewars.gamestate.mapItems.strategies.movement.MovementStrategy;
 public strictfp class Unit extends MapItemAggregate {
 	private MovementStrategy mStrat;
 	private CombatStrategy cStrat;
-	private CollisionStrategy colStrat;
 	
 	private UnitDefinition definition;
 	
@@ -40,16 +40,12 @@ public strictfp class Unit extends MapItemAggregate {
 	 * @param ms	the movement strategy for this unit
 	 * @param cs	the combat strategy for this unit
 	 */
-	public Unit(Transformation t, UnitDefinition def, MovementStrategy ms, CombatStrategy cs) {
-		super(t, def);
+	public Unit(Transformation t, UnitDefinition def, Player owner, GameState gameState) {
+		super(t, def, gameState, owner);
 		definition = def;
 		hp = definition.getMaxHP();
-		mStrat = ms;
-		mStrat.setUnit(this);
-		cStrat = cs;
-		cStrat.setUnit(this);
-		colStrat = def.getCollisionStrategy().createInstanceOf(this);
-		
+		mStrat = def.getMovementStratConfig().createStrategy(this);
+		cStrat = def.getCombatStratConfig().createStrategy(this);		
 	}
 	
 	/**
@@ -61,14 +57,19 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public void setHP(double h)
 	{
-		hp = h;
+		double change = h - hp;
+		if(change < 0)
+			hp = hp + this.getModifier().getModifier(MapItemModifiers.damageReceived)*change;
+		else
+			hp = hp + change;
 		if(hp <= 0)
 		{
 			hp = 0;
-			this.setState(MapItemState.Dead);
+			if(!this.getState().equals(MapItemState.Dead))
+				this.setState(MapItemState.Dead);
 		}
-		else if(hp > this.getMaxHP())
-			hp = this.getMaxHP();
+		else if(hp > this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp))
+			hp = this.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
 	}
 	
 	/**
@@ -86,7 +87,7 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public double getMaxHP()
 	{
-		return definition.getMaxHP();
+		return definition.getMaxHP()*this.getModifier().getModifier(MapItemModifiers.maxHp);
 	}
 	
 	/**
@@ -107,14 +108,19 @@ public strictfp class Unit extends MapItemAggregate {
 		return mStrat;
 	}
 	
+	public void setMovementStrategy(MovementStrategy ms)
+	{
+		mStrat = ms;
+	}
+	
+	public void setCombatStrategy(CombatStrategy cs)
+	{
+		cStrat = cs;
+	}
+	
 	@Override
 	public MapItemDefinition<? extends MapItem> getDefinition() {
 		return definition;
-	}
-
-	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return colStrat;
 	}
 	
 	/**
@@ -132,6 +138,36 @@ public strictfp class Unit extends MapItemAggregate {
 	public void setWave(Wave w)
 	{
 		currentWave = w;
+		for(Turret t : this.getTurrets())
+			t.setWave(this.getWave());
+	}
+	
+	@Override
+	protected void updateInternalVariables()
+	{
+		super.updateInternalVariables();
+		for(Turret t : this.getTurrets())
+		{
+			if(t == null)
+			{
+				System.out.println("Unit:updateInternalVariables: debug: t is null");
+				continue;
+			}
+			t.setWave(this.getWave());
+		}
+	}
+	
+	@Override
+	public void update(Observable obs, Object obj)
+	{
+		if(obs == this.getDefinition())
+		{
+			if(obj.equals("combatStrat"))
+				this.setCombatStrategy(this.definition.getCombatStratConfig().createStrategy(this));
+			else if(obj.equals("mStrat"))
+				this.setMovementStrategy(this.definition.getMovementStratConfig().createStrategy(this));
+		}
+		super.update(obs, obj);
 	}
 	
 	/**
@@ -145,22 +181,29 @@ public strictfp class Unit extends MapItemAggregate {
 	 */
 	public double getPositionAlongCurve()
 	{
-		if(lastTickPositionMarker != definition.getGameState().getTimerTick())
+		if(!this.getGameState().isLocked() && lastTickPositionMarker != getGameState().getTimerTick())
 		{
-			lastTickPositionMarker = definition.getGameState().getTimerTick();
+			lastTickPositionMarker = getGameState().getTimerTick();
 			positionOnCurve = currentWave.getLane().getClosestPointRatio(this.getPosition());
 		}
 		return positionOnCurve;
 	}
 
+	@Override
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (UnitDefinition) def;
+	}
+
 	//This should be very strict; true iff the two objects are bit-identical
-//	@Override
-//	public boolean equals(Object o){
-//		if(o == null) return false;
-//		if(!(o instanceof Unit)) return false;
-//		Unit other = (Unit) o;
-//		if(!other.getBody().equals(getBody())) return false;
-//		//TODO test other things in here
-//		return true;
-//	}
+	@Override
+	public boolean equals(Object o){
+		if(o == null) return false;
+		if(!(o instanceof Unit)) return false;
+		Unit other = (Unit) o;
+		if(!super.equals(o)) return false;
+		//if(!other.mStrat.equals(mStrat)) return false;
+		//if(!other.cStrat.equals(cStrat)) return false;
+		if(other.hp != hp) return false;
+		return true;
+	}
 }

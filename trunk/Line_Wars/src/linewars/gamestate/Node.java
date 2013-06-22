@@ -1,23 +1,17 @@
 package linewars.gamestate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 
-
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
 import linewars.gamestate.mapItems.Building;
-import linewars.gamestate.mapItems.CommandCenter;
 import linewars.gamestate.mapItems.Gate;
 import linewars.gamestate.mapItems.MapItemState;
 import linewars.gamestate.mapItems.Unit;
-import linewars.gamestate.shapes.*;
+import linewars.gamestate.shapes.Circle;
+import linewars.gamestate.shapes.Shape;
 
 /**
  * 
@@ -28,7 +22,7 @@ import linewars.gamestate.shapes.*;
  */
 public strictfp class Node {
 	
-	private static final long TIME_TO_OCCUPY = 30000;
+	private static final long TIME_TO_OCCUPY = 15000;
 	private static final long TIME_TO_SPAWN = 5000;
 	
 	private GameState gameState;
@@ -37,89 +31,20 @@ public strictfp class Node {
 	private long occupationStartTime;
 	
 	private ArrayList<Building> containedBuildings;
-	private CommandCenter cCenter;
+	private HashMap<BuildingSpot, Boolean> occupiedBuildingSpots = new HashMap<BuildingSpot, Boolean>();
+	private Building cCenter;
 	private ArrayList<Unit> containedUnits;
 	private long lastSpawnTime;
 	
 	private ArrayList<Lane> attachedLanes;
-	private ArrayList<BuildingSpot> buildingSpots;
-	private Shape shape;
-	private boolean isStartNode;
-	private BuildingSpot cCenterTransform;
+	
 	private int ID;
 	
-	private HashMap<Double, Lane> laneMap;
+	private NodeConfiguration config;
 	
-	public Node(Position p, int id)
-	{
-		ID = id;
-		attachedLanes = new ArrayList<Lane>();
-		buildingSpots = new ArrayList<BuildingSpot>();
-		shape = new Circle(new Transformation(p, 0), 0);
-		cCenterTransform = null;
-		isStartNode = false;
-	}
+//	private HashMap<Double, Lane> laneMap;
 	
-	public Node(ConfigData parser, Lane[] lanes, int id, boolean force)
-	{
-		ID = id;
-		
-		attachedLanes = new ArrayList<Lane>();
-		List<String> laneNames = new ArrayList<String>();
-		
-		if(parser.getDefinedKeys().contains(ParserKeys.lanes))
-			laneNames = parser.getStringList(ParserKeys.lanes);
-		else if(!force)
-			throw new IllegalArgumentException("No lanes are defined for a node");
-		
-		for(String name : laneNames)
-		{
-			for(Lane l : lanes)
-			{
-				if(name.equals(l.getName()))
-				{
-					attachedLanes.add(l);
-					l.addNode(this);
-				}
-			}
-		}
-		
-		List<ConfigData> transforms = new ArrayList<ConfigData>();
-		if(parser.getDefinedKeys().contains(ParserKeys.buildingSpots))
-			transforms = parser.getConfigList(ParserKeys.buildingSpots);
-		
-		buildingSpots = new ArrayList<BuildingSpot>();
-		for(int i = 0; i < transforms.size(); i++)
-			buildingSpots.add(new BuildingSpot(transforms.get(i)));
-
-		try
-		{
-			shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
-		}
-		catch(IllegalArgumentException e)
-		{
-			if(force)
-				throw new NoSuchKeyException("");
-			else
-				throw e;
-		}
-
-		if(parser.getDefinedKeys().contains(ParserKeys.commandCenterTransformation))
-			cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
-		else if(force)
-			cCenterTransform = new BuildingSpot(shape.position().getPosition());
-		else
-			throw new IllegalArgumentException("There is no Command Center defined for a node");
-		
-		if(parser.getDefinedKeys().contains(ParserKeys.isStartNode))
-			isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
-		else if(force)
-			isStartNode = false;
-		else
-			throw new IllegalArgumentException("There is a node that has not defined if it is a start node");
-	}
-	
-	public Node(ConfigData parser, GameState gameState, Lane[] lanes, int id)
+	public Node(NodeConfiguration config, GameState gameState, int id)
 	{
 		ID = id;
 		invader = null;
@@ -129,64 +54,16 @@ public strictfp class Node {
 		containedUnits = new ArrayList<Unit>();
 		lastSpawnTime = (long) (gameState.getTime()*1000);
 		containedBuildings = new ArrayList<Building>();
+		this.config = config;
 		
 		this.gameState = gameState;
 		
-		shape = Shape.buildFromParser(parser.getConfig(ParserKeys.shape));
-		
 		attachedLanes = new ArrayList<Lane>();
-		List<String> laneNames = parser.getStringList(ParserKeys.lanes);
-		for(String name : laneNames)
-			for(Lane l : lanes)
-				if(name.equals(l.getName()))
-				{
-					attachedLanes.add(l);
-					l.addNode(this);
-				}
-
-		buildingSpots = new ArrayList<BuildingSpot>();
-		List<ConfigData> transforms = new ArrayList<ConfigData>();;
-		try {
-			transforms = parser.getConfigList(ParserKeys.buildingSpots);
-		} catch (NoSuchKeyException e) {
-			//This just means there were no buildings defined for this node
-		}
-		for(int i = 0; i < transforms.size(); i++)
-			buildingSpots.add(new BuildingSpot(transforms.get(i)));
-		
-		laneMap = new HashMap<Double, Lane>();
-		
-		cCenterTransform = new BuildingSpot(parser.getConfig(ParserKeys.commandCenterTransformation));
-		
-		isStartNode = Boolean.parseBoolean(parser.getString(ParserKeys.isStartNode));
 	}
 	
-	/**
-	 * 
-	 * @return	the config data representation of this node
-	 */
-	public ConfigData getData()
+	public NodeConfiguration getConfig()
 	{
-		ConfigData data = new ConfigData();
-		
-		for(Lane l : attachedLanes)
-		{
-			data.add(ParserKeys.lanes, l.getName());
-		}
-		
-		for(BuildingSpot s : buildingSpots)
-		{
-			data.add(ParserKeys.buildingSpots, s.getData());
-		}
-		
-		if(cCenterTransform != null)
-			cCenterTransform = new BuildingSpot(shape.position().getPosition());
-
-		data.set(ParserKeys.commandCenterTransformation, cCenterTransform.getData());
-		data.set(ParserKeys.shape, shape.getData());
-		data.set(ParserKeys.isStartNode, Boolean.toString(isStartNode));
-		
-		return data;
+		return config;
 	}
 	
 	/**
@@ -251,15 +128,6 @@ public strictfp class Node {
 	
 	/**
 	 * 
-	 * @param l	the lane to remove from the attached lanes for this node
-	 */
-	public void removeAttachedLane(Lane l)
-	{
-		attachedLanes.remove(l);
-	}
-	
-	/**
-	 * 
 	 * @return	all the lanes attached to this node
 	 */
 	public Lane[] getAttachedLanes()
@@ -282,14 +150,14 @@ public strictfp class Node {
 	 */
 	public Circle getBoundingCircle()
 	{
-		return shape.boundingCircle();
+		return config.getShape().boundingCircle();
 	}
 	
 	/**
 	 * 
 	 * @return	the command center in the node; if there isn't one, returns null
 	 */
-	public CommandCenter getCommandCenter()
+	public Building getCommandCenter()
 	{
 		return cCenter;
 	}
@@ -301,8 +169,12 @@ public strictfp class Node {
 	{
 		if(gameState.getTime()*1000 - lastSpawnTime > TIME_TO_SPAWN)
 		{
-			
-			Random rand = new Random(gameState.getTimerTick());
+			int addToRand = 0;
+			if(owner != null)
+				addToRand += owner.getPlayerID();
+			if(invader != null)
+				addToRand += invader.getPlayerID();
+			Random rand = new Random(gameState.getTimerTick() + addToRand);
 			HashMap<Player, Entry<Double[], Lane[]>> flows = getAllFlow(this);
 			for(int i = 0; i < containedUnits.size();)
 			{
@@ -393,11 +265,14 @@ public strictfp class Node {
 	 */
 	public Transformation getNextAvailableBuildingSpot()
 	{
-		if(containedBuildings.size() >= buildingSpots.size())
+		if(containedBuildings.size() >= config.buildingSpots().size())
 		{
 			return null;
 		}
-		return buildingSpots.get(containedBuildings.size()).getTrans();
+		for(BuildingSpot bs : config.buildingSpots())
+			if(occupiedBuildingSpots.get(bs) == null || !occupiedBuildingSpots.get(bs))
+				return bs.getTrans();
+		return null;
 	}
 	
 	/**
@@ -418,8 +293,40 @@ public strictfp class Node {
 				return false;
 			}
 		}
+		double dis = Double.POSITIVE_INFINITY;
+		BuildingSpot place = null;
+		for(BuildingSpot bs : config.buildingSpots())
+		{
+			double d = bs.getTrans().getPosition().distanceSquared(b.getPosition());
+			if(d < dis)
+			{
+				dis = d;
+				place = bs;
+			}
+		}
+		occupiedBuildingSpots.put(place, true);
 		b.setNode(this);
 		return containedBuildings.add(b);
+	}
+	
+	public void removeBuilding(int index)
+	{
+		if(index >= containedBuildings.size() || index < 0)
+			return;
+		Building toRemove = containedBuildings.get(index);
+		double dis = Double.POSITIVE_INFINITY;
+		BuildingSpot place = null;
+		for(BuildingSpot bs : config.buildingSpots())
+		{
+			double d = bs.getTrans().getPosition().distanceSquared(toRemove.getPosition());
+			if(d < dis)
+			{
+				dis = d;
+				place = bs;
+			}
+		}
+		occupiedBuildingSpots.put(place, false);
+		containedBuildings.remove(index);
 	}
 	
 	
@@ -433,34 +340,14 @@ public strictfp class Node {
 		containedUnits.add(u);
 	}
 	
-	public ArrayList<BuildingSpot> getBuildingSpots()
+	public List<BuildingSpot> getBuildingSpots()
 	{
-		return buildingSpots;
-	}
-	
-	public void addBuildingSpot(BuildingSpot b)
-	{
-		buildingSpots.add(b);
-	}
-	
-	public void removeBuildingSpot(BuildingSpot b)
-	{
-		buildingSpots.remove(b);
+		return config.buildingSpots();
 	}
 	
 	public BuildingSpot getCommandCenterSpot()
 	{
-		return cCenterTransform;
-	}
-	
-	public void setCommandCenterSpot(BuildingSpot cc)
-	{
-		cCenterTransform = cc;
-	}
-	
-	public void removeCommandCenterSpot()
-	{
-		cCenterTransform = null;
+		return config.getCommandCenterSpot();
 	}
 
 	/**
@@ -469,7 +356,7 @@ public strictfp class Node {
 	 */
 	public Transformation getTransformation()
 	{
-		return shape.position();
+		return config.getShape().position();
 	}
 	
 	/**
@@ -482,9 +369,9 @@ public strictfp class Node {
 		if(!this.isContested())
 		{
 			for(Building b : containedBuildings)
-				b.update();
+				b.updateMapItem();
 			if(cCenter != null)
-				cCenter.update();
+				cCenter.updateMapItem();
 		}
 		generateWaves();
 		
@@ -500,8 +387,10 @@ public strictfp class Node {
 	public void setOwner(Player p)
 	{
 		owner = p;
-		cCenter = (CommandCenter) p.getCommandCenterDefinition().createCommandCenter(cCenterTransform.getTrans(), this);
-		containedBuildings.clear();
+		cCenter = p.getCommandCenterDefinition().createMapItem(this.getCommandCenterSpot().getTrans(), p, gameState);
+		cCenter.setNode(this);
+		for(int i = containedBuildings.size() - 1; i >= 0; i--)
+			this.removeBuilding(i);
 		for(Lane l : attachedLanes)
 		{
 			l.addGate(this, owner);
@@ -522,16 +411,7 @@ public strictfp class Node {
 	 */
 	public Shape getShape()
 	{
-		return shape;
-	}
-	
-	/**
-	 * 
-	 * @param s	sets the shape for this node to s
-	 */
-	public void setShape(Shape s)
-	{
-		shape = s;
+		return config.getShape();
 	}
 	
 	/**
@@ -540,16 +420,7 @@ public strictfp class Node {
 	 */
 	public boolean isStartNode()
 	{
-		return isStartNode;
-	}
-	
-	/**
-	 * 
-	 * @param b	the start node status to set this node to
-	 */
-	public void setStartNode(boolean b)
-	{
-		isStartNode = b;
+		return config.isStartNode();
 	}
 	
 	/**

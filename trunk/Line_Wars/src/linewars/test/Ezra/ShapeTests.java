@@ -1,9 +1,6 @@
 package linewars.test.Ezra;
 import org.junit.Before;
 
-import linewars.gamestate.shapes.*;
-import linewars.gamestate.Position;
-
 public class ShapeTests {
 	//Not much to test in the Shape class itself
 	//Shape only has:

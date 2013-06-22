@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
@@ -20,10 +22,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import linewars.display.IconConfiguration;
+import linewars.display.IconConfiguration.IconType;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.animations.FileCopy;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -43,113 +46,79 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	 */
 	private static final long serialVersionUID = 5888582783506951971L;
 	
-	private static final ParserKeys[] icons = {ParserKeys.icon, ParserKeys.pressedIcon,
-										ParserKeys.rolloverIcon, ParserKeys.selectedIcon};
-	
-	private HashMap<ParserKeys, IconPanel> panels = new HashMap<ParserKeys, IconEditor.IconPanel>();
+	private HashMap<IconType, IconPanel> panels = new HashMap<IconType, IconEditor.IconPanel>();
 	
 	private JPanel mainPanel;
+	
+	public IconEditor(List<IconType> iconTypes, List<String> descriptions)
+	{
+		this(iconTypes, descriptions, new Dimension(200, 175));
+	}
 	
 	/**
 	 * Creates the Icon Editor. Does not display it in any way. The
 	 * panel that this editor will be on is responsible for adding
 	 * it as a component.
 	 */
-	public IconEditor()
+	public IconEditor(List<IconType> iconTypes, List<String> descriptions, Dimension defaultSize)
 	{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		for(ParserKeys key : icons)
+		for(int i = 0; i < iconTypes.size(); i++)
 		{
-			IconPanel panel = new IconPanel(key);
+			IconPanel panel = new IconPanel(iconTypes.get(i), descriptions.get(i));
 			this.add(panel);
-			panels.put(key, panel);
+			panels.put(iconTypes.get(i), panel);
 		}
 		
 		JScrollPane scroller = new JScrollPane(this);
-		scroller.setPreferredSize(new Dimension(200, 175));
+		scroller.setPreferredSize(defaultSize);
 		mainPanel = new JPanel();
 		mainPanel.add(scroller);
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
-	}
-	
-	private void setData(ConfigData cd, boolean force)
-	{
-		for(ParserKeys key : icons)
+	public void setData(Configuration cd) {
+		IconConfiguration ic = (IconConfiguration) cd;
+		
+		this.resetEditor();
+		
+		for(IconType name : ic.getIconTypes())
 		{
-			if(cd.getDefinedKeys().contains(key))
-			{
-				try {
-					panels.get(key).setURI(cd.getString(key));
-				} catch(Exception e) {
-					if(force)
-						panels.get(key).clearIcon();
-					else
-						throw new IllegalArgumentException(key + " is not valid");
-				}
-			}
-			else if(force)
-				panels.get(key).clearIcon();
-			else
-				throw new IllegalArgumentException(key + " is not valid");				
+			if(panels.get(name) == null)
+				continue;
+			 panels.get(name).setURI(ic.getIconURI(name));
 		}
 		
 		this.validate();
 		this.updateUI();
 	}
 	
-	/**
-	 * This method takes in a ConfigData object and checks to
-	 * see if all the keys needed for icons are present and
-	 * if each key maps to a valid URI that represents an icon
-	 * image.
-	 * 
-	 * @param cd	the config data object to check
-	 * @return		true if all the keys and values are correct; false otherwise
-	 */
-	public boolean isValid(ConfigData cd)
+	public void resetEditor()
 	{
-		for(ParserKeys key : icons)
-		{
-			if(cd.getDefinedKeys().contains(key))
-			{
-				try {
-					panels.get(key).testURI(cd.getString(key));
-				} catch(Exception e) {
-					return false;
-				}
-			}
-			else 
-				return false;
-		}
-		return true;
+		for(IconPanel ip : panels.values())
+			ip.clearIcon();
+		this.validate();
+		this.updateUI();
 	}
 
 	@Override
-	public void reset() {
-		for(ParserKeys key : icons)
-			panels.get(key).clearIcon();
+	public Configuration instantiateNewConfiguration() {
+		return new IconConfiguration();
 	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		for(ParserKeys key : icons)
-			cd.set(key, panels.get(key).getURI());
-		return cd;
+	public ConfigType getData(Configuration toSet) {
+		IconConfiguration ic = (IconConfiguration) toSet;
+		for(IconPanel ip : panels.values())
+			ic.setIcon(ip.getType(), new File(ip.getURI()).getName());
+		return ConfigType.icon;
 	}
 
 	@Override
-	public ParserKeys getType() {
-		throw new UnsupportedOperationException("Get type doesn't make sense for the icon editor");
+	public List<ConfigType> getAllLoadableTypes() {
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.icon);
+		return ret;
 	}
 
 	@Override
@@ -159,29 +128,34 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 	
 	private class IconPanel extends JPanel implements ActionListener {
 		
-		private ParserKeys key;
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8295708975464054523L;
+		private IconType type;
+		private String description;
 		private JLabel icon;
 		private String uri;
 		
-		public IconPanel(ParserKeys key)
+		public IconPanel(IconType type, String description)
 		{
-			this.key = key;
-			JButton set = new JButton("Set " + key.toString());
+			this.type = type;
+			this.description = description;
+			JButton set = new JButton("Set " + type.toString() + " icon");
 			set.addActionListener(this);
+			set.setToolTipText(description);
 			this.add(set);
+//			this.add(new JLabel(description));
 		}
 		
-		public void testURI(String u) {
-			ImageIcon i = new ImageIcon(u);
-			i = new ImageIcon(i.getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
-		}
-
-		public String getURI() {
-			return "/" + uri;
+		public IconType getType()
+		{
+			return type;
 		}
 		
-		public ParserKeys getKey() {
-			return key;
+		public String getURI()
+		{
+			return uri;
 		}
 		
 		public void clearIcon() {
@@ -192,6 +166,11 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}
 		
 		public void setURI(String u) {
+			if(u == null || u.length() == 0)
+			{
+				clearIcon();
+				return;
+			}
 			if(u.charAt(0) == '/')
 				u = u.substring(1, u.length());
 			
@@ -232,7 +211,7 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 					return;
 				}
 				
-				File to = new File(new File("resources/animations"), f.getName());
+				File to = new File(new File(BigFrameworkGuy.AMIMATION_FOLDER), f.getName());
 				if(!to.exists())
 				{
 					try {
@@ -258,14 +237,6 @@ public class IconEditor extends JPanel implements ConfigurationEditor {
 		}		
 		
 		
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		for(ParserKeys key : icons)
-			if(panels.get(key).getURI().equals(""))
-				return false;
-		return true;
 	}
 
 }

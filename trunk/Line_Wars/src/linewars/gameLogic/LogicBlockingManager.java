@@ -1,11 +1,11 @@
 package linewars.gameLogic;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
+import linewars.gamestate.MapConfiguration;
+import linewars.init.PlayerData;
 import linewars.network.messages.Message;
 
 /**
@@ -29,10 +29,10 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	private boolean fullyUpdated;//true if there are no updates that can be done to the free state, implying that the states are ready for swapping
 	private boolean locked;//true if users have locked the viewableState
 
-	public LogicBlockingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException {
+	public LogicBlockingManager(MapConfiguration map, List<PlayerData> players){
 		orders = new HashMap<Integer, Message[]>();
-		viewableState = new GameState(mapURI, numPlayers, raceURIs, players);
-		freeState = new GameState(mapURI, numPlayers, raceURIs, players);
+		viewableState = new GameState(map, players);
+		freeState = new GameState(map, players);
 		
 		fullyUpdated = true;
 		locked = false;
@@ -42,7 +42,7 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 	
 	@Override
-	public void addOrdersForTick(int tickID, Message[] newOrders) {
+	public boolean addOrdersForTick(int tickID, Message[] newOrders) {
 		lastLastUpdateTime = lastUpdateTime;
 		lastUpdateTime = System.currentTimeMillis();
 		if(orders.containsKey(tickID)){
@@ -53,23 +53,39 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 		Message[] copy = newOrders == null ? null : newOrders.clone();
 		orders.put(tickID, copy);
 		
-		while(fullyUpdated){
+		boolean updated = false;
+		do{
+			/*synchronized (this)*/ {
+				updated = fullyUpdated;
+			}
+			if(!updated)
+				break;
 			try {
 				Thread.sleep(SLEEP_TIME_MS);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				//FFFFFFFUUUUUUUUUUUUU
 				e.printStackTrace();
 			}
-		}
+		} while(updated);
+		
 		updateFreeState(tickID);
-		swapStatesIfPossible();
+		/*synchronized (this)*/ {
+			swapStatesIfPossible();
+		}
+		
+		if (freeState.getWinningPlayer() != null ||
+			viewableState.getWinningPlayer() != null)
+			return true;
+		
+		return false;
 	}
 	
 	private void updateFreeState(int maxTickID){
 		for(int i = (int) (freeState.getTimerTick() + 1); i <= maxTickID; i++){
-			Message[] currentOrders = orders.get(i);
+			final Message[] currentOrders = orders.get(i);
 			
 			freeState.update(currentOrders);
+			
 			
 			if(freeState.getTimerTick() == viewableState.getTimerTick()){
 				if(!freeState.equals(viewableState)){
@@ -78,11 +94,13 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 				}
 			}
 		}
-		fullyUpdated = true;
+		/*synchronized(this)*/ {
+			fullyUpdated = true;
+		}
 	}
 
 	@Override
-	public GameState getCurrentGameState() {
+	public /*synchronized*/ GameState getCurrentGameState() {
 		if(!locked){
 			throw new IllegalStateException("Cannot return an unlocked GameState, please lock the GameState before requesting it.");
 		}
@@ -90,17 +108,19 @@ public strictfp class LogicBlockingManager implements GameStateProvider, GameSta
 	}
 
 	@Override
-	public void lockViewableGameState() {
+	public /*synchronized*/ void lockViewableGameState() {
 		if(locked){
 			throw new IllegalStateException("GameState is already locked!");
 		}
 		swapStatesIfPossible();
 		locked = true;
+		viewableState.setLocked(true);
 	}
 
 	@Override
-	public void unlockViewableGameState() {
+	public /*synchronized*/ void unlockViewableGameState() {
 		locked = false;
+		viewableState.setLocked(false);
 		swapStatesIfPossible();
 	}
 	

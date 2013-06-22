@@ -1,10 +1,11 @@
 package linewars.display;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import linewars.gamestate.Position;
+
+import configuration.Configuration;
 
 /**
  * Encapsulates animation information.
@@ -12,51 +13,59 @@ import linewars.configfilehandler.ParserKeys;
  * @author Titus Klinge
  * @author Ryan Tew
  */
-public class Animation
+public class Animation extends Configuration
 {
-	private String[] imageURIs;
-	private double[] displayTimes;
-
 	/**
-	 * Creates this animation.
 	 * 
-	 * @param parser
-	 *            The ConfigData for the animation.
-	 * @param mapItemURI
-	 *            The URI of the MapItem this animation is for.
-	 * @param width
-	 *            The width of the animation in game units.
-	 * @param height
-	 *            The height of the animation in game units.
 	 */
-	public Animation(ConfigData parser, String mapItemURI, int width, int height)
+	private static final long serialVersionUID = 5225248279157492602L;
+	
+	private ArrayList<String> imageURIs;
+	private ArrayList<Double> displayTimes;
+	private int size;
+	private Animation next;
+	
+	public Animation()
 	{
-		// get the file the animation is in
-		String file = "/" + parser.getURI();
-		file = file.substring(0, file.lastIndexOf('/') + 1);
-
-		// get the animation images
-		List<String> uris = parser.getStringList(ParserKeys.icon);
-		imageURIs = new String[uris.size()];
-		for(int i = 0; i < uris.size(); ++i)
-		{
-			imageURIs[i] = file + uris.get(i);
-		}
-
-		// get the display times from the config file
-		List<String> times = parser.getStringList(ParserKeys.displayTime);
-		displayTimes = new double[times.size()];
-		for(int i = 0; i < times.size(); ++i)
-		{
-			displayTimes[i] = new Double(times.get(i)).doubleValue();
-		}
-
-		// load images
-		for(String uri : imageURIs)
+		imageURIs = new ArrayList<String>();
+		displayTimes = new ArrayList<Double>();
+		size = 0;
+		next = null;
+	}
+	
+	public void addFrame(String uri, double time)
+	{
+		addFrame(uri, time, size);
+	}
+	
+	public void addFrame(String uri, double time, int index)
+	{
+		imageURIs.add(index, uri);
+		displayTimes.add(index, time);
+		++size;
+	}
+	
+	public void moveFrame(int from, int to)
+	{
+		String uri = imageURIs.remove(from);
+		double time = displayTimes.remove(from);
+		
+		imageURIs.add(to, uri);
+		displayTimes.add(to, time);
+	}
+	
+	public void setNextAnimation(Animation next)
+	{
+		this.next = next;
+	}
+	
+	public void loadAnimationResources()
+	{
+		for(int i = 0; i < getNumImages(); ++i)
 		{
 			try
 			{
-				ImageDrawer.getInstance().addImage(uri, mapItemURI, width, height);
+				ImageDrawer.getInstance().addImage(getImage(i));
 			}
 			catch (IOException e)
 			{
@@ -64,7 +73,14 @@ public class Animation
 			}
 		}
 	}
-
+	
+	public void clearImages()
+	{
+		imageURIs.clear();
+		displayTimes.clear();
+		size = 0;
+	}
+	
 	/**
 	 * Returns the image to be displayed at the current game time.
 	 * 
@@ -77,33 +93,56 @@ public class Animation
 	 */
 	public String getImage(double gameTime, double creationTime)
 	{
-		if(imageURIs.length == 1)
-			return imageURIs[0];
-
+		//get the time the animation has been alive
 		double curTime = (gameTime * 1000) - creationTime;
 
+		//get the time length of the animation
 		double sum = 0;
-		for(int i = 0; i < displayTimes.length; i++)
+		for(int i = 0; i < displayTimes.size(); i++)
 		{
-			sum += displayTimes[i];
+			sum += displayTimes.get(i);
 		}
+		
+		if(sum < curTime && next != null)
+			return next.getImage(gameTime, creationTime + sum);
 
+		//if there is only one image return that
+		if(size == 1)
+			return imageURIs.get(0);
+
+		//get the time within the current animation loop
 		double time = curTime % sum;
 
+		//find and return the correct image
 		int i;
-		for(i = 0; i < displayTimes.length; i++)
+		for(i = 0; i < displayTimes.size(); i++)
 		{
-			if(time > displayTimes[i])
+			if(time > displayTimes.get(i))
 			{
-				time -= displayTimes[i];
+				time -= displayTimes.get(i);
 			}
 			else
 			{
-				return imageURIs[i];
+				return imageURIs.get(i);
 			}
 		}
 
 		// this should never happen...but........
-		return imageURIs[i];
+		return imageURIs.get(i);
+	}
+	
+	public String getImage(int index)
+	{
+		return imageURIs.get(index);
+	}
+	
+	public double getImageTime(int index)
+	{
+		return displayTimes.get(index);
+	}
+	
+	public int getNumImages()
+	{
+		return imageURIs.size();
 	}
 }

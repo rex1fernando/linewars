@@ -2,14 +2,8 @@ package linewars.display;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
 
 import linewars.gamestate.Position;
 
@@ -21,12 +15,14 @@ import linewars.gamestate.Position;
  */
 public class ImageDrawer
 {
+	private HashMap<Integer, Color> playerColors;
 	private HashMap<String, GameImage> images;
 	private static ImageDrawer instance;
 	private static final Object lock = new Object();
 
 	private ImageDrawer()
 	{
+		playerColors = new HashMap<Integer, Color>();
 		images = new HashMap<String, GameImage>();
 	}
 
@@ -56,51 +52,17 @@ public class ImageDrawer
 	 * 
 	 * @param uri
 	 *            The URI of the image to load.
-	 * @param mapItemURI
-	 *            The URI of the MapItem this image is for.
-	 * @param width
-	 *            The width of the image in game units.
-	 * @param height
-	 *            The height of the image in game units.
 	 * @throws IOException
 	 *             If an error occurs while reading the image.
 	 */
-	public void addImage(String uri, String mapItemURI, int width, int height) throws IOException
+	public void addImage(String uri) throws IOException
 	{
-		if(images.get(uri + mapItemURI) != null)
+		if(images.get(uri) != null)
 			return;
 
-		Image image = loadImage(uri);
+		GameImage image = new GameImage(uri);
 
-		GameImage scaledImage = new GameImage(image, width, height);
-
-		images.put(uri + mapItemURI, scaledImage);
-	}
-
-	/**
-	 * Loads the specified image URI.
-	 * 
-	 * @param uri
-	 *            The URI of the image to load.
-	 * @return The image stored in the file with the given URI.
-	 * @throws IOException
-	 *             If the image could not be loaded.
-	 */
-	public BufferedImage loadImage(String uri) throws IOException
-	{
-		String absURI = "file:" + System.getProperty("user.dir") + uri.replace("/", File.separator);
-
-		BufferedImage image;
-		try
-		{
-			image = ImageIO.read(new URL(absURI));
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Unable to load " + uri + " from the game resources.");
-		}
-
-		return image;
+		images.put(uri, image);
 	}
 
 	/**
@@ -117,12 +79,50 @@ public class ImageDrawer
 	 * @param scaleY
 	 *            The amount to scale the image on the y-axis.
 	 */
-	public void draw(Graphics g, String uri, Position position, double scale)
+	public void draw(Graphics g, String uri, int width, int height, Position position, double scale)
 	{
-		GameImage image = images.get(uri);
+		GameImage image = images.get(uri + width + height);
+		if(image == null)
+		{
+			GameImage unscaledImage = images.get(uri);
+			if(unscaledImage == null)
+				return;
+			
+			image = new GameImage(unscaledImage, width, height);
+			images.put(uri + width + height, image);
+		}
+		
 		int x = (int)(position.getX() * scale);
 		int y = (int)(position.getY() * scale);
-		g.drawImage(image.scaleImage(scale), x, y, null);
+		try
+		{
+			g.drawImage(image.scaleImage(scale), x, y, null);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void drawAtCenter(Graphics g, String uri, int width, int height, Position position, double scale)
+	{
+		GameImage image = images.get(uri + width + height);
+		if(image == null)
+		{
+			GameImage unscaledImage = images.get(uri);
+			if(unscaledImage == null)
+				return;
+			
+			image = new GameImage(unscaledImage, width, height);
+			images.put(uri + width + height, image);
+		}
+		
+		image.draw(g, position, scale);
+	}
+	
+	public void setPlayerColor(int playerIndex, Color c)
+	{
+		playerColors.put(playerIndex, c);
 	}
 
 	/**
@@ -135,36 +135,40 @@ public class ImageDrawer
 	 *            The number of players in the game.
 	 * @return The color for the specified player.
 	 */
-	public static Color getPlayerColor(int playerIndex, int numPlayers)
+	public Color getPlayerColor(int playerIndex, int numPlayers)
 	{
-		switch(playerIndex)
-		{
-		case 0:
-			return new Color(140, 23, 23); // scarlet
-		case 1:
-			return Color.blue;
-		case 2:
-			return Color.green;
-		case 3:
-			return Color.orange;
-		case 4:
-			return Color.yellow;
-		case 5:
-			return Color.pink;
-		case 6:
-			return Color.cyan;
-		case 7:
-			return Color.magenta;
-		case 8:
-			return new Color(0, 128, 128); // teal
-		case 9:
-			return new Color(0, 0, 128); // navy
-		case 10:
-			return new Color(0, 245, 255); // turquoise
-		case 11:
-			return new Color(47, 79, 47); // dark green
-		}
+		Color c = playerColors.get(playerIndex);
+//		switch(playerIndex)
+//		{
+//		case 0:
+//			return new Color(140, 23, 23); // scarlet
+//		case 1:
+//			return Color.blue;
+//		case 2:
+//			return Color.green;
+//		case 3:
+//			return Color.orange;
+//		case 4:
+//			return Color.yellow;
+//		case 5:
+//			return Color.pink;
+//		case 6:
+//			return Color.cyan;
+//		case 7:
+//			return Color.magenta;
+//		case 8:
+//			return new Color(0, 128, 128); // teal
+//		case 9:
+//			return new Color(0, 0, 128); // navy
+//		case 10:
+//			return new Color(0, 245, 255); // turquoise
+//		case 11:
+//			return new Color(47, 79, 47); // dark green
+//		}
 
-		return Color.white;
+		if(c != null)
+			return c;
+		else
+			return Color.white;
 	}
 }

@@ -2,35 +2,45 @@ package editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Scanner;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-
-import editor.ListURISelector.ListSelectorOptions;
-import editor.URISelector.SelectorOptions;
-import editor.abilities.AbilityEditor;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import configuration.Configuration;
+import configuration.Property;
+import configuration.Usage;
+import editor.abilitiesstrategies.AbilityEditor;
+import editor.abilitiesstrategies.PlayerAbilityEditor;
+import editor.abilitiesstrategies.StrategyEditor;
 import editor.animations.AnimationEditor;
 import editor.animations.FileCopy;
 import editor.mapEditor.MapEditor;
 import editor.mapitems.MapItemEditor;
-import editor.tech.FunctionEditor;
+import editor.race.RaceEditor;
 import editor.tech.TechEditor;
-
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ConfigFileWriter;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -45,14 +55,151 @@ import linewars.configfilehandler.ParserKeys;
 public class BigFrameworkGuy
 {
 	private static final String MASTER_LIST_URI = "resources/masterList.cfg";
+	public static final String AMIMATION_FOLDER = "resources/images";
+	public static final String SOUND_FOLDER = "resources/sounds";
 	
-	private ConfigData masterList;
+	public enum ConfigType {
+		race, animation, ability, gate, tech, map, unit,
+		projectile, building, part, turret, collisionStrategy, icon,
+		impactStrategy, turretStrategy, combatStrategy, movementStrategy,
+		targetingStrategy, playerAbility
+	}
 	
 	private JFrame frame;
 	private JTabbedPane tabPanel;
 	
 	private List<ConfigurationEditor> editors;
-	private HashMap<ConfigurationEditor, String> loadedURIs = new HashMap<ConfigurationEditor, String>();
+	
+	public static class BFGSavedData implements Serializable  {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3043537751663143683L;
+		private HashMap<ConfigType, List<Configuration>> masterList = new HashMap<BigFrameworkGuy.ConfigType, List<Configuration>>();
+		private HashMap<Integer, Configuration> loadedConfigs = new HashMap<Integer, Configuration>();
+		private String saveFile;
+		
+		public boolean addConfigToList(ConfigType t, Configuration c)
+		{
+			if(masterList.get(t) == null)
+				masterList.put(t, new ArrayList<Configuration>());
+			masterList.get(t).add(c);
+			return this.saveData();
+		}
+		
+		@SuppressWarnings("unchecked")
+		public void setConfigHashMap(HashMap<ConfigType, List<Configuration>> newMap)
+		{
+			masterList = (HashMap<ConfigType, List<Configuration>>) newMap.clone();
+			this.saveData();
+		}
+		
+		public List<Configuration> getConfigsOfType(ConfigType t)
+		{
+			if(masterList.get(t) == null)
+				masterList.put(t, new ArrayList<Configuration>());
+			return masterList.get(t);
+		}
+		
+		public void setConfigForEditor(ConfigurationEditor ce, Configuration c)
+		{
+			loadedConfigs.put(ce.hashCode(), c);
+			this.saveData();
+		}
+		
+		public Configuration getConfigForEditor(ConfigurationEditor ce)
+		{
+			return loadedConfigs.get(ce.hashCode());
+		}
+		
+		private boolean saveData()
+		{
+			if(saveFile != null)
+			{
+				try {
+					FileCopy.copy(saveFile, saveFile + ".bak");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				for(Entry<ConfigType, List<Configuration>> e : masterList.entrySet())
+				{
+					for(Configuration c : e.getValue())
+					{
+						c.setPropertyForName("bfgType", new Property(Usage.IMMUTABLE, e.getKey()));
+					}
+				}
+				
+				ObjectOutputStream oos = null;
+				try {
+					oos = new ObjectOutputStream(new FileOutputStream(saveFile));
+					oos.writeObject(this);
+					oos.flush();
+					oos.close();
+				} catch (Exception e2) {
+					try {
+						FileCopy.copy(saveFile + ".bak", saveFile);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					e2.printStackTrace();
+					return false;
+				}
+					
+				return true;
+			}
+			else
+				return false;
+		}
+		
+//		private BFGSavedData(String file) throws FileNotFoundException, IOException
+//		{
+//			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+//			
+//			while(true)
+//			{
+//				Object o = null;
+//				try {
+//					o = ois.readObject();
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//					continue;
+//				} catch (EOFException e) {
+//					break;
+//				}
+//				
+//				if(o instanceof Configuration)
+//				{
+//					Configuration c = (Configuration)o;
+//					ConfigType type = (ConfigType)c.getPropertyForName("bfgType").getValue();
+//					if(masterList.get(type) == null)
+//						masterList.put(type, new ArrayList<Configuration>());
+//					masterList.get(type).add(c);
+//				}
+//				else if(o instanceof HashMap<?, ?>)
+//					loadedConfigs = (HashMap<Integer, Configuration>) o;
+//				else
+//					System.err.println("Unrecognized object:" + o);
+//			}
+//			
+//			ois.close();
+//		}
+		
+		private BFGSavedData() {}
+		
+		public static BFGSavedData getSavedData(String file) throws FileNotFoundException, IOException, ClassNotFoundException
+		{
+			return (BFGSavedData) new ObjectInputStream(
+					new FileInputStream(new File(file)))
+					.readObject();
+		}
+	}
+	
+	private BFGSavedData  saveData;
 	
 	/**
 	 * Constructs the entire editor. Creating an instance of BigFrameworkGuy
@@ -62,9 +209,18 @@ public class BigFrameworkGuy
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public BigFrameworkGuy() throws FileNotFoundException, InvalidConfigFileException
+	public BigFrameworkGuy()
 	{
-		masterList = new ConfigFileReader(MASTER_LIST_URI).read();
+		try {
+			saveData = BFGSavedData.getSavedData(MASTER_LIST_URI);
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(frame,
+				    "Error:" + e.getMessage() +"\nCreating empty master list.",
+				    "Error finding the master list.",
+				    JOptionPane.ERROR_MESSAGE);
+			saveData = new BFGSavedData();
+			saveData.saveFile = MASTER_LIST_URI;
+		}
 		
 		tabPanel = new JTabbedPane();
 		frame = new JFrame("Line Wars Data Editor");
@@ -73,17 +229,16 @@ public class BigFrameworkGuy
 		
 		//add each editor
 		
-		String imagesFolder = new File(this.getAnimationURIs()[0]).getParentFile().getAbsolutePath();
-		AnimationEditor toStart = new AnimationEditor(imagesFolder); 
+		AnimationEditor toStart = new AnimationEditor(AMIMATION_FOLDER); 
 		
 		Dimension prefferedSize = new Dimension(0, 0);
 		//TODO add a string for new editors here
-		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation"};
+		String[] editors = {"Map", "Race", "Tech", "Map Item", "Ability", "Animation", "Strategy", "Player Ability"};
 		for(String e : editors)
 		{
 			ConfigurationEditor ce = null;
 			if(e.equals("Map Item"))
-				ce = new MapItemEditor(this);
+				ce = new MapItemEditor(this, AMIMATION_FOLDER);
 			else if(e.equals("Ability"))
 				ce = new AbilityEditor(this);
 			else if(e.equals("Animation"))
@@ -92,14 +247,22 @@ public class BigFrameworkGuy
 				ce = new MapEditor(frame);
 			else if(e.equals("Tech"))
 				ce = new TechEditor(this);
-			else if(e.equals("Function"))
-				ce = new FunctionEditor();
 			else if (e.equals("Race"))
 				ce = new RaceEditor(this);
+			else if (e.equals("Strategy"))
+				ce = new StrategyEditor(this);
+			else if(e.equals("Player Ability"))
+				ce = new PlayerAbilityEditor(this);
 			//TODO add an if statement for new editors here
 			
-			tabPanel.addTab(e + " Editor", ce.getPanel());
+			JScrollPane scroller = new JScrollPane(ce.getPanel());
+			scroller.setPreferredSize(ce.getPanel().getPreferredSize());
+			tabPanel.addTab(e + " Editor", scroller);
 			this.editors.add(ce);
+			
+			//make sure a config is loaded for this editor
+//			if(saveData.loadedConfigs.get(ce.hashCode()) == null)
+//				saveData.loadedConfigs.put(ce.hashCode(), ce.instantiateNewConfiguration());
 			
 			if(ce.getPanel().getPreferredSize().getWidth() > prefferedSize.getWidth())
 				prefferedSize.setSize(ce.getPanel().getPreferredSize().getWidth(), prefferedSize.getHeight());
@@ -108,12 +271,6 @@ public class BigFrameworkGuy
 		}
 		
 		//set up the button panel
-		JButton export = null;
-		if(new File("bin").exists()) //only allow exporting if this is not a release version
-		{
-			export = new JButton("Export");
-			export.addActionListener(new ExportButtonListener());
-		}
 		JButton newer = new JButton("New");
 		newer.addActionListener(new NewButtonListener());
 		JButton load = new JButton("Load");
@@ -122,14 +279,22 @@ public class BigFrameworkGuy
 		save.addActionListener(new SaveButtonListener());
 		JButton saveAs = new JButton("Save as");
 		saveAs.addActionListener(new SaveAsButtonListener());
+		JButton delete = new JButton("Delete Configs");
+		delete.addActionListener(new DeleteButtonListener());
+		JButton export = new JButton("Export");
+		export.addActionListener(new ExportButtonListener());
+		JButton importButton = new JButton("Import");
+		importButton.addActionListener(new ImportButtonListener());
+		
 		JPanel buttonPanel = new JPanel();
-		if(export != null)
-			buttonPanel.add(export);
+		
+		buttonPanel.add(export);
+		buttonPanel.add(importButton);
 		buttonPanel.add(newer);
 		buttonPanel.add(load);
 		buttonPanel.add(save);
 		buttonPanel.add(saveAs);
-		
+		buttonPanel.add(delete);		
 		
 		//set up the main panel
 		JPanel mainPanel = new JPanel();
@@ -139,100 +304,52 @@ public class BigFrameworkGuy
 		
 		//set up the frame
 		frame.add(mainPanel);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setMinimumSize(prefferedSize);
 		frame.setVisible(true);
 		
 		//can't start the animation editors display loop until the panel is added to the frame
-		new Thread(toStart).run();
+		Thread th = new Thread(toStart);
+		th.setDaemon(true);
+		th.start();
 		
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete command centers (just
-	 * 			returns the list of buildings).
-	 */
-	public String[] getCommandCenterURIs()
+	public void setPreferredSizeForCurrentlyShowingPane(Dimension d)
 	{
-		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
+		ConfigurationEditor ce = editors.get(tabPanel.getSelectedIndex());
+		ce.getPanel().setPreferredSize(d);
+		ce.getPanel().validate();
+		ce.getPanel().updateUI();
+		ce.getPanel().revalidate();
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete units.
-	 */
-	public String[] getUnitURIs()
+	public JPanel getCurrentlyShowingPanel()
 	{
-		return masterList.getStringList(ParserKeys.unitURI).toArray(new String[0]);
+		return editors.get(tabPanel.getSelectedIndex()).getPanel();
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete buildings.
-	 */
-	public String[] getBuildingURIs()
+	public List<Configuration> getConfigurationsByType(List<ConfigType> types)
 	{
-		return masterList.getStringList(ParserKeys.buildingURI).toArray(new String[0]);
+		List<Configuration> ret = new ArrayList<Configuration>();
+		for(ConfigType t : types)
+			ret.addAll(saveData.getConfigsOfType(t));
+		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete techs.
-	 */
-	public String[] getTechURIs()
+	public List<Configuration> getConfigurationsByType(ConfigType type)
 	{
-		System.out.println(masterList.getStringList(ParserKeys.techURI));
-		return masterList.getStringList(ParserKeys.techURI).toArray(new String[0]);
+		List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+		types.add(type);
+		return getConfigurationsByType(types);
 	}
 	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete gates.
-	 */
-	public String[] getGateURIs()
+	public List<Configuration> getAllConfigurations()
 	{
-		return masterList.getStringList(ParserKeys.gateURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete projectiles.
-	 */
-	public String[] getProjectileURIs() {
-		return masterList.getStringList(ParserKeys.projectileURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete animations.
-	 */
-	public String[] getAnimationURIs() {
-		return masterList.getStringList(ParserKeys.animationURI).toArray(new String[0]);
-	}
-
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete abilities.
-	 */
-	public String[] getAbilityURIs() {
-		return masterList.getStringList(ParserKeys.abilityURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete maps.
-	 */
-	public String[] getMapURIs() {
-		return masterList.getStringList(ParserKeys.mapURI).toArray(new String[0]);
-	}
-	
-	/**
-	 * 
-	 * @return	A list of URIs of all the valid, complete races.
-	 */
-	public String[] getRaceURIs() {
-		return masterList.getStringList(ParserKeys.raceURI).toArray(new String[0]);
+		List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+		for(ConfigType t : ConfigType.values())
+			types.add(t);
+		return getConfigurationsByType(types);
 	}
 	
 	/**
@@ -242,7 +359,7 @@ public class BigFrameworkGuy
 	 * @throws FileNotFoundException
 	 * @throws InvalidConfigFileException
 	 */
-	public static void main(String[] args) throws FileNotFoundException, InvalidConfigFileException {
+	public static void main(String[] args) {
 		new BigFrameworkGuy();
 	}
 	
@@ -250,76 +367,47 @@ public class BigFrameworkGuy
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
-			editors.get(i).reset();
+			editors.get(i).resetEditor();
+			Configuration c = editors.get(i).instantiateNewConfiguration();
+			saveData.setConfigForEditor(editors.get(i), c);
 			editors.get(i).getPanel().validate();
 			editors.get(i).getPanel().updateUI();
-			if(loadedURIs.get(editors.get(i)) != null)
-				loadedURIs.remove(editors.get(i));
 		}
 	}
 	
 	private class LoadButtonListener implements ActionListener {
 		
-		private int selected;
-		private String[] list;
-		private JFrame loadFrame;
+		private class ConfigWrapper {
+			private Configuration c;
+			public ConfigWrapper(Configuration c) {
+				this.c = c;
+			}
+			public String toString()
+			{
+				return (String) c.getPropertyForName("bfgName").getValue();
+			}
+		}
 		
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			selected = tabPanel.getSelectedIndex();
-			List<String> uris = new ArrayList<String>();
-			//map item editor is a special case
-			if(editors.get(selected) instanceof MapItemEditor)
-			{
-				ParserKeys[] keyList = {ParserKeys.unitURI, ParserKeys.buildingURI, ParserKeys.projectileURI, ParserKeys.gateURI};
-				
-				for(ParserKeys key : keyList)
+			int i = tabPanel.getSelectedIndex();
+			
+			List<Configuration> configs = getConfigurationsByType(editors.get(i).getAllLoadableTypes());
+			ConfigWrapper[] names = new ConfigWrapper[configs.size()];
+			for(int j = 0; j < configs.size(); j++)
+				names[j] = new ConfigWrapper(configs.get(j));
+			ConfigWrapper s = (ConfigWrapper) JOptionPane.showInputDialog(frame,
+					"Please select a configuration to load", "Load",
+					JOptionPane.PLAIN_MESSAGE, null, names, null);
+			if(s == null)
+				return;
+			for(int j = 0; j < configs.size(); j++)
+				if(s == names[j])
 				{
-					if(masterList.getDefinedKeys().contains(key))
-						uris.addAll(masterList.getStringList(key));
-					if(masterList.getConfig(ParserKeys.incomplete).getDefinedKeys().contains(key))
-						uris.addAll(masterList.getConfig(ParserKeys.incomplete).getStringList(key));
+					editors.get(i).setData(configs.get(j));
+					saveData.setConfigForEditor(editors.get(i), configs.get(j));
+					break;
 				}
-			}
-			else
-			{
-				ParserKeys key = editors.get(selected).getType();
-				if(masterList.getDefinedKeys().contains(key))
-					uris.addAll(masterList.getStringList(key));
-				if(masterList.getConfig(ParserKeys.incomplete).getDefinedKeys().contains(key))
-					uris.addAll(masterList.getConfig(ParserKeys.incomplete).getStringList(key));
-			}
-			
-			list = uris.toArray(new String[0]);
-			loadFrame = new JFrame("Load");
-			loadFrame.setContentPane(new URISelector("URI to load", new LoadURICallback()));
-			loadFrame.pack();
-			loadFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			loadFrame.setVisible(true);
-		}
-		
-		private class LoadURICallback implements SelectorOptions {
-
-			@Override
-			public String[] getOptions() {
-				return list;
-			}
-
-			@Override
-			public void uriSelected(String uri) {
-				try {
-					editors.get(selected).forceSetData(new ConfigFileReader(uri).read(false));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (InvalidConfigFileException e) {
-					e.printStackTrace();
-				}			
-				loadFrame.dispose();
-				loadedURIs.put(editors.get(selected), uri);
-				editors.get(selected).getPanel().validate();
-				editors.get(selected).getPanel().updateUI();
-			}
-			
 		}
 	}
 	
@@ -328,66 +416,34 @@ public class BigFrameworkGuy
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			int i = tabPanel.getSelectedIndex();
-			if(loadedURIs.get(editors.get(i)) != null)
-				save(editors.get(i), loadedURIs.get(editors.get(i)));
+			if(saveData.getConfigForEditor(editors.get(i)) != null &&
+					saveData.getConfigForEditor(editors.get(i)).getPropertyNames().contains("bfgName"))
+				save(editors.get(i));
 			else
 				new SaveAsButtonListener().promptAndSave(editors.get(i));	
 		}
 		
-		public void save(ConfigurationEditor ce, String uri)
+		public void save(ConfigurationEditor ce)
 		{
-			ConfigData cd = ce.getData();
-			boolean valid = ce.isValidConfig();
-			ParserKeys key = ce.getType();
+			ConfigType type = ce.getData(saveData.getConfigForEditor(ce));
+			boolean found = false;
+			for(Configuration c : saveData.getConfigsOfType(type))
+				found |= (c == saveData.getConfigForEditor(ce));
 			
-			if(!valid)
-			{
-				int res = JOptionPane.showConfirmDialog(
-					    frame,
-					    "The Config is not complete.\n Would you like to save anywas?",
-					    "Error",
-					    JOptionPane.YES_NO_OPTION);
-				if(res != JOptionPane.YES_OPTION)
-					return;
-			}
-			
-			//if the uri is already in the list, get rid of it
-			if(masterList.getDefinedKeys().contains(key) && masterList.getStringList(key).contains(uri))
-				masterList.remove(key, uri);
-			ConfigData incomplete = masterList.getConfig(ParserKeys.incomplete);
-			if(incomplete.getDefinedKeys().contains(key) && incomplete.getStringList(key).contains(uri))
-				incomplete.remove(key, uri);
-					
-			try {
-				new ConfigFileWriter(uri).write(cd, valid);
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(frame,
-					    "There was an error saving the config.",
-					    "Error",
-					    JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			
-			if(valid)
-				masterList.add(key, uri);
+			boolean success;
+			if(!found)
+				success = saveData.addConfigToList(type, saveData.getConfigForEditor(ce));
 			else
-				incomplete.add(key, uri);
+				success = saveData.saveData();
 			
-			try {
-				new ConfigFileWriter(MASTER_LIST_URI).write(masterList, true);
-				masterList = new ConfigFileReader(MASTER_LIST_URI).read();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InvalidConfigFileException e) {
-				e.printStackTrace();
-			}
-			
-			JOptionPane.showMessageDialog(frame,
+			if(success)
+				JOptionPane.showMessageDialog(frame,
 				    "Save successfull.", 
-				    "Message", JOptionPane.INFORMATION_MESSAGE);	
+				    "Message", JOptionPane.INFORMATION_MESSAGE);
+			else
+				JOptionPane.showMessageDialog(frame,
+					    "Save failed.", 
+					    "Message", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
@@ -402,385 +458,304 @@ public class BigFrameworkGuy
 		public void promptAndSave(ConfigurationEditor ce)
 		{
 			String s = (String) JOptionPane
-					.showInputDialog(frame, "Name:", "Name Dialog",
+					.showInputDialog(frame, "Name to use in the editor:", "Name Dialog",
 							JOptionPane.PLAIN_MESSAGE, null, null, "");
-			if(s == null || s.length() <= 0)
+			if(s == null)
 				return;
+			saveData.setConfigForEditor(ce, ce.instantiateNewConfiguration());
+			saveData.getConfigForEditor(ce).setPropertyForName("bfgName", new Property(Usage.STRING, s));
 			
-			ParserKeys key = ce.getType();
-			
-			//no other way to do this reall
-			String path = "resources/";
-			switch(key)
-			{
-				case abilityURI:
-					path += "abilities/";
-					break;
-				case animationURI:
-					path += "animations/";
-					break;
-				case buildingURI:
-					path += "buildings/";
-					break;
-				case mapURI:
-					path += "maps/";
-					break;
-				case projectileURI:
-					path += "projectiles/";
-					break;
-				case raceURI:
-					path += "races/";
-					break;
-				case techURI:
-					path += "techs/";
-					break;
-				case unitURI:
-					path += "units/";
-					break;
-			}
-			
-			path += s + ".cfg";
-			loadedURIs.put(ce, path);
-			
-			new SaveButtonListener().save(ce, path);
+			new SaveButtonListener().save(ce);
 		}
 		
 	}
 	
 	private class ExportButtonListener implements ActionListener {
 		
-		//variables to remember errors encountered
-		private ArrayList<String> errors = new ArrayList<String>();
+		private JList list;
 		
-		//variables for displaying the progress
-		private JFrame progressFrame;
-		private JTextArea work;
-		private JProgressBar bar;
-		private double size;
-		private double current;
-		
-		//variables for knowing what URIs to copy
-		private List<String> urisToCopy;
-		
-		//variables for the racemap selector
-		private JFrame selectorFrame; 
-		private ListURISelector maps;
-		private ListURISelector races;
-		private JButton export;
-		private JButton cancel;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			final ConfigType type = (ConfigType) JOptionPane.showInputDialog(frame,
+					"Please select a type of configuration to export", "Export",
+					JOptionPane.PLAIN_MESSAGE, null, ConfigType.values(), null);
+			
+			List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+			types.add(type);
+			list = showMultiSelectionBox(types, "Export", "Export", new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					if(fc.showOpenDialog(frame) == JFileChooser.CANCEL_OPTION)
+						return;
+					
+					List<Integer> selectedIndices = new ArrayList<Integer>();
+					for(int i : list.getSelectedIndices())
+						selectedIndices.add(i);
+					
+					List<Configuration> listItems = saveData.getConfigsOfType(type);
+					List<String> writtenNames = new ArrayList<String>();
+					for(int i = 0; i < listItems.size(); i++)
+					{
+						if(selectedIndices.contains(i))
+						{
+							String name = (String) listItems.get(i).getPropertyForName("bfgName").getValue();
+							while(writtenNames.contains(name))
+								name += "_";
+							try {
+								ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(fc.getSelectedFile(), name + ".cfg")));
+								oos.writeObject(listItems.get(i));
+								oos.flush();
+								oos.close();
+							} catch (FileNotFoundException e1) {
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							writtenNames.add(name);
+						}
+							
+					}					
+				}
+			});
+			
+		}
+	}
+	
+	private class DeleteButtonListener implements ActionListener
+	{
+		private JList list;
+		private ConfigurationWrapper[] listItems;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(e.getSource().equals(export))
+			showDeleteBox();
+		}
+		
+		public void showDeleteBox()
+		{
+			List<ConfigType> types = new ArrayList<BigFrameworkGuy.ConfigType>();
+			for(ConfigType type : ConfigType.values())
+				types.add(type);
+			listItems = createConfigList(types);
+			list = showMultiSelectionBox(types, "Delete", "Delete", new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					removeSelected();
+				}
+			});
+		}
+		
+		private void removeSelected()
+		{
+			List<Integer> selectedIndices = new ArrayList<Integer>();
+			for(int i : list.getSelectedIndices())
+				selectedIndices.add(i);
+			
+			HashMap<ConfigType, List<Configuration>> newMap = new HashMap<ConfigType, List<Configuration>>();
+			for(int i = 0; i < listItems.length; i++)
 			{
-				if(maps.getSelectedURIs().length <= 0 || races.getSelectedURIs().length <= 0)
+				if(!selectedIndices.contains(i))
 				{
-					JOptionPane.showMessageDialog(frame,
-						    "You must select at least one map and at least one race.",
-						    "Error",
-						    JOptionPane.ERROR_MESSAGE);
+					if(newMap.get(listItems[i].type) == null)
+						newMap.put(listItems[i].type, new ArrayList<Configuration>());
+					newMap.get(listItems[i].type).add(listItems[i].config);
+				}
+					
+			}
+			
+			saveData.setConfigHashMap(newMap);
+				
+		}
+		
+	}
+	
+	private class ImportButtonListener implements ActionListener
+	{
+		
+		private List<Configuration> exploredConfigs;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fc = new JFileChooser();
+			if(new File("lastDirectory.txt").exists())
+			{
+				try {
+					fc = new JFileChooser(new Scanner(new File("lastDirectory.txt")).nextLine());
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+			
+			fc.setMultiSelectionEnabled(true);
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			if(fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
+			{
+				File[] selectedFiles = fc.getSelectedFiles();
+				for(File f : selectedFiles)
+				{
+					try {
+						importConfig(f.getAbsolutePath());
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
+				}
+				
+				if(selectedFiles.length > 0)
+				{
+					FileWriter fw;
+					try {
+						fw = new FileWriter("lastDirectory.txt");
+						fw.write(selectedFiles[0].getParentFile().getAbsolutePath());
+						fw.flush();
+						fw.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		public void importConfig(String filepath) throws FileNotFoundException, IOException, ClassNotFoundException
+		{
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filepath));
+			exploredConfigs = new ArrayList<Configuration>();
+			recurseAddConfigs((Configuration) ois.readObject());
+		}
+		
+		private void recurseAddConfigs(Configuration c)
+		{
+			for(Configuration cfg : exploredConfigs)
+				if(c == cfg)
 					return;
-				}
+			
+			if(c.getPropertyNames().contains("bfgName") && c.getPropertyNames().contains("bfgType"))
+				saveData.addConfigToList((ConfigType) c.getPropertyForName("bfgType").getValue(), c);
 				
-				selectorFrame.dispose();
-				
-				populateURIList();
-				
-				JFileChooser fc = new JFileChooser();
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				if(fc.showOpenDialog(BigFrameworkGuy.this.frame) == JFileChooser.APPROVE_OPTION)
-				{
-					File dir = fc.getSelectedFile();
-					export(dir);
-				}
-			}
-			else if(e.getSource().equals(cancel))
-				selectorFrame.dispose();
-			else //the only other way to get in here is from clicking export from the main frame
+			exploredConfigs.add(c);
+			for(String propName : c.getPropertyNames())
 			{
-				//set up the buttons
-				export = new JButton("Export");
-				export.addActionListener(this);
-				cancel = new JButton("Cancel");
-				cancel.addActionListener(this);
-				
-				//set up the list uri selectors
-				maps = new ListURISelector("Maps", new ListSelectorOptions() {
-					public void uriSelected(String uri) {}
-					public void uriRemoved(String uri) {}
-					public void uriHighlightChange(String[] uris) {}
-					public String[] getOptions() {
-						return BigFrameworkGuy.this.getMapURIs();
-					}
-				});
-				
-				races = new ListURISelector("Races", new ListSelectorOptions() {
-					public void uriSelected(String uri) {}
-					public void uriRemoved(String uri) {}
-					public void uriHighlightChange(String[] uris) {}
-					public String[] getOptions() {
-						return BigFrameworkGuy.this.getRaceURIs();
-					}
-				});
-				
-				//set up the button panel
-				JPanel buttonPanel = new JPanel();
-				buttonPanel.add(export);
-				buttonPanel.add(cancel);
-				
-				//set up the list panel
-				JPanel listPanel = new JPanel();
-				listPanel.add(maps);
-				listPanel.add(races);
-				
-				//set up the frame
-				selectorFrame = new JFrame("Select races and maps to include");
-				selectorFrame.getContentPane().setLayout(new BorderLayout());
-				selectorFrame.getContentPane().add(listPanel, BorderLayout.CENTER);
-				selectorFrame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-				selectorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				selectorFrame.pack();
-				selectorFrame.setVisible(true);
-			}
-			
-		}
-		
-		private void populateURIList() {
-			urisToCopy = new ArrayList<String>();
-			
-			//add the map uris
-			String[] uris = maps.getSelectedURIs();
-			for(String uri : uris)
-				urisToCopy.add(uri);
-			
-			//add the race uris
-			uris = races.getSelectedURIs();
-			for(String uri : uris)
-				urisToCopy.add(uri);
-			
-			//now add some files that the display relies on
-			urisToCopy.add("resources/animations/left_ui_panel.cfg");
-			urisToCopy.add("resources/animations/right_ui_panel.cfg");
-			urisToCopy.add("resources/animations/Exit_Button.cfg");
-			urisToCopy.add("resources/animations/Exit_Button_Clicked.cfg");
-			
-			//go through the whole list of uris and check to see if they are configs that contain uris
-			for(int i = 0; i < urisToCopy.size(); i++)
-			{
-				//check to see if this uri is a config data
-				ConfigData cd = null;
-				try {
-					cd = new ConfigFileReader(urisToCopy.get(i)).read();
-				} catch(Exception e) {
-					continue;
-				}
-				
-				extractURIs(urisToCopy.get(i), cd);
-			}
-		}
-
-		private void extractURIs(String containingURI, ConfigData cd) {
-			//go throug each key and get all the strings for that key
-			for(ParserKeys key : cd.getDefinedKeys())
-			{
-				//check all the strings and see if they contain a URI
-				for(String s : cd.getStringList(key))
-				{
-					String uri = extractURI(s);
-					//check to see if this is a valid URI
-					if(uri == null)
-					{
-						//BUT WAIT! it might be a file local to the config uri, better check that
-						String pURI = extractURI(new File(containingURI).getParent());
-						uri = pURI + "/" + s;
-					}
-					//check to see if the uri is a valid file
-					try {
-						File f = new File(uri);
-						if(!f.exists() || f.isDirectory() || !f.isFile() || f.isHidden())
-							continue;
-					} catch(Exception e) {
-						continue;
-					}
-					urisToCopy.add(uri);
-				}
-				
-				//now check all the contained configs
-				for(ConfigData c : cd.getConfigList(key))
-					extractURIs(containingURI, c);
-			}
-		}
-		
-		private String extractURI(String s) {
-			int i = s.lastIndexOf("resources");
-			if(i < 0)
-				return null;
-			else
-				return s.substring(i, s.length()).replace('\\', '/');
-		}
-
-		public void export(File dir)
-		{
-			//set up the file filters
-			FileFilter classesOnly = new FileFilter() {
-				public boolean accept(File f) {
-					return f.isDirectory() || f.getName().endsWith(".class");
-				}
-				public String getDescription() {
-					return ".class files";
-				}
-			};
-			FileFilter includedURIs = new FileFilter() {
-				public boolean accept(File f) {
-					return !f.isHidden() && (f.isDirectory() ||
-							urisToCopy.contains(extractURI(f.getAbsolutePath())));
-				}
-				public String getDescription() {
-					return "non-hidden files";
-				}
-			};
-			
-			//now calculate the size
-			size = 0;
-			size += copyFile(dir, new File("resources"), includedURIs, true);
-			for(File f : new File("bin").listFiles())
-				size += copyFile(dir, f, classesOnly, true);
-			
-			//set up the progress frame
-			bar = new JProgressBar();
-			bar.setMaximum((int) (size/1000.0));
-			bar.setValue(500);
-			bar.setPreferredSize(new Dimension(100, 20));
-			work = new JTextArea();
-			JScrollPane workScroller = new JScrollPane(work);
-			workScroller.setPreferredSize(new Dimension(200, 200));
-			JPanel progressPanel = new JPanel();
-			progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
-			progressPanel.add(workScroller);
-			progressPanel.add(bar);
-			
-			progressFrame = new JFrame("Exporting");
-			progressFrame.setContentPane(progressPanel);
-			progressFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			progressFrame.pack();
-			progressFrame.setVisible(true);
-			
-			//now start copying
-			errors.clear();
-			current = 0;
-			copyFile(dir, new File("resources"), includedURIs, false);
-			for(File f : new File("bin").listFiles())
-				copyFile(dir, f, classesOnly, false);
-			
-			progressFrame.dispose();
-			
-			//make the new masterList.cfg
-			ConfigData newMasterList = new ConfigData();//new FileWriter();
-			for(ParserKeys key : masterList.getDefinedKeys())
-			{
-				if(key.equals(ParserKeys.incomplete))
-					newMasterList.add(key, new ConfigData());
-				else
-				{
-					for(String uri : masterList.getStringList(key))
-					{
-						if(urisToCopy.contains(uri))
-							newMasterList.add(key, uri);
-					}
-				}
-			}
-			try {
-				new ConfigFileWriter(dir.getAbsolutePath() + "/resources/masterList.cfg").write(newMasterList, true);
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			//make the run scripts
-			String runCommand = "java linewars.init.MainWindow";
-			String[] runScripts = new String[]{"Windows_Run.bat", "Linux_Mac_Run.sh"};
-			for(String script : runScripts)
-			{
-				try {
-					FileWriter fw = new FileWriter(new File(dir, script));
-					fw.write(runCommand);
-					fw.flush();
-					fw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			//display error dialog if there were errors
-			if(!errors.isEmpty())
-			{
-				String error = "There were errors copying the following files:\n";
-				for(String s : errors)
-					error += s + "\n";
-				JOptionPane.showMessageDialog(frame,
-					    error,
-					    "Error",
-					    JOptionPane.ERROR_MESSAGE);
-			}
-			else
-				JOptionPane.showMessageDialog(frame,
-					    "Export successfull.", 
-					    "Success",
-					    JOptionPane.DEFAULT_OPTION);
-		}
-		
-		private double copyFile(File dir, File file, FileFilter filter, boolean simulate)
-		{
-			//don't copy files the filter won't allow
-			if(!filter.accept(file))
-				return 0;
-			
-			File newFile = new File(dir, file.getName());
-			
-			//if we're copying a directory
-			if(file.isDirectory())
-			{
-				if(!newFile.exists() || !newFile.isDirectory())
-				{
-					newFile.delete();
-					newFile.mkdir();
-				}
-				
-				double sum = 0;
-				
-				//copy all the contained files
-				for(File f : file.listFiles())
-					sum += copyFile(newFile, f, filter, simulate);
-				return sum;
-			}
-			else //just a single file
-			{
-				if(!newFile.exists() || newFile.isDirectory())
-					newFile.delete();
-				
-				if(!simulate)
-				{
-					double progress = ((int)(current/size*1000.0))/10.0;
-					work.setText(work.getText() + "\n" + progress + "%: " + file.getAbsolutePath());
-					System.out.println(progress + "%: " + file.getAbsolutePath());
-					work.validate();
-					work.updateUI();
-					try {
-						FileCopy.copy(file.getAbsolutePath(), newFile.getAbsolutePath());
-					} catch (IOException e) {
-						errors.add(file.getAbsolutePath());
-					}
-					current += file.length();
-					bar.setValue((int) (current/size*1000.0));
-					bar.validate();
-					bar.updateUI();
-				}
-				
-				return file.length();
+				Object value = c.getPropertyForName(propName).getValue();
+				if(value instanceof Configuration)
+					recurseAddConfigs((Configuration) value);
 			}
 		}
 	}
 	
+	private ConfigurationWrapper[] createConfigList(List<ConfigType> list)
+	{
+		List<ConfigurationWrapper> ret = new ArrayList<ConfigurationWrapper>();
+		for(ConfigType type : list)
+		{
+			for(Configuration c : saveData.getConfigsOfType(type))
+				ret.add(new ConfigurationWrapper(c, type));
+		}
+		return ret.toArray(new ConfigurationWrapper[ret.size()]);
+	}
 	
+	private int typeMaxWidth = 0;
+	
+	public JList showMultiSelectionBox(List<ConfigType> configs, String frameTitle, String mainButton, final ActionListener callback)
+	{
+		return showMultiSelectionBox(configs, frameTitle, mainButton, callback, true);	
+	}
+	
+	public JList showMultiSelectionBox(List<ConfigType> configs, String frameTitle, 
+			String mainButton, final ActionListener callback, boolean allowMultipleSelection)
+	{
+		final JFrame frame = new JFrame(frameTitle);
+		
+		typeMaxWidth = 0;
+		JList list = createMulitSelectionList(configs, allowMultipleSelection);
+		JScrollPane scroller = new JScrollPane(list);
+		scroller.setPreferredSize(new Dimension(350, 450));
+		
+		
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(scroller, BorderLayout.CENTER);
+		
+		JPanel buttonPanel = new JPanel();
+		JButton delete = new JButton(mainButton);
+		delete.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.actionPerformed(e);
+				frame.dispose();
+			}
+		});
+		
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();
+			}
+		});
+		
+		buttonPanel.add(delete);
+		buttonPanel.add(cancel);
+		
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+		frame.setContentPane(mainPanel);
+		
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
+		
+		return list;
+	}
+	
+	public JList createMulitSelectionList(List<ConfigType> configs, boolean allowMultipleSelection)
+	{
+		JList list = new JList();
+		list.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+		ConfigurationWrapper[] listItems = createConfigList(configs);
+		list.setListData(listItems);
+		if(!allowMultipleSelection)
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		return list;
+	}
+	
+	public class ConfigurationWrapper
+	{			
+		private Configuration config;
+		private ConfigType type;
+		
+		public ConfigurationWrapper(Configuration c, ConfigType t)
+		{
+			this.config = c;
+			this.type = t;
+			if(t.toString().length() > typeMaxWidth)
+				typeMaxWidth = t.toString().length();
+		}
+		
+		public Configuration getConfiguration(){
+			return config;
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other == null) return false;
+			if(!(other instanceof ConfigurationWrapper)) return false;
+			ConfigurationWrapper o = (ConfigurationWrapper) other;
+			
+			return o.getConfiguration().equals(getConfiguration());
+		}
+		
+		public String toString() {
+			String typeName = type.toString();
+			while(typeName.length() < typeMaxWidth)
+				typeName = " " + typeName;
+			return typeName + " :: " + ((String) config.getPropertyForName("bfgName").getValue());
+		}
+	}
 }

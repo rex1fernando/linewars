@@ -1,10 +1,9 @@
 package linewars.gameLogic;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.network.Client;
+import linewars.gamestate.MapConfiguration;
+import linewars.init.PlayerData;
 import linewars.network.MessageProvider;
 import linewars.network.messages.Message;
 
@@ -16,7 +15,7 @@ import linewars.network.messages.Message;
  *
  */
 public class TimingManager implements Runnable{
-	public static final int TIME_PER_TICK_MILLIS = 20;
+	public static final int TIME_PER_TICK_MILLIS = 50;
 	public static final double GAME_TIME_PER_TICK_S = TIME_PER_TICK_MILLIS / 1000.0;
 	
 	private static final long SLEEP_PRECISION_MS = 4;
@@ -26,10 +25,11 @@ public class TimingManager implements Runnable{
 	private MessageProvider network;
 
 	private int nextTickID;
-	private long nextUpdateTime;
 	
-	public TimingManager(String mapURI, int numPlayers, List<String> raceURIs, List<String> players) throws FileNotFoundException, InvalidConfigFileException{
-		manager = new LogicBlockingManager(mapURI, numPlayers, raceURIs, players);
+	public TimingManager(MapConfiguration map, List<PlayerData> players){
+//		manager = new LogicBlockingManager(map, players);
+		manager = new GameStateSwappingManager(map, players);
+//		manager = new SingleGameStateManager(map, players);
 		nextTickID = 1;
 	}
 	
@@ -51,18 +51,21 @@ public class TimingManager implements Runnable{
 
 	@Override
 	public void run() {
-		nextUpdateTime = System.currentTimeMillis();
-		while(true){
+		boolean someoneWon = false;
+		
+		while(!someoneWon){
+			long loopStartTime = System.currentTimeMillis();
+			
 			//get orders from network
 			Message[] messagesForTick = network.getMessagesForTick(nextTickID);
 			
 			//give orders to manager
-			manager.addOrdersForTick(nextTickID, messagesForTick);
+			if (manager.addOrdersForTick(nextTickID, messagesForTick))
+				someoneWon = true;
 			//update tick id
 			++nextTickID;
-			nextUpdateTime += TIME_PER_TICK_MILLIS;
 			//compute time to sleep for
-			long timeToSleep = nextUpdateTime - System.currentTimeMillis();
+			long timeToSleep = TIME_PER_TICK_MILLIS - (System.currentTimeMillis() - loopStartTime);
 			
 			//idle until it's time to update again
 			if(timeToSleep > 0)

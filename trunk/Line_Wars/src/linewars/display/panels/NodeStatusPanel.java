@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.display.Animation;
 import linewars.display.Display;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.Unit;
+import menu.components.CustomList;
+import menu.components.MenuScrollPane;
 
 /**
  * Encapsulates the information needed to display Node status information.
@@ -32,20 +36,20 @@ public class NodeStatusPanel extends Panel
 	/**
 	 * The default height and width of the panel
 	 */
-	private static final int DEFAULT_WIDTH = 500;
-	private static final int DEFAULT_HEIGHT = 400;
+	private static final int DEFAULT_WIDTH = 600;
+	private static final int DEFAULT_HEIGHT = 500;
 
 	/**
 	 * The location of the command button panel within the command card
 	 */
-	private static final int STATUS_PANEL_X = 10;
-	private static final int STATUS_PANEL_Y = 122;
+	private static final int STATUS_PANEL_X = 1;
+	private static final int STATUS_PANEL_Y = 76;
 
 	/**
 	 * The height and width of the command button panel
 	 */
-	private static final int STATUS_PANEL_WIDTH = 343;
-	private static final int STATUS_PANEL_HEIGHT = 268;
+	private static final int STATUS_PANEL_WIDTH = 574;
+	private static final int STATUS_PANEL_HEIGHT = 424;
 
 	private Display display;
 	private JList nodeStatus;
@@ -61,17 +65,20 @@ public class NodeStatusPanel extends Panel
 	 * @param anims
 	 *            The list of animations for this panel.
 	 */
-	public NodeStatusPanel(Display display, GameStateProvider stateManager, ConfigData... anims)
+	public NodeStatusPanel(Display display, GameStateProvider stateManager, Animation... anims)
 	{
 		super(stateManager, DEFAULT_WIDTH, DEFAULT_HEIGHT, anims);
 
+		setOpaque(false);
+		
 		this.display = display;
-		this.nodeStatus = new JList();
-		this.scrollPane = new JScrollPane(nodeStatus);
+		this.nodeStatus = new CustomList();
+		this.scrollPane = new MenuScrollPane();
+		scrollPane.setViewportView(nodeStatus);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-		nodeStatus.setOpaque(false);
-		scrollPane.setOpaque(false);
-
+		nodeStatus.setCellRenderer(new CustomRenderer());
+		
 		add(scrollPane);
 	}
 
@@ -129,6 +136,21 @@ public class NodeStatusPanel extends Panel
 			unitTypeToNumber.put(unitType, numUnits + 1);
 		}
 
+		Building[] buildings = node.getContainedBuildings();
+		Map<String, Integer> buildingToNumber = new HashMap<String, Integer>();
+		for(Building b : buildings)
+		{
+			String buildingType = b.getName();
+
+			Integer numBuildings = buildingToNumber.get(buildingType);
+			if(numBuildings == null)
+			{
+				numBuildings = 0;
+			}
+
+			buildingToNumber.put(buildingType, numBuildings + 1);
+		}
+
 		status.add("time to next spawn: " + (int)timeToNextSpawn);
 
 		if(invader != null)
@@ -139,6 +161,12 @@ public class NodeStatusPanel extends Panel
 
 		if(invader != null)
 			status.add("invader: " + invader.getPlayerName());
+		
+		status.add("buildings:");
+		for(String building : buildingToNumber.keySet())
+		{
+			status.add("  " + building + " x" + buildingToNumber.get(building));
+		}
 
 		for(Player p : playerToUnits.keySet())
 		{
@@ -152,5 +180,13 @@ public class NodeStatusPanel extends Panel
 		}
 
 		nodeStatus.setListData(status.toArray());
+	}
+	
+	private class CustomRenderer extends DefaultListCellRenderer
+	{
+		public CustomRenderer()
+		{
+			setOpaque(false);
+		}
 	}
 }

@@ -1,8 +1,5 @@
 package linewars.gamestate.shapes;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -13,27 +10,14 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class Rectangle extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("rectangle", Rectangle.class);
-	}
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5089963326851525171L;
 	//the width and height of the Rectangle
 	private double width, height;
 	//the center and rotation of the Rectangle
 	private Transformation position;
-	
-	public Rectangle(ConfigData config){
-		width = config.getNumber(ParserKeys.width);
-		height = config.getNumber(ParserKeys.height);
-		double rotation = 0;
-		try{
-			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
-		}catch(NoSuchKeyException e){
-			//Just means rotation wasn't set, so it defaults to 0
-		}
-		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
-	}
 	
 	
 	public Rectangle(Transformation position, double width, double height){
@@ -44,8 +28,31 @@ public strictfp class Rectangle extends Shape {
 
 	@Override
 	public Shape stretch(Transformation change) {
-		// TODO Auto-generated method stub
-		return null;
+		Position deltaP = change.getPosition();
+		Position orthoDeltaP = deltaP.orthogonal();
+		Position[] points = getVertexPositions();
+		double minX = Double.MAX_VALUE;
+		double minY = minX;
+		double maxX = -1 * minX;
+		double maxY = maxX;
+		for(Position toConsider : points){
+			double projX = toConsider.scalarProjection(deltaP);
+			if(projX < minX) minX = projX;
+			if(projX > maxX) maxX = projX;
+			
+			double projY = toConsider.scalarProjection(orthoDeltaP);
+			if(projY < minY) minY = projY;
+			if(projY > maxY) maxY = projY;
+		}
+		
+		maxX += deltaP.length();
+		
+		double width = (maxX - minX) / 2;
+		double height = (maxY - minY) / 2;
+		Position newCenter = position.getPosition().add(deltaP.scale(0.5));
+		double angle = deltaP.getAngle();
+		
+		return new Rectangle(new Transformation(newCenter, angle), width, height);
 	}
 
 	@Override
@@ -120,7 +127,6 @@ public strictfp class Rectangle extends Shape {
 
 	@Override
 	public boolean positionIsInShape(Position toTest) {
-		//TODO test
 		//ray-casting algorithm, look it up.  Implementation might be wrong :(
 		int numCrossings = 0;
 		Position[] vertices = getVertexPositions();
@@ -175,16 +181,32 @@ public strictfp class Rectangle extends Shape {
 		if(!position.equals(otherRect.position)) return false;
 		return true;
 	}
+	
+	@Override
+	public AABB calculateAABB()
+	{
+		Position[] vertexPositions = getVertexPositions();
+			
+		double xmin = vertexPositions[0].getX();
+		double xmax = vertexPositions[0].getX();
+		double ymin = vertexPositions[0].getY();
+		double ymax = vertexPositions[0].getY();
+		
+		for (int i = 1; i < vertexPositions.length; i++)
+		{
+			Position v = vertexPositions[i];
+			
+			if (v.getX() > xmax) xmax = v.getX();
+			else if (v.getX() < xmin) xmin = v.getX();
+			if (v.getY() > ymax) ymax = v.getY();
+			else if (v.getY() < ymin) ymin = v.getY();
+		}
+		
+		return new AABB(xmin, ymin, xmax, ymax);
+	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		cd.set(ParserKeys.shapetype, "rectangle");
-		cd.set(ParserKeys.width, width);
-		cd.set(ParserKeys.height, height);
-		cd.set(ParserKeys.rotation, position.getRotation());
-		cd.set(ParserKeys.x, position.getPosition().getX());
-		cd.set(ParserKeys.y, position.getPosition().getY());
-		return cd;
+	public Shape scale(double scaleFactor) {
+		return new Rectangle(position, width * scaleFactor, height * scaleFactor);
 	}
 }

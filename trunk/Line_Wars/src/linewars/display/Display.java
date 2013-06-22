@@ -3,6 +3,7 @@ package linewars.display;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -12,38 +13,57 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
+import linewars.display.IconConfiguration.IconType;
+import linewars.display.layers.FlowIndicator;
 import linewars.display.layers.GraphLayer;
 import linewars.display.layers.ILayer;
 import linewars.display.layers.MapItemLayer;
 import linewars.display.layers.MapItemLayer.MapItemType;
+import linewars.display.layers.SoundLayer;
 import linewars.display.layers.TerrainLayer;
 import linewars.display.panels.CommandCardPanel;
 import linewars.display.panels.ExitButtonPanel;
 import linewars.display.panels.NodeStatusPanel;
 import linewars.display.panels.ResourceDisplayPanel;
+import linewars.display.panels.TechButtonPanel;
 import linewars.display.panels.TechPanel;
+import linewars.display.sound.SoundPlayer;
 import linewars.gameLogic.GameStateProvider;
 import linewars.gamestate.BezierCurve;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Lane;
+import linewars.gamestate.Map;
 import linewars.gamestate.Node;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
-import linewars.gamestate.mapItems.CommandCenter;
+import linewars.gamestate.Race;
+import linewars.gamestate.mapItems.Building;
+import linewars.gamestate.mapItems.MapItemState;
+import linewars.gamestate.playerabilities.PlayerAbility;
 import linewars.gamestate.shapes.Rectangle;
+import linewars.gamestate.tech.TechGraph;
+import linewars.gamestate.tech.TechGraph.TechNode;
 import linewars.network.MessageReceiver;
-import linewars.network.messages.AdjustFlowDistributionMessage;
+import linewars.network.messages.Message;
+import linewars.network.messages.PlayerAbilityMessage;
+import menu.GameInitializer.LoadingProgress;
+import menu.WindowManager;
+import configuration.Configuration;
+import configuration.Property;
+import configuration.Usage;
 
 /**
  * Encapsulates the display information.
@@ -52,7 +72,7 @@ import linewars.network.messages.AdjustFlowDistributionMessage;
  * @author Ryan Tew
  */
 @SuppressWarnings("serial")
-public class Display extends JFrame implements Runnable
+public class Display
 {
 	private static final boolean DEBUG_MODE = false;
 
@@ -69,11 +89,16 @@ public class Display extends JFrame implements Runnable
 	private MessageReceiver messageReceiver;
 	private GamePanel gamePanel;
 
-	private int adjustingFlowDist;
-	private boolean adjustingFlow1;
 	private boolean clicked;
+	private int loadedCount;
+	
+	private boolean showUnderlays;
 
 	private int playerIndex;
+	private int activeAbilityIndex;
+	private Position activeAbilityPosition;
+	
+	private WindowManager windowManager;
 
 	/**
 	 * Creates and initializes the Display.
@@ -85,31 +110,29 @@ public class Display extends JFrame implements Runnable
 	 * @param curPlayer
 	 *            The index of the player this Display belongs to.
 	 */
-	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer)
+	public Display(GameStateProvider provider, MessageReceiver receiver, int curPlayer, LoadingProgress progress, WindowManager wm)
 	{
-		super("Line Wars");
-
+		windowManager = wm;
 		playerIndex = curPlayer;
-		adjustingFlowDist = -1;
+		activeAbilityIndex = -1;
+		activeAbilityPosition = null;
 		clicked = false;
 
 		messageReceiver = receiver;
 		gameStateProvider = provider;
-		gamePanel = new GamePanel();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setContentPane(gamePanel);
-		setSize(new Dimension(800, 600));
-		setUndecorated(true);
+		gamePanel = new GamePanel(progress);
 	}
 
-	@Override
-	public void run()
+	public void exitGame()
 	{
-		// shows the display
-		setVisible(true);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		windowManager.exitGame();
 	}
-
+	
+	public JPanel getGamePanel()
+	{
+		return gamePanel;
+	}
+	
 	/**
 	 * Gets the width of the GamePanel.
 	 * 
@@ -117,7 +140,10 @@ public class Display extends JFrame implements Runnable
 	 */
 	public int getScreenWidth()
 	{
-		return gamePanel.getWidth();
+		if(gamePanel == null)
+			return 0;
+		else
+			return gamePanel.getWidth();
 	}
 
 	/**
@@ -127,7 +153,20 @@ public class Display extends JFrame implements Runnable
 	 */
 	public int getScreenHeight()
 	{
-		return gamePanel.getHeight();
+		if(gamePanel == null)
+			return 0;
+		else
+			return gamePanel.getHeight();
+	}
+	
+	public void setActiveAbilityIndex(int index)
+	{
+		activeAbilityIndex = index;
+	}
+	
+	public void setActiveAbilityPos(Position p)
+	{
+		activeAbilityPosition = p;
 	}
 
 	/**
@@ -157,6 +196,198 @@ public class Display extends JFrame implements Runnable
 		return new Position((gameCoord.getX() - gamePanel.viewport.getX()) * scale,
 				(gameCoord.getY() - gamePanel.viewport.getY()) * scale);
 	}
+	
+	public void loadDisplayResources(LoadingProgress progress)
+	{
+		GameState state = gameStateProvider.getCurrentGameState();
+		ArrayList<Configuration> countedConfigs = new ArrayList<Configuration>();
+		ArrayList<Configuration> loadedConfigs = new ArrayList<Configuration>();
+		
+		ArrayList<Configuration> configs = new ArrayList<Configuration>();
+		for(Player p : state.getPlayers())
+		{
+			configs.add(p.getRace());
+			
+		}
+
+		int total = 0;
+		for(Configuration c : configs)
+		{
+			total += countDisplayResourcesRecursive(c, countedConfigs);
+		}
+		
+		progress.setMaxValue(total);
+		
+		loadedCount = 0;
+		for(Configuration c : configs)
+		{
+			loadDisplayResourcesRecursive(progress, c, loadedConfigs);
+		}
+	}
+	
+	private int countDisplayResourcesRecursive(Configuration config, ArrayList<Configuration> countedConfigs)
+	{
+		if(countedConfigs.contains(config) || config == null)
+			return 0;
+		
+		countedConfigs.add(config);
+		
+		int total = 0;
+		for(String s : config.getPropertyNames())
+		{
+			Property p = config.getPropertyForName(s);
+			if(p.getUsage() == Usage.CONFIGURATION)
+			{
+				Configuration c = (Configuration)p.getValue();
+				
+				if(c instanceof DisplayConfiguration)
+				{
+					total += countDisplayResourcesFromConfiguration((DisplayConfiguration)c);
+				}
+				else if(c instanceof IconConfiguration)
+				{
+					++total;
+				}
+				else
+				{
+					total += countDisplayResourcesRecursive(c, countedConfigs);
+				}
+			}
+			else if(p.getUsage() == Usage.ANIMATION)
+			{
+				++total;
+			}
+			else if(p.getValue() instanceof TechGraph)
+			{
+				TechGraph tg = (TechGraph) p.getValue();
+				for(TechNode tn : tg.getOrderedList())
+					total += countDisplayResourcesRecursive(tn.getTechConfig(), countedConfigs);
+			}
+		}
+		
+		return total;
+	}
+	
+	private void loadDisplayResourcesRecursive(LoadingProgress progress, Configuration config, ArrayList<Configuration> loadedConfigs)
+	{
+		if(loadedConfigs.contains(config) || config == null)
+			return;
+		
+		loadedConfigs.add(config);
+		
+		for(String s : config.getPropertyNames())
+		{
+			Property p = config.getPropertyForName(s);
+			if(p.getUsage() == Usage.CONFIGURATION)
+			{
+				Configuration c = (Configuration)p.getValue();
+				
+				if(c instanceof DisplayConfiguration)
+				{
+					loadDisplayResourcesFromConfiguration(progress, (DisplayConfiguration)c);
+				}
+				else if(c instanceof IconConfiguration)
+				{
+					for(IconType t : ((IconConfiguration)c).getIconTypes())
+					{
+						try
+						{
+							ImageDrawer.getInstance().addImage(((IconConfiguration)c).getIconURI(t));
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				else
+				{
+					loadDisplayResourcesRecursive(progress, c, loadedConfigs);
+				}
+			}
+			else if(p.getUsage() == Usage.ANIMATION)
+			{
+				((Animation)p.getValue()).loadAnimationResources();
+				progress.updateValue(++loadedCount);
+			}
+			else if(p.getValue() instanceof TechGraph)
+			{
+				TechGraph tg = (TechGraph) p.getValue();
+				for(TechNode tn : tg.getOrderedList())
+					loadDisplayResourcesRecursive(progress, tn.getTechConfig(), loadedConfigs);
+			}
+		}
+	}
+	
+	private int countDisplayResourcesFromConfiguration(DisplayConfiguration config)
+	{
+		int total = 0;
+		for(MapItemState state : config.getDefinedStates())
+		{
+			Animation anim = config.getAnimation(state);
+			String sound = config.getSound(state);
+			
+			if(anim != null)
+			{
+				++total;
+			}
+			
+			if(sound != null)
+			{
+				++total;
+			}
+		}
+		
+		return total;
+	}
+
+	private void loadDisplayResourcesFromConfiguration(LoadingProgress progress, DisplayConfiguration config)
+	{
+		for(MapItemState state : config.getDefinedStates())
+		{
+			Animation anim = config.getAnimation(state);
+			String sound = config.getSound(state);
+			
+			if(anim != null)
+			{
+				anim.loadAnimationResources();
+				progress.updateValue(++loadedCount);
+			}
+			
+			if(sound != null)
+			{
+				try
+				{
+					SoundPlayer.getInstance().addSound(sound);
+				}
+				catch (UnsupportedAudioFileException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				
+				progress.updateValue(++loadedCount);
+			}
+		}
+	}
+	
+	public boolean showUnderlays()
+	{
+		return showUnderlays;
+	}
+	
+	public void setShowingUnderlays(boolean b)
+	{
+		showUnderlays = b;
+	}
+	
+	public void toggleUnderlays()
+	{
+		showUnderlays = !showUnderlays;
+	}
 
 	/**
 	 * The main content panel for the main window. It is responsible for drawing
@@ -166,6 +397,8 @@ public class Display extends JFrame implements Runnable
 	{
 		private List<ILayer> strategicView;
 		private List<ILayer> tacticalView;
+		
+		private FlowIndicator flowLayer;
 
 		/**
 		 * Measures how much the user has zoomed in, where 100% is fully zoomed
@@ -183,6 +416,7 @@ public class Display extends JFrame implements Runnable
 		private ResourceDisplayPanel resourceDisplayPanel;
 		private NodeStatusPanel nodeStatusPanel;
 		private TechPanel techPanel;
+		private TechButtonPanel techButtonPanel;
 		
 		private boolean panLeft;
 		private boolean panRight;
@@ -190,18 +424,20 @@ public class Display extends JFrame implements Runnable
 		private boolean panDown;
 
 		private long lastTime;
+		
+		private boolean displayedWin = false;
 
 		/**
 		 * Constructs and initializes this GamePanel
 		 */
-		public GamePanel()
+		public GamePanel(LoadingProgress progress)
 		{
 			super(null);
 
 			// starts the user fully zoomed out
 			zoomLevel = 1;
 
-			mousePosition = null;
+			mousePosition = new Position(0,0);
 			lastClickPosition = null;
 			
 			panLeft = false;
@@ -211,62 +447,55 @@ public class Display extends JFrame implements Runnable
 
 			// ignores system generated repaints
 			setIgnoreRepaint(true);
+			setOpaque(false);
 
-			// get the map parser from the gamestate
-			gameStateProvider.lockViewableGameState();
-
-			GameState state = gameStateProvider.getCurrentGameState();
-			ConfigData mapParser = state.getMap().getParser();
-			int numPlayers = state.getNumPlayers();
-
-			// calculates the visible screen size based off of the zoom level
-			double mapWidth = mapParser.getNumber(ParserKeys.imageWidth);
-			double mapHeight = mapParser.getNumber(ParserKeys.imageHeight);
-			mapSize = new Dimension();
-			mapSize.setSize(mapWidth, mapHeight);
-
-			Dimension2D visibleSize = new Dimension();
-			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
-			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
-
-			gameStateProvider.unlockViewableGameState();
-
-			// add the map image to the MapItemDrawer
-			String mapURI = mapParser.getString(ParserKeys.icon);
-
-			ConfigData leftUIPanel = null;
-			ConfigData rightUIPanel = null;
-			ConfigData exitButton = null;
-			ConfigData exitButtonClicked = null;
+			Animation emptyButton = null;
+			Animation clickedButton = null;
+			Animation leftUIPanel = null;
+			Animation rightUIPanel = null;
+			Animation exitButton = null;
+			Animation exitButtonClicked = null;
+			Animation techPanelActivate = null;
+			Animation techPanelDisable = null;
+			Animation techPanelBackground = null;
+			Animation techPanelArrow = null;
+			Animation techTabRegular = null;
+			Animation techTabPressed = null;
+			Animation techButtonLocked = null;
 			try
 			{
-				leftUIPanel = new ConfigFileReader("resources/animations/left_ui_panel.cfg").read();
-				rightUIPanel = new ConfigFileReader("resources/animations/right_ui_panel.cfg").read();
-				exitButton = new ConfigFileReader("resources/animations/Exit_Button.cfg").read();
-				exitButtonClicked = new ConfigFileReader("resources/animations/Exit_Button_Clicked.cfg").read();
+				emptyButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/EmptyButton.cfg"))).readObject();
+				clickedButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/ClickedButton.cfg"))).readObject();
+				leftUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/left_ui_panel.cfg"))).readObject();
+				rightUIPanel = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/right_ui_panel.cfg"))).readObject();
+				exitButton = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button.cfg"))).readObject();
+				exitButtonClicked = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/Exit_Button_Clicked.cfg"))).readObject();
+				techPanelActivate = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_activate.cfg"))).readObject();
+				techPanelDisable = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_disable.cfg"))).readObject();
+				techPanelBackground = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel.cfg"))).readObject();
+				techPanelArrow = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/tech_panel_arrow.cfg"))).readObject();
+				techTabRegular = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/UnclickedTechTab.cfg"))).readObject();
+				techTabPressed = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/ClickedTechTab.cfg"))).readObject();
+				techButtonLocked = (Animation)new ObjectInputStream(new FileInputStream(new File("resources/animations/emptyIconLocked.cfg"))).readObject();
 			}
 			catch (FileNotFoundException e)
 			{
 				e.printStackTrace();
 			}
-			catch (InvalidConfigFileException e)
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ClassNotFoundException e)
 			{
 				e.printStackTrace();
 			}
 
-			setOpaque(false);
+			gameStateProvider.lockViewableGameState();
+			
+			loadDisplayResources(progress);
 
-			strategicView = new ArrayList<ILayer>(2);
-			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
-
-			tacticalView = new ArrayList<ILayer>();
-			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
-			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
-			tacticalView.add(new MapItemLayer(MapItemType.LANEBORDER, Display.this));
-
-			commandCardPanel = new CommandCardPanel(Display.this, gameStateProvider, messageReceiver, rightUIPanel);
+			commandCardPanel = new CommandCardPanel(Display.this, playerIndex, gameStateProvider, messageReceiver, "BuildIcon.png", "TrashIcon.png", emptyButton, clickedButton, rightUIPanel);
 			add(commandCardPanel);
 			nodeStatusPanel = new NodeStatusPanel(Display.this, gameStateProvider, leftUIPanel);
 			add(nodeStatusPanel);
@@ -274,8 +503,49 @@ public class Display extends JFrame implements Runnable
 			add(resourceDisplayPanel);
 			exitButtonPanel = new ExitButtonPanel(Display.this, gameStateProvider, exitButton, exitButtonClicked);
 			add(exitButtonPanel);
-			techPanel = new TechPanel(Display.this, gameStateProvider);
+			techPanel = new TechPanel(Display.this, gameStateProvider, playerIndex, messageReceiver, techTabRegular, techTabPressed, 
+					emptyButton, clickedButton, techButtonLocked, techPanelBackground, techPanelArrow);
 			add(techPanel);
+			techButtonPanel = new TechButtonPanel(techPanel, Display.this, gameStateProvider, techPanelActivate, techPanelDisable);
+			add(techButtonPanel);
+			
+			ToolTipManager.sharedInstance().setInitialDelay(0);
+
+			GameState state = gameStateProvider.getCurrentGameState();
+			Map map = state.getMap();
+			int numPlayers = state.getNumPlayers();
+
+			// calculates the visible screen size based off of the zoom level
+			Position mapDim = map.getDimensions();
+			double mapWidth = mapDim.getX();
+			double mapHeight = mapDim.getY();
+			mapSize = new Dimension();
+			mapSize.setSize(mapWidth, mapHeight);
+
+			Dimension2D visibleSize = new Dimension();
+			visibleSize.setSize(zoomLevel * mapSize.getWidth(), zoomLevel * mapSize.getHeight());
+			viewport = new Rectangle2D.Double(0, 0, visibleSize.getWidth(), visibleSize.getHeight());
+
+			// add the map image to the TerrainLayer
+			String mapURI = map.getConfig().getImageURI();
+
+			gameStateProvider.unlockViewableGameState();
+			
+			SoundLayer sound = new SoundLayer(new String[]{"Guitar_test_riff.wav"});
+			flowLayer = new FlowIndicator(Display.this, playerIndex, messageReceiver);
+
+			strategicView = new ArrayList<ILayer>(2);
+			strategicView.add(sound);
+			strategicView.add(new GraphLayer(Display.this, playerIndex, numPlayers));
+			strategicView.add(flowLayer);
+
+			tacticalView = new ArrayList<ILayer>();
+			tacticalView.add(sound);
+			tacticalView.add(new TerrainLayer(mapURI, Display.this, mapWidth, mapHeight));
+			tacticalView.add(new MapItemLayer(MapItemType.BUILDING, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.UNIT, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.PROJECTILE, Display.this));
+			tacticalView.add(new MapItemLayer(MapItemType.LANEBORDER, Display.this));
 
 			addComponentListener(new ResizeListener());
 
@@ -287,6 +557,9 @@ public class Display extends JFrame implements Runnable
 			
 			KeyboardHandler keyListener = new KeyboardHandler();
 			addKeyListener(keyListener);
+			
+			setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			validate();
 		}
 
 		/**
@@ -304,8 +577,23 @@ public class Display extends JFrame implements Runnable
 
 			gameStateProvider.lockViewableGameState();
 			GameState gamestate = gameStateProvider.getCurrentGameState();
+			
+			if (gamestate.getWinningPlayer() != null && !displayedWin)
+			{
+				displayedWin = true;
+				if (gamestate.getPlayer(playerIndex) == gamestate.getWinningPlayer())
+				{
+					JOptionPane.showMessageDialog(this, "You won", "You won", JOptionPane.PLAIN_MESSAGE);
+					exitGame();
+				} else
+				{
+					JOptionPane.showMessageDialog(this, "You lost", "You lost", JOptionPane.PLAIN_MESSAGE);
+					exitGame();
+				}
+			}
 
 			detectFlowIndicatorChange(gamestate);
+			playerAbilityCheck(gamestate);
 
 			List<ILayer> currentView = (zoomLevel > ZOOM_THRESHOLD) ? strategicView : tacticalView;
 
@@ -336,6 +624,41 @@ public class Display extends JFrame implements Runnable
 			gameStateProvider.unlockViewableGameState();
 
 			this.repaint();
+		}
+		
+		private void playerAbilityCheck(GameState state)
+		{
+			if(activeAbilityIndex == -1)
+			{
+				activeAbilityPosition = null;
+				return;
+			}
+			
+			List<PlayerAbility> abilities = state.getPlayer(playerIndex).getAllPlayerAbilities();
+			if(activeAbilityIndex >= abilities.size())
+			{
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+				return;
+			}
+			
+			PlayerAbility ability = abilities.get(activeAbilityIndex);
+			if(!ability.requiresPosition())
+			{
+				Message m = new PlayerAbilityMessage(playerIndex, activeAbilityIndex);
+				messageReceiver.addMessage(m);
+				
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+			}
+			else if(activeAbilityPosition != null)
+			{
+				Message m = new PlayerAbilityMessage(playerIndex, activeAbilityIndex, activeAbilityPosition);
+				messageReceiver.addMessage(m);
+				
+				activeAbilityIndex = -1;
+				activeAbilityPosition = null;
+			}
 		}
 
 		/**
@@ -382,54 +705,17 @@ public class Display extends JFrame implements Runnable
 
 					if(point1.subtract(clickPos).length() <= 10)
 					{
-						adjustingFlowDist = i;
-						adjustingFlow1 = true;
+						flowLayer.setSelectedLane(i);
+						flowLayer.setAdjustingFlow1(true);
 						break;
 					}
 					else if(point2.subtract(clickPos).length() <= 10)
 					{
-						adjustingFlowDist = i;
-						adjustingFlow1 = false;
+						flowLayer.setSelectedLane(i);
+						flowLayer.setAdjustingFlow1(false);
 						break;
 					}
 				}
-			}
-			else if(adjustingFlowDist != -1)
-			{
-				double flow = 0;
-				BezierCurve curve = lanes[adjustingFlowDist].getCurve();
-				int startNode;
-				if(adjustingFlow1)
-				{
-					Position p0 = toScreenCoord(curve.getP0());
-					Position axis = toScreenCoord(curve.getP1()).subtract(p0).normalize();
-					Position ray = mousePosition.subtract(p0);
-
-					flow = ray.length() * axis.dot(ray.normalize()) / 2;
-					if(flow > 100)
-						flow = 100;
-					if(flow < 0)
-						flow = 0;
-
-					startNode = lanes[adjustingFlowDist].getNodes()[0].getID();
-				}
-				else
-				{
-					Position p3 = toScreenCoord(curve.getP3());
-					Position axis = toScreenCoord(curve.getP2()).subtract(p3).normalize();
-					Position ray = mousePosition.subtract(p3);
-
-					flow = ray.length() * axis.dot(ray.normalize()) / 2;
-					if(flow > 100)
-						flow = 100;
-					if(flow < 0)
-						flow = 0;
-
-					startNode = lanes[adjustingFlowDist].getNodes()[1].getID();
-				}
-
-				messageReceiver.addMessage(new AdjustFlowDistributionMessage(playerIndex, adjustingFlowDist, flow,
-						startNode));
 			}
 		}
 
@@ -525,23 +811,22 @@ public class Display extends JFrame implements Runnable
 			if(node == null)
 			{
 				nodeStatusPanel.setVisible(false);
-				commandCardPanel.setVisible(false);
+				commandCardPanel.updateButtons(gamestate, null);
 			}
 			else
 			{
-				CommandCenter cc = node.getCommandCenter();
+				Building cc = node.getCommandCenter();
 
 				nodeStatusPanel.setVisible(true);
 				nodeStatusPanel.updateNodeStatus(node, gamestate.getTime() * 1000);
 
 				if(cc == null || (cc.getOwner().getPlayerID() != playerIndex && !DEBUG_MODE))
 				{
-					commandCardPanel.setVisible(false);
+					commandCardPanel.updateButtons(gamestate, null);
 				}
 				else
 				{
-					commandCardPanel.setVisible(true);
-					commandCardPanel.updateButtons(cc, node);
+					commandCardPanel.updateButtons(gamestate, node);
 				}
 
 				int recX;
@@ -551,11 +836,14 @@ public class Display extends JFrame implements Runnable
 				if(zoomLevel <= ZOOM_THRESHOLD && cc != null)
 				{
 					Position p = cc.getPosition();
+					Position size = ((DisplayConfiguration)cc.getDefinition().getDisplayConfiguration()).getDimensions();
+					double width = size.getX();
+					double height = size.getY();
 
-					recX = (int)(p.getX() - cc.getWidth() / 2);
-					recY = (int)(p.getY() - cc.getHeight() / 2);
-					recW = (int)(cc.getWidth() * scale);
-					recH = (int)(cc.getHeight() * scale);
+					recX = (int)(p.getX() - width / 2);
+					recY = (int)(p.getY() - height / 2);
+					recW = (int)(width * scale);
+					recH = (int)(height * scale);
 				}
 				else
 				{
@@ -668,6 +956,7 @@ public class Display extends JFrame implements Runnable
 				resourceDisplayPanel.updateLocation();
 				exitButtonPanel.updateLocation();
 				techPanel.updateLocation();
+				techButtonPanel.updateLocation();
 			}
 		}
 
@@ -693,7 +982,8 @@ public class Display extends JFrame implements Runnable
 			{
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				lastClickPosition = toGameCoord(p);
-				adjustingFlowDist = -1;
+				flowLayer.deselectLane();
+				setActiveAbilityPos(lastClickPosition);
 			}
 
 			@Override
@@ -701,12 +991,15 @@ public class Display extends JFrame implements Runnable
 			{
 				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
 				mousePosition = p;
+				flowLayer.setMousePos(p);
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent e)
 			{
-				mousePosition = new Position(e.getPoint().getX(), e.getPoint().getY());
+				Position p = new Position(e.getPoint().getX(), e.getPoint().getY());
+				mousePosition = p;
+				flowLayer.setMousePos(p);
 			}
 
 			@Override
@@ -749,17 +1042,22 @@ public class Display extends JFrame implements Runnable
 				switch(code)
 				{
 				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_A:
 					panLeft = true;
 					break;
 				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_D:
 					panRight = true;
 					break;
 				case KeyEvent.VK_UP:
+				case KeyEvent.VK_W:
 					panUp = true;
 					break;
 				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_S:
 					panDown = true;
 					break;
+				
 				}
 			}
 			
@@ -770,16 +1068,25 @@ public class Display extends JFrame implements Runnable
 				switch(code)
 				{
 				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_A:
 					panLeft = false;
 					break;
 				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_D:
 					panRight = false;
 					break;
 				case KeyEvent.VK_UP:
+				case KeyEvent.VK_W:
 					panUp = false;
 					break;
 				case KeyEvent.VK_DOWN:
+				case KeyEvent.VK_S:
 					panDown = false;
+					break;
+				case KeyEvent.VK_CONTROL:
+				case KeyEvent.VK_ALT:
+				case KeyEvent.VK_TAB:
+					setShowingUnderlays(!showUnderlays());
 					break;
 				}
 			}

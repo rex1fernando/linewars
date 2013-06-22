@@ -1,16 +1,18 @@
 package linewars.gamestate.mapItems.abilities;
 
-import java.io.FileNotFoundException;
+import utility.Observable;
+import utility.Observer;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
-import linewars.configfilehandler.ParserKeys;
-import linewars.gamestate.Player;
+import linewars.gamestate.Node;
+import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.Building;
 import linewars.gamestate.mapItems.BuildingDefinition;
-import linewars.gamestate.mapItems.CommandCenter;
-import linewars.gamestate.mapItems.CommandCenterDefinition;
 import linewars.gamestate.mapItems.MapItem;
-import linewars.gamestate.mapItems.MapItemDefinition;
+import linewars.gamestate.mapItems.MapItemState;
+import configuration.Usage;
+import editor.abilitiesstrategies.AbilityStrategyEditor;
+import editor.abilitiesstrategies.EditorProperty;
+import editor.abilitiesstrategies.EditorUsage;
 
 /**
  * 
@@ -19,17 +21,92 @@ import linewars.gamestate.mapItems.MapItemDefinition;
  * This class represents the definition for an ability that constructs
  * a building. Knows what buiding it contructs.
  */
-public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
+public strictfp class ConstructBuildingDefinition extends AbilityDefinition implements Observer {
 	
-	private BuildingDefinition buildingDefinition = null;
-	private ConfigData parser;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2267724322796418793L;
+
+	static {
+		AbilityDefinition.setAbilityConfigMapping("Construct Building", ConstructBuildingDefinition.class, AbilityStrategyEditor.class);
+	}
 	
-	public ConstructBuildingDefinition(ConfigData cd, Player owner, int ID)
+	private BuildingDefinition buildingDefinition;
+	
+	public strictfp class ConstructBuilding implements Ability, ProgressAbility {
+
+		private long startTime;
+		private boolean built = false;
+		private Building building = null;
+		
+		/**
+		 * Creates the ability that constructs a building in node n
+		 * using definition bd.
+		 * 
+		 * @param n
+		 * @param bd
+		 */
+		private ConstructBuilding(Building sponsor)
+		{
+			Node n = sponsor.getNode();
+			startTime = (long) (sponsor.getGameState().getTime()*1000);
+			
+			Transformation t = n.getNextAvailableBuildingSpot();
+			//can't construct the building
+			if(t == null || sponsor.getOwner().getStuff() < buildingDefinition.getCost())
+			{
+				built = true;
+				return;
+			}
+			
+			sponsor.getOwner().spendStuff(buildingDefinition.getCost());
+			
+			building = buildingDefinition.createMapItem(t, sponsor.getOwner(), sponsor.getGameState());
+			building.setState(MapItemState.Constructing);
+			if(!n.addBuilding(building))
+				throw new RuntimeException("This should never happen: the building was not placed correctly.");
+			building.getOwner().addMapItem(building);
+		}
+		
+		@Override
+		public void update() {
+			if(!built && (long) (building.getGameState().getTime()*1000) - startTime >= buildingDefinition.getBuildTime())
+			{
+				built = true;
+				building.setState(MapItemState.Idle);
+			}
+		}
+
+		@Override
+		public boolean killable() {
+			return true;
+		}
+
+		@Override
+		public boolean finished() {
+			return built;
+		}
+
+		@Override
+		public double getProgress() {
+			return (building.getGameState().getTime()*1000 - startTime)/buildingDefinition.getBuildTime();
+		}
+
+	}
+	
+	public ConstructBuildingDefinition()
 	{
-		super(ID);
-		parser = cd;
-		this.owner = owner;
-		this.forceReloadConfigData();
+		super.setPropertyForName("buildingDefinition", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.BuildingConfig, "The building to build"));
+		this.addObserver(this);
+	}
+	
+	public ConstructBuildingDefinition(BuildingDefinition bd)
+	{
+		this.addObserver(this);
+		super.setPropertyForName("buildingDefinition", new EditorProperty(Usage.CONFIGURATION, 
+				null, EditorUsage.BuildingConfig, "The building to build").makeCopy(bd));
 	}
 
 	@Override
@@ -39,15 +116,10 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 
 	@Override
 	public Ability createAbility(MapItem m) {
-		if(!(m instanceof CommandCenter))
-			throw new IllegalArgumentException("The input argument m must be a CommandCenter.");
+		if(!(m instanceof Building))
+			throw new IllegalArgumentException("Only building can build buildings.");
 		
-		return new ConstructBuilding(((CommandCenter)m).getNode(), buildingDefinition);
-	}
-
-	@Override
-	public boolean unlocked() {
-		return true;
+		return new ConstructBuilding((Building)m);
 	}
 
 	@Override
@@ -71,44 +143,9 @@ public strictfp class ConstructBuildingDefinition extends AbilityDefinition {
 	}
 
 	@Override
-	public boolean checkValidity() {
-		return (buildingDefinition != null);
-	}
-
-	@Override
-	public String getIconURI() {
-		return buildingDefinition.getParser().getString(ParserKeys.icon);
-	}
-
-	@Override
-	public String getPressedIconURI() {
-		return buildingDefinition.getParser().getString(ParserKeys.pressedIcon);
-	}
-
-	@Override
-	public String getRolloverIconURI() {
-		return buildingDefinition.getParser().getString(ParserKeys.rolloverIcon);
-	}
-
-	@Override
-	public String getSelectedIconURI() {
-		return buildingDefinition.getParser().getString(ParserKeys.selectedIcon);
-	}
-
-	@Override
-	public ConfigData getParser() {
-		return parser;
-	}
-
-	@Override
-	public void forceReloadConfigData() {
-		try {
-			buildingDefinition = owner.getBuildingDefinition(parser.getString(ParserKeys.buildingURI));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (InvalidConfigFileException e) {
-			e.printStackTrace();
-		}		
+	public void update(Observable arg0, Object arg1) {
+		if(arg0 == this && arg1.equals("buildingDefinition"))
+			buildingDefinition = (BuildingDefinition)super.getPropertyForName("buildingDefinition").getValue();
 	}
 
 }

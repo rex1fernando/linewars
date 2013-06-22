@@ -1,53 +1,52 @@
 package editor;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
 
 public interface ConfigurationEditor {
 
 	/**
-	 * Attempts to load the config data object cd. Throws an exception
+	 * Attempts to load the config object cd. Throws an exception
 	 * if the data is corrupted and cannot be loaded.
 	 * 
 	 * @param cd
 	 */
-	public void setData(ConfigData cd);
+	public void setData(Configuration cd);
 	
 	/**
-	 * Forces the editor to load the config data object even if it
-	 * is corrupted. The editor will ignore corrupted data and
-	 * only load valid data.
+	 * Instantiates a new configuration object (asking the user if the
+	 * specific type is not immediately known) and returns that object.
+	 * @return 
+	 */
+	public Configuration instantiateNewConfiguration();
+	
+	/**
+	 * Resets the editor to a blank slate
+	 */
+	public void resetEditor();
+	
+	/**
+	 * Takes in a configuration object and puts all of the data currently in
+	 * the fields in the editor into the configuration object. Returns the
+	 * type of the configuration object. If the configuration object does not
+	 * match the type of configuration being edited in the editor, this method
+	 * will throw an exception.
 	 * 
-	 * @param cd
+	 * @param toSet TODO
+	 * @return	the config object associated with the data in the editor
 	 */
-	public void forceSetData(ConfigData cd);
-	
-	/**
-	 * Resets the editor to an empty configuration
-	 */
-	public void reset();
-	
-	/**
-	 * 
-	 * @return	the ConfigData object associated with the data in the editor
-	 */
-	public ConfigData getData();
-	
-	/**
-	 * 
-	 * @return	true if the data in the editor is valid for the configData being specified,
-	 * false otherwise
-	 */
-	public boolean isValidConfig();
+	public ConfigType getData(Configuration toSet);
 	
 	/**
 	 * 
-	 * @return	the parserKey that represents the configData object configured
+	 * @return	the ConfigType that represents the config object configured
 	 * in this editor
 	 */
-	public ParserKeys getType();
+	public List<ConfigType> getAllLoadableTypes();
 	
 	/**
 	 * 

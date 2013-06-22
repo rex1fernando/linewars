@@ -1,8 +1,9 @@
 package linewars.gamestate.mapItems;
 
+import linewars.gamestate.GameState;
 import linewars.gamestate.Node;
+import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
 
 /**
  * 
@@ -24,8 +25,8 @@ public strictfp class Building extends MapItemAggregate {
 	 * @param def	the map item definition that created this building
 	 * @param n		the node that contains this building
 	 */
-	public Building(Transformation t, BuildingDefinition def) {
-		super(t, def);
+	public Building(Transformation t, BuildingDefinition def, Player owner, GameState gameState) {
+		super(t, def, gameState, owner);
 		definition = def;
 	}
 	
@@ -49,8 +50,14 @@ public strictfp class Building extends MapItemAggregate {
 	}
 
 	@Override
-	public CollisionStrategy getCollisionStrategy() {
-		return definition.getCollisionStrategy();
+	protected void setDefinition(MapItemDefinition<? extends MapItem> def) {
+		definition = (BuildingDefinition) def;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj) && (obj instanceof Building);
 	}
 
 }

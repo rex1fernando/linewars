@@ -4,7 +4,6 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import linewars.configfilehandler.ConfigData;
 import linewars.display.Animation;
 import linewars.display.ImageDrawer;
 import linewars.gameLogic.GameStateProvider;
@@ -49,7 +48,7 @@ public abstract class Panel extends JPanel
 	 * @param animations
 	 *            The list of animations for the panel.
 	 */
-	public Panel(GameStateProvider stateManager, int width, int height, ConfigData... animations)
+	public Panel(GameStateProvider stateManager, int width, int height, Animation... animations)
 	{
 		super(null);
 		setOpaque(false);
@@ -62,11 +61,10 @@ public abstract class Panel extends JPanel
 		setSize(panelWidth, panelHeight);
 
 		// check for correct animations
-		// if (animations == null || animations.length !=
-		// ANIMATION.values().length)
+		// if (animations == null || animations.length != ANIMATION.values().length)
 		// {
-		// throw new IllegalArgumentException("A Panel requires exactly " +
-		// ANIMATION.values().length + " animations!");
+		// 		throw new IllegalArgumentException("A Panel requires exactly " +
+		// 						ANIMATION.values().length + " animations!");
 		// }
 
 		this.stateManager = stateManager;
@@ -74,7 +72,8 @@ public abstract class Panel extends JPanel
 		this.animations = new Animation[animations.length];
 		for(int i = 0; i < animations.length; ++i)
 		{
-			this.animations[i] = new Animation(animations[i], "", width, height);
+			animations[i].loadAnimationResources();
+			this.animations[i] = animations[i];
 		}
 
 		if(this.animations.length != 0)
@@ -102,6 +101,7 @@ public abstract class Panel extends JPanel
 		if(curAnimation != null)
 		{
 			ImageDrawer.getInstance().draw(g, curAnimation.getImage(stateManager.getCurrentGameState().getTime(), 0.0),
+					panelWidth, panelHeight,
 					new Position(0, 0), scaleFactor);
 		}
 		

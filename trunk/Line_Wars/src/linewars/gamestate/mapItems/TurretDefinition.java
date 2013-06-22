@@ -1,33 +1,56 @@
 package linewars.gamestate.mapItems;
 
-import java.io.FileNotFoundException;
-
-import linewars.configfilehandler.ConfigFileReader.InvalidConfigFileException;
 import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Transformation;
-import linewars.gamestate.mapItems.strategies.turret.TurretStrategy;
+import linewars.gamestate.mapItems.strategies.turret.TurretStrategyConfiguration;
+import configuration.Property;
+import configuration.Usage;
 
 public class TurretDefinition extends MapItemDefinition<Turret> {
 	
-	private TurretStrategy turretStrat;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1210445672977764346L;
+	private TurretStrategyConfiguration turretStrat;
 
-	public TurretDefinition(String URI, Player owner,
-			GameState gameState) throws FileNotFoundException,
-			InvalidConfigFileException {
-		super(URI, owner, gameState);
-		// TODO Auto-generated constructor stub
+	public TurretDefinition() {
+		super();
+		super.setPropertyForName("turretStrat", new Property(Usage.CONFIGURATION));
 	}
 
 	@Override
-	public Turret createMapItem(Transformation t) {
-		return new Turret(t, this, turretStrat);
+	public Turret createMapItem(Transformation t, Player owner, GameState gameState) {
+		return new Turret(t, this, owner, gameState);
 	}
 
 	@Override
-	protected void forceSubclassReloadConfigData() {
-		//TODO load the turret strat
-		
+	protected void forceSubclassReloadConfiguration() {
+		turretStrat = (TurretStrategyConfiguration)super.getPropertyForName("turretStrat").getValue();
+	}
+	
+	public TurretStrategyConfiguration getTurretStratConfig()
+	{
+		return turretStrat;
+	}
+	
+	public void setTurretStratConfig(TurretStrategyConfiguration tsc)
+	{
+		super.setPropertyForName("turretStrat", new Property(Usage.CONFIGURATION, tsc));
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof TurretDefinition)
+		{
+			TurretDefinition td = (TurretDefinition) obj;
+			return super.equals(obj) &&
+					turretStrat.equals(td.turretStrat);
+		}
+		else
+			return false;
 	}
 
 }

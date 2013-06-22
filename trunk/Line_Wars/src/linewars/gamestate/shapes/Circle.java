@@ -1,8 +1,5 @@
 package linewars.gamestate.shapes;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -13,11 +10,12 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class Circle extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("circle", Circle.class);
-	}
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 862721029054393913L;
+
 	//the position of the Circle's center
 	private final Transformation position;
 	
@@ -34,21 +32,6 @@ public strictfp class Circle extends Shape {
 	public Circle(Transformation pos, double radius){
 		this.radius = radius;
 		position = pos;
-	}
-	
-	/**
-	 * Constructs a Circle from the data in the ConfigData object
-	 * @param config
-	 */
-	public Circle(ConfigData config){
-		radius = config.getNumber(ParserKeys.radius);
-		double rotation = 0;
-		try{
-			rotation = Math.PI * config.getNumber(ParserKeys.rotation);
-		}catch(NoSuchKeyException e){
-			//just means rotation wasn't set, so it is 0 by default
-		}
-		position = new Transformation(new Position(config.getNumber(ParserKeys.x), config.getNumber(ParserKeys.y)), rotation);
 	}
 
 	@Override
@@ -78,7 +61,7 @@ public strictfp class Circle extends Shape {
 	public Rectangle boundingRectangle() {
 		return new Rectangle(position, radius * 2, radius * 2);
 	}
-
+	
 	/**
 	 * Returns the radius of the circle.
 	 */
@@ -106,15 +89,19 @@ public strictfp class Circle extends Shape {
 		if(!(otherCircle.radius == radius)) return false;
 		return true;
 	}
+	
+	@Override
+	public AABB calculateAABB()
+	{
+		Position p = position.getPosition();
+		double x = p.getX();
+		double y = p.getY();
+		
+		return new AABB(x-radius, y-radius, x+radius, y+radius);
+	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData cd = new ConfigData();
-		cd.set(ParserKeys.shapetype, "circle");
-		cd.set(ParserKeys.radius, radius);
-		cd.set(ParserKeys.rotation, position.getRotation());
-		cd.set(ParserKeys.x, position.getPosition().getX());
-		cd.set(ParserKeys.y, position.getPosition().getY());
-		return cd;
+	public Shape scale(double scaleFactor) {
+		return new Circle(position, radius * scaleFactor);
 	}
 }

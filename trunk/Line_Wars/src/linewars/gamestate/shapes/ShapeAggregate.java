@@ -1,11 +1,7 @@
 package linewars.gamestate.shapes;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
 
@@ -18,10 +14,10 @@ import linewars.gamestate.Transformation;
  */
 public strictfp class ShapeAggregate extends Shape {
 	
-	static {
-		//Adds this Shape to the map of Shapes for lookup
-		Shape.addClassForInitialization("shapeaggregate", ShapeAggregate.class);
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7842467101379834276L;
 	
 	private Position center;
 	private ArrayList<Shape> members;
@@ -29,35 +25,6 @@ public strictfp class ShapeAggregate extends Shape {
 	
 	private Rectangle boundingRectangle = null;
 	private Circle boundingCircle = null;
-
-
-	/**
-	 * Constructs a ShapeAggregate on the given Parser.
-	 * This constructor expects to see a list of shape names mapped to
-	 * the ParserKeys.shapes key which each have a Parser mapped to them.
-	 * 
-	 * If the ParserKeys.rotation key is specified, that value will be the
-	 * default rotation of the ShapeAggregate; if it is not specified, it
-	 * to 0 (facing to the right).
-	 * 
-	 * @param p
-	 * The Parser which defines this ShapeAggregate
-	 */
-	public ShapeAggregate(ConfigData p){
-		center = new Position(0, 0);
-		
-		members = new ArrayList<Shape>();
-		List<ConfigData> list = p.getConfigList(ParserKeys.shapes);
-		for(ConfigData cfg : list){
-			members.add(Shape.buildFromParser(cfg));
-		}
-		
-		try{
-			rotation = p.getNumber(ParserKeys.rotation);			
-		}catch(NoSuchKeyException e){
-			rotation = 0;//defaults to 0
-		}
-	}
 	
 	public ShapeAggregate(Transformation center, ArrayList<Shape> shapes, ArrayList<Transformation> relativePositions){
 		this();
@@ -68,9 +35,10 @@ public strictfp class ShapeAggregate extends Shape {
 			
 			//final - initial
 			Transformation change = new Transformation(target.getPosition().subtract(current.getPosition()), target.getRotation() - current.getRotation());
-			members.add(currentShape.transform(change));
+			members.add(currentShape.transform(change).transform(center));
 		}
-		this.transform(center);
+		this.center = center.getPosition();
+		this.rotation = center.getRotation();
 	}
 
 	private ShapeAggregate() {
@@ -119,12 +87,13 @@ public strictfp class ShapeAggregate extends Shape {
 		
 		//for each Shape
 		for(int i = 0; i < members.size(); i++){
-			//translate by -1 * this.position
-			Shape atOrigin = members.get(i).transform(new Transformation(position().getPosition().scale(-1), 0));
-			//rotate by change
-			Shape rotated = atOrigin.transform(new Transformation(new Position(0, 0), change.getRotation()));
-			//translate by this.position and change
-			Shape finalShape = rotated.transform(new Transformation(change.getPosition().add(position().getPosition()), 0));
+			
+			Shape ithShape = members.get(i);
+			//compute how this sub-shape needs to be translated
+			Position targetLocation = ithShape.position().getPosition().rotateAboutPosition(position().getPosition(), change.getRotation());
+			targetLocation = targetLocation.add(change.getPosition());
+			Shape finalShape = members.get(i).transform(new Transformation(targetLocation.subtract(members.get(i).position().getPosition()), change.getRotation()));
+			
 			ret.members.add(finalShape);
 		}
 		ret.rotation = rotation + change.getRotation();
@@ -213,14 +182,52 @@ public strictfp class ShapeAggregate extends Shape {
 		}
 		return false;
 	}
+	
+	public AABB calculateAABB()
+	{
+		AABB aabb = members.get(0).getAABB();
+		double xMin = aabb.getXMin();
+		double xMax = aabb.getXMax();
+		double yMin = aabb.getYMin();
+		double yMax = aabb.getYMax();
+		
+		
+		for (Shape currentShape : members)
+		{
+			aabb = currentShape.getAABB();
+			
+			double newXMin = aabb.getXMin();
+			double newXMax = aabb.getXMax();
+			double newYMin = aabb.getYMin();
+			double newYMax = aabb.getYMax();
+			
+			if (xMin > newXMin) xMin = newXMin;
+			if (xMax < newXMax) xMax = newXMax;
+			if (yMin > newYMin) yMin = newYMin;
+			if (yMax < newYMax) yMax = newYMax;
+		}
+		
+		return new AABB(xMin, yMin, xMax, yMax);
+	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData ret = new ConfigData();
-		ret.set(ParserKeys.rotation, rotation);
-		for(Shape toAdd : members){
-			ret.add(ParserKeys.shapes, toAdd.getData());
+	public Shape scale(double scaleFactor) {
+		ArrayList<Transformation> relativePositions = new ArrayList<Transformation>();
+		for(Shape toScale : members){
+			toScale.scale(scaleFactor);
+			Position relativePosition = toScale.position().getPosition().subtract(center).scale(scaleFactor).add(center);
+			relativePositions.add(new Transformation(relativePosition, toScale.position().getRotation()));
 		}
-		return ret;
+		return new ShapeAggregate(new Transformation(center, rotation), members, relativePositions);
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj == null || !(obj instanceof ShapeAggregate)) return false;
+		ShapeAggregate other = (ShapeAggregate) obj;
+		return other.center.equals(center) &&
+				other.members.equals(members) &&
+				other.rotation == rotation;
 	}
 }

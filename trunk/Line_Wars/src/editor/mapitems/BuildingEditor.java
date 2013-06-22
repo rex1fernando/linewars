@@ -1,14 +1,22 @@
 package editor.mapitems;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ConfigData.NoSuchKeyException;
-import linewars.configfilehandler.ParserKeys;
-
+import linewars.display.IconConfiguration;
+import linewars.display.IconConfiguration.IconType;
+import linewars.gamestate.mapItems.BuildingDefinition;
+import configuration.Configuration;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.IconEditor;
 
@@ -35,6 +43,9 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	
 	//variables for the icons
 	private ConfigurationEditor icons;
+	private Configuration iconConfig;
+	
+	private JTextArea toolTip;
 	
 	/**
 	 * Constructs this building editor.
@@ -55,13 +66,33 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 		buildTimePanel.add(new JLabel("Build Time (ms):"));
 		buildTimePanel.add(buildTime);
 		
-		icons = new IconEditor();
+		//set up the tool tip panel
+		JPanel toolTipPanel = new JPanel();
+		toolTipPanel.add(new JLabel("Tooltip"));
+		toolTip = new JTextArea();
+		JScrollPane toolTipScroller = new JScrollPane(toolTip);
+		toolTipScroller.setPreferredSize(new Dimension(200, 100));
+		toolTipPanel.add(toolTipScroller);
+		
+		List<IconType> neededIcons = new ArrayList<IconType>();
+		List<String> iconDescriptions = new ArrayList<String>();
+		neededIcons.add(IconType.regular);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.highlighted);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.pressed);
+		iconDescriptions.add("");
+		neededIcons.add(IconType.rollover);
+		iconDescriptions.add("");
+		icons = new IconEditor(neededIcons, iconDescriptions);
+		iconConfig = icons.instantiateNewConfiguration();
 		
 		JPanel innerPanel = new JPanel();
 
 		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
 		innerPanel.add(costPanel);
 		innerPanel.add(buildTimePanel);
+		innerPanel.add(toolTipPanel);
 		innerPanel.add(icons.getPanel());
 		
 		JScrollPane scroller = new JScrollPane(innerPanel);
@@ -70,104 +101,61 @@ public class BuildingEditor extends JPanel implements ConfigurationEditor {
 	}
 
 	@Override
-	public void setData(ConfigData cd) {
-		setData(cd, false);
-	}
-
-	@Override
-	public void forceSetData(ConfigData cd) {
-		setData(cd, true);
+	public void setData(Configuration cd) {
+		BuildingDefinition bd = (BuildingDefinition)cd;
+		cost.setText(bd.getCost() + "");
+		buildTime.setText(bd.getBuildTime() + "");
+		iconConfig = bd.getIconConfig();
+		icons.setData(iconConfig);
+		toolTip.setText(bd.getToolTip());
 	}
 	
-	private void setData(ConfigData cd, boolean force)
+	public void resetEditor()
 	{
-		if(force)
-			icons.forceSetData(cd);
-		else
-			icons.setData(cd);
-		
-		try {
-			Double d = cd.getNumber(ParserKeys.cost);
-			if(d != null)
-				cost.setText(d.toString());
-			else if(!force)
-				throw new IllegalArgumentException("Cost not defined");
-			else
-				cost.setText("");
-		} catch(NoSuchKeyException e) {
-			if(!force)
-				throw new IllegalArgumentException("Cost not defined");
-			else
-				cost.setText("");
-		}
-		
-		try {
-			Double d = cd.getNumber(ParserKeys.buildTime);
-			if(d != null)
-				buildTime.setText(d.toString());
-			else if(!force)
-				throw new IllegalArgumentException("Build time not defined");
-			else
-				buildTime.setText("");
-		} catch(NoSuchKeyException e) {
-			if(!force)
-				throw new IllegalArgumentException("Build Time not defined");
-			else
-				buildTime.setText("");
-		}
-	}
-
-	@Override
-	public void reset() {
 		cost.setText("");
 		buildTime.setText("");
-		icons.reset();
+		icons.resetEditor();
 	}
 
 	@Override
-	public ConfigData getData() {
-		ConfigData cd = icons.getData();
-		
-		Scanner s = new Scanner(cost.getText());
-		if(s.hasNextDouble())
-			cd.set(ParserKeys.cost, s.nextDouble());
+	public Configuration instantiateNewConfiguration() {
+		iconConfig = icons.instantiateNewConfiguration();
+		return new BuildingDefinition();
+	}
+
+	@Override
+	public ConfigType getData(Configuration toSet) {
+		BuildingDefinition bd = (BuildingDefinition)toSet;
+		Scanner parser = new Scanner(cost.getText());
+		if(parser.hasNextDouble())
+			bd.setCost(parser.nextDouble());
 		else
-			cd.set(ParserKeys.cost, -1.0);
+			bd.setCost(0);
 		
-		s = new Scanner(buildTime.getText());
-		if(s.hasNextDouble())
-			cd.set(ParserKeys.buildTime, s.nextDouble());
+		parser = new Scanner(buildTime.getText());
+		if(parser.hasNextDouble())
+			bd.setBuildTime(parser.nextDouble());
+		else
+			bd.setBuildTime(0);
 		
-		return cd;
+		icons.getData(iconConfig);
+		bd.setIconConfig((IconConfiguration) iconConfig);
+		
+		bd.setToolTip(toolTip.getText());
+		
+		return ConfigType.building;
 	}
 
 	@Override
-	public ParserKeys getType() {
-		return ParserKeys.buildingURI;
+	public List<ConfigType> getAllLoadableTypes() {
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(ConfigType.building);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel() {
 		return this;
-	}
-
-	@Override
-	public boolean isValidConfig() {
-		if(cost == null)
-			return false;
-		
-		if(!icons.isValidConfig())
-			return false;
-		
-		Scanner s = new Scanner(cost.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		s = new Scanner(buildTime.getText());
-		if(!s.hasNextDouble())
-			return false;
-		
-		return true;
 	}
 
 }

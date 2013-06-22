@@ -5,7 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import linewars.gamestate.Node;
+import linewars.gamestate.NodeConfiguration;
 import linewars.gamestate.Position;
 import linewars.gamestate.shapes.Circle;
 
@@ -38,14 +38,14 @@ public class NodeDrawer
 	 * @param node
 	 *            The node to be drawn
 	 */
-	public void createMap(Graphics g, Node node)
+	public void createMap(Graphics g, NodeConfiguration node)
 	{
 		// set the color for the node
 		g.setColor(Color.white);
 
 		// get the position of the node
-		double radius = node.getBoundingCircle().getRadius();
-		Position centerPos = node.getTransformation().getPosition();
+		double radius = node.getShape().boundingCircle().getRadius();
+		Position centerPos = node.getShape().position().getPosition();
 		Position pos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
 
 		// draw the node
@@ -67,17 +67,17 @@ public class NodeDrawer
 	 * @param scale
 	 *            The conversion factor from game size to screen size.
 	 */
-	public void draw(Graphics g, Node node, boolean selected, Position mouse, double scale)
+	public void draw(Graphics g, NodeConfiguration node, boolean selected, Position mouse, double scale)
 	{
 		// set the color for the node
 		if(node.isStartNode())
-			g.setColor(new Color(0, 255, 0, selected ? 90 : 60));
+			g.setColor(new Color(0, 255, 0, selected ? 90 : 30));
 		else
-			g.setColor(new Color(255, 0, 0, selected ? 90 : 60));
+			g.setColor(new Color(255, 0, 0, selected ? 90 : 30));
 
 		// get the position of the node
-		double radius = node.getBoundingCircle().getRadius();
-		Position centerPos = node.getTransformation().getPosition();
+		double radius = node.getShape().boundingCircle().getRadius();
+		Position centerPos = node.getShape().position().getPosition();
 		Position gamePos = new Position(centerPos.getX() - radius, centerPos.getY() - radius);
 		Position screenPos = panel.toScreenCoord(gamePos);
 
@@ -92,7 +92,7 @@ public class NodeDrawer
 			g.setColor(new Color(255, 0, 0));
 
 		// set the stroke size of the border
-		Circle bounds = node.getBoundingCircle();
+		Circle bounds = node.getShape().boundingCircle();
 		Circle outer = new Circle(bounds.position(), bounds.getRadius() + 2.5 / scale);
 		Circle inner = new Circle(bounds.position(), bounds.getRadius() - 2.5 / scale);
 		if(outer.positionIsInShape(mouse) && !inner.positionIsInShape(mouse))

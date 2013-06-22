@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -35,10 +36,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 import linewars.gamestate.BuildingSpot;
-import linewars.gamestate.Node;
+import linewars.gamestate.MapConfiguration;
+import linewars.gamestate.NodeConfiguration;
+import linewars.gamestate.Position;
+import configuration.Configuration;
+import editor.BigFrameworkGuy;
+import editor.BigFrameworkGuy.ConfigType;
 import editor.ConfigurationEditor;
 import editor.animations.FileCopy;
 
@@ -94,7 +98,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	public MapEditor(JFrame frame)
 	{
 		super(null);
-		setPreferredSize(new Dimension(1200, 600));
+		setPreferredSize(new Dimension(1200, 800));
 
 		this.frame = frame;
 
@@ -488,7 +492,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		buildingSpotSelector.removeAllItems();
 		commandCenterSelector.removeAllItems();
 
-		for(Node n : map.getNodes())
+		for(NodeConfiguration n : map.getNodes())
 		{
 			nodeSelector.addItem(n);
 		}
@@ -512,11 +516,11 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	 */
 	private void populateBuildingLists()
 	{
-		Node n = (Node)nodeSelector.getSelectedItem();
+		NodeConfiguration n = (NodeConfiguration)nodeSelector.getSelectedItem();
 
 		if(n != null)
 		{
-			containedBuildingSpots.setListData(n.getBuildingSpots().toArray());
+			containedBuildingSpots.setListData(n.buildingSpots().toArray());
 			containedCommandCenter.setListData(new BuildingSpot[] {n.getCommandCenterSpot()});
 		}
 		else
@@ -535,7 +539,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 		buildingSpotSelector.repaint();
 		commandCenterSelector.repaint();
 		
-		Node selectedNode = (Node)nodeSelector.getSelectedItem();
+		NodeConfiguration selectedNode = (NodeConfiguration)nodeSelector.getSelectedItem();
 		BuildingSpot selectedBuilding = (BuildingSpot)buildingSpotSelector.getSelectedItem();
 		BuildingSpot selectedCC = (BuildingSpot)commandCenterSelector.getSelectedItem();
 		
@@ -552,48 +556,51 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 	}
 
 	@Override
-	public void setData(ConfigData cd)
+	public void setData(Configuration c)
+	{
+		if(!(c instanceof MapConfiguration))
+			throw new IllegalArgumentException(c + " is not a Map Configuration");
+		
+		editingPanelLoaded = false;
+		map.loadMap((MapConfiguration)c);
+	}
+	
+	public void resetEditor()
 	{
 		editingPanelLoaded = false;
-		map.loadConfigFile(cd, false);
+		
+		MapConfiguration ret = new MapConfiguration();
+		map.loadMap(ret);
 	}
 
 	@Override
-	public void forceSetData(ConfigData cd)
+	public Configuration instantiateNewConfiguration()
 	{
-		editingPanelLoaded = false;
-		map.loadConfigFile(cd, true);
+		return new MapConfiguration();
 	}
 
 	@Override
-	public void reset()
+	public ConfigType getData(Configuration toSet)
 	{
-		editingPanelLoaded = false;
-		forceSetData(new ConfigData());
+		if(!(toSet instanceof MapConfiguration))
+			throw new IllegalArgumentException(toSet + " is not a MapConfiguration");
+		
+		((MapConfiguration)toSet).clearMap();
+		return map.getData((MapConfiguration)toSet);
 	}
 
 	@Override
-	public ConfigData getData()
+	public List<ConfigType> getAllLoadableTypes()
 	{
-		return map.getData();
-	}
-
-	@Override
-	public ParserKeys getType()
-	{
-		return ParserKeys.mapURI;
+		List<ConfigType> ret = new ArrayList<ConfigType>();
+		ret.add(BigFrameworkGuy.ConfigType.map);
+		return ret;
 	}
 
 	@Override
 	public JPanel getPanel()
 	{
 		return this;
-	}
-
-	@Override
-	public boolean isValidConfig()
-	{
-		return map.isValidConfig();
 	}
 
 	/**
@@ -612,7 +619,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 
 			if(source == startNode)
 			{
-				Node n = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration n = (NodeConfiguration)nodeSelector.getSelectedItem();
 				n.setStartNode(e.getStateChange() == ItemEvent.SELECTED);
 			}
 			else if(source == selectNodes)
@@ -723,13 +730,13 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			if(source == addBuilding)
 			{
 				BuildingSpot building = (BuildingSpot)buildingSpotSelector.getSelectedItem();
-				Node node = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration node = (NodeConfiguration)nodeSelector.getSelectedItem();
 				if(building == null || node == null)
 					return;
 
-				for(Node n : map.getNodes())
+				for(NodeConfiguration n : map.getNodes())
 				{
-					if(n.getBuildingSpots().contains(building))
+					if(n.buildingSpots().contains(building))
 					{
 						JOptionPane.showMessageDialog(null, "That building is already owned by a node!", "ERROR",
 								JOptionPane.ERROR_MESSAGE);
@@ -737,25 +744,25 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 					}
 				}
 
-				node.addBuildingSpot(building);
+				node.buildingSpots().add(building);
 			}
 			else if(source == removeBuilding)
 			{
 				BuildingSpot building = (BuildingSpot)buildingSpotSelector.getSelectedItem();
-				Node node = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration node = (NodeConfiguration)nodeSelector.getSelectedItem();
 				if(building == null || node == null)
 					return;
 
-				node.removeBuildingSpot(building);
+				node.buildingSpots().remove(building);
 			}
 			else if(source == setCommandCenter)
 			{
 				BuildingSpot cc = (BuildingSpot)commandCenterSelector.getSelectedItem();
-				Node node = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration node = (NodeConfiguration)nodeSelector.getSelectedItem();
 				if(cc == null || node == null)
 					return;
 
-				for(Node n : map.getNodes())
+				for(NodeConfiguration n : map.getNodes())
 				{
 					if(n.getCommandCenterSpot() == cc)
 					{
@@ -769,11 +776,11 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 			}
 			else if(source == removeCommandCenter)
 			{
-				Node node = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration node = (NodeConfiguration)nodeSelector.getSelectedItem();
 				if(node == null)
 					return;
 
-				node.removeCommandCenterSpot();
+				node.setCommandCenterSpot(null);
 			}
 
 			populateBuildingLists();
@@ -814,7 +821,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 					fileSelected = true;
 			}
 
-			String relativePath = "resources" + File.separator + "maps" + File.separator + mapURI;
+			String relativePath = "resources" + File.separator + "images" + File.separator + mapURI;
 			String moveTo = System.getProperty("user.dir") + File.separator + relativePath;
 			if(!mapFile.getAbsolutePath().equals(moveTo))
 			{
@@ -830,7 +837,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 				}
 			}
 
-			map.setMapImage("/resources/maps/" + mapURI);
+			map.setMapImage(mapURI);
 		}
 	}
 
@@ -869,7 +876,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 
 			if(source == nodeSelector)
 			{
-				Node selected = (Node)nodeSelector.getSelectedItem();
+				NodeConfiguration selected = (NodeConfiguration)nodeSelector.getSelectedItem();
 				if(selected != null)
 				{
 					map.setSelectedNode(selected);
@@ -945,7 +952,7 @@ public class MapEditor extends JPanel implements ConfigurationEditor
 				if(sHeight.equals(""))
 					sHeight = "100";
 
-				map.setMapSize(Double.valueOf(sWidth), Double.valueOf(sHeight), false);
+				map.setMapSize(new Position(Double.valueOf(sWidth), Double.valueOf(sHeight)), false);
 			}
 		}
 

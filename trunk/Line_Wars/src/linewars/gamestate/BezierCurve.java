@@ -1,10 +1,7 @@
 package linewars.gamestate;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
-
-import linewars.configfilehandler.ConfigData;
-import linewars.configfilehandler.ParserKeys;
 
 /**
  * 
@@ -14,7 +11,11 @@ import linewars.configfilehandler.ParserKeys;
  * It contains methods for calculating various attributes of the curve and finding positions along it.
  * 
  */
-public strictfp class BezierCurve {
+public strictfp class BezierCurve implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3745736036577147874L;
 	/*
  	 * These points represent the 4 control
 	 * points in a bezier curve, with p0 and p3 being the end points.
@@ -46,22 +47,6 @@ public strictfp class BezierCurve {
 	
 	//Degree of equation to find roots of.
 	int		W_DEGREE = 5;
-	
-	/**
-	 * Creates a BezierCurve object using the information found in the supplied ConfigData.
-	 * @param configuration 
-	 * 		The ConfigData object which contains the information used to construct this curve.
-	 * @return 
-	 * 		A new BezierCurve object using the information from configuration.
-	 */
-	public static BezierCurve buildCurve(ConfigData configuration){
-		List<ConfigData> positions = configuration.getConfigList(ParserKeys.controlPoint);
-		ArrayList<Position> parsedPositions = new ArrayList<Position>();
-		for(ConfigData toParse : positions){
-			parsedPositions.add(new Position(toParse));
-		}
-		return buildCurve(parsedPositions);
-	}
 	
 	/**
 	 * Creates a BezierCurve object using the points in the supplied list as the ordered control points of the curve.
@@ -363,7 +348,6 @@ public strictfp class BezierCurve {
 	 *	by Philip J. Schneider
 	 *	from "Graphics Gems", Academic Press, 1990
 	 */
-	
 	
 	/**
 	 * Compute the parameter value of the point on a Bezier curve

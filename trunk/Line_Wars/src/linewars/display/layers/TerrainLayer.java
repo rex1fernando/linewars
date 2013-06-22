@@ -5,10 +5,13 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import linewars.display.Display;
-import linewars.display.ImageDrawer;
 import linewars.gamestate.GameState;
 
 /**
@@ -43,13 +46,15 @@ public class TerrainLayer implements ILayer
 	 */
 	public TerrainLayer(String mapURI, Display d, double mapWidth, double mapHeight)
 	{
+		String absURI = "file:" + System.getProperty("user.dir") + "/resources/images/" + mapURI;
+		absURI = absURI.replace("/", File.separator);
+
 		try
 		{
-			map = ImageDrawer.getInstance().loadImage(mapURI);
+			map = ImageIO.read(new URL(absURI));
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

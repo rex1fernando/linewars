@@ -2,14 +2,21 @@ package linewars.gamestate.mapItems;
 
 import java.util.ArrayList;
 
-import linewars.configfilehandler.ConfigData;
+import linewars.display.Animation;
+import linewars.display.DisplayConfiguration;
+import linewars.gamestate.GameState;
 import linewars.gamestate.Player;
 import linewars.gamestate.Position;
 import linewars.gamestate.Transformation;
+import linewars.gamestate.mapItems.MapItemModifier.Constant;
+import linewars.gamestate.mapItems.MapItemModifier.MapItemModifiers;
 import linewars.gamestate.mapItems.abilities.Ability;
 import linewars.gamestate.mapItems.abilities.AbilityDefinition;
 import linewars.gamestate.mapItems.strategies.collision.CollisionStrategy;
+import linewars.gamestate.mapItems.strategies.collision.CollisionStrategyConfiguration;
 import linewars.gamestate.shapes.Shape;
+import utility.Observable;
+import utility.Observer;
 /**
  * 
  * @author , Connor Schenck
@@ -20,7 +27,7 @@ import linewars.gamestate.shapes.Shape;
  * in that state, and it knows what abilities are currently active
  * on itself.
  */
-public strictfp abstract class MapItem {
+public strictfp abstract class MapItem implements Observer {
 	
 	//the position of this map item in map coordinates
 	//and the rotation of this map item where 0 radians is facing directly right
@@ -32,26 +39,86 @@ public strictfp abstract class MapItem {
 	//the time at which the map item entered its state
 	private long stateStart;
 	
+	private MapItemModifier modifier;
+	
+	private CollisionStrategy cStrat;
+	
 	//all the current abilities active on this map item
 	private ArrayList<Ability> activeAbilities;
 	
-	public MapItem(Transformation trans, MapItemDefinition def)
+	private Player owner;
+	private GameState gameState;
+	
+	private int ID;
+	
+	public MapItem(Transformation trans, MapItemDefinition<? extends MapItem> def, Player owner, GameState gameState)
 	{
-		body = def.getBody().transform(trans);
+		setDefinition(def);
+		body = def.getBodyConfig().construct(trans);
 		state = MapItemState.Idle;
-		stateStart = (long) (def.getGameState().getTime()*1000);
+		stateStart = (long) (gameState.getTime()*1000);
 		activeAbilities = new ArrayList<Ability>();
+		cStrat = def.getCollisionStrategyConfig().createStrategy(this);
+		this.owner = owner;
+		this.gameState = gameState;
+		
+		for(AbilityDefinition ad : def.getAbilityDefinitions())
+			if(ad.startsActive())
+				this.addActiveAbility(ad.createAbility(this));
+		
+		ID = gameState.getNextMapItemID();
+		
+		modifier = new MapItemModifier();
+		for(MapItemModifiers m : MapItemModifiers.values())
+			modifier.setMapping(m, new Constant(1.0));
+		
+		def.addObserver(this);
 	}
 	
-	public abstract MapItemDefinition getDefinition();
+	protected abstract void setDefinition(MapItemDefinition<? extends MapItem> def);
+	
+	public int getID()
+	{
+		return ID;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return ID;
+	}
+	
+	public void pushModifier(MapItemModifier mim)
+	{
+		mim.setWrapped(modifier);
+		modifier = mim;
+	}
+	
+	public void removeModifier(MapItemModifier mim)
+	{
+		modifier = modifier.removeModifierLayer(mim);
+	}
+	
+	public MapItemModifier getModifier()
+	{
+		return modifier;
+	}
+	
+	public abstract MapItemDefinition<? extends MapItem> getDefinition();
+	
+	public GameState getGameState()
+	{
+		return gameState;
+	}
 	
 	/**
 	 * This method updates all the map item's currently active abilities
 	 * and handles any other tasks that need to be accomplished by the map
 	 * item in one loop of the game thread and are not handles elsewhere.
 	 */
-	public void update()
+	public void updateMapItem()
 	{
+		this.getGameState().validateLock();
 		for(int i = 0; i < activeAbilities.size();)
 		{
 			//only update this ability if the mapItem isn't dead or if the
@@ -68,6 +135,16 @@ public strictfp abstract class MapItem {
 		}
 	}
 	
+	@Override
+	public void update(Observable o, Object obj)
+	{
+		String name = (String)obj;
+		if(name.equals("cStrat"))
+			cStrat = getDefinition().getCollisionStrategyConfig().createStrategy(this);
+		else if(name.equals("body"))
+			body = getDefinition().getBodyConfig().construct(body.position());
+	}
+	
 	/**
 	 * Adds the given ability to the list of active abilities for this map item
 	 * 
@@ -76,6 +153,11 @@ public strictfp abstract class MapItem {
 	public void addActiveAbility(Ability a)
 	{
 		activeAbilities.add(a);
+	}
+	
+	public void removeActiveAbility(Ability a)
+	{
+		activeAbilities.remove(a);
 	}
 	
 	/**
@@ -161,7 +243,7 @@ public strictfp abstract class MapItem {
 		if(this.getDefinition().isValidState(m))
 		{
 			state = m;
-			stateStart = (long) (this.getDefinition().getGameState().getTime()*1000);
+			stateStart = (long) (this.getGameState().getTime()*1000);
 		}
 		else
 			throw new IllegalStateException(m.toString() + " is not a valid state for a " + this.getDefinition().getName());
@@ -178,20 +260,11 @@ public strictfp abstract class MapItem {
 	
 	/**
 	 * 
-	 * @return	the parser associated with this map item
-	 */
-	public ConfigData getParser()
-	{
-		return this.getDefinition().getParser();
-	}
-	
-	/**
-	 * 
 	 * @return	the list of ability definitions available to this map item
 	 */
 	public AbilityDefinition[] getAvailableAbilities()
 	{
-		return this.getDefinition().getAbilityDefinitions();
+		return this.getDefinition().getAbilityDefinitions().toArray(new AbilityDefinition[0]);
 	}
 	
 	/**
@@ -200,14 +273,17 @@ public strictfp abstract class MapItem {
 	 */
 	public Player getOwner()
 	{
-		return this.getDefinition().getOwner();
+		return owner;
 	}
 	
 	/**
 	 * 
 	 * @return	the collision strategy associated with this map item
 	 */
-	public abstract CollisionStrategy getCollisionStrategy();
+	public final CollisionStrategy getCollisionStrategy()
+	{
+		return cStrat;
+	}
 	
 	/**
 	 * 
@@ -228,19 +304,10 @@ public strictfp abstract class MapItem {
 	 */
 	public boolean isCollidingWith(MapItem m)
 	{
-		if(!this.getCollisionStrategy().canCollideWith(m))
+		if(!CollisionStrategyConfiguration.isAllowedToCollide(m, this))
 			return false;
 		
-		return this.getBody().isCollidingWith(m.body);
-	}
-	
-	/**
-	 * 
-	 * @return	the URI associated with the parser associated with this map item
-	 */
-	public String getURI()
-	{
-		return this.getDefinition().getParser().getURI();
+		return this.getBody().isCollidingWith(m.getBody());
 	}
 
 	/**
@@ -248,7 +315,7 @@ public strictfp abstract class MapItem {
 	 * @return	the width of the bounding rectangle for this map item
 	 */
 	public double getWidth() {
-		return this.getDefinition().getBody().boundingRectangle().getWidth();
+		return this.getBody().boundingRectangle().getWidth();
 	}
 
 	/**
@@ -256,7 +323,7 @@ public strictfp abstract class MapItem {
 	 * @return	the height of the bounding rectangle for this map item
 	 */
 	public double getHeight() {
-		return this.getDefinition().getBody().boundingRectangle().getHeight();
+		return this.getBody().boundingRectangle().getHeight();
 	}
 		
 	/**
@@ -300,6 +367,43 @@ public strictfp abstract class MapItem {
 		for(Ability a : activeAbilities)
 			if(!a.killable())
 				return false;
+		
+		//TODO this is a hack
+		DisplayConfiguration dc = (DisplayConfiguration) this.getDefinition().getDisplayConfiguration();
+		Animation a = dc.getAnimation(MapItemState.Dead);
+		if(a != null)
+		{
+			double time = 0;
+			for(int i = 0; i < a.getNumImages(); i++)
+				time += a.getImageTime(i);
+			if(time > (this.getGameState().getTime() - this.getGameState().getLastLoopTime())*1000
+					- this.getStateStartTime())
+				return false;
+		}
+		
+		//if I'm at the point where I'm going to be removed, then I need to stop observing my definition
+		this.getDefinition().removeObserver(this);
 		return true;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof MapItem)
+		{
+			MapItem m = (MapItem) obj;
+//			if(this.getDefinition().getName().equals("Mech") && m == this)
+//				System.out.println();
+			return ((m.body == null && body == null) || m.body.equals(body)) &&
+					m.state == state &&
+					m.stateStart == stateStart &&
+					m.modifier.equals(modifier) &&
+					/*m.cStrat.equals(cStrat) &&*/
+					/*m.activeAbilities.equals(activeAbilities) &&*/
+					m.getID() == ID &&
+					m.getDefinition().equals(this.getDefinition());
+		}
+		else
+			return false;
 	}
 }
