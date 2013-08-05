@@ -265,7 +265,7 @@ public strictfp class Race extends Configuration {
 	}
 	
 	public String toString() {
-		return getPropertyForName("name").getValue().toString();
+		return getPropertyForName("bfgName").getValue().toString();
 	}
 
 }
