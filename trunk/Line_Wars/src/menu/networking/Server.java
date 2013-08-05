@@ -93,7 +93,7 @@ public class Server implements Runnable
 		PlayerBean pb = null;
 		synchronized (clientLock)
 		{
-			pb = new PlayerBean("Player", ContentProvider.getAvailableColors()[0], 1, 0); // FIXME
+			pb = new PlayerBean("Player", ContentProvider.getColors()[0], 1, 0); // FIXME
 		}
 		return pb;
 	}
@@ -213,7 +213,7 @@ public class Server implements Runnable
 					break;
 				case race:
 					Integer raceIndex = (Integer) NetworkUtil.readObject(in);
-					Race race = ContentProvider.getAvailableRaces()[raceIndex];
+					Race race = ContentProvider.getRaces()[raceIndex];
 					if (raceIndex != null && !race.equals(pb.getRaceIndex())) {
 						pb.setRaceIndex(raceIndex);
 						forwardToClients(this, MessageType.race, raceIndex);	

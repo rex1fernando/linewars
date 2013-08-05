@@ -185,7 +185,7 @@ public class Client implements Runnable
 	private List<PlayerData> convertToPlayerData(PlayerBean[] players)
 	{
 		List<PlayerData> playerList = new ArrayList<PlayerData>();
-		Race[] races = ContentProvider.getAvailableRaces();
+		Race[] races = ContentProvider.getRaces();
 		for (int i = 0; i < players.length; ++i)
 		{
 			PlayerData pd = new PlayerData();

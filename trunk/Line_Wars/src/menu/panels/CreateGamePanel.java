@@ -222,20 +222,20 @@ public class CreateGamePanel extends javax.swing.JPanel {
     }                                              
 
     private MapConfiguration[] getAvailableMaps() {
-        return ContentProvider.getAvailableMaps();
+        return ContentProvider.getMaps();
     }
 
     private Object[] getAvailableReplays() {
-        return ContentProvider.getAvailableReplays();
+        return ContentProvider.getReplays();
     }
 
     public Race[] getAvailableRaces() {
-        return ContentProvider.getAvailableRaces();
+        return ContentProvider.getRaces();
     }
     
     private Color[] getAvailableColors() {
     	// FIXME
-    	return ContentProvider.getAvailableColors();
+    	return ContentProvider.getColors();
     }
     
     private Integer[] getAvailableSlots(boolean filter) {
